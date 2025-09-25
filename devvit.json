@@ -1,6 +1,6 @@
 {
 	"$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-	"name": "svelte-demo-x",
+	"name": "binarygrid",
 	"post": {
 		"dir": "dist/client",
 		"entrypoints": {
@@ -28,6 +28,6 @@
 		"onAppInstall": "/internal/on-app-install"
 	},
 	"dev": {
-		"subreddit": "app_fdoo23423_0_dev"
+		"subreddit": "binarygrid"
 	}
 }
