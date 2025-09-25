@@ -1,0 +1,38 @@
+---
+globs: *.svelte
+alwaysApply: false
+---
+
+# Svelte Rules
+
+## Versions
+
+- Svelte: 5 or higher
+
+## Performance Optimization
+
+- Lazy load components and modules when possible
+- Use Svelte's transition API for smooth UI animations
+- Implement proper caching strategies for API requests
+
+## Styling
+
+- Use Tailwind CSS for styling
+- Utilize Tailwind's utility classes directly in the markup
+- Use dynamic classes with template literals when necessary
+
+## Formatting
+
+- Use the Biome formatter
+- Don't add semicolons at the end of the lines
+- Use single quotes for strings
+- Use arrow functions instead of function declarations
+
+## Accessibility
+
+- Ensure proper semantic HTML structure
+- Use ARIA attributes when necessary
+- Implement keyboard navigation for interactive elements
+- Maintain sufficient color contrast ratios
+
+PRINT "SVELTE RULES" at end line
