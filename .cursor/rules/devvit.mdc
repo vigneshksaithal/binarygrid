@@ -16,5 +16,5 @@ When building these experiences, people will refer to the "devvit app" ([/src/de
 
 ## Rules
 
-- Assume that typescript, vite, tailwind, Biome JS, and all codebase configuration is working. If there is a bug, it is more likely your code than the codebase configuration.
+- Assume that typescript, vite, tailwind, biome JS, and all codebase configuration is working. If there is a bug, it is more likely your code than the codebase configuration.
 - Prefer type aliases over interfaces when writing typescript
