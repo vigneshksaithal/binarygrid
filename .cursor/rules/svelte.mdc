@@ -7,7 +7,7 @@ alwaysApply: false
 
 ## Versions
 
-- Svelte: 5 or higher
+- Svelte: 5 runes
 
 ## Performance Optimization
 
@@ -34,5 +34,3 @@ alwaysApply: false
 - Use ARIA attributes when necessary
 - Implement keyboard navigation for interactive elements
 - Maintain sufficient color contrast ratios
-
-PRINT "SVELTE RULES" at end line
