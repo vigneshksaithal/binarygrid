@@ -8,9 +8,9 @@ export const createPost = async () => {
 
 	return await reddit.submitCustomPost({
 		splash: {
-			appDisplayName: '<% name %>'
+			appDisplayName: 'Binary Grid'
 		},
 		subredditName: subredditName,
-		title: '<% name %>'
+		title: 'Binary Grid'
 	})
 }
