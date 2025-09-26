@@ -5,6 +5,9 @@ alwaysApply: false
 
 # Svelte Rules
 
+- Use functional programming patterns
+- Break down components into smaller, reusable components
+
 ## Performance Optimization
 
 - Lazy load components and modules when possible

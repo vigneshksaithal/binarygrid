@@ -4,6 +4,8 @@ alwaysApply: false
 ---
 # TypeScript Rules
 
+- Use functional programming patterns
+
 ## Formatting
 
 - Don't add semicolons at the end of the lines
