@@ -5,10 +5,6 @@ alwaysApply: false
 
 # Svelte Rules
 
-## Versions
-
-- Svelte: 5 runes
-
 ## Performance Optimization
 
 - Lazy load components and modules when possible
