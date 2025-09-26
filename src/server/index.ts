@@ -92,19 +92,5 @@ app.post('/internal/menu/post-create', async (c) => {
 	}
 })
 
-app.post('/api/saveScore', async (c) => {
-	const { score } = await c.req.json()
-	await redis.set('score', score.toString())
-
-	return c.json({ message: 'Score saved' })
-})
-
-app.get('/api/getScore', async (c) => {
-	const score = await redis.get('score')
-	console.log('score', score)
-
-	return c.json({ score })
-})
-
 // Start the Devvit-wrapped server so context (reddit, redis, etc.) is available
 serve({ fetch: app.fetch, port: getServerPort(), createServer })
