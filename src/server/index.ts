@@ -8,8 +8,10 @@ import {
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { createPost } from './core/post'
+import routes from './routes'
 
 const app = new Hono()
+app.route('/', routes)
 
 app.get('/api/init', async (c) => {
 	const { postId } = context

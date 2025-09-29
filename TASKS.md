@@ -7,27 +7,27 @@ Track progress across phases from `PLAN.md`. Use the checkboxes to mark completi
 - [x] Phase 1: Shared types and schema
   - [x] Add shared type aliases in `src/shared/types/api.ts`
 - [ ] Phase 2: Backend (Hono in `src/server`)
-  - [ ] Add Hono app and router in `src/server/index.ts`
-  - [ ] Create `src/server/routes.ts` and register routes
-  - [ ] Implement GET `/api/puzzle` handler (parse `date`, `difficulty`)
-  - [ ] Seed PRNG by `date:difficulty`
-  - [ ] Fetch puzzle from Redis cache if present
-  - [ ] Generate puzzle if cache miss and save to Redis
-  - [ ] Implement generator in `src/server/core/puzzle.ts`
-  - [ ] Implement backtracking solver with pruning (counts, triples)
-  - [ ] Implement clue removal to target density by difficulty
-  - [ ] Ensure uniqueness: detect second solution, revert removals
-  - [ ] Implement validation service in `src/server/core/validate.ts`
-  - [ ] Validate clues immutability (`clueMismatch`)
-  - [ ] Validate 3 zeros/ones per row/col (only when full)
-  - [ ] Validate no 3-in-a-row/column windows
-  - [ ] Mark `solved` only when full and all checks pass
-  - [ ] Implement POST `/api/validate` (body: `{ puzzleId, filled }`)
-  - [ ] Implement POST `/api/submit` (body: Submission)
-  - [ ] Read `X-Player-Id` header; reject if missing/invalid
-  - [ ] Idempotent write: `submission:{puzzleId}:{playerId}`
-  - [ ] Simple rate limit on submit (short TTL token key)
-  - [ ] Input validation and 400s for non 6×6 grids
+  - [x] Add Hono app and router in `src/server/index.ts`
+  - [x] Create `src/server/routes.ts` and register routes
+  - [x] Implement GET `/api/puzzle` handler (parse `date`, `difficulty`)
+  - [x] Seed PRNG by `date:difficulty`
+  - [x] Fetch puzzle from Redis cache if present
+  - [x] Generate puzzle if cache miss and save to Redis
+  - [x] Implement generator in `src/server/core/puzzle.ts`
+  - [x] Implement backtracking solver with pruning (counts, triples)
+  - [x] Implement clue removal to target density by difficulty
+  - [x] Ensure uniqueness: detect second solution, revert removals
+  - [x] Implement validation service in `src/server/core/validate.ts`
+  - [x] Validate clues immutability (`clueMismatch`)
+  - [x] Validate 3 zeros/ones per row/col (only when full)
+  - [x] Validate no 3-in-a-row/column windows
+  - [x] Mark `solved` only when full and all checks pass
+  - [x] Implement POST `/api/validate` (body: `{ puzzleId, filled }`)
+  - [x] Implement POST `/api/submit` (body: Submission)
+  - [x] Read `X-Player-Id` header; reject if missing/invalid
+  - [x] Idempotent write: `submission:{puzzleId}:{playerId}`
+  - [x] Simple rate limit on submit (short TTL token key)
+  - [x] Input validation and 400s for non 6×6 grids
   - [ ] Centralize JSON error responses
   - [ ] Add unit tests for solver, validator, uniqueness check
   - [ ] Format with Biome and run type-check
