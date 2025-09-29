@@ -16,6 +16,12 @@ Daily puzzles are generated per difficulty (clue density), and once solved, the 
 - Redis available via `@devvit/web/server`
 - Assume TS, Vite, Tailwind, Biome configured and working
 
+### Testing stack
+
+- Runner/env: Vitest + jsdom (client) and node (server)
+- Svelte component testing: `@testing-library/svelte`, `@testing-library/user-event`, `@testing-library/jest-dom`
+- Keep it lean; add MSW/Playwright only if needed later
+
 ## Phase 1: Shared types and schema
 
 - Add `src/shared/types/api.ts`:
@@ -130,9 +136,18 @@ Daily puzzles are generated per difficulty (clue density), and once solved, the 
 
 ## Phase 10: Testing
 
+- Packages
+  - `vitest`, `jsdom`, `@testing-library/svelte`, `@testing-library/user-event`, `@testing-library/jest-dom`
+- Config
+  - Client config: `test.environment = 'jsdom'`, `globals = true`, `setupFiles = ['./test/setup.ts']`
+  - Server config: `test.environment = 'node'`, `globals = true`
+- Scripts
+  - `test` → `vitest`
 - Unit tests: generator, validator, triple-check, count-check
 - Deterministic seeding test
-- Simple E2E: fill a known easy puzzle and assert auto-submit
+- Component tests: `Grid`, `TopBar`, `StatusBar`, `Actions`
+- Integration tests: Hono routes (`/api/puzzle`, `/api/validate`, `/api/submit`) with in-process `app.request`
+- Keep E2E optional initially; add Playwright later if needed
 
 ## Phase 11: Future enhancements
 
@@ -189,6 +204,10 @@ pnpm install
 
 ```bash
 pnpm add hono @types/node
+```
+
+```bash
+pnpm add -D vitest jsdom @testing-library/svelte @testing-library/user-event @testing-library/jest-dom
 ```
 
 ```bash

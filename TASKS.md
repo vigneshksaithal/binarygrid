@@ -1,0 +1,98 @@
+# Binary Grid – Project Tasks
+
+Track progress across phases from `PLAN.md`. Use the checkboxes to mark completion.
+
+## Phases
+
+- [x] Phase 1: Shared types and schema
+  - [x] Add shared type aliases in `src/shared/types/api.ts`
+- [ ] Phase 2: Backend (Hono in `src/server`)
+  - [ ] Add Hono app and router in `src/server/index.ts`
+  - [ ] Create `src/server/routes.ts` and register routes
+  - [ ] Implement GET `/api/puzzle` handler (parse `date`, `difficulty`)
+  - [ ] Seed PRNG by `date:difficulty`
+  - [ ] Fetch puzzle from Redis cache if present
+  - [ ] Generate puzzle if cache miss and save to Redis
+  - [ ] Implement generator in `src/server/core/puzzle.ts`
+  - [ ] Implement backtracking solver with pruning (counts, triples)
+  - [ ] Implement clue removal to target density by difficulty
+  - [ ] Ensure uniqueness: detect second solution, revert removals
+  - [ ] Implement validation service in `src/server/core/validate.ts`
+  - [ ] Validate clues immutability (`clueMismatch`)
+  - [ ] Validate 3 zeros/ones per row/col (only when full)
+  - [ ] Validate no 3-in-a-row/column windows
+  - [ ] Mark `solved` only when full and all checks pass
+  - [ ] Implement POST `/api/validate` (body: `{ puzzleId, filled }`)
+  - [ ] Implement POST `/api/submit` (body: Submission)
+  - [ ] Read `X-Player-Id` header; reject if missing/invalid
+  - [ ] Idempotent write: `submission:{puzzleId}:{playerId}`
+  - [ ] Simple rate limit on submit (short TTL token key)
+  - [ ] Input validation and 400s for non 6×6 grids
+  - [ ] Centralize JSON error responses
+  - [ ] Add unit tests for solver, validator, uniqueness check
+  - [ ] Format with Biome and run type-check
+- [ ] Phase 3: Frontend (Svelte in `src/client`)
+  - [ ] Create `src/client/lib/stores.ts` for app stores
+  - [ ] Store: `puzzle`, `grid`, `violations`, `isSolved`
+  - [ ] Store: `playerId` from `localStorage` (generate if missing)
+  - [ ] Store: `theme` with dark default and toggle
+  - [ ] HTTP helper: `fetchJson` with `X-Player-Id` header
+  - [ ] Init flow: load puzzle by `date` and `difficulty`
+  - [ ] Restore saved `grid` from `localStorage` by `puzzleId`
+  - [ ] Discard restore if mismatched with clues
+  - [ ] Component `TopBar.svelte` (date, difficulty, theme toggle)
+  - [ ] Component `Grid.svelte` (6×6, clues locked, cycle on click)
+  - [ ] Keyboard navigation (arrows/WASD, 0/1/space)
+  - [ ] Accessibility roles (`role=grid`, focus management)
+  - [ ] Component `StatusBar.svelte` (counts, violations)
+  - [ ] Component `Actions.svelte` (reset, undo/redo, share)
+  - [ ] Debounced validate on edit (150ms)
+  - [ ] Auto-submit on solved; disable inputs after
+  - [ ] Persist `grid` to `localStorage` on changes
+- [ ] Phase 4: Styling (Tailwind terminal theme)
+  - [ ] Apply dark default: `bg-neutral-950 text-green-400 font-mono`
+  - [ ] Apply light mode: `bg-white text-green-600 font-mono`
+  - [ ] Add root theme class switcher
+  - [ ] Style cells: base size, borders, hover/focus rings
+  - [ ] Style clue cells (locked) vs editable cells
+  - [ ] Style violations: red ring/text
+  - [ ] Optional scanline background on wrapper
+- [ ] Phase 5: Client game logic
+  - [ ] Implement cell cycle `-1 → 0 → 1 → -1` (skip clues)
+  - [ ] Local has-triple check for rows and columns
+  - [ ] Local per-row/col count derivations
+  - [ ] Disable interactions when solved
+- [ ] Phase 6: Generation details
+  - [ ] Implement backtracking solver with early pruning
+  - [ ] Implement function to test for second solution
+  - [ ] Implement clue removal loop to hit density target
+  - [ ] Add retry/timebox and fallback regeneration
+- [ ] Phase 7: Identity and headers
+  - [ ] Generate UUID v4 in client and store in `localStorage`
+  - [ ] Attach `X-Player-Id` to validate/submit calls
+  - [ ] Server validates header presence and format
+- [ ] Phase 8: Security and integrity
+  - [ ] Server-side re-validation before accepting submit
+  - [ ] Rate-limit submit per `playerId+puzzleId`
+  - [ ] Strict input validation on dimensions and values
+- [ ] Phase 9: Metrics and logging
+  - [ ] Increment Redis counters for generation attempts/failures
+  - [ ] Record generation time metrics
+  - [ ] Track solves per `date:difficulty`
+- [ ] Phase 10: Testing
+  - [ ] Add dev deps: `vitest jsdom @testing-library/svelte @testing-library/user-event @testing-library/jest-dom`
+  - [ ] Client test config: `environment: 'jsdom'`, `globals: true`, `setupFiles: ['./test/setup.ts']`
+  - [ ] Server test config: `environment: 'node'`, `globals: true`
+  - [ ] Create `src/client/test/setup.ts` importing `@testing-library/jest-dom`
+  - [ ] Script `test` → `vitest`
+  - [ ] Unit test: `hasTriple` and count checks
+  - [ ] Unit test: solver returns valid full grid
+  - [ ] Unit test: generator yields clue grid respecting rules
+  - [ ] Determinism test for seeded puzzles
+  - [ ] Component tests: `Grid`, `TopBar`, `StatusBar`, `Actions`
+  - [ ] Integration tests: Hono routes with in-process requests
+  - [ ] Optional later: add Playwright if E2E needed
+- [ ] Phase 11: Future enhancements
+  - [ ] Implement hinting (forced moves)
+  - [ ] Shareable result string (Wordle-style)
+  - [ ] Leaderboards via Devvit blocks
