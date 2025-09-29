@@ -11,7 +11,7 @@ $: if ($game.status === 'solved') {
 </script>
 
 <div
-	class="grid grid-cols-6 gap-1 p-2 border border-green-700 bg-black text-green-400"
+	class="grid grid-cols-6 gap-1 p-2 border border-green-700 bg-black text-green-400 shadow-[0_0_25px_rgba(34,197,94,0.25)]"
 >
 	{#each Array.from({ length: SIZE }) as _, r}
 		{#each Array.from({ length: SIZE }) as __, c}

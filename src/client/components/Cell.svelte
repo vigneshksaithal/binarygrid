@@ -8,7 +8,7 @@ const label = fixed ? 'Fixed cell' : 'Editable cell'
 
 <button
 	type="button"
-	class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center border border-green-700 font-mono text-xl md:text-2xl focus:outline-none focus:ring-2 focus:ring-green-500/60 disabled:opacity-70 disabled:cursor-not-allowed transition-colors hover:bg-green-500/10"
+	class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center border border-green-700 font-mono text-2xl md:text-3xl focus:outline-none focus:ring-2 focus:ring-green-500/60 disabled:opacity-70 disabled:cursor-not-allowed transition-colors hover:bg-green-500/10 shadow-[inset_0_0_10px_rgba(34,197,94,0.2),0_0_10px_rgba(34,197,94,0.15)]"
 	on:click={onClick}
 	aria-label={label}
 	disabled={fixed}
