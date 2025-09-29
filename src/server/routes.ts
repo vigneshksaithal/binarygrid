@@ -1,88 +1,52 @@
 import { redis } from '@devvit/web/server'
 import { Hono } from 'hono'
-import type {
-    GetPuzzleResponse,
-    Grid,
-    Puzzle,
-    SubmitResponse,
-    ValidateResponse
-} from '../shared/types/api'
-import { getOrCreatePuzzle } from './core/puzzle'
-import { validateGrid } from './core/validate'
+import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
+import { validateGrid } from '../shared/validator'
+import { generateDailyPuzzle } from './core/generator'
 
 const app = new Hono()
+
+// Simple in-memory cache for generated puzzles within a process
+const cache = new Map<string, PuzzleWithGrid>()
+
+app.get('/api/health', (c) => c.json({ ok: true }))
 
 app.get('/api/puzzle', async (c) => {
     const date = c.req.query('date')
     const difficultyParam = c.req.query('difficulty')
-    const difficulty =
-        difficultyParam === 'easy' ||
-            difficultyParam === 'medium' ||
-            difficultyParam === 'hard'
-            ? difficultyParam
-            : undefined
-    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !difficulty) {
+    const isDifficulty = (v: unknown): v is Difficulty =>
+        v === 'easy' || v === 'medium' || v === 'hard'
+    if (
+        !date ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+        !isDifficulty(difficultyParam)
+    ) {
         return c.json({ error: 'invalid date or difficulty' }, 400)
     }
-    const puzzle = await getOrCreatePuzzle(date, difficulty)
-    return c.json({ puzzle } satisfies GetPuzzleResponse)
-})
-
-app.post('/api/validate', async (c) => {
-    const body = await c.req
-        .json<{ puzzleId: string; filled: Grid }>()
-        .catch(() => null)
-    if (
-        !body ||
-        !Array.isArray(body.filled) ||
-        typeof body.puzzleId !== 'string'
-    ) {
-        return c.json({ error: 'invalid payload' }, 400)
-    }
-    const [dateISO, difficulty] = body.puzzleId.split(':')
-    if (!dateISO || !difficulty) return c.json({ error: 'invalid puzzleId' }, 400)
-    const puzzle = await getOrCreatePuzzle(
-        dateISO,
-        difficulty as Puzzle['difficulty']
-    )
-    const result = validateGrid(puzzle.clues, body.filled)
-    return c.json({ result } satisfies ValidateResponse)
+    const id = `${date}:${difficultyParam}`
+    const fromCache = cache.get(id)
+    if (fromCache) return c.json({ puzzle: fromCache })
+    const puzzle = generateDailyPuzzle(date, difficultyParam)
+    cache.set(id, puzzle)
+    return c.json({ puzzle })
 })
 
 app.post('/api/submit', async (c) => {
-    const playerId = c.req.header('X-Player-Id')
-    if (!playerId || playerId.length < 8)
-        return c.json({ error: 'missing or invalid X-Player-Id' }, 400)
-    const body = await c.req
-        .json<{ puzzleId: string; filled: Grid; solvedAtISO: string }>()
-        .catch(() => null)
-    if (!body) return c.json({ error: 'invalid payload' }, 400)
-
-    const [dateISO, difficulty] = body.puzzleId.split(':')
-    if (!dateISO || !difficulty) return c.json({ error: 'invalid puzzleId' }, 400)
-    const puzzle = await getOrCreatePuzzle(
-        dateISO,
-        difficulty as Puzzle['difficulty']
-    )
-    const result = validateGrid(puzzle.clues, body.filled)
-    if (!result.solved) return c.json({ error: 'grid not solved' }, 400)
-
-    const key = `submission:${body.puzzleId}:${playerId}`
-    const existing = await redis.get(key)
-    if (existing) {
-        return c.json({ ok: true, alreadySubmitted: true } satisfies SubmitResponse)
+    const body = await c.req.json<{ id: string; grid: Grid }>().catch(() => null)
+    if (!body || typeof body.id !== 'string' || !Array.isArray(body.grid)) {
+        return c.json({ error: 'invalid payload' }, 400)
     }
+    const puzzle = cache.get(body.id)
+    if (!puzzle) return c.json({ error: 'unknown puzzle id' }, 400)
 
-    // Simple rate limit token (10s TTL)
-    const tokenKey = `${key}:rl`
-    const token = await redis.get(tokenKey)
-    if (token) return c.json({ error: 'rate limited' }, 429)
-    await redis.set(tokenKey, '1', { ttl: 10 })
+    const result = validateGrid(body.grid, puzzle.fixed)
+    if (!result.ok) return c.json({ ok: false, errors: result.errors }, 200)
 
-    await redis.set(key, JSON.stringify({ solvedAtISO: body.solvedAtISO }), {
-        ttl: 60 * 60 * 24 * 30
-    })
-    return c.json({ ok: true } satisfies SubmitResponse)
+    // Simple submit record per id to avoid spam
+    const key = `submission:${body.id}`
+    const exists = await redis.get(key)
+    if (!exists) await redis.set(key, '1')
+    return c.json({ ok: true })
 })
 
 export default app
