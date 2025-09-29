@@ -5,7 +5,6 @@ alwaysApply: false
 
 # Svelte Rules
 
-- Use Svelte 5 syntax
 - Use functional programming patterns
 - Break down components into smaller, reusable components
 
@@ -23,9 +22,9 @@ alwaysApply: false
 
 ## Formatting
 
-- Don't add semicolons at the end of the lines
-- Use single quotes for strings
-- Use arrow functions instead of function declarations
+- Don't add semicolons at the end of the lines inside script files.
+- Use single quotes for strings.
+- Use arrow functions instead of function declarations.
 
 ## Accessibility
 
