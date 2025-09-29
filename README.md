@@ -1,11 +1,41 @@
-# Devvit Svelte Example
+# Binary Grid (Devvit)
 
-This is a simple example of a Devvit app using Svelte.
+Daily 6×6 binary puzzle for Reddit/Devvit.
 
-## Running the app
+## Rules
 
-1. Run `npm run dev` to start the development server.
-2. Run `npm run build` to build the app.
-3. Run `npm run deploy` to deploy the app.
-4. Run `npm run launch` to launch the app.
-5. Run `npm run check` to check the app.
+- Each row/col has exactly three 0s and three 1s
+- No three consecutive identical digits
+- Respect fixed clues
+
+## Tech
+
+- Client: Svelte 5 + Tailwind
+- Server: Hono (Devvit web server)
+- Shared: TS modules
+- Lint/Format: Biome
+- Tests: Vitest
+
+## Dev
+
+```bash
+pnpm install
+pnpm dev
+```
+
+## API
+
+- GET `/api/health` → `{ ok: true }`
+- GET `/api/puzzle?date=YYYY-MM-DD&difficulty=easy|medium|hard` → `{ puzzle }`
+- POST `/api/submit` body `{ id, grid }` → `{ ok: boolean, errors?: string[] }`
+
+## Theming
+
+- Toggle in toolbar (Dark/Light)
+- Dark: black bg, green text; Light: white bg, green text
+
+## Tests
+
+```bash
+pnpm test
+```
