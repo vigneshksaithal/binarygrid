@@ -40,7 +40,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["src/**/*.svelte"],
+			"includes": ["**/*.svelte"],
 			"linter": {
 				"rules": {
 					"correctness": {
