@@ -5,6 +5,7 @@ alwaysApply: false
 
 # Svelte Rules
 
+- Use Svelte 5 syntax
 - Use functional programming patterns
 - Break down components into smaller, reusable components
 
