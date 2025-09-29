@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { nextHint } from '../../shared/validator'
 	import { game, loadPuzzle, resetPuzzle } from '../stores/game'
+	import { theme, toggleTheme } from '../stores/theme'
 
 	let difficulty: 'easy' | 'medium' | 'hard' = 'medium'
 
@@ -39,5 +40,9 @@
 	<button
 		class="px-3 py-1 border border-green-700 hover:bg-green-500/10"
 		on:click={hint}>Hint</button
+	>
+	<button
+		class="px-3 py-1 border border-green-700 hover:bg-green-500/10"
+		on:click={toggleTheme}>{$theme === 'dark' ? 'Light' : 'Dark'}</button
 	>
 </div>
