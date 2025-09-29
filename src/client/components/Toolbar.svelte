@@ -1,23 +1,23 @@
 <script lang="ts">
-	import { nextHint } from '../../shared/validator'
-	import { game, loadPuzzle, resetPuzzle } from '../stores/game'
-	import { theme, toggleTheme } from '../stores/theme'
+import { nextHint } from '../../shared/validator'
+import { game, loadPuzzle, resetPuzzle } from '../stores/game'
+import { theme, toggleTheme } from '../stores/theme'
 
-	let difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+let difficulty: 'easy' | 'medium' | 'hard' = 'medium'
 
-	const start = () => loadPuzzle(difficulty)
-	const reset = () => resetPuzzle()
-	const hint = () => {
-		const s = $game
-		if (!s || !s.puzzleId) return
-		const h = nextHint(s.grid, s.fixed)
-		if (!h) return
-		const { r, c, v } = h
-		const next = s.grid.map((row) => row.slice())
-		if (!next[r]) return
-		next[r][c] = v
-		game.set({ ...s, grid: next })
-	}
+const start = () => loadPuzzle(difficulty)
+const reset = () => resetPuzzle()
+const hint = () => {
+	const s = $game
+	if (!s || !s.puzzleId) return
+	const h = nextHint(s.grid, s.fixed)
+	if (!h) return
+	const { r, c, v } = h
+	const next = s.grid.map((row) => row.slice())
+	if (!next[r]) return
+	next[r][c] = v
+	game.set({ ...s, grid: next })
+}
 </script>
 
 <div class="flex items-center gap-2 text-green-400">

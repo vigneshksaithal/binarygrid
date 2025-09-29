@@ -1,8 +1,8 @@
 <script lang="ts">
-	import './app.css'
-	import Grid from './components/Grid.svelte'
-	import Toolbar from './components/Toolbar.svelte'
-	import { theme } from './stores/theme'
+import './app.css'
+import Grid from './components/Grid.svelte'
+import Toolbar from './components/Toolbar.svelte'
+import { theme } from './stores/theme'
 </script>
 
 <main

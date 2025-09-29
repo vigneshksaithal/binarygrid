@@ -1,9 +1,9 @@
 <script lang="ts">
-	export let value: 0 | 1 | null = null
-	export let fixed: boolean = false
-	export let onClick: () => void = () => {}
+export let value: 0 | 1 | null = null
+export let fixed: boolean = false
+export let onClick: () => void = () => {}
 
-	const label = fixed ? 'Fixed cell' : 'Editable cell'
+const label = fixed ? 'Fixed cell' : 'Editable cell'
 </script>
 
 <button
