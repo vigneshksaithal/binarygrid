@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { closeHowTo, showHowTo } from '../stores/ui'
-	import Button from './Button.svelte'
+import { closeHowTo, showHowTo } from '../stores/ui'
+import Button from './Button.svelte'
 </script>
 
 {#if $showHowTo}
