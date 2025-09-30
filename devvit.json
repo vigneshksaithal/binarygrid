@@ -16,8 +16,8 @@
 	"menu": {
 		"items": [
 			{
-				"label": "Create a new post",
-				"description": "Svelte",
+				"label": "Create a new Game",
+				"description": "Binary Grid",
 				"location": "subreddit",
 				"forUserType": "moderator",
 				"endpoint": "/internal/menu/post-create"
