@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { closeHowTo, showHowTo } from '../stores/ui'
+	import Button from './Button.svelte'
 </script>
 
 {#if $showHowTo}
@@ -24,10 +25,7 @@
 				</p>
 			</div>
 			<div class="mt-6 text-right">
-				<button
-					class="px-3 py-1 border border-green-700 hover:bg-green-500/10"
-					onclick={closeHowTo}>Got it</button
-				>
+				<Button onClick={closeHowTo}>Got it</Button>
 			</div>
 		</div>
 	</div>

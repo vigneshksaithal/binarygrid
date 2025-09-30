@@ -1,17 +1,18 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import './app.css'
-import Grid from './components/Grid.svelte'
-import HowToModal from './components/HowToModal.svelte'
-import Timer from './components/Timer.svelte'
-import Toolbar from './components/Toolbar.svelte'
-import { loadPuzzle } from './stores/game'
-import { theme } from './stores/theme'
-import { openHowTo } from './stores/ui'
+	import { onMount } from 'svelte'
+	import './app.css'
+	import Button from './components/Button.svelte'
+	import Grid from './components/Grid.svelte'
+	import HowToModal from './components/HowToModal.svelte'
+	import Timer from './components/Timer.svelte'
+	import Toolbar from './components/Toolbar.svelte'
+	import { loadPuzzle } from './stores/game'
+	import { theme } from './stores/theme'
+	import { openHowTo } from './stores/ui'
 
-onMount(() => {
-	loadPuzzle('easy')
-})
+	onMount(() => {
+		loadPuzzle('easy')
+	})
 </script>
 
 <main
@@ -29,10 +30,7 @@ onMount(() => {
 			</div>
 			<div class="flex items-center gap-2 sm:gap-3 flex-wrap">
 				<Toolbar />
-				<button
-					class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-sm sm:text-base"
-					onclick={openHowTo}>How to Play</button
-				>
+				<Button onClick={openHowTo}>How to Play</Button>
 			</div>
 		</header>
 		<div class="flex-1 flex flex-col items-center justify-center gap-3">
