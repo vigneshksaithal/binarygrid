@@ -1,5 +1,5 @@
 <script lang="ts">
-import { closeHowTo, showHowTo } from '../stores/ui'
+	import { closeHowTo, showHowTo } from '../stores/ui'
 </script>
 
 {#if $showHowTo}
@@ -9,10 +9,6 @@ import { closeHowTo, showHowTo } from '../stores/ui'
 		>
 			<div class="flex items-center justify-between mb-4">
 				<h2 class="text-2xl text-green-400">How to Play</h2>
-				<button
-					class="px-2 py-1 border border-green-700 hover:bg-green-500/10"
-					onclick={closeHowTo}>✕</button
-				>
 			</div>
 			<div class="space-y-3 text-green-200">
 				<p>Fill every cell with 0 or 1.</p>
