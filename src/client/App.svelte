@@ -30,7 +30,7 @@
 				<Toolbar />
 				<button
 					class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-sm sm:text-base"
-					on:click={openHowTo}>How to Play</button
+					onclick={openHowTo}>How to Play</button
 				>
 			</div>
 		</header>

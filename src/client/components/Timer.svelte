@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte'
 
-	let seconds = 0
+	let seconds = $state(0)
 	let interval: number | undefined
 	onMount(() => {
 		interval = setInterval(() => {

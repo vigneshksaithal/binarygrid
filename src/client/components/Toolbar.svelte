@@ -3,7 +3,7 @@
 	import { game, loadPuzzle, resetPuzzle } from '../stores/game'
 	import { theme, toggleTheme } from '../stores/theme'
 
-	let difficulty: 'easy' | 'medium' | 'hard' = 'medium'
+	let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 
 	const start = () => loadPuzzle(difficulty)
 	const reset = () => resetPuzzle()
