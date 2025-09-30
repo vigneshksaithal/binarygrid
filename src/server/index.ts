@@ -49,13 +49,6 @@ app.get('/api/init', async (c) => {
 	}
 })
 
-app.get('/api/test', async (c) => {
-	await redis.set('count', '67')
-	const count = await redis.get('count')
-
-	return c.json({ message: `Hello, world!${count}` })
-})
-
 app.post('/internal/on-app-install', async (c) => {
 	try {
 		const post = await createPost()
