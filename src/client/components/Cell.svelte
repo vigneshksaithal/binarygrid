@@ -1,15 +1,15 @@
 <script lang="ts">
-	const {
-		value = null,
-		fixed = false,
-		onClick = () => {},
-	}: {
-		value?: 0 | 1 | null
-		fixed?: boolean
-		onClick?: () => void
-	} = $props()
+const {
+	value = null,
+	fixed = false,
+	onClick = () => {}
+}: {
+	value?: 0 | 1 | null
+	fixed?: boolean
+	onClick?: () => void
+} = $props()
 
-	const label = fixed ? 'Fixed cell' : 'Editable cell'
+const label = fixed ? 'Fixed cell' : 'Editable cell'
 </script>
 
 <button

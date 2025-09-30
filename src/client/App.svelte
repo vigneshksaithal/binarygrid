@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
-	import './app.css'
-	import Grid from './components/Grid.svelte'
-	import HowToModal from './components/HowToModal.svelte'
-	import Timer from './components/Timer.svelte'
-	import Toolbar from './components/Toolbar.svelte'
-	import { loadPuzzle } from './stores/game'
-	import { theme } from './stores/theme'
-	import { openHowTo } from './stores/ui'
+import { onMount } from 'svelte'
+import './app.css'
+import Grid from './components/Grid.svelte'
+import HowToModal from './components/HowToModal.svelte'
+import Timer from './components/Timer.svelte'
+import Toolbar from './components/Toolbar.svelte'
+import { loadPuzzle } from './stores/game'
+import { theme } from './stores/theme'
+import { openHowTo } from './stores/ui'
 
-	onMount(() => {
-		loadPuzzle('medium')
-	})
+onMount(() => {
+	loadPuzzle('medium')
+})
 </script>
 
 <main
