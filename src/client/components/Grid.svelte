@@ -1,17 +1,17 @@
 <script lang="ts">
-import { SIZE } from '../../shared/rules'
-import { autosubmitIfSolved, cycleCell, game } from '../stores/game'
-import Cell from './Cell.svelte'
+	import { SIZE } from '../../shared/rules'
+	import { autosubmitIfSolved, cycleCell, game } from '../stores/game'
+	import Cell from './Cell.svelte'
 
-$: if ($game.status === 'solved') {
-	autosubmitIfSolved()
-}
-// Cleanup if needed (not critical in SPA single mount)
-// onDestroy(() => unsub())
+	$: if ($game.status === 'solved') {
+		autosubmitIfSolved()
+	}
+	// Cleanup if needed (not critical in SPA single mount)
+	// onDestroy(() => unsub())
 </script>
 
 <div
-	class="grid grid-cols-6 gap-1 p-2 border border-green-700 bg-black text-green-400 shadow-[0_0_25px_rgba(34,197,94,0.25)]"
+	class="mx-auto w-full max-w-[480px] grid grid-cols-6 gap-1 p-2 border border-green-700 bg-black text-green-400 shadow-[0_0_25px_rgba(34,197,94,0.25)]"
 >
 	{#each Array.from({ length: SIZE }) as _, r}
 		{#each Array.from({ length: SIZE }) as __, c}
