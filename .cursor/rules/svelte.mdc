@@ -5,8 +5,9 @@ alwaysApply: false
 
 # Svelte Rules
 
-- Use functional programming patterns
-- Break down components into smaller, reusable components
+- Use functional programming patterns.
+- Break down UI/functionality into small, reusable components in src/client/components folder.
+- Use descriptive names for components, variables, and functions.
 
 ## Performance Optimization
 
@@ -16,9 +17,9 @@ alwaysApply: false
 
 ## Styling
 
-- Use Tailwind CSS for styling
-- Utilize Tailwind's utility classes directly in the markup
-- Use dynamic classes with template literals when necessary
+- Use Tailwind CSS classes ONLY for styling.
+- Utilize Tailwind's utility classes directly in the markup.
+- Use dynamic classes with template literals when necessary.
 
 ## Formatting
 

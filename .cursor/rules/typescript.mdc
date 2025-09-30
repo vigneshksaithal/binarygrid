@@ -4,10 +4,10 @@ alwaysApply: false
 ---
 # TypeScript Rules
 
-- Use functional programming patterns
+- Use functional programming patterns.
 
 ## Formatting
 
-- Don't add semicolons at the end of the lines
-- Use single quotes for strings
-- Use arrow functions instead of function declarations
+- Don't add semicolons at the end of the lines.
+- Use single quotes for strings.
+- Use arrow functions instead of function declarations.
