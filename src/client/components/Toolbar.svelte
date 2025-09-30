@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { nextHint } from '../../shared/validator'
-	import { game, loadPuzzle, resetPuzzle } from '../stores/game'
+	import { game, loadPuzzle } from '../stores/game'
 	import { theme, toggleTheme } from '../stores/theme'
 
 	let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 
 	const start = () => loadPuzzle(difficulty)
-	const reset = () => resetPuzzle()
 	const hint = () => {
 		const s = $game
 		if (!s || !s.puzzleId) return
@@ -32,10 +31,6 @@
 	<button
 		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
 		onclick={start}>New</button
-	>
-	<button
-		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
-		onclick={reset}>Reset</button
 	>
 	<button
 		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
