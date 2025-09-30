@@ -15,28 +15,30 @@
 </script>
 
 <main
-	class="min-h-screen font-mono"
+	class="w-full h-screen font-mono flex flex-col"
 	class:dark-theme={$theme === 'dark'}
 	class:light-theme={$theme === 'light'}
 >
-	<div class="w-full max-w-4xl mx-auto p-4 space-y-4">
-		<header class="flex items-center justify-between flex-wrap gap-2">
-			<div class="flex items-center gap-3">
-				<h1 class="text-2xl">binary_grid@tty0:~</h1>
+	<div class="w-full h-full flex flex-col p-2 sm:p-4 lg:p-6">
+		<header class="flex items-center justify-between flex-wrap gap-2 mb-4">
+			<div class="flex items-center gap-2 sm:gap-3">
+				<h1 class="text-lg sm:text-xl lg:text-2xl">binary_grid@tty0:~</h1>
 				<span class="text-green-400">▮</span>
 			</div>
-			<div class="flex items-center gap-3 flex-wrap">
+			<div class="flex items-center gap-2 sm:gap-3 flex-wrap">
 				<Timer />
 				<Toolbar />
 				<button
-					class="px-3 py-1 border border-green-700 hover:bg-green-500/10"
+					class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-sm sm:text-base"
 					on:click={openHowTo}>How to Play</button
 				>
 			</div>
 		</header>
-		<Grid />
-		<footer class="text-center text-green-400 text-sm">
-			Solve to reveal Today’s ASCII Character
+		<div class="flex-1 flex flex-col items-center justify-center">
+			<Grid />
+		</div>
+		<footer class="text-center text-green-400 text-xs sm:text-sm mt-4">
+			Solve to reveal Today's ASCII Character
 		</footer>
 	</div>
 	<div

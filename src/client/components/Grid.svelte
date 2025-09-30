@@ -11,7 +11,7 @@
 </script>
 
 <div
-	class="mx-auto w-full max-w-[480px] grid grid-cols-6 gap-1 p-2 border border-green-700 bg-black text-green-400 shadow-[0_0_25px_rgba(34,197,94,0.25)]"
+	class="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl grid grid-cols-6 gap-1 sm:gap-2 p-2 sm:p-3 border border-green-700 bg-black text-green-400 shadow-[0_0_25px_rgba(34,197,94,0.25)]"
 >
 	{#each Array.from({ length: SIZE }) as _, r}
 		{#each Array.from({ length: SIZE }) as __, c}
