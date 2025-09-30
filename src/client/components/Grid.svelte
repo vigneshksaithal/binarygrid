@@ -32,9 +32,13 @@
 		</div>
 	{/if}
 	{#if $game.status === 'solved'}
-		<div class="col-span-6 text-sm text-green-300 mt-2">Solved</div>
+		<div class="col-span-6 text-sm text-green-300 mt-2 font-semibold">
+			Solved
+		</div>
 	{/if}
 	{#if $game.status === 'loading'}
-		<div class="col-span-6 text-sm text-green-300 mt-2">Loading…</div>
+		<div class="col-span-6 text-sm text-green-300 mt-2 font-medium">
+			Loading…
+		</div>
 	{/if}
 </div>

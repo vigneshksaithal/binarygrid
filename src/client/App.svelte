@@ -22,11 +22,12 @@
 	<div class="w-full h-full flex flex-col p-2 sm:p-4 lg:p-6">
 		<header class="flex items-center justify-between flex-wrap gap-2 mb-4">
 			<div class="flex items-center gap-2 sm:gap-3">
-				<h1 class="text-lg sm:text-xl lg:text-2xl">binary_grid@tty0:~</h1>
+				<h1 class="text-lg sm:text-xl lg:text-2xl font-semibold">
+					binary_grid@tty0:~
+				</h1>
 				<span class="text-green-400">▮</span>
 			</div>
 			<div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-				<Timer />
 				<Toolbar />
 				<button
 					class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-sm sm:text-base"
@@ -34,11 +35,14 @@
 				>
 			</div>
 		</header>
-		<div class="flex-1 flex flex-col items-center justify-center">
+		<div class="flex-1 flex flex-col items-center justify-center gap-3">
+			<div class="text-green-400 text-sm sm:text-base font-semibold">
+				<Timer />
+			</div>
 			<Grid />
 		</div>
 		<footer class="text-center text-green-400 text-xs sm:text-sm mt-4">
-			Solve to reveal Today's ASCII Character
+			<span class="font-medium">Solve to reveal Today's ASCII Character</span>
 		</footer>
 	</div>
 	<div

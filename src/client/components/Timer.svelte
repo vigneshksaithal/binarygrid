@@ -15,4 +15,6 @@
 		`Time: ${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 </script>
 
-<span class="text-green-400 text-xs sm:text-sm">{fmt(seconds)}</span>
+<span class="text-green-400 text-sm sm:text-base font-semibold"
+	>{fmt(seconds)}</span
+>
