@@ -19,11 +19,9 @@
 	aria-label={label}
 	disabled={fixed}
 >
-	{#if value === null}
-		·
-	{:else if value === 0}
+	{#if value === 0}
 		0
-	{:else}
+	{:else if value === 1}
 		1
 	{/if}
 </button>
