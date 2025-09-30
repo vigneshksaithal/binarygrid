@@ -31,18 +31,18 @@
 	</select>
 	<button
 		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
-		on:click={start}>New</button
+		onclick={start}>New</button
 	>
 	<button
 		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
-		on:click={reset}>Reset</button
+		onclick={reset}>Reset</button
 	>
 	<button
 		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
-		on:click={hint}>Hint</button
+		onclick={hint}>Hint</button
 	>
 	<button
 		class="px-2 py-1 sm:px-3 border border-green-700 hover:bg-green-500/10 text-xs sm:text-sm"
-		on:click={toggleTheme}>{$theme === 'dark' ? 'Light' : 'Dark'}</button
+		onclick={toggleTheme}>{$theme === 'dark' ? 'Light' : 'Dark'}</button
 	>
 </div>

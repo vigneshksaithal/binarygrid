@@ -11,7 +11,7 @@ import { closeHowTo, showHowTo } from '../stores/ui'
 				<h2 class="text-2xl text-green-400">How to Play</h2>
 				<button
 					class="px-2 py-1 border border-green-700 hover:bg-green-500/10"
-					on:click={closeHowTo}>✕</button
+					onclick={closeHowTo}>✕</button
 				>
 			</div>
 			<div class="space-y-3 text-green-200">
@@ -30,7 +30,7 @@ import { closeHowTo, showHowTo } from '../stores/ui'
 			<div class="mt-6 text-right">
 				<button
 					class="px-3 py-1 border border-green-700 hover:bg-green-500/10"
-					on:click={closeHowTo}>Got it</button
+					onclick={closeHowTo}>Got it</button
 				>
 			</div>
 		</div>
