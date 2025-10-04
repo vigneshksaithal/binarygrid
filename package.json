@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "devvit-svelte-example",
+	"name": "binarygrid",
 	"version": "0.1.0",
 	"type": "module",
 	"scripts": {
