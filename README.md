@@ -1,4 +1,4 @@
-# Binary Grid (Devvit)
+# Binary Grid
 
 Daily 6×6 binary puzzle for Reddit/Devvit.
 
