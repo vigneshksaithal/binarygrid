@@ -23,6 +23,10 @@ type GameState = {
 	fixed: { r: number; c: number; v: 0 | 1 }[]
 	status: Status
 	errors: string[]
+	errorLocations?: {
+		rows: number[]
+		columns: number[]
+	}
 }
 
 const emptyGrid = (): Grid =>
@@ -36,7 +40,8 @@ const initial: GameState = {
 	grid: emptyGrid(),
 	fixed: [],
 	status: 'idle',
-	errors: []
+	errors: [],
+	errorLocations: undefined
 }
 
 export const game = writable<GameState>(initial)
@@ -68,7 +73,8 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
 		grid,
 		fixed: data.puzzle.fixed,
 		status: 'in_progress',
-		errors: []
+		errors: [],
+		errorLocations: undefined
 	})
 }
 
@@ -78,7 +84,7 @@ export const resetPuzzle = () => {
 		const grid = emptyGrid()
 		if (typeof localStorage !== 'undefined')
 			localStorage.removeItem(storageKey(s.puzzleId))
-		return { ...s, grid, status: 'in_progress', errors: [] }
+		return { ...s, grid, status: 'in_progress', errors: [], errorLocations: undefined }
 	})
 }
 
@@ -100,7 +106,13 @@ export const cycleCell = (r: number, c: number) => {
 			: 'invalid'
 		if (s.puzzleId && typeof localStorage !== 'undefined')
 			localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(next))
-		return { ...s, grid: next, status, errors: result.ok ? [] : result.errors }
+		return {
+			...s,
+			grid: next,
+			status,
+			errors: result.ok ? [] : result.errors,
+			errorLocations: result.errorLocations
+		}
 	})
 }
 

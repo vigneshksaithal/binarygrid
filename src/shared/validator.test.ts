@@ -44,4 +44,35 @@ describe('validator', () => {
 		const res = validateGrid(g, fixed)
 		expect(res.ok).toBe(false)
 	})
+
+	it('returns error locations for invalid rows and columns', () => {
+		const g = empty()
+		// Create a triple run in row 0
+		g[0] = [1, 1, 1, null, null, null]
+		// Create too many ones in column 0
+		g[1][0] = 1
+		g[2][0] = 1
+		g[3][0] = 1
+		g[4][0] = 1
+
+		const res = validateGrid(g, [])
+		expect(res.ok).toBe(false)
+		expect(res.errorLocations).toBeDefined()
+		expect(res.errorLocations?.rows).toContain(0)
+		expect(res.errorLocations?.columns).toContain(0)
+	})
+
+	it('returns no error locations for valid grid', () => {
+		const g: Grid = [
+			[0, 0, 1, 1, 0, 1],
+			[1, 1, 0, 0, 1, 0],
+			[0, 1, 0, 1, 0, 1],
+			[1, 0, 1, 0, 1, 0],
+			[0, 1, 1, 0, 0, 1],
+			[1, 0, 0, 1, 1, 0]
+		]
+		const res = validateGrid(g, [])
+		expect(res.ok).toBe(true)
+		expect(res.errorLocations).toBeUndefined()
+	})
 })

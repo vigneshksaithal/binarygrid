@@ -192,10 +192,13 @@ export function nextHint(
 /**
  * Validates a single line (row or column) for count and triple-run constraints.
  */
-function validateLine(line: Cell[], label: string, errors: string[]): void {
+function validateLine(line: Cell[], label: string, errors: string[]): boolean {
+	let hasError = false
+
 	// Triple run check
 	if (hasTripleRun(line)) {
 		errors.push(`${label} has a forbidden triple run.`)
+		hasError = true
 	}
 
 	// Count constraints
@@ -212,19 +215,24 @@ function validateLine(line: Cell[], label: string, errors: string[]): void {
 			errors.push(
 				`${label} must have exactly ${EXACT_ZEROS_PER_LINE} zeros and ${EXACT_ONES_PER_LINE} ones.`
 			)
+			hasError = true
 		}
 	} else {
 		if (zeros > EXACT_ZEROS_PER_LINE) {
 			errors.push(
 				`${label} has too many zeros (${zeros} > ${EXACT_ZEROS_PER_LINE}).`
 			)
+			hasError = true
 		}
 		if (ones > EXACT_ONES_PER_LINE) {
 			errors.push(
 				`${label} has too many ones (${ones} > ${EXACT_ONES_PER_LINE}).`
 			)
+			hasError = true
 		}
 	}
+
+	return hasError
 }
 
 /**
@@ -256,6 +264,8 @@ export function validateGrid(
 	fixed: FixedCell[] = []
 ): ValidationResult {
 	const errors: string[] = []
+	const errorRows: number[] = []
+	const errorColumns: number[] = []
 
 	// Shape and domain checks
 	validateShapeAndDomain(grid, errors)
@@ -268,14 +278,20 @@ export function validateGrid(
 
 	// Rows
 	for (let r = 0; r < SIZE; r++) {
-		validateLine(getRow(grid, r), `Row ${r}`, errors)
+		const hasError = validateLine(getRow(grid, r), `Row ${r}`, errors)
+		if (hasError) {
+			errorRows.push(r)
+		}
 	}
 
 	// Columns
 	for (let c = 0; c < SIZE; c++) {
 		const col: Cell[] = new Array(SIZE)
 		for (let r = 0; r < SIZE; r++) col[r] = getCell(grid, r, c)
-		validateLine(col as Cell[], `Column ${c}`, errors)
+		const hasError = validateLine(col as Cell[], `Column ${c}`, errors)
+		if (hasError) {
+			errorColumns.push(c)
+		}
 	}
 
 	// Final runs sanity (MAX_CONSECUTIVE_RUN used for clarity if we extend logic)
@@ -283,5 +299,13 @@ export function validateGrid(
 		// This code path is not expected for SIZE=6 puzzle with standard rules.
 	}
 
-	return { ok: errors.length === 0, errors }
+	const hasErrors = errors.length > 0
+	const result: ValidationResult = {
+		ok: !hasErrors,
+		errors
+	}
+	if (hasErrors) {
+		result.errorLocations = { rows: errorRows, columns: errorColumns }
+	}
+	return result
 }

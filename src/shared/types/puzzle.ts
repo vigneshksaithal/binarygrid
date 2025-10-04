@@ -33,4 +33,8 @@ export type Submission = {
 export type ValidationResult = {
 	ok: boolean
 	errors: string[]
+	errorLocations?: {
+		rows: number[]
+		columns: number[]
+	}
 }
