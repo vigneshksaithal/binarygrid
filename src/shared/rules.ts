@@ -2,10 +2,10 @@
  * Global rules and difficulty presets for Binary Grid.
  */
 
-export const SIZE = 6 as const
-export const EXACT_ZEROS_PER_LINE = 3 as const
-export const EXACT_ONES_PER_LINE = 3 as const
-export const MAX_CONSECUTIVE_RUN = 2 as const // i.e., no triples allowed
+export const SIZE = 6
+export const EXACT_ZEROS_PER_LINE = 3
+export const EXACT_ONES_PER_LINE = 3
+export const MAX_CONSECUTIVE_RUN = 2 // i.e., no triples allowed
 
 export const DIFFICULTY_CLUE_RANGES = {
 	easy: { min: 16, max: 18 },
