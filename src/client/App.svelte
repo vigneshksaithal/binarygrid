@@ -1,24 +1,26 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import './app.css'
-import Button from './components/Button.svelte'
-import Grid from './components/Grid.svelte'
-import HowToModal from './components/HowToModal.svelte'
-import Timer from './components/Timer.svelte'
-import Toolbar from './components/Toolbar.svelte'
-import { loadPuzzle } from './stores/game'
-import { theme } from './stores/theme'
-import { openHowTo } from './stores/ui'
+	import { onMount } from 'svelte'
+	import './app.css'
+	import Button from './components/Button.svelte'
+	import Grid from './components/Grid.svelte'
+	import HowToModal from './components/HowToModal.svelte'
+	import Timer from './components/Timer.svelte'
+	import Toolbar from './components/Toolbar.svelte'
+	import { loadPuzzle } from './stores/game'
+	import { theme } from './stores/theme'
+	import { openHowTo } from './stores/ui'
 
-onMount(() => {
-	loadPuzzle('easy')
-})
+	onMount(() => {
+		loadPuzzle('easy')
+	})
 </script>
 
 <main
 	class="w-full h-screen font-mono flex flex-col"
-	class:dark-theme={$theme === 'dark'}
-	class:light-theme={$theme === 'light'}
+	class:bg-black={$theme === 'dark'}
+	class:text-green-500={$theme === 'dark'}
+	class:bg-white={$theme === 'light'}
+	class:text-green-800={$theme === 'light'}
 >
 	<div class="w-full h-full flex flex-col p-2 sm:p-4 lg:p-6">
 		<header class="flex items-center justify-between flex-wrap gap-2 mb-4">
@@ -49,14 +51,3 @@ onMount(() => {
 	></div>
 </main>
 <HowToModal />
-
-<style>
-	.dark-theme {
-		background-color: #000;
-		color: #22c55e;
-	}
-	.light-theme {
-		background-color: #fff;
-		color: #166534;
-	}
-</style>
