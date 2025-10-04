@@ -74,7 +74,7 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
 		fixed: data.puzzle.fixed,
 		status: 'in_progress',
 		errors: [],
-		errorLocations: undefined
+		errorLocations: undefined as unknown as { rows: number[]; columns: number[] }
 	})
 }
 
