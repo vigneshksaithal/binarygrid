@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{ts,js,svelte}"
+applyTo: '**/*.{ts,js,svelte}'
 ---
 
 # Project Context
@@ -160,7 +160,7 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 - Don't use bitwise operators.
 - Don't use expressions where the operation doesn't change the value.
 - Make sure Promise-like statements are handled appropriately.
-- Don't use __dirname and ___filename in the global scope.
+- Don't use **dirname and \_**filename in the global scope.
 - Prevent import cycles.
 - Don't use configured elements.
 - Don't hardcode sensitive data like API keys and tokens.
@@ -307,8 +307,8 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 
 - Don't use `<img>` elements in Next.js projects.
 - Don't use `<head>` elements in Next.js projects.
-- Don't import next/document outside of pages/_document.jsx in Next.js projects.
-- Don't use the next/head module in pages/_document.js on Next.js projects.
+- Don't import next/document outside of pages/\_document.jsx in Next.js projects.
+- Don't use the next/head module in pages/\_document.js on Next.js projects.
 
 ### Testing Best Practices
 
@@ -328,17 +328,17 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 ```typescript
 // ✅ Good: Comprehensive error handling
 try {
-  const result = await fetchData();
-  return { success: true, data: result };
+	const result = await fetchData()
+	return { success: true, data: result }
 } catch (error) {
-  console.error('API call failed:', error);
-  return { success: false, error: error.message };
+	console.error('API call failed:', error)
+	return { success: false, error: error.message }
 }
 
 // ❌ Bad: Swallowing errors
 try {
-  return await fetchData();
+	return await fetchData()
 } catch (e) {
-  console.log(e);
+	console.log(e)
 }
 ```
