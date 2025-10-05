@@ -1,23 +1,27 @@
 <script lang="ts">
-import { onDestroy, onMount } from 'svelte'
+import { onMount } from 'svelte'
 
 const TIMER_INTERVAL_MS = 1000
 let seconds = $state(0)
-let interval: number | undefined
+
+const formatElapsedTime = (elapsed: number) => {
+  const minutes = Math.floor(elapsed / 60)
+  const remainingSeconds = elapsed % 60
+
+  return `Time: ${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
+}
+
 onMount(() => {
-  interval = setInterval(() => {
+  const intervalId: ReturnType<typeof setInterval> = setInterval(() => {
     seconds += 1
-  }, TIMER_INTERVAL_MS) as unknown as number
-})
-onDestroy(() => {
-  if (interval) {
-    clearInterval(interval)
+  }, TIMER_INTERVAL_MS)
+
+  return () => {
+    clearInterval(intervalId)
   }
 })
-const fmt = (s: number) =>
-  `Time: ${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 </script>
 
-<span class="text-green-400 text-sm sm:text-base font-semibold"
-	>{fmt(seconds)}</span
->
+<span class="text-green-400 text-sm sm:text-base font-semibold">
+  {formatElapsedTime(seconds)}
+</span>
