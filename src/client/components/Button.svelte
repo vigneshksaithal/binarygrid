@@ -23,7 +23,7 @@ const handleClick = () => {
   }
 }
 
-const sizeClasses = 'px-2 py-1 sm:px-3 text-sm sm:text-base'
+const sizeClasses = 'px-3 py-1.5 sm:px-3 text-sm sm:text-base'
 
 const base =
   'border border-green-700 font-semibold transition-colors disabled:opacity-70 disabled:cursor-not-allowed'
