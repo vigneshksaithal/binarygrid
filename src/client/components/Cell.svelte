@@ -1,23 +1,23 @@
 <script lang="ts">
-	const {
-		value = null,
-		fixed = false,
-		hasError = false,
-		onClick,
-	}: {
-		value?: 0 | 1 | null
-		fixed?: boolean
-		hasError?: boolean
-		onClick?: () => void
-	} = $props()
+const {
+  value = null,
+  fixed = false,
+  hasError = false,
+  onClick
+}: {
+  value?: 0 | 1 | null
+  fixed?: boolean
+  hasError?: boolean
+  onClick?: () => void
+} = $props()
 
-	const handleClick = () => {
-		if (onClick) {
-			onClick()
-		}
-	}
+const handleClick = () => {
+  if (onClick) {
+    onClick()
+  }
+}
 
-	const label = fixed ? 'Fixed cell' : 'Editable cell'
+const label = fixed ? 'Fixed cell' : 'Editable cell'
 </script>
 
 <button

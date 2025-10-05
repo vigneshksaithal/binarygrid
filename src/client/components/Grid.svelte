@@ -4,9 +4,9 @@ import { autosubmitIfSolved, cycleCell, game } from '../stores/game'
 import Cell from './Cell.svelte'
 
 $effect(() => {
-	if ($game.status === 'solved') {
-		autosubmitIfSolved()
-	}
+  if ($game.status === 'solved') {
+    autosubmitIfSolved()
+  }
 })
 // Cleanup if needed (not critical in SPA single mount)
 // onDestroy(() => unsub())

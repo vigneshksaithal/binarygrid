@@ -1,16 +1,16 @@
 import { context, reddit } from '@devvit/web/server'
 
 export const createPost = async () => {
-	const { subredditName } = context
-	if (!subredditName) {
-		throw new Error('subredditName is required')
-	}
+  const { subredditName } = context
+  if (!subredditName) {
+    throw new Error('subredditName is required')
+  }
 
-	return await reddit.submitCustomPost({
-		splash: {
-			appDisplayName: 'Binary Grid'
-		},
-		subredditName,
-		title: 'Binary Grid'
-	})
+  return await reddit.submitCustomPost({
+    splash: {
+      appDisplayName: 'Binary Grid'
+    },
+    subredditName,
+    title: 'Binary Grid'
+  })
 }

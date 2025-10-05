@@ -11,7 +11,7 @@ import { theme } from './stores/theme'
 import { openHowTo } from './stores/ui'
 
 onMount(() => {
-	loadPuzzle('easy')
+  loadPuzzle('easy')
 })
 </script>
 
