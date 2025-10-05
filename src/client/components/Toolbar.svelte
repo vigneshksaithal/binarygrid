@@ -7,6 +7,7 @@ import Button from './Button.svelte'
 let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 
 const start = () => loadPuzzle(difficulty)
+
 const hint = () => {
   const s = get(game)
   if (!s?.puzzleId) {
@@ -32,9 +33,9 @@ const hint = () => {
 		onchange={start}
 		class="bg-black text-green-400 border border-green-700 px-1 py-1 sm:px-2 text-xs sm:text-sm font-medium"
 	>
-		<option value="easy">easy</option>
-		<option value="medium">medium</option>
-		<option value="hard">hard</option>
+		<option value="easy">Easy</option>
+		<option value="medium">Medium</option>
+		<option value="hard">Hard</option>
 	</select>
 	<Button onClick={hint}>Hint</Button>
 </div>
