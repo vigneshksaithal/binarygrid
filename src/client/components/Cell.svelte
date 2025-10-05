@@ -1,17 +1,23 @@
 <script lang="ts">
-const {
-	value = null,
-	fixed = false,
-	hasError = false,
-	onClick = () => {}
-}: {
-	value?: 0 | 1 | null
-	fixed?: boolean
-	hasError?: boolean
-	onClick?: () => void
-} = $props()
+	const {
+		value = null,
+		fixed = false,
+		hasError = false,
+		onClick,
+	}: {
+		value?: 0 | 1 | null
+		fixed?: boolean
+		hasError?: boolean
+		onClick?: () => void
+	} = $props()
 
-const label = fixed ? 'Fixed cell' : 'Editable cell'
+	const handleClick = () => {
+		if (onClick) {
+			onClick()
+		}
+	}
+
+	const label = fixed ? 'Fixed cell' : 'Editable cell'
 </script>
 
 <button
@@ -21,7 +27,7 @@ const label = fixed ? 'Fixed cell' : 'Editable cell'
 		: ''} {hasError
 		? 'border-2 border-red-500 shadow-[inset_0_0_10px_rgba(239,68,68,0.3),0_0_10px_rgba(239,68,68,0.2)]'
 		: 'border border-green-700'}"
-	onclick={onClick}
+	onclick={handleClick}
 	aria-label={label}
 	disabled={fixed}
 >
