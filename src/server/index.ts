@@ -13,17 +13,18 @@ import routes from './routes'
 const app = new Hono()
 app.route('/', routes)
 
+const HTTP_BAD_REQUEST = 400
+
 app.get('/api/init', async (c) => {
 	const { postId } = context
 
 	if (!postId) {
-		console.error('API Init Error: postId not found in devvit context')
 		return c.json(
 			{
 				status: 'error',
 				message: 'postId is required but missing from context'
 			},
-			400
+			HTTP_BAD_REQUEST
 		)
 	}
 
@@ -40,12 +41,11 @@ app.get('/api/init', async (c) => {
 			username: username ?? 'anonymous'
 		})
 	} catch (error) {
-		console.error(`API Init Error for post ${postId}:`, error)
 		let errorMessage = 'Unknown error during initialization'
 		if (error instanceof Error) {
 			errorMessage = `Initialization failed: ${error.message}`
 		}
-		return c.json({ status: 'error', message: errorMessage }, 400)
+		return c.json({ status: 'error', message: errorMessage }, HTTP_BAD_REQUEST)
 	}
 })
 
@@ -56,14 +56,13 @@ app.post('/internal/on-app-install', async (c) => {
 		return c.json({
 			navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
 		})
-	} catch (error) {
-		console.error(`Error creating post: ${error}`)
+	} catch {
 		return c.json(
 			{
 				status: 'error',
 				message: 'Failed to create post'
 			},
-			400
+			HTTP_BAD_REQUEST
 		)
 	}
 })
@@ -75,14 +74,13 @@ app.post('/internal/menu/post-create', async (c) => {
 		return c.json({
 			navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
 		})
-	} catch (error) {
-		console.error(`Error creating post: ${error}`)
+	} catch {
 		return c.json(
 			{
 				status: 'error',
 				message: 'Failed to create post'
 			},
-			400
+			HTTP_BAD_REQUEST
 		)
 	}
 })

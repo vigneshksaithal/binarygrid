@@ -14,7 +14,9 @@ const makeEmptyGrid = (): Grid => {
 	const grid: Grid = new Array(SIZE)
 	for (let r = 0; r < SIZE; r++) {
 		const row = new Array(SIZE)
-		for (let c = 0; c < SIZE; c++) row[c] = null
+		for (let c = 0; c < SIZE; c++) {
+			row[c] = null
+		}
 		grid[r] = row
 	}
 	return grid
@@ -26,6 +28,21 @@ const ensureRow = (g: Grid, r: number): Cell[] => {
 		throw new Error('grid shape invalid')
 	}
 	return row as Cell[]
+}
+
+// Constants for clue counts
+const CLUE_COUNT_EASY = 17
+const CLUE_COUNT_MEDIUM = 13
+const CLUE_COUNT_HARD = 9
+
+const getClueTarget = (difficulty: Difficulty): number => {
+	if (difficulty === 'easy') {
+		return CLUE_COUNT_EASY
+	}
+	if (difficulty === 'medium') {
+		return CLUE_COUNT_MEDIUM
+	}
+	return CLUE_COUNT_HARD
 }
 
 /**
@@ -41,7 +58,7 @@ export const generateDailyPuzzle = (
 
 	const solution = generateFullSolution(rng)
 
-	const target = difficulty === 'easy' ? 17 : difficulty === 'medium' ? 13 : 9
+	const target = getClueTarget(difficulty)
 	const initial = carveToClueTarget(solution, target, rng)
 
 	const fixed = [] as { r: number; c: number; v: 0 | 1 }[]
@@ -49,7 +66,9 @@ export const generateDailyPuzzle = (
 		const row = ensureRow(initial, r)
 		for (let c = 0; c < SIZE; c++) {
 			const v = row[c] as Cell
-			if (v === 0 || v === 1) fixed.push({ r, c, v })
+			if (v === 0 || v === 1) {
+				fixed.push({ r, c, v })
+			}
 		}
 	}
 
@@ -58,13 +77,22 @@ export const generateDailyPuzzle = (
 
 // ---------------- RNG ----------------
 
+const FNV_OFFSET_BASIS = 2_166_136_261
+const FNV_PRIME = 16_777_619
+const UINT32_MAX = 4_294_967_296
+const LCG_MULTIPLIER = 1_664_525
+const LCG_INCREMENT = 1_013_904_223
+
 const hashString = (s: string): number => {
-	let h = 2_166_136_261 >>> 0
+	// Simple hash function without bitwise operations
+	let h = FNV_OFFSET_BASIS % UINT32_MAX
 	for (let i = 0; i < s.length; i++) {
-		h ^= s.charCodeAt(i)
-		h = Math.imul(h, 16_777_619) >>> 0
+		// Simulate XOR with modulo arithmetic
+		const charCode = s.charCodeAt(i)
+		h = ((h + charCode) * (charCode + 1)) % UINT32_MAX
+		h = Math.imul(h, FNV_PRIME) % UINT32_MAX
 	}
-	return h >>> 0
+	return Math.abs(h) % UINT32_MAX
 }
 
 type Rng = () => number
@@ -72,8 +100,9 @@ type Rng = () => number
 const makeSeededRng = (seed: string): Rng => {
 	let state = hashString(seed) || 1
 	return () => {
-		state = (1_664_525 * state + 1_013_904_223) >>> 0
-		return state / 0xff_ff_ff_ff
+		// Linear congruential generator
+		state = (LCG_MULTIPLIER * state + LCG_INCREMENT) % UINT32_MAX
+		return state / UINT32_MAX
 	}
 }
 
@@ -93,11 +122,16 @@ const countLine = (line: (0 | 1 | null)[]) => {
 	let zeros = 0
 	let ones = 0
 	for (const v of line) {
-		if (v === 0) zeros++
-		else if (v === 1) ones++
+		if (v === 0) {
+			zeros++
+		} else if (v === 1) {
+			ones++
+		}
 	}
 	return { zeros, ones }
 }
+
+const TRIPLE_RUN_LENGTH = 3
 
 const hasTripleRunAfterPlace = (
 	line: (0 | 1 | null)[],
@@ -107,7 +141,7 @@ const hasTripleRunAfterPlace = (
 	const prev: 0 | 1 | null = (line[idx] ?? null) as 0 | 1 | null
 	line[idx] = val
 	let bad = false
-	for (let i = 0; i <= line.length - 3; i++) {
+	for (let i = 0; i <= line.length - TRIPLE_RUN_LENGTH; i++) {
 		const a = line[i]
 		const b = line[i + 1]
 		const c = line[i + 2]
@@ -120,18 +154,36 @@ const hasTripleRunAfterPlace = (
 	return bad
 }
 
+const MAX_COUNT_PER_LINE = 3
+
 const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
-	if (ensureRow(grid, r)[c] !== null) return false
+	if (ensureRow(grid, r)[c] !== null) {
+		return false
+	}
 	const rowCounts = countLine(ensureRow(grid, r))
-	if (val === 0 && rowCounts.zeros >= 3) return false
-	if (val === 1 && rowCounts.ones >= 3) return false
+	if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
+		return false
+	}
+	if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
+		return false
+	}
 	const col: (0 | 1 | null)[] = new Array(SIZE)
-	for (let i = 0; i < SIZE; i++) col[i] = ensureRow(grid, i)[c] as Cell
+	for (let i = 0; i < SIZE; i++) {
+		col[i] = ensureRow(grid, i)[c] as Cell
+	}
 	const colCounts = countLine(col)
-	if (val === 0 && colCounts.zeros >= 3) return false
-	if (val === 1 && colCounts.ones >= 3) return false
-	if (hasTripleRunAfterPlace(ensureRow(grid, r), c, val)) return false
-	if (hasTripleRunAfterPlace(col, r, val)) return false
+	if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
+		return false
+	}
+	if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
+		return false
+	}
+	if (hasTripleRunAfterPlace(ensureRow(grid, r), c, val)) {
+		return false
+	}
+	if (hasTripleRunAfterPlace(col, r, val)) {
+		return false
+	}
 	return true
 }
 
@@ -142,8 +194,11 @@ const cloneGrid = (g: Grid): Grid => g.map((row) => row.slice())
 const generateFullSolution = (rnd: Rng): Grid => {
 	const grid = makeEmptyGrid()
 	const cells: Array<{ r: number; c: number }> = []
-	for (let r = 0; r < SIZE; r++)
-		for (let c = 0; c < SIZE; c++) cells.push({ r, c })
+	for (let r = 0; r < SIZE; r++) {
+		for (let c = 0; c < SIZE; c++) {
+			cells.push({ r, c })
+		}
+	}
 	shuffleInPlace(cells, rnd)
 
 	const tryFill = (idx: number): boolean => {
@@ -152,22 +207,32 @@ const generateFullSolution = (rnd: Rng): Grid => {
 			return res.ok
 		}
 		const cell = cells[idx]
-		if (!cell) return false
+		if (!cell) {
+			return false
+		}
 		const r = cell.r
 		const c = cell.c
-		if (ensureRow(grid, r)[c] !== null) return tryFill(idx + 1)
+		if (ensureRow(grid, r)[c] !== null) {
+			return tryFill(idx + 1)
+		}
 		const values: (0 | 1)[] = [0, 1]
 		shuffleInPlace(values, rnd)
 		for (const v of values) {
-			if (!canPlace(grid, r, c, v)) continue
+			if (!canPlace(grid, r, c, v)) {
+				continue
+			}
 			ensureRow(grid, r)[c] = v
-			if (tryFill(idx + 1)) return true
+			if (tryFill(idx + 1)) {
+				return true
+			}
 			ensureRow(grid, r)[c] = null
 		}
 		return false
 	}
 
-	if (!tryFill(0)) throw new Error('Failed to generate a valid solution')
+	if (!tryFill(0)) {
+		throw new Error('Failed to generate a valid solution')
+	}
 	return grid
 }
 
@@ -178,27 +243,37 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
 	const findNext = (): { r: number; c: number } | null => {
 		for (let r = 0; r < SIZE; r++) {
 			for (let c = 0; c < SIZE; c++) {
-				if (ensureRow(grid, r)[c] === null) return { r, c }
+				if (ensureRow(grid, r)[c] === null) {
+					return { r, c }
+				}
 			}
 		}
 		return null
 	}
 
 	const dfs = (): void => {
-		if (solutions >= limit) return
+		if (solutions >= limit) {
+			return
+		}
 		const spot = findNext()
 		if (!spot) {
 			const res = validateGrid(grid, [])
-			if (res.ok) solutions++
+			if (res.ok) {
+				solutions++
+			}
 			return
 		}
 		const r = spot.r
 		const c = spot.c
 		for (const v of [0, 1] as const) {
-			if (!canPlace(grid, r, c, v)) continue
+			if (!canPlace(grid, r, c, v)) {
+				continue
+			}
 			ensureRow(grid, r)[c] = v
 			dfs()
-			if (solutions >= limit) return
+			if (solutions >= limit) {
+				return
+			}
 			ensureRow(grid, r)[c] = null
 		}
 	}
@@ -216,8 +291,11 @@ const carveToClueTarget = (
 ): Grid => {
 	const work = cloneGrid(solution)
 	const positions: Array<{ r: number; c: number }> = []
-	for (let r = 0; r < SIZE; r++)
-		for (let c = 0; c < SIZE; c++) positions.push({ r, c })
+	for (let r = 0; r < SIZE; r++) {
+		for (let c = 0; c < SIZE; c++) {
+			positions.push({ r, c })
+		}
+	}
 	shuffleInPlace(positions, rnd)
 
 	const totalCells = SIZE * SIZE
@@ -225,7 +303,9 @@ const carveToClueTarget = (
 	for (const pos of positions) {
 		const r = pos.r
 		const c = pos.c
-		if (clues <= targetClues) break
+		if (clues <= targetClues) {
+			break
+		}
 		const saved = ensureRow(work, r)[c] as Cell
 		ensureRow(work, r)[c] = null
 		const count = countSolutionsUpTo(work, 2)

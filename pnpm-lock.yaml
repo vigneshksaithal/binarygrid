@@ -36,6 +36,9 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.5
         version: 5.0.5
+      '@types/node':
+        specifier: ^24.6.2
+        version: 24.6.2
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1

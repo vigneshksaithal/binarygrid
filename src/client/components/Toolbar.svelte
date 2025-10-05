@@ -1,4 +1,5 @@
 <script lang="ts">
+import { get } from 'svelte/store'
 import { nextHint } from '../../shared/validator'
 import { game, loadPuzzle } from '../stores/game'
 import Button from './Button.svelte'
@@ -7,13 +8,19 @@ let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 
 const start = () => loadPuzzle(difficulty)
 const hint = () => {
-	const s = $game
-	if (!(s && s.puzzleId)) return
+	const s = get(game)
+	if (!s?.puzzleId) {
+		return
+	}
 	const h = nextHint(s.grid, s.fixed)
-	if (!h) return
+	if (!h) {
+		return
+	}
 	const { r, c, v } = h
 	const next = s.grid.map((row) => row.slice())
-	if (!next[r]) return
+	if (!next[r]) {
+		return
+	}
 	next[r][c] = v
 	game.set({ ...s, grid: next })
 }

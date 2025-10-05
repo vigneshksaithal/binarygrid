@@ -33,6 +33,7 @@
     "@biomejs/biome": "2.2.5",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tsconfig/svelte": "^5.0.5",
+    "@types/node": "^24.6.2",
     "concurrently": "^9.2.1",
     "dotenv-cli": "^10.0.0",
     "globals": "^16.4.0",

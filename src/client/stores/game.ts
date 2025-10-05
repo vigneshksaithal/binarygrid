@@ -23,10 +23,12 @@ type GameState = {
 	fixed: { r: number; c: number; v: 0 | 1 }[]
 	status: Status
 	errors: string[]
-	errorLocations?: {
-		rows: number[]
-		columns: number[]
-	}
+	errorLocations?:
+		| {
+				rows: number[]
+				columns: number[]
+		  }
+		| undefined
 }
 
 const emptyGrid = (): Grid =>
@@ -83,10 +85,13 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
 
 export const resetPuzzle = () => {
 	game.update((s) => {
-		if (!s.puzzleId) return s
+		if (!s.puzzleId) {
+			return s
+		}
 		const grid = emptyGrid()
-		if (typeof localStorage !== 'undefined')
+		if (typeof localStorage !== 'undefined') {
 			localStorage.removeItem(storageKey(s.puzzleId))
+		}
 		return {
 			...s,
 			grid,
@@ -97,27 +102,50 @@ export const resetPuzzle = () => {
 	})
 }
 
+const getNextCellValue = (current: Cell): Cell => {
+	if (current === null) {
+		return 0
+	}
+	if (current === 0) {
+		return 1
+	}
+	return null
+}
+
+const determineStatus = (isValid: boolean, grid: Grid): Status => {
+	if (!isValid) {
+		return 'invalid'
+	}
+	if (isComplete(grid)) {
+		return 'solved'
+	}
+	return 'in_progress'
+}
+
 export const cycleCell = (r: number, c: number) => {
 	game.update((s) => {
-		if (s.status === 'solved') return s
+		if (s.status === 'solved') {
+			return s
+		}
 		const isFixed = s.fixed.some((f) => f.r === r && f.c === c)
-		if (isFixed) return s
-		const next = s.grid.map((row) => row.slice())
-		const row = next[r]
-		if (!row) return s
-		const cur = row[c]
-		row[c] = cur === null ? 0 : cur === 0 ? 1 : null
-		const result = validateGrid(next, s.fixed)
-		const status: Status = result.ok
-			? isComplete(next)
-				? 'solved'
-				: 'in_progress'
-			: 'invalid'
-		if (s.puzzleId && typeof localStorage !== 'undefined')
-			localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(next))
+		if (isFixed) {
+			return s
+		}
+		const nextGrid = s.grid.map((gridRow) => gridRow.slice())
+		const targetRow = nextGrid[r]
+		if (!targetRow) {
+			return s
+		}
+		const currentValue = targetRow[c] as Cell
+		targetRow[c] = getNextCellValue(currentValue)
+		const result = validateGrid(nextGrid, s.fixed)
+		const status = determineStatus(result.ok, nextGrid)
+		if (s.puzzleId && typeof localStorage !== 'undefined') {
+			localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
+		}
 		return {
 			...s,
-			grid: next,
+			grid: nextGrid,
 			status,
 			errors: result.ok ? [] : result.errors,
 			errorLocations: result.errorLocations
@@ -127,7 +155,9 @@ export const cycleCell = (r: number, c: number) => {
 
 export const autosubmitIfSolved = async () => {
 	const snapshot = get(game)
-	if (!snapshot || snapshot.status !== 'solved' || !snapshot.puzzleId) return
+	if (!snapshot || snapshot.status !== 'solved' || !snapshot.puzzleId) {
+		return
+	}
 	await fetch('/api/submit', {
 		method: 'POST',
 		headers: { 'content-type': 'application/json' },
