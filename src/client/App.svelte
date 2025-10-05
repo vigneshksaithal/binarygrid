@@ -1,14 +1,11 @@
 <script lang="ts">
 import { onMount } from 'svelte'
 import './app.css'
-import Button from './components/Button.svelte'
 import Grid from './components/Grid.svelte'
-import HowToModal from './components/HowToModal.svelte'
 import Timer from './components/Timer.svelte'
 import Toolbar from './components/Toolbar.svelte'
 import { loadPuzzle } from './stores/game'
 import { theme } from './stores/theme'
-import { openHowTo } from './stores/ui'
 
 onMount(() => {
   loadPuzzle('easy')
@@ -30,10 +27,7 @@ onMount(() => {
 				</h1>
 				<span class="text-green-400">▮</span>
 			</div>
-			<div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-				<Toolbar />
-				<Button onClick={openHowTo}>How to Play</Button>
-			</div>
+			<Toolbar />
 		</header>
 		<div class="flex-1 flex flex-col items-center justify-center gap-3">
 			<div class="text-green-400 text-sm sm:text-base font-semibold">
@@ -50,4 +44,3 @@ onMount(() => {
 		style="background-image: repeating-linear-gradient(transparent, transparent 2px, rgba(0,255,0,0.05) 3px);"
 	></div>
 </main>
-<HowToModal />

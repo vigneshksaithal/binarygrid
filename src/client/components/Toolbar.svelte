@@ -2,7 +2,9 @@
 import { get } from 'svelte/store'
 import { nextHint } from '../../shared/validator'
 import { game, loadPuzzle } from '../stores/game'
+import { openHowTo } from '../stores/ui'
 import Button from './Button.svelte'
+import HowToModal from './HowToModal.svelte'
 
 let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 
@@ -38,4 +40,6 @@ const hint = () => {
 		<option value="hard">Hard</option>
 	</select>
 	<Button onClick={hint}>Hint</Button>
+	<Button onClick={openHowTo}>How to Play</Button>
 </div>
+<HowToModal />
