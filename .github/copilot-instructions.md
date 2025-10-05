@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.{ts,tsx,js,jsx}"
+applyTo: "**/*.{ts,js,svelte}"
 ---
 
 # Project Context
