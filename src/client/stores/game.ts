@@ -74,7 +74,10 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
 		fixed: data.puzzle.fixed,
 		status: 'in_progress',
 		errors: [],
-		errorLocations: undefined as unknown as { rows: number[]; columns: number[] }
+		errorLocations: undefined as unknown as {
+			rows: number[]
+			columns: number[]
+		}
 	})
 }
 
@@ -84,7 +87,13 @@ export const resetPuzzle = () => {
 		const grid = emptyGrid()
 		if (typeof localStorage !== 'undefined')
 			localStorage.removeItem(storageKey(s.puzzleId))
-		return { ...s, grid, status: 'in_progress', errors: [], errorLocations: undefined }
+		return {
+			...s,
+			grid,
+			status: 'in_progress',
+			errors: [],
+			errorLocations: undefined
+		}
 	})
 }
 

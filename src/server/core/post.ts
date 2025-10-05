@@ -10,7 +10,7 @@ export const createPost = async () => {
 		splash: {
 			appDisplayName: 'Binary Grid'
 		},
-		subredditName: subredditName,
+		subredditName,
 		title: 'Binary Grid'
 	})
 }

@@ -8,7 +8,7 @@ let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 const start = () => loadPuzzle(difficulty)
 const hint = () => {
 	const s = $game
-	if (!s || !s.puzzleId) return
+	if (!(s && s.puzzleId)) return
 	const h = nextHint(s.grid, s.fixed)
 	if (!h) return
 	const { r, c, v } = h

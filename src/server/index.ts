@@ -35,8 +35,8 @@ app.get('/api/init', async (c) => {
 
 		return c.json({
 			type: 'init',
-			postId: postId,
-			count: count ? parseInt(count, 10) : 0,
+			postId,
+			count: count ? Number.parseInt(count, 10) : 0,
 			username: username ?? 'anonymous'
 		})
 	} catch (error) {

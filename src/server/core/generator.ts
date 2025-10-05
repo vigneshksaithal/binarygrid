@@ -59,10 +59,10 @@ export const generateDailyPuzzle = (
 // ---------------- RNG ----------------
 
 const hashString = (s: string): number => {
-	let h = 2166136261 >>> 0
+	let h = 2_166_136_261 >>> 0
 	for (let i = 0; i < s.length; i++) {
 		h ^= s.charCodeAt(i)
-		h = Math.imul(h, 16777619) >>> 0
+		h = Math.imul(h, 16_777_619) >>> 0
 	}
 	return h >>> 0
 }
@@ -72,8 +72,8 @@ type Rng = () => number
 const makeSeededRng = (seed: string): Rng => {
 	let state = hashString(seed) || 1
 	return () => {
-		state = (1664525 * state + 1013904223) >>> 0
-		return state / 0xffffffff
+		state = (1_664_525 * state + 1_013_904_223) >>> 0
+		return state / 0xff_ff_ff_ff
 	}
 }
 

@@ -17,9 +17,7 @@ app.get('/api/puzzle', async (c) => {
 	const isDifficulty = (v: unknown): v is Difficulty =>
 		v === 'easy' || v === 'medium' || v === 'hard'
 	if (
-		!date ||
-		!/^\d{4}-\d{2}-\d{2}$/.test(date) ||
-		!isDifficulty(difficultyParam)
+		!(date && /^\d{4}-\d{2}-\d{2}$/.test(date) && isDifficulty(difficultyParam))
 	) {
 		return c.json({ error: 'invalid date or difficulty' }, 400)
 	}
