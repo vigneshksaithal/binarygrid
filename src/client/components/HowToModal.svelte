@@ -1,6 +1,6 @@
 <script lang="ts">
-import { closeHowTo, showHowTo } from '../stores/ui'
-import Button from './Button.svelte'
+	import { closeHowTo, showHowTo } from '../stores/ui'
+	import Button from './Button.svelte'
 </script>
 
 {#if $showHowTo}
@@ -24,7 +24,7 @@ import Button from './Button.svelte'
 					<li>Each row and column must have 3 zeros and 3 ones.</li>
 					<li>All rows and columns must differ.</li>
 					<li>Gray cells stay fixed.</li>
-					<li>Solved board auto-submits and reveals today’s ASCII.</li>
+					<li>Solved board auto-submits.</li>
 				</ul>
 			</section>
 			<footer class="flex justify-end">
