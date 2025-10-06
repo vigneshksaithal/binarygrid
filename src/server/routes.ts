@@ -1,36 +1,57 @@
-import { redis } from '@devvit/web/server'
+import { context, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
-import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
+import type { Grid, PuzzleWithGrid } from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
-import { generateDailyPuzzle } from './core/generator'
 
 const app = new Hono()
 
-// Simple in-memory cache for generated puzzles within a process
-const cache = new Map<string, PuzzleWithGrid>()
-
 const HTTP_BAD_REQUEST = 400
 const HTTP_OK = 200
-const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/
+const DEFAULT_GRID_SIZE = 6
+const DECIMAL_RADIX = 10
+const GRID_SIZE_TYPE = 6 as const
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 
-app.get('/api/puzzle', (c) => {
-  const date = c.req.query('date')
-  const difficultyParam = c.req.query('difficulty')
-  const isDifficulty = (v: unknown): v is Difficulty =>
-    v === 'easy' || v === 'medium' || v === 'hard'
-  if (!(date && DATE_REGEX.test(date) && isDifficulty(difficultyParam))) {
-    return c.json({ error: 'invalid date or difficulty' }, HTTP_BAD_REQUEST)
+// Get puzzle for the current post
+app.get('/api/puzzle', async (c) => {
+  const { postId } = context
+
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
   }
-  const id = `${date}:${difficultyParam}`
-  const fromCache = cache.get(id)
-  if (fromCache) {
-    return c.json({ puzzle: fromCache })
+
+  try {
+    // Fetch puzzle from Redis using postId
+    const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
+
+    if (!puzzleData?.id) {
+      return c.json(
+        { error: 'Puzzle not found for this post' },
+        HTTP_BAD_REQUEST
+      )
+    }
+
+    const puzzle: PuzzleWithGrid = {
+      id: puzzleData.id,
+      size: Number.parseInt(
+        puzzleData.size || DEFAULT_GRID_SIZE.toString(),
+        DECIMAL_RADIX
+      ) as typeof GRID_SIZE_TYPE,
+      difficulty: puzzleData.difficulty as 'easy' | 'medium' | 'hard',
+      fixed: JSON.parse(puzzleData.fixed || '[]'),
+      initial: JSON.parse(puzzleData.initial || '[]')
+    }
+
+    return c.json({ puzzle })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to fetch puzzle: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
   }
-  const puzzle = generateDailyPuzzle(date, difficultyParam)
-  cache.set(id, puzzle)
-  return c.json({ puzzle })
 })
 
 app.post('/api/submit', async (c) => {
@@ -38,23 +59,46 @@ app.post('/api/submit', async (c) => {
   if (!body || typeof body.id !== 'string' || !Array.isArray(body.grid)) {
     return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
   }
-  const puzzle = cache.get(body.id)
-  if (!puzzle) {
-    return c.json({ error: 'unknown puzzle id' }, HTTP_BAD_REQUEST)
+
+  const { postId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
   }
 
-  const result = validateGrid(body.grid, puzzle.fixed)
-  if (!result.ok) {
-    return c.json({ ok: false, errors: result.errors }, HTTP_OK)
-  }
+  try {
+    // Fetch puzzle from Redis
+    const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
 
-  // Simple submit record per id to avoid spam
-  const key = `submission:${body.id}`
-  const exists = await redis.get(key)
-  if (!exists) {
-    await redis.set(key, '1')
+    if (!puzzleData?.id) {
+      return c.json(
+        { error: 'Puzzle not found for this post' },
+        HTTP_BAD_REQUEST
+      )
+    }
+
+    const fixed = JSON.parse(puzzleData.fixed || '[]')
+    const result = validateGrid(body.grid, fixed)
+
+    if (!result.ok) {
+      return c.json({ ok: false, errors: result.errors }, HTTP_OK)
+    }
+
+    // Store submission record for this post
+    const key = `submission:${postId}:${body.id}`
+    const exists = await redis.get(key)
+    if (!exists) {
+      await redis.set(key, '1')
+    }
+
+    return c.json({ ok: true })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Submission failed: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
   }
-  return c.json({ ok: true })
 })
 
 export default app

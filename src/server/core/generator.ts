@@ -75,6 +75,37 @@ export const generateDailyPuzzle = (
   return { id, size: 6, difficulty, fixed, initial }
 }
 
+/**
+ * Generate a unique puzzle for a specific post using postId as seed.
+ * Each post will have its own unique puzzle that never changes.
+ */
+export const generatePuzzleForPost = (
+  postId: string,
+  difficulty: Difficulty
+): PuzzleWithGrid => {
+  const id = `${postId}:${difficulty}`
+  const seed = `${postId}:${difficulty}:${Date.now()}`
+  const rng = makeSeededRng(seed)
+
+  const solution = generateFullSolution(rng)
+
+  const target = getClueTarget(difficulty)
+  const initial = carveToClueTarget(solution, target, rng)
+
+  const fixed = [] as { r: number; c: number; v: 0 | 1 }[]
+  for (let r = 0; r < SIZE; r++) {
+    const row = ensureRow(initial, r)
+    for (let c = 0; c < SIZE; c++) {
+      const v = row[c] as Cell
+      if (v === 0 || v === 1) {
+        fixed.push({ r, c, v })
+      }
+    }
+  }
+
+  return { id, size: 6, difficulty, fixed, initial }
+}
+
 // ---------------- RNG ----------------
 
 const FNV_OFFSET_BASIS = 2_166_136_261
