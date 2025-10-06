@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { onMount } from 'svelte'
-	import './app.css'
-	import Grid from './components/Grid.svelte'
-	import Timer from './components/Timer.svelte'
-	import Toolbar from './components/Toolbar.svelte'
-	import { loadPuzzle } from './stores/game'
-	import { theme } from './stores/theme'
+import { onMount } from 'svelte'
+import './app.css'
+import Grid from './components/Grid.svelte'
+import Timer from './components/Timer.svelte'
+import Toolbar from './components/Toolbar.svelte'
+import { loadPuzzle } from './stores/game'
+import { theme } from './stores/theme'
 
-	onMount(() => {
-		loadPuzzle('easy')
-	})
+onMount(() => {
+  loadPuzzle('easy')
+})
 </script>
 
 <main
