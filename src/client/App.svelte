@@ -29,9 +29,6 @@ onMount(() => {
 			</div>
 			<Grid />
 		</div>
-		<footer class="text-center text-primary-green text-xs sm:text-sm mt-4">
-			<span class="font-medium">Solve to reveal Today's ASCII Character</span>
-		</footer>
 	</div>
 	<div
 		class="pointer-events-none fixed inset-0 opacity-[0.15]"
