@@ -1,0 +1,142 @@
+/**
+ * Binary Grid Color System
+ * CSS Custom Properties for Tailwind CSS
+ * Based on PROJECT_INFO/COLORS.json
+ */
+
+:root {
+  /* Primary Colors */
+  --color-primary-green: #14f195;
+  --color-primary-green-rgb: 20 241 149;
+
+  /* Secondary Colors */
+  --color-secondary-black: #0e1411;
+  --color-secondary-black-rgb: 14 20 17;
+
+  /* Tertiary Colors */
+  --color-tertiary-gray: #e6efea;
+  --color-tertiary-gray-rgb: 230 239 234;
+
+  /* Text Colors */
+  --color-text-white: #e6efea;
+  --color-text-white-rgb: 230 239 234;
+
+  /* Modal Colors */
+  --color-modal-bg: #0e1411;
+  --color-modal-bg-rgb: 14 20 17;
+
+  /* Border Colors */
+  --color-border-green: #30b080;
+  --color-border-green-rgb: 48 176 128;
+
+  /* Background Colors */
+  --color-bg-dark: #0e1411;
+  --color-bg-dark-rgb: 14 20 17;
+
+  /* Accent Colors */
+  --color-accent-red: #ff4d4d;
+  --color-accent-red-rgb: 255 77 77;
+  --color-accent-yellow: #f5d442;
+  --color-accent-yellow-rgb: 245 212 66;
+
+  /* Semantic Color Mappings */
+  --color-error: var(--color-accent-red);
+  --color-warning: var(--color-accent-yellow);
+  --color-success: var(--color-primary-green);
+  --color-info: var(--color-border-green);
+
+  /* Legacy properties for backwards compatibility */
+  --primary-green: #14f195;
+  --secondary-black: #0e1411;
+  --tertiary-gray: #e6efea;
+  --text-white: #e6efea;
+  --modal-background: #0e1411;
+  --border-green: #30b080;
+  --background-dark: #0e1411;
+  --red-accent: #ff4d4d;
+  --yellow-accent: #f5d442;
+}
+
+/* Utility classes using custom properties */
+.bg-primary-green {
+  background-color: var(--color-primary-green);
+}
+
+.bg-secondary-black {
+  background-color: var(--color-secondary-black);
+}
+
+.bg-tertiary-gray {
+  background-color: var(--color-tertiary-gray);
+}
+
+.bg-modal {
+  background-color: var(--color-modal-bg);
+}
+
+.bg-dark {
+  background-color: var(--color-bg-dark);
+}
+
+.text-primary-green {
+  color: var(--color-primary-green);
+}
+
+.text-border-green {
+  color: var(--color-border-green);
+}
+
+.text-tertiary-gray {
+  color: var(--color-tertiary-gray);
+}
+
+.text-error {
+  color: var(--color-accent-red);
+}
+
+.text-warning {
+  color: var(--color-accent-yellow);
+}
+
+.border-primary-green {
+  border-color: var(--color-primary-green);
+}
+
+.border-border-green {
+  border-color: var(--color-border-green);
+}
+
+.border-error {
+  border-color: var(--color-accent-red);
+}
+
+/* Shadow utilities with custom colors */
+.shadow-primary-green {
+  box-shadow:
+    inset 0 0 10px rgb(var(--color-primary-green-rgb) / 0.2),
+    0 0 10px rgb(var(--color-primary-green-rgb) / 0.15);
+}
+
+.shadow-primary-green-lg {
+  box-shadow: 0 0 25px rgb(var(--color-primary-green-rgb) / 0.25);
+}
+
+.shadow-error {
+  box-shadow:
+    inset 0 0 10px rgb(var(--color-accent-red-rgb) / 0.3),
+    0 0 10px rgb(var(--color-accent-red-rgb) / 0.2);
+}
+
+/* Ring utilities with custom colors */
+.ring-primary-green {
+  --tw-ring-color: rgb(var(--color-primary-green-rgb) / 0.6);
+}
+
+/* Hover state utilities */
+.hover-bg-primary-green-10:hover {
+  background-color: rgb(var(--color-primary-green-rgb) / 0.1);
+}
+
+.hover-bg-primary-green-20:hover {
+  background-color: rgb(var(--color-primary-green-rgb) / 0.2);
+}

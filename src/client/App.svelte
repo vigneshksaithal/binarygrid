@@ -14,8 +14,8 @@ onMount(() => {
 
 <main
 	class="w-full h-screen font-mono flex flex-col"
-	class:bg-black={$theme === 'dark'}
-	class:text-green-500={$theme === 'dark'}
+	class:bg-secondary-black={$theme === 'dark'}
+	class:text-primary-green={$theme === 'dark'}
 	class:bg-white={$theme === 'light'}
 	class:text-green-800={$theme === 'light'}
 >
@@ -25,22 +25,22 @@ onMount(() => {
 				<h1 class="text-lg sm:text-xl lg:text-2xl font-semibold">
 					binary_grid@tty0:~
 				</h1>
-				<span class="text-green-400">▮</span>
+				<span class="text-primary-green">▮</span>
 			</div>
 			<Toolbar />
 		</header>
 		<div class="flex-1 flex flex-col items-center justify-center gap-3">
-			<div class="text-green-400 text-sm sm:text-base font-semibold">
+			<div class="text-primary-green text-sm sm:text-base font-semibold">
 				<Timer />
 			</div>
 			<Grid />
 		</div>
-		<footer class="text-center text-green-400 text-xs sm:text-sm mt-4">
+		<footer class="text-center text-primary-green text-xs sm:text-sm mt-4">
 			<span class="font-medium">Solve to reveal Today's ASCII Character</span>
 		</footer>
 	</div>
 	<div
 		class="pointer-events-none fixed inset-0 opacity-[0.15]"
-		style="background-image: repeating-linear-gradient(transparent, transparent 2px, rgba(0,255,0,0.05) 3px);"
+		style="background-image: repeating-linear-gradient(transparent, transparent 2px, rgba(var(--color-primary-green-rgb) / 0.05) 3px);"
 	></div>
 </main>

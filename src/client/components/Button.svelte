@@ -26,14 +26,17 @@ const handleClick = () => {
 const sizeClasses = 'px-3 py-1.5 sm:px-3 text-sm sm:text-base'
 
 const base =
-  'border border-green-700 font-semibold transition-colors disabled:opacity-70 disabled:cursor-not-allowed'
-const color = 'text-green-400'
+  'border border-border-green font-semibold transition-colors disabled:opacity-70 disabled:cursor-not-allowed'
+const color = 'text-primary-green'
 const variantClasses =
   variant === 'primary'
-    ? 'bg-green-500/10 hover:bg-green-500/20'
-    : 'hover:bg-green-500/10'
+    ? 'hover-bg-primary-green-20'
+    : 'hover-bg-primary-green-10'
 
-const computedClass = `${sizeClasses} ${base} ${variantClasses} ${color} ${classes}`
+const bgClass =
+  variant === 'primary' ? 'bg-[rgb(var(--color-primary-green-rgb)/0.1)]' : ''
+
+const computedClass = `${sizeClasses} ${base} ${variantClasses} ${color} ${bgClass} ${classes}`
 </script>
 
 <button {type} class={computedClass} onclick={handleClick} {disabled}>

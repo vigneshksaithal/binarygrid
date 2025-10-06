@@ -29,11 +29,11 @@ const hint = () => {
 }
 </script>
 
-<div class="flex items-center gap-1 sm:gap-2 text-green-400 flex-wrap">
+<div class="flex items-center gap-1 sm:gap-2 text-primary-green flex-wrap">
 	<select
 		bind:value={difficulty}
 		onchange={start}
-		class="bg-black text-green-400 border border-green-700 px-1 py-1 sm:px-2 text-xs sm:text-sm font-medium"
+		class="bg-secondary-black text-primary-green border border-border-green px-1 py-1 sm:px-2 text-xs sm:text-sm font-medium"
 	>
 		<option value="easy">Easy</option>
 		<option value="medium">Medium</option>

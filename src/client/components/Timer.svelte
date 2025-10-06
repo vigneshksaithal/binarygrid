@@ -22,6 +22,6 @@ onMount(() => {
 })
 </script>
 
-<span class="text-green-400 text-sm sm:text-base font-semibold">
-  {formatElapsedTime(seconds)}
+<span class="text-primary-green text-sm sm:text-base font-semibold">
+	{formatElapsedTime(seconds)}
 </span>
