@@ -1,5 +1,11 @@
 {
-  "primary_green": "#77ff00",
-  "secondary_black": "#2a2a2a",
-  "tertiary_gray": "#444444"
+  "primary_green": "#14f195",
+  "secondary_black": "#0e1411",
+  "tertiary_gray": "#e6efea",
+  "text_white": "#e6efea",
+  "modal_background": "#0e1411",
+  "border_green": "#30b080",
+  "background_dark": "#0e1411",
+  "red_accent": "#ff4d4d",
+  "cell_yellow": "#f5d442"
 }
