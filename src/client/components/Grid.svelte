@@ -13,7 +13,7 @@ $effect(() => {
 </script>
 
 <div
-	class="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl grid grid-cols-6 gap-1 sm:gap-2 p-2 sm:p-3 border border-border-green bg-secondary-black text-primary-green shadow-primary-green-lg"
+	class="w-full max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl grid grid-cols-6 gap-1 sm:gap-2 p-2 sm:p-3 border border-border-green bg-secondary-black text-primary-green"
 >
 	{#each Array.from({ length: SIZE }) as _, r}
 		{#each Array.from({ length: SIZE }) as __, c}
