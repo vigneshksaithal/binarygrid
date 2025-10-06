@@ -1,15 +1,15 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import './app.css'
-import Grid from './components/Grid.svelte'
-import Timer from './components/Timer.svelte'
-import Toolbar from './components/Toolbar.svelte'
-import { loadPuzzle } from './stores/game'
-import { theme } from './stores/theme'
+	import { onMount } from 'svelte'
+	import './app.css'
+	import Grid from './components/Grid.svelte'
+	import Timer from './components/Timer.svelte'
+	import Toolbar from './components/Toolbar.svelte'
+	import { loadPuzzle } from './stores/game'
+	import { theme } from './stores/theme'
 
-onMount(() => {
-  loadPuzzle('easy')
-})
+	onMount(() => {
+		loadPuzzle('easy')
+	})
 </script>
 
 <main
@@ -20,13 +20,7 @@ onMount(() => {
 	class:text-green-800={$theme === 'light'}
 >
 	<div class="w-full h-full flex flex-col p-2 sm:p-4 lg:p-6">
-		<header class="flex items-center justify-between flex-wrap gap-2 mb-4">
-			<div class="flex items-center gap-2 sm:gap-3">
-				<h1 class="text-lg sm:text-xl lg:text-2xl font-semibold">
-					binary_grid@tty0:~
-				</h1>
-				<span class="text-primary-green">▮</span>
-			</div>
+		<header class="mb-4">
 			<Toolbar />
 		</header>
 		<div class="flex-1 flex flex-col items-center justify-center gap-3">
