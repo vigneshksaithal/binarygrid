@@ -6,7 +6,7 @@ import Button from './Button.svelte'
 {#if $showHowToModal}
 	<section class="fixed inset-0 z-50 grid place-items-center p-4">
 		<div
-			class="w-full max-w-2xl gap-6 p-6 rounded-xl shadow-md grid bg-zinc-800"
+			class="w-full max-w-lg gap-6 p-6 rounded-xl shadow-md grid bg-zinc-800"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="how-to-modal-title"
