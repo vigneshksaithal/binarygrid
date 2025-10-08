@@ -1,34 +1,34 @@
 <script lang="ts">
-	import { closeHowTo, showHowTo } from '../stores/ui'
-	import Button from './Button.svelte'
+import { closeHowTo, showHowTo } from '../stores/ui'
+import Button from './Button.svelte'
 </script>
 
 {#if $showHowTo}
 	<section
-		class="fixed inset-0 z-50 grid place-items-center bg-[rgb(var(--color-secondary-black-rgb)/0.7)]"
+		class="fixed inset-0 z-50 grid place-items-center p-4"
 	>
 		<div
+			class="w-full max-w-2xl gap-6 p-6 rounded-xl shadow-md grid bg-zinc-800"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="how-to-modal-title"
 			aria-describedby="how-to-modal-body"
-			class="grid w-11/12 max-w-2xl gap-6 border border-border-green bg-modal p-6 text-tertiary-gray shadow-2xl"
 		>
-			<h2 id="how-to-modal-title" class="text-xl text-primary-green">
-				How to Play
-			</h2>
-			<section id="how-to-modal-body" class="space-y-3 text-tertiary-gray">
-				<ul class="list-disc space-y-2 ps-6">
+			<h2 id="how-to-modal-title">How to Play</h2>
+			<div id="how-to-modal-body">
+				<p class="mb-2 font-semibold">Goal: All cells should have zeros and ones.</p>
+				<ol class="list-decimal list-inside mb-2">
 					<li>Tap cells to switch: blank → 0 → 1.</li>
-					<li>No 000 or 111 in any line.</li>
+					<li>No continuous 000s and 111s in any row or column.</li>
 					<li>Each row and column must have 3 zeros and 3 ones.</li>
-					<li>All rows and columns must differ.</li>
+				</ol>
+				<ul>
 					<li>Gray cells stay fixed.</li>
 					<li>Solved board auto-submits.</li>
 				</ul>
-			</section>
-			<footer class="flex justify-end">
-				<Button type="button" onClick={closeHowTo}>Got it</Button>
+			</div>
+			<footer>
+				<Button onClick={closeHowTo}>Got it</Button>
 			</footer>
 		</div>
 	</section>
