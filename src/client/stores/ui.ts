@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 
-export const showHowTo = writable(false)
+export const showHowToModal = writable(false)
 
-export const openHowTo = () => showHowTo.set(true)
-export const closeHowTo = () => showHowTo.set(false)
+export const openHowTo = () => showHowToModal.set(true)
+export const closeHowTo = () => showHowToModal.set(false)
