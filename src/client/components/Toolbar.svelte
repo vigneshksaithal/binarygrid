@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { loadPuzzle } from '../stores/game'
-	import { openHowTo } from '../stores/ui'
-	import Button from './Button.svelte'
-	import HowToModal from './HowToModal.svelte'
+import { loadPuzzle } from '../stores/game'
+import { openHowTo } from '../stores/ui'
+import Button from './Button.svelte'
+import HowToModal from './HowToModal.svelte'
 
-	let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
+let difficulty = $state<'easy' | 'medium' | 'hard'>('medium')
 
-	const start = () => loadPuzzle(difficulty)
+const start = () => loadPuzzle(difficulty)
 </script>
 
 <div class="flex items-center gap-1 sm:gap-2 text-primary-green flex-wrap">
