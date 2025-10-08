@@ -39,54 +39,19 @@ function validateShapeAndDomain(grid: Grid, errors: string[]): void {
 // Safe access helpers to satisfy strict typing when callers may not guarantee shape
 const getRow = (grid: Grid, r: number): Cell[] => {
   const row = grid[r]
-  if (Array.isArray(row) && row.length === SIZE) return row as Cell[]
+  if (Array.isArray(row) && row.length === SIZE) {
+    return row as Cell[]
+  }
   const fallback: Cell[] = new Array(SIZE)
-  for (let c = 0; c < SIZE; c++) fallback[c] = (row?.[c] ?? null) as Cell
+  for (let c = 0; c < SIZE; c++) {
+    fallback[c] = (row?.[c] ?? null) as Cell
+  }
   return fallback
 }
 
 const getCell = (grid: Grid, r: number, c: number): Cell => {
   const v = grid[r]?.[c]
   return v === 0 || v === 1 ? v : null
-}
-
-/**
- * Counts zeros, ones, and nulls in a row.
- */
-export function countRowValues(
-  grid: Grid,
-  r: number
-): { zeros: number; ones: number; nulls: number } {
-  let zeros = 0
-  let ones = 0
-  let nulls = 0
-  const row = getRow(grid, r)
-  for (let c = 0; c < SIZE; c++) {
-    const v = row[c]
-    if (v === 0) zeros++
-    else if (v === 1) ones++
-    else nulls++
-  }
-  return { zeros, ones, nulls }
-}
-
-/**
- * Counts zeros, ones, and nulls in a column.
- */
-export function countColValues(
-  grid: Grid,
-  c: number
-): { zeros: number; ones: number; nulls: number } {
-  let zeros = 0
-  let ones = 0
-  let nulls = 0
-  for (let r = 0; r < SIZE; r++) {
-    const v = getCell(grid, r, c)
-    if (v === 0) zeros++
-    else if (v === 1) ones++
-    else nulls++
-  }
-  return { zeros, ones, nulls }
 }
 
 /**
@@ -111,82 +76,12 @@ export function hasTripleRun(line: Cell[]): boolean {
 export function isComplete(grid: Grid): boolean {
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
-      if (getCell(grid, r, c) === null) return false
+      if (getCell(grid, r, c) === null) {
+        return false
+      }
     }
   }
   return true
-}
-
-/**
- * Computes a simple next hint based on deterministic logic:
- * 1) If a row or column already has three 1s (or 0s), fill remaining nulls with 0 (or 1).
- * 2) If placing a value would create a triple run, force the opposite in that position.
- */
-export function nextHint(
-  grid: Grid,
-  fixed: FixedCell[] = []
-): { r: number; c: number; v: 0 | 1 } | null {
-  // Helper to check fixed cell lock
-  const isFixed = (r: number, c: number) =>
-    fixed.some((f) => f.r === r && f.c === c)
-
-  // Rule 1: line count completion
-  for (let r = 0; r < SIZE; r++) {
-    const row = getRow(grid, r)
-    const { zeros, ones, nulls } = countRowValues(grid, r)
-    if (nulls > 0) {
-      if (ones === EXACT_ONES_PER_LINE) {
-        for (let c = 0; c < SIZE; c++)
-          if (row[c] === null && !isFixed(r, c)) return { r, c, v: 0 }
-      }
-      if (zeros === EXACT_ZEROS_PER_LINE) {
-        for (let c = 0; c < SIZE; c++)
-          if (row[c] === null && !isFixed(r, c)) return { r, c, v: 1 }
-      }
-    }
-  }
-  for (let c = 0; c < SIZE; c++) {
-    const { zeros, ones, nulls } = countColValues(grid, c)
-    if (nulls > 0) {
-      if (ones === EXACT_ONES_PER_LINE) {
-        for (let r = 0; r < SIZE; r++)
-          if (getCell(grid, r, c) === null && !isFixed(r, c))
-            return { r, c, v: 0 }
-      }
-      if (zeros === EXACT_ZEROS_PER_LINE) {
-        for (let r = 0; r < SIZE; r++)
-          if (getCell(grid, r, c) === null && !isFixed(r, c))
-            return { r, c, v: 1 }
-      }
-    }
-  }
-
-  // Rule 2: avoid triple runs (force opposite)
-  const tryForce = (
-    r: number,
-    c: number
-  ): { r: number; c: number; v: 0 | 1 } | null => {
-    if (getCell(grid, r, c) !== null || isFixed(r, c)) return null
-    for (const v of [0, 1] as const) {
-      const row = [...getRow(grid, r)] as Cell[]
-      row[c] = v
-      if (hasTripleRun(row)) return { r, c, v: (v === 0 ? 1 : 0) as 0 | 1 }
-      const col: Cell[] = new Array(SIZE)
-      for (let i = 0; i < SIZE; i++) col[i] = getCell(grid, i, c)
-      col[r] = v
-      if (hasTripleRun(col)) return { r, c, v: (v === 0 ? 1 : 0) as 0 | 1 }
-    }
-    return null
-  }
-
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      const hint = tryForce(r, c)
-      if (hint) return hint
-    }
-  }
-
-  return null
 }
 
 /**
@@ -206,9 +101,13 @@ function validateLine(line: Cell[], label: string, errors: string[]): boolean {
   let ones = 0
   let nulls = 0
   for (const v of line) {
-    if (v === 0) zeros++
-    else if (v === 1) ones++
-    else nulls++
+    if (v === 0) {
+      zeros++
+    } else if (v === 1) {
+      ones++
+    } else {
+      nulls++
+    }
   }
   if (nulls === 0) {
     if (zeros !== EXACT_ZEROS_PER_LINE || ones !== EXACT_ONES_PER_LINE) {
@@ -287,7 +186,9 @@ export function validateGrid(
   // Columns
   for (let c = 0; c < SIZE; c++) {
     const col: Cell[] = new Array(SIZE)
-    for (let r = 0; r < SIZE; r++) col[r] = getCell(grid, r, c)
+    for (let r = 0; r < SIZE; r++) {
+      col[r] = getCell(grid, r, c)
+    }
     const hasError = validateLine(col as Cell[], `Column ${c}`, errors)
     if (hasError) {
       errorColumns.push(c)
