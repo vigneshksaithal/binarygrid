@@ -18,7 +18,7 @@
     "launch": "npm run build && npm run deploy && devvit publish",
     "type-check": "tsc --build",
     "check:biome": "biome check --write .",
-    "check:ultracite": "ultracite fix",
+    "fix": "ultracite fix",
     "test": "vitest run"
   },
   "dependencies": {
