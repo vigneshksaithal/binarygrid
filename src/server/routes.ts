@@ -1,4 +1,4 @@
-import { context, redis } from '@devvit/web/server'
+import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import type { Grid, PuzzleWithGrid } from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
@@ -12,6 +12,18 @@ const DECIMAL_RADIX = 10
 const GRID_SIZE_TYPE = 6 as const
 
 app.get('/api/health', (c) => c.json({ ok: true }))
+
+// Join subreddit
+app.post('/api/join-subreddit', async (c) => {
+  try {
+    await reddit.subscribeToCurrentSubreddit()
+  } catch (error) {
+    return c.json(
+      { status: 'error', message: `Failed to join subreddit. Error: ${error}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
 
 // Get puzzle for the current post
 app.get('/api/puzzle', async (c) => {

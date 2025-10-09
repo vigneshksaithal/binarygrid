@@ -14,7 +14,10 @@
     "entry": "index.cjs"
   },
   "permissions": {
-    "redis": true
+    "redis": true,
+    "reddit": {
+      "asUser": ["SUBSCRIBE_TO_SUBREDDIT"]
+    }
   },
   "menu": {
     "items": [

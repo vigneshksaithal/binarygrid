@@ -5,14 +5,14 @@
   box-sizing: border-box;
 }
 
-body {
+/* body {
   margin: 0;
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
   width: 100%;
   height: 100%;
-}
+} */
 
 #app {
   width: 100%;
@@ -22,20 +22,24 @@ body {
 }
 
 @layer base {
+  body {
+    @apply min-h-screen min-w-80 w-full p-4 sm:p-6;
+  }
+  
   h1 {
-    @apply text-4xl font-semibold tracking-wide text-slate-300;
+    @apply text-4xl font-semibold tracking-wide text-slate-300 mb-4;
   }
 
   h2 {
-    @apply text-3xl font-semibold tracking-wide text-slate-300;
+    @apply text-3xl font-semibold tracking-wide text-slate-300 mb-3;
   }
 
   h3 {
-    @apply text-4xl font-semibold tracking-wide text-slate-300;
+    @apply text-4xl font-semibold tracking-wide text-slate-300 mb-2;
   }
 
   p {
-    @apply text-base text-slate-300;
+    @apply text-base text-slate-300 mb-2;
   }
 
   ul {

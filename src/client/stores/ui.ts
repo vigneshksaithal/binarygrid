@@ -4,3 +4,8 @@ export const showHowToModal = writable(false)
 
 export const openHowTo = () => showHowToModal.set(true)
 export const closeHowTo = () => showHowToModal.set(false)
+
+export const showSuccessModal = writable(false)
+
+export const openSuccessModal = () => showSuccessModal.set(true)
+export const closeSuccessModal = () => showSuccessModal.set(false)
