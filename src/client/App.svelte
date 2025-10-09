@@ -12,7 +12,7 @@ onMount(() => {
 })
 </script>
 
-<main class="w-full h-screen max-w-2xl mx-auto space-y-4">
+<main class="w-full h-screen max-w-2xl mx-auto flex flex-col gap-4 items-center">
 	<Toolbar />
 	<Timer />
 	<Grid />
