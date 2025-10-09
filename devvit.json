@@ -19,6 +19,9 @@
       "asUser": ["SUBSCRIBE_TO_SUBREDDIT"]
     }
   },
+  "media": {
+    "dir": "assets"
+  },
   "menu": {
     "items": [
       {
