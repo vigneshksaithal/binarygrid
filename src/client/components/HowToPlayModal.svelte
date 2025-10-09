@@ -15,12 +15,11 @@ import Button from './Button.svelte'
 			<h2 id="how-to-modal-title">How to Play</h2>
 			<div id="how-to-modal-body">
 				<p class="mb-2 font-semibold">
-					Goal: All cells should have zeros and ones.
+					Goal: Each row and column should have exactly 3 zeros and 3 ones.
 				</p>
 				<ol class="list-decimal list-inside mb-2">
 					<li>Tap cells to switch: blank → 0 → 1.</li>
 					<li>No continuous 000s and 111s in any row or column.</li>
-					<li>Each row and column must have 3 zeros and 3 ones.</li>
 				</ol>
 				<ul>
 					<li>Gray cells stay fixed.</li>
