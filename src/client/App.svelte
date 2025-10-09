@@ -1,37 +1,22 @@
 <script lang="ts">
 import { onMount } from 'svelte'
 import './app.css'
+import AnnouncementBar from './components/AnnouncementBar.svelte'
 import Grid from './components/Grid.svelte'
 import Timer from './components/Timer.svelte'
 import Toolbar from './components/Toolbar.svelte'
 import { loadPuzzle } from './stores/game'
-import { theme } from './stores/theme'
 
 onMount(() => {
   loadPuzzle('easy')
 })
 </script>
 
-<main
-	class="w-full h-screen font-mono flex flex-col"
-	class:bg-secondary-black={$theme === 'dark'}
-	class:text-primary-green={$theme === 'dark'}
-	class:bg-white={$theme === 'light'}
-	class:text-green-800={$theme === 'light'}
->
-	<div class="w-full h-full flex flex-col p-2 sm:p-4 lg:p-6">
-		<header class="mb-4">
-			<Toolbar />
-		</header>
-		<div class="flex-1 flex flex-col items-center justify-center gap-3">
-			<div class="text-primary-green text-sm sm:text-base font-semibold">
-				<Timer />
-			</div>
-			<Grid />
-		</div>
-	</div>
-	<div
-		class="pointer-events-none fixed inset-0 opacity-[0.15]"
-		style="background-image: repeating-linear-gradient(transparent, transparent 2px, rgba(var(--color-primary-green-rgb) / 0.05) 3px);"
-	></div>
+<main class="w-full h-screen max-w-2xl mx-auto space-y-4">
+	<Toolbar />
+	<Timer />
+	<Grid />
+	<AnnouncementBar
+	text="This is in Alpha stage. Please give your feedback here >> https://tally.so/r/wzPvga"
+/>
 </main>
