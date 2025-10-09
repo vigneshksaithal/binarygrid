@@ -2,6 +2,6 @@
 let { text } = $props()
 </script>
 
-<div class="w-full bg-green-900 text-gray-300 p-3 text-sm rounded-xl">
+<div class="w-full bg-zinc-800 text-gray-300 p-2.5 text-sm rounded-xl">
   {@html text}
 </div>
