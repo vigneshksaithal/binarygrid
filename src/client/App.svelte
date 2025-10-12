@@ -13,7 +13,7 @@ onMount(() => {
 </script>
 
 <main
-	class="w-full min-h-screen max-w-2xl mx-auto flex flex-col items-center gap-2 sm:gap-4 py-4 sm:py-6"
+	class="w-full max-w-2xl mx-auto flex flex-col items-center gap-2 sm:gap-4 py-4 sm:py-6"
 >
 	<Toolbar />
 	<Timer />
