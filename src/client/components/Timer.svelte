@@ -35,6 +35,6 @@ $effect(() => {
 })
 </script>
 
-<span class="text-primary-green text-sm sm:text-base font-semibold">
+<span class="text-primary-green text-sm sm:text-base font-semibold text-center">
 	{formatElapsedTime(seconds)}
 </span>
