@@ -113,44 +113,66 @@ const getNextCellValue = (current: Cell): Cell => {
 }
 
 const determineStatus = (isValid: boolean, grid: Grid): Status => {
-  if (!isValid) {
-    return 'invalid'
-  }
-  if (isComplete(grid)) {
-    return 'solved'
-  }
-  return 'in_progress'
+	if (!isValid) {
+		return 'invalid'
+	}
+	if (isComplete(grid)) {
+		return 'solved'
+	}
+	return 'in_progress'
 }
 
+let errorTimer: ReturnType<typeof setTimeout> | undefined
+
 export const cycleCell = (r: number, c: number) => {
-  game.update((s) => {
-    if (s.status === 'solved') {
-      return s
-    }
-    const isFixed = s.fixed.some((f) => f.r === r && f.c === c)
-    if (isFixed) {
-      return s
-    }
-    const nextGrid = s.grid.map((gridRow) => gridRow.slice())
-    const targetRow = nextGrid[r]
-    if (!targetRow) {
-      return s
-    }
-    const currentValue = targetRow[c] as Cell
-    targetRow[c] = getNextCellValue(currentValue)
-    const result = validateGrid(nextGrid, s.fixed)
-    const status = determineStatus(result.ok, nextGrid)
-    if (s.puzzleId && typeof localStorage !== 'undefined') {
-      localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
-    }
-    return {
-      ...s,
-      grid: nextGrid,
-      status,
-      errors: result.ok ? [] : result.errors,
-      errorLocations: result.errorLocations
-    }
-  })
+	if (errorTimer) {
+		clearTimeout(errorTimer)
+		errorTimer = undefined
+	}
+
+	game.update((s) => {
+		if (s.status === 'solved') {
+			return s
+		}
+		const isFixed = s.fixed.some((f) => f.r === r && f.c === c)
+		if (isFixed) {
+			return s
+		}
+		const nextGrid = s.grid.map((gridRow) => gridRow.slice())
+		const targetRow = nextGrid[r]
+		if (!targetRow) {
+			return s
+		}
+		const currentValue = targetRow[c] as Cell
+		targetRow[c] = getNextCellValue(currentValue)
+
+		const result = validateGrid(nextGrid, s.fixed)
+		const status = determineStatus(result.ok, nextGrid)
+
+		if (s.puzzleId && typeof localStorage !== 'undefined') {
+			localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
+		}
+
+		const currentGridJSON = JSON.stringify(nextGrid)
+		if (!result.ok) {
+			errorTimer = setTimeout(() => {
+				const currentGameState = get(game)
+				if (
+					JSON.stringify(currentGameState.grid) === currentGridJSON
+				) {
+					game.update((s) => ({ ...s, errorLocations: result.errorLocations }))
+				}
+			}, 3000)
+		}
+
+		return {
+			...s,
+			grid: nextGrid,
+			status,
+			errors: result.ok ? [] : result.errors,
+			errorLocations: undefined
+		}
+	})
 }
 
 export const autosubmitIfSolved = async () => {
