@@ -147,7 +147,8 @@ export const cycleCell = (r: number, c: number) => {
 		targetRow[c] = getNextCellValue(currentValue)
 
 		const result = validateGrid(nextGrid, s.fixed)
-		const status = determineStatus(result.ok, nextGrid)
+		let status = determineStatus(result.ok, nextGrid)
+		let errors = result.ok ? [] : result.errors
 
 		if (s.puzzleId && typeof localStorage !== 'undefined') {
 			localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -160,16 +161,24 @@ export const cycleCell = (r: number, c: number) => {
 				if (
 					JSON.stringify(currentGameState.grid) === currentGridJSON
 				) {
-					game.update((s) => ({ ...s, errorLocations: result.errorLocations }))
+					game.update((s) => ({
+						...s,
+						status: 'invalid',
+						errors: result.errors,
+						errorLocations: result.errorLocations
+					}))
 				}
 			}, 3000)
+
+			status = 'in_progress'
+			errors = []
 		}
 
 		return {
 			...s,
 			grid: nextGrid,
 			status,
-			errors: result.ok ? [] : result.errors,
+			errors,
 			errorLocations: undefined
 		}
 	})
