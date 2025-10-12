@@ -88,50 +88,44 @@ export function isComplete(grid: Grid): boolean {
  * Validates a single line (row or column) for count and triple-run constraints.
  */
 function validateLine(line: Cell[], label: string, errors: string[]): boolean {
-  let hasError = false
+	let hasError = false
 
-  // Triple run check
-  if (hasTripleRun(line)) {
-    errors.push(`${label} has a forbidden triple run.`)
-    hasError = true
-  }
+	// Triple run check
+	if (hasTripleRun(line)) {
+		errors.push(`${label} can't have three identical numbers in a row.`)
+		hasError = true
+	}
 
-  // Count constraints
-  let zeros = 0
-  let ones = 0
-  let nulls = 0
-  for (const v of line) {
-    if (v === 0) {
-      zeros++
-    } else if (v === 1) {
-      ones++
-    } else {
-      nulls++
-    }
-  }
-  if (nulls === 0) {
-    if (zeros !== EXACT_ZEROS_PER_LINE || ones !== EXACT_ONES_PER_LINE) {
-      errors.push(
-        `${label} must have exactly ${EXACT_ZEROS_PER_LINE} zeros and ${EXACT_ONES_PER_LINE} ones.`
-      )
-      hasError = true
-    }
-  } else {
-    if (zeros > EXACT_ZEROS_PER_LINE) {
-      errors.push(
-        `${label} has too many zeros (${zeros} > ${EXACT_ZEROS_PER_LINE}).`
-      )
-      hasError = true
-    }
-    if (ones > EXACT_ONES_PER_LINE) {
-      errors.push(
-        `${label} has too many ones (${ones} > ${EXACT_ONES_PER_LINE}).`
-      )
-      hasError = true
-    }
-  }
+	// Count constraints
+	let zeros = 0
+	let ones = 0
+	let nulls = 0
+	for (const v of line) {
+		if (v === 0) {
+			zeros++
+		} else if (v === 1) {
+			ones++
+		} else {
+			nulls++
+		}
+	}
+	if (nulls === 0) {
+		if (zeros !== EXACT_ZEROS_PER_LINE || ones !== EXACT_ONES_PER_LINE) {
+			errors.push(`${label} must have an equal number of 0s and 1s.`)
+			hasError = true
+		}
+	} else {
+		if (zeros > EXACT_ZEROS_PER_LINE) {
+			errors.push(`${label} has too many zeros.`)
+			hasError = true
+		}
+		if (ones > EXACT_ONES_PER_LINE) {
+			errors.push(`${label} has too many ones.`)
+			hasError = true
+		}
+	}
 
-  return hasError
+	return hasError
 }
 
 /**
