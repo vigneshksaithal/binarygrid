@@ -6,7 +6,7 @@ import Button from './Button.svelte'
 {#if $showHowToModal}
 	<section class="fixed inset-0 z-50 grid place-items-center p-4">
 		<div
-			class="w-full max-w-lg gap-6 p-6 rounded-xl shadow-md grid bg-zinc-800"
+			class="w-full max-w-lg p-6 rounded-xl shadow-md bg-zinc-800"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="how-to-modal-title"
@@ -14,16 +14,14 @@ import Button from './Button.svelte'
 		>
 			<h2 id="how-to-modal-title">How to Play</h2>
 			<div id="how-to-modal-body">
-				<p class="mb-2 font-semibold">
-					Goal: Each row and column should have exactly 3 zeros and 3 ones.
+				<p class="font-semibold">
+					Fill the grid so every row and column has exactly 3 zeros and 3 ones.
 				</p>
-				<ol class="list-decimal list-inside mb-2">
-					<li>Tap cells to switch: blank → 0 → 1.</li>
-					<li>No continuous 000s and 111s in any row or column.</li>
-				</ol>
 				<ul>
-					<li>Gray cells stay fixed.</li>
-					<li>Solved board auto-submits.</li>
+					<li>Tap any cell to cycle through: empty → 0 → 1</li>
+					<li>Watch out: you can't have three of the same number in a row</li>
+					<li>Gray cells are fixed and can't be changed</li>
+					<li>When you solve it, the game automatically submits your answer</li>
 				</ul>
 			</div>
 			<footer>
