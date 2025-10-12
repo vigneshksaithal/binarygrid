@@ -1,8 +1,10 @@
 <script lang="ts">
 import { onMount } from 'svelte'
+import { game } from '../stores/game'
 
 const TIMER_INTERVAL_MS = 1000
 let seconds = $state(0)
+let intervalId: ReturnType<typeof setInterval> | null = null
 
 const formatElapsedTime = (elapsed: number) => {
   const minutes = Math.floor(elapsed / 60)
@@ -12,16 +14,27 @@ const formatElapsedTime = (elapsed: number) => {
 }
 
 onMount(() => {
-  const intervalId: ReturnType<typeof setInterval> = setInterval(() => {
+  intervalId = setInterval(() => {
     seconds += 1
   }, TIMER_INTERVAL_MS)
 
   return () => {
+    if (intervalId) {
+      clearInterval(intervalId)
+    }
+  }
+})
+
+// Stop timer when puzzle is solved
+$effect(() => {
+  const currentGame = $game
+  if (currentGame.status === 'solved' && intervalId) {
     clearInterval(intervalId)
+    intervalId = null
   }
 })
 </script>
 
-<span class="text-primary-green text-sm sm:text-base font-semibold">
+<span class="text-primary-green text-sm sm:text-base font-semibold text-center">
 	{formatElapsedTime(seconds)}
 </span>

@@ -23,7 +23,7 @@
 
 @layer base {
   body {
-    @apply bg-zinc-900 min-h-screen min-w-80 w-full p-4 sm:p-6;
+    @apply bg-zinc-900 min-h-screen min-w-80 w-full;
   }
 
   h1 {

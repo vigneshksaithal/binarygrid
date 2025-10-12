@@ -15,8 +15,9 @@ onMount(() => {
 })
 </script>
 
-<div class="flex justify-center items-center gap-2.5 sm:gap-4">
+<div class="flex items-center gap-2.5 sm:gap-4 max-w-lg mx-auto">
 	<Button onClick={openHowTo}>How to Play</Button>
+  <!-- <Button>Feedback</Button> -->
 </div>
 
 <HowToPlayModal />
