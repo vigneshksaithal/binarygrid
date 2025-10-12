@@ -6,6 +6,8 @@ import {
 } from './rules'
 import type { Cell, FixedCell, Grid, ValidationResult } from './types/puzzle'
 
+const TRIPLE_RUN_LENGTH = 3
+
 /**
  * Returns true if the provided value is a valid Cell.
  */
@@ -59,7 +61,7 @@ const getCell = (grid: Grid, r: number, c: number): Cell => {
  * Nulls break runs and are ignored for the triple check.
  */
 export function hasTripleRun(line: Cell[]): boolean {
-  for (let i = 0; i <= line.length - 3; i++) {
+  for (let i = 0; i <= line.length - TRIPLE_RUN_LENGTH; i++) {
     const a = line[i]
     const b = line[i + 1]
     const c = line[i + 2]
@@ -85,18 +87,13 @@ export function isComplete(grid: Grid): boolean {
 }
 
 /**
- * Validates a single line (row or column) for count and triple-run constraints.
+ * Validates count constraints for a line.
  */
-function validateLine(line: Cell[], label: string, errors: string[]): boolean {
-  let hasError = false
-
-  // Triple run check
-  if (hasTripleRun(line)) {
-    errors.push(`${label} has a forbidden triple run.`)
-    hasError = true
-  }
-
-  // Count constraints
+function validateLineCounts(
+  line: Cell[],
+  label: string,
+  errors: string[]
+): boolean {
   let zeros = 0
   let ones = 0
   let nulls = 0
@@ -109,26 +106,41 @@ function validateLine(line: Cell[], label: string, errors: string[]): boolean {
       nulls++
     }
   }
+
   if (nulls === 0) {
     if (zeros !== EXACT_ZEROS_PER_LINE || ones !== EXACT_ONES_PER_LINE) {
-      errors.push(
-        `${label} must have exactly ${EXACT_ZEROS_PER_LINE} zeros and ${EXACT_ONES_PER_LINE} ones.`
-      )
-      hasError = true
+      errors.push(`${label} must have an equal number of 0s and 1s.`)
+      return true
     }
   } else {
     if (zeros > EXACT_ZEROS_PER_LINE) {
-      errors.push(
-        `${label} has too many zeros (${zeros} > ${EXACT_ZEROS_PER_LINE}).`
-      )
-      hasError = true
+      errors.push(`${label} has too many zeros.`)
+      return true
     }
     if (ones > EXACT_ONES_PER_LINE) {
-      errors.push(
-        `${label} has too many ones (${ones} > ${EXACT_ONES_PER_LINE}).`
-      )
-      hasError = true
+      errors.push(`${label} has too many ones.`)
+      return true
     }
+  }
+
+  return false
+}
+
+/**
+ * Validates a single line (row or column) for count and triple-run constraints.
+ */
+function validateLine(line: Cell[], label: string, errors: string[]): boolean {
+  let hasError = false
+
+  // Triple run check
+  if (hasTripleRun(line)) {
+    errors.push(`${label} can't have three identical numbers in a row.`)
+    hasError = true
+  }
+
+  // Count constraints
+  if (validateLineCounts(line, label, errors)) {
+    hasError = true
   }
 
   return hasError

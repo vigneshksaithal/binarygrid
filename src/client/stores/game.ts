@@ -122,7 +122,15 @@ const determineStatus = (isValid: boolean, grid: Grid): Status => {
   return 'in_progress'
 }
 
+const ERROR_DISPLAY_DELAY = 3000
+let errorTimer: ReturnType<typeof setTimeout> | undefined
+
 export const cycleCell = (r: number, c: number) => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+
   game.update((s) => {
     if (s.status === 'solved') {
       return s
@@ -138,17 +146,39 @@ export const cycleCell = (r: number, c: number) => {
     }
     const currentValue = targetRow[c] as Cell
     targetRow[c] = getNextCellValue(currentValue)
+
     const result = validateGrid(nextGrid, s.fixed)
-    const status = determineStatus(result.ok, nextGrid)
+    let status = determineStatus(result.ok, nextGrid)
+    let errors = result.ok ? [] : result.errors
+
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
     }
+
+    const currentGridJSON = JSON.stringify(nextGrid)
+    if (!result.ok) {
+      errorTimer = setTimeout(() => {
+        const currentGameState = get(game)
+        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
+          game.update((gameState) => ({
+            ...gameState,
+            status: 'invalid',
+            errors: result.errors,
+            errorLocations: result.errorLocations
+          }))
+        }
+      }, ERROR_DISPLAY_DELAY)
+
+      status = 'in_progress'
+      errors = []
+    }
+
     return {
       ...s,
       grid: nextGrid,
       status,
-      errors: result.ok ? [] : result.errors,
-      errorLocations: result.errorLocations
+      errors,
+      errorLocations: undefined
     }
   })
 }
