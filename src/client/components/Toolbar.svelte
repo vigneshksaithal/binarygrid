@@ -1,24 +1,39 @@
 <script lang="ts">
-import { onMount } from 'svelte'
-import { loadPuzzle } from '../stores/game'
-import { openHowTo } from '../stores/ui'
-import Button from './Button.svelte'
-import HowToPlayModal from './HowToPlayModal.svelte'
-import SuccessModal from './SuccessModal.svelte'
+  import { get } from 'svelte/store';
+  import { game, loadPuzzle } from '../stores/game';
+  import { timer } from '../stores/timer';
+  import { openHowTo, openSuccessModal } from '../stores/ui';
+  import Button from './Button.svelte';
+  import SuccessModal from './SuccessModal.svelte';
+  import HowToPlayModal from './HowToPlayModal.svelte';
 
-let difficulty = $state<'easy' | 'medium' | 'hard'>('easy')
+  let showNewGameOptions = false;
 
-const start = () => loadPuzzle(difficulty)
+  const toggleNewGameOptions = () => {
+    showNewGameOptions = !showNewGameOptions;
+  };
 
-onMount(() => {
-  start()
-})
+  game.subscribe(async (g) => {
+    if (g.status === 'solved') {
+      const finalTime = get(timer).seconds;
+      openSuccessModal(finalTime);
+    }
+  });
 </script>
 
-<div class="flex items-center gap-2.5 sm:gap-4 max-w-lg mx-auto">
-	<Button onClick={openHowTo}>How to Play</Button>
-  <!-- <Button>Feedback</Button> -->
+<div class="w-full flex justify-between items-center">
+  <div class="relative">
+    <Button onClick={toggleNewGameOptions}>New Game</Button>
+    {#if showNewGameOptions}
+      <div class="absolute top-full left-0 mt-2 bg-zinc-800 rounded-md shadow-lg">
+        <Button onClick={() => loadPuzzle('easy')}>Easy</Button>
+        <Button onClick={() => loadPuzzle('medium')}>Medium</Button>
+        <Button onClick={() => loadPuzzle('hard')}>Hard</Button>
+      </div>
+    {/if}
+  </div>
+  <Button onClick={openHowTo}>How to Play</Button>
 </div>
 
-<HowToPlayModal />
 <SuccessModal />
+<HowToPlayModal />
