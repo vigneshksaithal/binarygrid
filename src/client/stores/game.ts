@@ -4,9 +4,11 @@ import type {
   Cell,
   Difficulty,
   Grid,
-  PuzzleWithGrid
+  PuzzleWithGrid,
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
+import { openSuccessModal } from './ui'
+import { timer } from './timer'
 
 type Status =
   | 'idle'
@@ -52,6 +54,7 @@ const storageKey = (id: string) => `binarygrid:${id}`
 
 export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
   game.update((s) => ({ ...s, status: 'loading', errors: [] }))
+  timer.reset()
   const date = dateISO ?? new Date().toISOString().slice(0, 10)
   const res = await fetch(`/api/puzzle?date=${date}&difficulty=${difficulty}`)
   if (!res.ok) {
@@ -81,6 +84,7 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
       columns: number[]
     }
   })
+  timer.start()
 }
 
 export const resetPuzzle = () => {
@@ -92,6 +96,7 @@ export const resetPuzzle = () => {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(storageKey(s.puzzleId))
     }
+    timer.reset()
     return {
       ...s,
       grid,
@@ -117,6 +122,7 @@ const determineStatus = (isValid: boolean, grid: Grid): Status => {
     return 'invalid'
   }
   if (isComplete(grid)) {
+    timer.stop()
     return 'solved'
   }
   return 'in_progress'
@@ -150,6 +156,10 @@ export const cycleCell = (r: number, c: number) => {
     const result = validateGrid(nextGrid, s.fixed)
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
+    if (status === 'solved') {
+      const finalTime = get(timer).seconds
+      openSuccessModal(finalTime)
+    }
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
