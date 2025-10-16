@@ -52,7 +52,8 @@ app.get('/api/puzzle', async (c) => {
       ) as typeof GRID_SIZE_TYPE,
       difficulty: puzzleData.difficulty as 'easy' | 'medium' | 'hard',
       fixed: JSON.parse(puzzleData.fixed || '[]'),
-      initial: JSON.parse(puzzleData.initial || '[]')
+      initial: JSON.parse(puzzleData.initial || '[]'),
+      solution: JSON.parse(puzzleData.solution || '[]')
     }
 
     return c.json({ puzzle })

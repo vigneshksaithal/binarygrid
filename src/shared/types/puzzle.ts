@@ -23,6 +23,7 @@ export type Puzzle = {
 
 export type PuzzleWithGrid = Puzzle & {
   initial: Grid
+  solution: Grid
 }
 
 export type Submission = {

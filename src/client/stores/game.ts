@@ -21,6 +21,7 @@ type Status =
 type GameState = {
   puzzleId: string | null
   difficulty: Difficulty
+  solution: Grid
   grid: Grid
   initial: Grid
   fixed: { r: number; c: number; v: 0 | 1 }[]
@@ -32,6 +33,7 @@ type GameState = {
         columns: number[]
       }
     | undefined
+  hintUsed?: boolean
 }
 
 const emptyGrid = (): Grid =>
@@ -45,6 +47,7 @@ const cloneGrid = (grid: Grid): Grid =>
 const initial: GameState = {
   puzzleId: null,
   difficulty: 'medium',
+  solution: emptyGrid(),
   grid: emptyGrid(),
   initial: emptyGrid(),
   fixed: [],
@@ -84,6 +87,7 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
     difficulty,
     grid,
     initial: initialGrid,
+    solution: data.puzzle.solution,
     fixed: data.puzzle.fixed,
     status: 'in_progress',
     errors: [],
@@ -223,4 +227,69 @@ export const autosubmitIfSolved = async () => {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ id: snapshot.puzzleId, grid: snapshot.grid })
   })
+}
+
+const HINT_COOLDOWN = 2000
+let hintTimer: ReturnType<typeof setTimeout> | undefined
+
+export const giveHint = () => {
+  if (hintTimer) {
+    clearTimeout(hintTimer)
+    hintTimer = undefined
+  }
+  let solved = false
+  game.update((s) => {
+    if (s.status === 'solved' || s.hintUsed) {
+      return s
+    }
+    const emptyCells: { r: number; c: number }[] = []
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (s.grid[r]?.[c] === null) {
+          emptyCells.push({ r, c })
+        }
+      }
+    }
+    if (emptyCells.length === 0) {
+      return s
+    }
+    const randomIndex = Math.floor(Math.random() * emptyCells.length)
+    const cellToFill = emptyCells[randomIndex]
+    if (!cellToFill) {
+      return s
+    }
+    const { r, c } = cellToFill
+    const solutionValue = s.solution[r]?.[c]
+    if (solutionValue === undefined || solutionValue === null) {
+      return s
+    }
+    const nextGrid = cloneGrid(s.grid)
+    const targetRow = nextGrid[r]
+    if (!targetRow) {
+      return s
+    }
+    targetRow[c] = solutionValue
+    const result = validateGrid(nextGrid, s.fixed)
+    const status = determineStatus(result.ok, nextGrid)
+    solved = status === 'solved'
+    if (s.puzzleId && typeof localStorage !== 'undefined') {
+      localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
+    }
+    hintTimer = setTimeout(() => {
+      game.update((g) => ({ ...g, hintUsed: false }))
+    }, HINT_COOLDOWN)
+
+    return {
+      ...s,
+      grid: nextGrid,
+      status,
+      hintUsed: true,
+      errors: result.ok ? [] : result.errors,
+      errorLocations: result.ok ? undefined : result.errorLocations
+    }
+  })
+  if (solved) {
+    stopTimer()
+    openSuccessModal()
+  }
 }

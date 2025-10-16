@@ -72,7 +72,7 @@ export const generateDailyPuzzle = (
     }
   }
 
-  return { id, size: 6, difficulty, fixed, initial }
+  return { id, size: 6, difficulty, fixed, initial, solution }
 }
 
 /**
@@ -103,7 +103,7 @@ export const generatePuzzleForPost = (
     }
   }
 
-  return { id, size: 6, difficulty, fixed, initial }
+  return { id, size: 6, difficulty, fixed, initial, solution }
 }
 
 // ---------------- RNG ----------------

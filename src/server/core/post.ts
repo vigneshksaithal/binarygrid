@@ -29,7 +29,8 @@ export const createPost = async (difficulty: Difficulty = 'medium') => {
     size: puzzle.size.toString(),
     difficulty: puzzle.difficulty,
     fixed: JSON.stringify(puzzle.fixed),
-    initial: JSON.stringify(puzzle.initial)
+    initial: JSON.stringify(puzzle.initial),
+    solution: JSON.stringify(puzzle.solution)
   })
 
   return post
