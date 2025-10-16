@@ -62,7 +62,7 @@ const collectHintCandidates = (state: GameState): HintCandidate[] => {
   for (let r = 0; r < SIZE; r++) {
     const solutionRow = state.solution[r]
     const currentRow = state.grid[r]
-    if (!solutionRow || !currentRow) {
+    if (!(solutionRow && currentRow)) {
       continue
     }
     for (let c = 0; c < SIZE; c++) {
