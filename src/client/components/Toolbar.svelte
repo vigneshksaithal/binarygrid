@@ -21,6 +21,7 @@ onMount(() => {
 	<Button
 		onClick={giveHint}
 		disabled={!$game.puzzleId || $game.status === 'solved' || $game.hintUsed}
+		cooldown={$game.hintUsed}
 	>
 		Hint
 	</Button>

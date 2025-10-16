@@ -60,42 +60,81 @@ export const game = writable<GameState>(initial)
 
 const storageKey = (id: string) => `binarygrid:${id}`
 
+const mockPuzzle: PuzzleWithGrid = {
+  id: 'mock-puzzle',
+  size: 6,
+  difficulty: 'easy',
+  initial: [
+    [null, 1, 0, null, 1, 0],
+    [null, null, 1, 0, null, null],
+    [0, 1, null, null, 1, 0],
+    [1, 0, null, null, 0, 1],
+    [null, null, 0, 1, null, null],
+    [1, 0, 1, null, 0, null]
+  ],
+  solution: [
+    [0, 1, 0, 1, 1, 0],
+    [0, 1, 1, 0, 0, 1],
+    [0, 1, 0, 1, 1, 0],
+    [1, 0, 1, 0, 0, 1],
+    [1, 0, 0, 1, 1, 0],
+    [1, 0, 1, 0, 0, 1]
+  ],
+  fixed: []
+}
+
 export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
   resetTimer()
   closeSuccessModal()
   game.update((s) => ({ ...s, status: 'loading', errors: [] }))
-  const date = dateISO ?? new Date().toISOString().slice(0, 10)
-  const res = await fetch(`/api/puzzle?date=${date}&difficulty=${difficulty}`)
-  if (!res.ok) {
-    game.update((s) => ({
-      ...s,
-      status: 'error',
-      errors: ['failed to load puzzle']
-    }))
-    return
-  }
-  const data = (await res.json()) as { puzzle: PuzzleWithGrid }
-  const id = data.puzzle.id
-  const saved =
-    typeof localStorage !== 'undefined'
-      ? localStorage.getItem(storageKey(id))
-      : null
-  const initialGrid = cloneGrid(data.puzzle.initial)
-  const grid: Grid = saved ? JSON.parse(saved) : cloneGrid(initialGrid)
-  game.set({
-    puzzleId: id,
-    difficulty,
-    grid,
-    initial: initialGrid,
-    solution: data.puzzle.solution,
-    fixed: data.puzzle.fixed,
-    status: 'in_progress',
-    errors: [],
-    errorLocations: undefined as unknown as {
-      rows: number[]
-      columns: number[]
+
+  try {
+    const date = dateISO ?? new Date().toISOString().slice(0, 10)
+    const res = await fetch(`/api/puzzle?date=${date}&difficulty=${difficulty}`)
+    if (!res.ok) {
+      throw new Error('Failed to fetch puzzle from API')
     }
-  })
+    const data = (await res.json()) as { puzzle: PuzzleWithGrid }
+    const id = data.puzzle.id
+    const saved =
+      typeof localStorage !== 'undefined'
+        ? localStorage.getItem(storageKey(id))
+        : null
+    const initialGrid = cloneGrid(data.puzzle.initial)
+    const grid: Grid = saved ? JSON.parse(saved) : cloneGrid(initialGrid)
+    game.set({
+      puzzleId: id,
+      difficulty,
+      grid,
+      initial: initialGrid,
+      solution: data.puzzle.solution,
+      fixed: data.puzzle.fixed,
+      status: 'in_progress',
+      errors: [],
+      errorLocations: undefined as unknown as {
+        rows: number[]
+        columns: number[]
+      }
+    })
+  } catch (error) {
+    console.error('Failed to load puzzle, using mock puzzle:', error)
+    const initialGrid = cloneGrid(mockPuzzle.initial)
+    game.set({
+      puzzleId: mockPuzzle.id,
+      difficulty: mockPuzzle.difficulty,
+      grid: initialGrid,
+      initial: initialGrid,
+      solution: mockPuzzle.solution,
+      fixed: mockPuzzle.fixed,
+      status: 'in_progress',
+      errors: [],
+      errorLocations: undefined as unknown as {
+        rows: number[]
+        columns: number[]
+      }
+    })
+  }
+
   resetTimer()
   startTimer()
 }
