@@ -7,6 +7,8 @@ import type {
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
+import { resetTimer, startTimer, stopTimer } from './timer'
+import { closeSuccessModal, openSuccessModal } from './ui'
 
 type Status =
   | 'idle'
@@ -56,6 +58,8 @@ export const game = writable<GameState>(initial)
 const storageKey = (id: string) => `binarygrid:${id}`
 
 export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
+  resetTimer()
+  closeSuccessModal()
   game.update((s) => ({ ...s, status: 'loading', errors: [] }))
   const date = dateISO ?? new Date().toISOString().slice(0, 10)
   const res = await fetch(`/api/puzzle?date=${date}&difficulty=${difficulty}`)
@@ -88,6 +92,8 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
       columns: number[]
     }
   })
+  resetTimer()
+  startTimer()
 }
 
 export const resetPuzzle = () => {
@@ -95,10 +101,12 @@ export const resetPuzzle = () => {
     clearTimeout(errorTimer)
     errorTimer = undefined
   }
+  let didReset = false
   game.update((s) => {
     if (!s.puzzleId) {
       return s
     }
+    didReset = true
     const grid = cloneGrid(s.initial)
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(storageKey(s.puzzleId))
@@ -111,6 +119,11 @@ export const resetPuzzle = () => {
       errorLocations: undefined
     }
   })
+  if (didReset) {
+    resetTimer()
+    startTimer()
+    closeSuccessModal()
+  }
 }
 
 const getNextCellValue = (current: Cell): Cell => {
@@ -142,6 +155,7 @@ export const cycleCell = (r: number, c: number) => {
     errorTimer = undefined
   }
 
+  let solved = false
   game.update((s) => {
     if (s.status === 'solved') {
       return s
@@ -161,6 +175,7 @@ export const cycleCell = (r: number, c: number) => {
     const result = validateGrid(nextGrid, s.fixed)
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
+    solved = status === 'solved'
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -192,6 +207,10 @@ export const cycleCell = (r: number, c: number) => {
       errorLocations: undefined
     }
   })
+  if (solved) {
+    stopTimer()
+    openSuccessModal()
+  }
 }
 
 export const autosubmitIfSolved = async () => {

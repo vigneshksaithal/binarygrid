@@ -25,6 +25,7 @@
     "@devvit/web": "0.12.1",
     "@hono/node-server": "^1.19.5",
     "@tailwindcss/vite": "^4.1.14",
+    "canvas-confetti": "^1.9.3",
     "devvit": "0.12.1",
     "hono": "^4.9.12",
     "tailwindcss": "^4.1.14"
