@@ -1,15 +1,29 @@
 <script lang="ts">
+import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 import { closeSuccessModal, showSuccessModal } from '../stores/ui'
 
 import Button from './Button.svelte'
 
+let isJoining = $state(false)
+
 const joinSubreddit = async () => {
-  const res = await fetch('/api/join-subreddit')
-  if (res.ok) {
-    closeSuccessModal()
-  } else {
-    // biome-ignore lint/suspicious/noConsole: Testing
-    console.error('Failed to join subreddit')
+  if (isJoining) {
+    return
+  }
+  isJoining = true
+  try {
+    const res = await fetch('/api/join-subreddit')
+    if (res.ok) {
+      closeSuccessModal()
+    } else {
+      // biome-ignore lint/suspicious/noConsole: surface failure in devtools
+      console.error('Failed to join subreddit')
+    }
+  } catch (error) {
+    // biome-ignore lint/suspicious/noConsole: surface failure in devtools
+    console.error('Failed to join subreddit', error)
+  } finally {
+    isJoining = false
   }
 }
 </script>
@@ -23,13 +37,38 @@ const joinSubreddit = async () => {
 			aria-labelledby="success-modal-title"
 			aria-describedby="success-modal-body"
 		>
-			<h2 id="success-modal-title">Congratulations!</h2>
-			<div id="success-modal-body">
-				<p>You've solved the puzzle!</p>
-				<p>Please join the subreddit to play the daily challenges.</p>
+			<h2
+				id="success-modal-title"
+				class="text-center text-primary-green text-2xl font-semibold"
+			>
+				Congratulations!
+			</h2>
+			<div id="success-modal-body" class="grid gap-3 text-center text-zinc-100">
+				<p class="text-lg font-semibold">
+					You solved the puzzle in
+					<span class="text-primary-green"
+						>{formatElapsedTime($elapsedSeconds)}</span
+					>.
+				</p>
+				<p class="text-sm text-zinc-300">
+					Join r/binarygrid for daily challenges.
+				</p>
 			</div>
-			<footer>
-				<Button onClick={joinSubreddit}>Join Subreddit</Button>
+			<footer class="grid gap-3">
+				<button
+					type="button"
+					class="text-sm font-medium text-zinc-300 hover:text-primary-green transition-colors"
+					onclick={closeSuccessModal}
+				>
+					Maybe later
+				</button>
+				<Button onClick={joinSubreddit} disabled={isJoining}>
+					{#if isJoining}
+						Joining…
+					{:else}
+						Join r/binarygrid
+					{/if}
+				</Button>
 			</footer>
 		</div>
 	</section>
