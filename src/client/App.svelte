@@ -22,9 +22,9 @@ $effect(() => {
 <main
 	class="w-full max-w-2xl mx-auto flex flex-col items-center gap-4 sm:gap-4 p-4 md:p-6"
 >
-	<Toolbar />
 	<Timer />
 	<Grid />
+	<Toolbar />
 	<!-- <AnnouncementBar
 		text="This is in Alpha stage. Please give your feedback here >> https://tally.so/r/wzPvga"
 	/> -->

@@ -13,6 +13,11 @@ $effect(() => {
 <div
 	class="w-full max-w-md lg:max-w-lg grid grid-cols-6 gap-2 sm:gap-4 p-4 sm:p-6 bg-zinc-800 text-primary-green rounded-2xl"
 >
+	{#if $game.status === 'solved'}
+		<div class="col-span-6 text-sm text-primary-green mb-2 font-semibold text-center">
+			Solved
+		</div>
+	{/if}
 	{#each Array.from({ length: SIZE }) as _, r}
 		{#each Array.from({ length: SIZE }) as __, c}
 			{#if $game.grid[r]}
@@ -50,11 +55,6 @@ $effect(() => {
 					{/each}
 				</div>
 			</div>
-		</div>
-	{/if}
-	{#if $game.status === 'solved'}
-		<div class="col-span-6 text-sm text-primary-green mt-2 font-semibold">
-			Solved
 		</div>
 	{/if}
 	{#if $game.status === 'loading'}
