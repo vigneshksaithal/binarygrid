@@ -1,5 +1,6 @@
 import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
+import { solvePuzzle } from '../../shared/solver'
 import type {
   Cell,
   Difficulty,
@@ -18,7 +19,7 @@ type Status =
   | 'invalid'
   | 'error'
 
-type GameState = {
+export type GameState = {
   puzzleId: string | null
   difficulty: Difficulty
   grid: Grid
@@ -32,6 +33,8 @@ type GameState = {
         columns: number[]
       }
     | undefined
+  solution: Grid | null
+  lastHint: { r: number; c: number } | null
 }
 
 const emptyGrid = (): Grid =>
@@ -42,6 +45,52 @@ const emptyGrid = (): Grid =>
 const cloneGrid = (grid: Grid): Grid =>
   grid.map((row) => row.map((cell) => cell))
 
+const isCellFixed = (
+  fixed: GameState['fixed'],
+  r: number,
+  c: number
+): boolean => fixed.some((f) => f.r === r && f.c === c)
+
+type HintCandidate = { r: number; c: number; value: 0 | 1 }
+
+const collectHintCandidates = (state: GameState): HintCandidate[] => {
+  if (!state.solution) {
+    return []
+  }
+  const blanks: HintCandidate[] = []
+  const corrections: HintCandidate[] = []
+  for (let r = 0; r < SIZE; r++) {
+    const solutionRow = state.solution[r]
+    const currentRow = state.grid[r]
+    if (!solutionRow || !currentRow) {
+      continue
+    }
+    for (let c = 0; c < SIZE; c++) {
+      const target = solutionRow[c]
+      if (target !== 0 && target !== 1) {
+        continue
+      }
+      if (isCellFixed(state.fixed, r, c)) {
+        continue
+      }
+      const current = currentRow[c]
+      if (current === target) {
+        continue
+      }
+      const candidate = { r, c, value: target }
+      if (current === null) {
+        blanks.push(candidate)
+      } else {
+        corrections.push(candidate)
+      }
+    }
+  }
+  return blanks.length > 0 ? blanks : corrections
+}
+
+export const hasHintAvailable = (state: GameState): boolean =>
+  collectHintCandidates(state).length > 0
+
 const initial: GameState = {
   puzzleId: null,
   difficulty: 'medium',
@@ -50,7 +99,9 @@ const initial: GameState = {
   fixed: [],
   status: 'idle',
   errors: [],
-  errorLocations: undefined
+  errorLocations: undefined,
+  solution: null,
+  lastHint: null
 }
 
 export const game = writable<GameState>(initial)
@@ -79,6 +130,7 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
       : null
   const initialGrid = cloneGrid(data.puzzle.initial)
   const grid: Grid = saved ? JSON.parse(saved) : cloneGrid(initialGrid)
+  const solution = solvePuzzle(initialGrid, data.puzzle.fixed) ?? null
   game.set({
     puzzleId: id,
     difficulty,
@@ -90,7 +142,9 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
     errorLocations: undefined as unknown as {
       rows: number[]
       columns: number[]
-    }
+    },
+    solution,
+    lastHint: null
   })
   resetTimer()
   startTimer()
@@ -116,7 +170,8 @@ export const resetPuzzle = () => {
       grid,
       status: 'in_progress',
       errors: [],
-      errorLocations: undefined
+      errorLocations: undefined,
+      lastHint: null
     }
   })
   if (didReset) {
@@ -160,8 +215,7 @@ export const cycleCell = (r: number, c: number) => {
     if (s.status === 'solved') {
       return s
     }
-    const isFixed = s.fixed.some((f) => f.r === r && f.c === c)
-    if (isFixed) {
+    if (isCellFixed(s.fixed, r, c)) {
       return s
     }
     const nextGrid = s.grid.map((gridRow) => gridRow.slice())
@@ -204,7 +258,75 @@ export const cycleCell = (r: number, c: number) => {
       grid: nextGrid,
       status,
       errors,
-      errorLocations: undefined
+      errorLocations: undefined,
+      lastHint: null
+    }
+  })
+  if (solved) {
+    stopTimer()
+    openSuccessModal()
+  }
+}
+
+export const revealHint = () => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+  let solved = false
+  game.update((s) => {
+    if (!s.solution || s.status === 'solved') {
+      return s
+    }
+    const candidates = collectHintCandidates(s)
+    if (candidates.length === 0) {
+      return s
+    }
+    const index = Math.floor(Math.random() * candidates.length)
+    const choice = candidates[index]
+    if (!choice) {
+      return s
+    }
+    const nextGrid = s.grid.map((row) => row.slice())
+    const nextRow = nextGrid[choice.r]
+    if (!nextRow) {
+      return s
+    }
+    nextRow[choice.c] = choice.value
+
+    const result = validateGrid(nextGrid, s.fixed)
+    let status = determineStatus(result.ok, nextGrid)
+    let errors = result.ok ? [] : result.errors
+    solved = status === 'solved'
+
+    if (s.puzzleId && typeof localStorage !== 'undefined') {
+      localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
+    }
+
+    if (!result.ok) {
+      const currentGridJSON = JSON.stringify(nextGrid)
+      errorTimer = setTimeout(() => {
+        const currentGameState = get(game)
+        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
+          game.update((gameState) => ({
+            ...gameState,
+            status: 'invalid',
+            errors: result.errors,
+            errorLocations: result.errorLocations
+          }))
+        }
+      }, ERROR_DISPLAY_DELAY)
+      status = 'in_progress'
+      errors = []
+    }
+
+    return {
+      ...s,
+      grid: nextGrid,
+      status,
+      errors,
+      errorLocations: undefined,
+      lastHint: { r: choice.r, c: choice.c }
     }
   })
   if (solved) {

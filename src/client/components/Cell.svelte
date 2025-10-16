@@ -3,12 +3,14 @@ const {
   value = null,
   fixed = false,
   hasError = false,
-  onClick
+  onClick,
+  isHint = false
 }: {
   value?: 0 | 1 | null
   fixed?: boolean
   hasError?: boolean
   onClick?: () => void
+  isHint?: boolean
 } = $props()
 
 const handleClick = () => {
@@ -18,13 +20,21 @@ const handleClick = () => {
 }
 
 const label = fixed ? 'Fixed cell' : 'Editable cell'
+
+const borderClass = $derived(
+  hasError
+    ? 'border-2 border-error'
+    : isHint
+      ? 'border-2 border-[rgb(var(--color-primary-green-rgb)/0.7)]'
+      : 'border border-zinc-700'
+)
 </script>
 
 <button
 	type="button"
 	class="aspect-square w-full flex items-center justify-center font-mono font-semibold text-base sm:text-lg md:text-xl lg:text-2xl focus:outline-none focus:ring-2 ring-primary-green bg-zinc-700 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg transition-colors hover-bg-primary-green-10 relative {fixed
 		? 'bg-[rgb(var(--color-primary-green-rgb)/0.1)]'
-		: ''} {hasError ? 'border-2 border-error' : 'border border-zinc-700'}"
+		: ''} {isHint && !fixed ? 'bg-[rgb(var(--color-primary-green-rgb)/0.15)]' : ''} {borderClass}"
 	onclick={handleClick}
 	aria-label={label}
 	disabled={fixed}
