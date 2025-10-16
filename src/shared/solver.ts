@@ -43,10 +43,7 @@ const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
   return false
 }
 
-export const solvePuzzle = (
-  initial: Grid,
-  fixed: FixedCell[]
-): Grid | null => {
+export const solvePuzzle = (initial: Grid, fixed: FixedCell[]): Grid | null => {
   const grid = cloneGrid(initial)
   if (!validateGrid(grid, fixed).ok) {
     return null
