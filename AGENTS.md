@@ -43,11 +43,12 @@ dist/               # Build output (client + server)
 
 ## Code Style
 
+- **Write performant, readable, and minimal code.** Avoid over-complicating solutions.
+- **Use functional programming patterns** where possible.
 - **Biome + Ultracite** for formatting/linting
 - **Single quotes**, no semicolons (asNeeded)
 - **Arrow functions** preferred
 - **TypeScript strict mode**
-- **Functional patterns** where possible
 - **Prefer type aliases** over interfaces
 
 ## Development Guidelines
@@ -59,6 +60,8 @@ dist/               # Build output (client + server)
 - Terminal theme: dark/light with green accents
 - Components in `/src/client/components/`
 - Stores in `/src/client/stores/`
+- **Styling:** Use Tailwind CSS classes exclusively. Only use `<style>` tags as a last resort when a specific style cannot be achieved with Tailwind.
+- **Markup:** Avoid unnecessary HTML wrappers (e.g., `<div>`). Write clean and minimal markup.
 
 ### Server Development
 
