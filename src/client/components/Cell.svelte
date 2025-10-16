@@ -34,7 +34,9 @@ const borderClass = $derived(
 	type="button"
 	class="aspect-square w-full flex items-center justify-center font-mono font-semibold text-base sm:text-lg md:text-xl lg:text-2xl focus:outline-none focus:ring-2 ring-primary-green bg-zinc-700 disabled:opacity-70 disabled:cursor-not-allowed rounded-lg transition-colors hover-bg-primary-green-10 relative {fixed
 		? 'bg-[rgb(var(--color-primary-green-rgb)/0.1)]'
-		: ''} {isHint && !fixed ? 'bg-[rgb(var(--color-primary-green-rgb)/0.15)]' : ''} {borderClass}"
+		: ''} {isHint && !fixed
+		? 'bg-[rgb(var(--color-primary-green-rgb)/0.15)]'
+		: ''} {borderClass}"
 	onclick={handleClick}
 	aria-label={label}
 	disabled={fixed}
