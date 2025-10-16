@@ -20,6 +20,7 @@ type GameState = {
   puzzleId: string | null
   difficulty: Difficulty
   grid: Grid
+  initial: Grid
   fixed: { r: number; c: number; v: 0 | 1 }[]
   status: Status
   errors: string[]
@@ -36,10 +37,14 @@ const emptyGrid = (): Grid =>
     Array.from({ length: SIZE }, () => null as Cell)
   )
 
+const cloneGrid = (grid: Grid): Grid =>
+  grid.map((row) => row.map((cell) => cell))
+
 const initial: GameState = {
   puzzleId: null,
   difficulty: 'medium',
   grid: emptyGrid(),
+  initial: emptyGrid(),
   fixed: [],
   status: 'idle',
   errors: [],
@@ -68,11 +73,13 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
     typeof localStorage !== 'undefined'
       ? localStorage.getItem(storageKey(id))
       : null
-  const grid: Grid = saved ? JSON.parse(saved) : data.puzzle.initial
+  const initialGrid = cloneGrid(data.puzzle.initial)
+  const grid: Grid = saved ? JSON.parse(saved) : cloneGrid(initialGrid)
   game.set({
     puzzleId: id,
     difficulty,
     grid,
+    initial: initialGrid,
     fixed: data.puzzle.fixed,
     status: 'in_progress',
     errors: [],
@@ -84,11 +91,15 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
 }
 
 export const resetPuzzle = () => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
   game.update((s) => {
     if (!s.puzzleId) {
       return s
     }
-    const grid = emptyGrid()
+    const grid = cloneGrid(s.initial)
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(storageKey(s.puzzleId))
     }
