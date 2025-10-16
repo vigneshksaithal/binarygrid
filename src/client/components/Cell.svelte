@@ -22,11 +22,9 @@ const handleClick = () => {
 const label = fixed ? 'Fixed cell' : 'Editable cell'
 
 const borderClass = $derived(
-  hasError
-    ? 'border-2 border-error'
-    : isHint
-      ? 'border-2 border-[rgb(var(--color-primary-green-rgb)/0.7)]'
-      : 'border border-zinc-700'
+  (hasError && 'border-2 border-error') ||
+    (isHint && 'border-2 border-[rgb(var(--color-primary-green-rgb)/0.7)]') ||
+    'border border-zinc-700'
 )
 </script>
 
