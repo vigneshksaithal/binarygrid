@@ -8,8 +8,6 @@ $effect(() => {
     autosubmitIfSolved()
   }
 })
-// Cleanup if needed (not critical in SPA single mount)
-// onDestroy(() => unsub())
 </script>
 
 <div
