@@ -33,6 +33,14 @@
       }
     ]
   },
+  "scheduler": {
+    "tasks": {
+      "daily-puzzle-post": {
+        "endpoint": "/internal/scheduler/daily-puzzle-post",
+        "cron": "30 15 * * *"
+      }
+    }
+  },
   "triggers": {
     "onAppInstall": "/internal/on-app-install"
   },
