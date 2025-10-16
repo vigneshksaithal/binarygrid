@@ -292,79 +292,66 @@ Now you have a mod tool running from the code that you deployed yourself. Feel f
 slug: /
 ---
 
-import RotatingImage from '@site/src/components/IntroPagesFeatures/RotatingImage.js';
-import BuildItBuilding from '@site/docs/assets/showcase/buildit_building.gif';
-import DarkDungeon from '@site/docs/assets/showcase/dark_dungeon.gif';
-import RiddonkulousGuess from '@site/docs/assets/showcase/riddonkulous_guess.gif';
-import FlappyGoose from '@site/docs/assets/showcase/flappy_goose.gif';
-import SwordAndSupper from '@site/docs/assets/showcase/sword_and_supper.gif';
-import Hightier from '@site/docs/assets/showcase/hightier.gif';
-import RetroController from '@site/docs/assets/introduction/SpotIllustration_RetroController_B.webp';
-import Toolbox from '@site/docs/assets/introduction/SpotIllustration_Color_Toolbox.webp';
 import IntroTilePanel from '@site/src/components/IntroPagesFeatures/IntroTilePanel.js';
+import Rocket from '@site/docs/assets/introduction/SpotIllustration_Rocket.webp';
+import SnooToolboxClipboard from '@site/versioned_docs/version-0.12/assets/introduction/SnooToolboxClipboard.webp';
 
-# Welcome to Devvit
+# Devvit: Reddit's Developer Platform
 
-Meet Devvit: Reddit’s developer platform for building powerful, interactive games and apps. Games and apps that gain traction can earn up to $167,000 with our [Reddit Developer Funds](./earn-money/reddit_developer_funds).
+<div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+  <div style={{ flex: 1, minWidth: '300px' }}>
+    
+Devvit allows you to build interactive games and apps that live on Reddit. Build experiences that can earn up to $167,000 per app with our [Reddit Developer Funds](./earn-money/reddit_developer_funds).
 
-## Bring your imagination to life
+Build community games like [Hot and Cold](https://www.reddit.com/r/hotandcold/), [Sword and Supper](https://www.reddit.com/r/SwordAndSupper/), and [Honk](https://www.reddit.com/r/RedditGames/), or create [custom mod tools](https://www.reddit.com/r/ModSupport/comments/1k6szsj/devvit_apps_for_moderation_a_list/) to empower your community.
 
-Devvit lets you create rich, immersive posts and tools that seamlessly integrate into Reddit’s ecosystem. Build interactive experiences:
+**More examples:** [App Showcase](./examples/app-showcase)
 
-<div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap', minHeight: 280 }}>
-  <div style={{ flex: 1, minWidth: 460 }}>
-    <ul>
-      <li>Community Games such as <a href="https://www.reddit.com/r/Pixelary/">Pixelary</a>, <a href="https://www.reddit.com/r/SwordAndSupperGame/">Sword And Supper</a>, and <a href = "https://www.reddit.com/r/RedditGames/"> Flappy Goose.</a></li>
-      <li>Community Apps, like <a href="https://www.reddit.com/r/FortNiteBR/"> Community Hub </a> and <a href="https://www.reddit.com/r/hightier/">Hightier</a></li>
-      <li><a href="https://www.reddit.com/r/ModSupport/comments/1k6szsj/devvit_apps_for_moderation_a_list/">Custom mod tools</a> to automate, moderate, and empower your community</li>
-    </ul>
+**Questions?** Join [r/devvit](https://www.reddit.com/r/devvit/) or our [Discord](https://discord.gg/Cd43ExtEFS).
+
   </div>
-  <div style={{ flex: 1, minWidth: 260, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-    <RotatingImage images={[
-      BuildItBuilding,
-      DarkDungeon,
-      RiddonkulousGuess,
-      FlappyGoose,
-      SwordAndSupper,
-      Hightier,
-    ]} interval={3000} style={{ height: 280, width: 340, maxWidth: '100%', maxHeight: '100%' }} />
-  </div>
+  
+  <div style={{ flex: '0 0 400px', minWidth: '300px' }}>
+    
+
+<div style={{ position: 'relative', width: '100%', paddingBottom: '56.25%', height: 0, overflow: 'hidden', marginBottom: '2rem' }}>
+  <iframe 
+    src="https://www.youtube.com/embed/1ZM1tKI4SnU" 
+    title="Devvit Quickstart Tutorial" 
+    frameborder="0" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    allowfullscreen
+    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+  ></iframe>
 </div>
 
-
-See what others have built and get inspired in the [App Showcase](./examples/app-showcase) and find even more games on [r/GamesOnReddit](https://www.reddit.com/r/GamesOnReddit/).
-
-## Get started
+  </div>
+</div>
 
 <IntroTilePanel
   tiles={[
     {
-      title: 'Games',
-      image: RetroController,
+      title: 'Build Games',
+      image: Rocket,
       href: './introduction/intro-games',
       background: 'linear-gradient(135deg, #b2f7ef 0%, #4be18a 100%)',
       textColor: '#003820',
       imageSide: 'left',
-      textAlign: 'right',
-      imageFlip: true,
-      alt: 'Games Intro',
+      textAlign: 'left',
+      alt: 'Build Games',
     },
     {
-      title: 'Mod Tools',
-      image: Toolbox,
+      title: 'Create Mod Tools',
+      image: SnooToolboxClipboard,
       href: './introduction/intro-mod-tools',
       background: 'linear-gradient(135deg, #ffe066 0%, #ff7c53 100%)',
       textColor: '#5a2a00',
       imageSide: 'right',
       textAlign: 'left',
-      alt: 'Mod Tools Intro',
+      alt: 'Create Mod Tools',
     },
   ]}
 />
-
-## Community
-
-Have questions or want to share your app? Join [r/devvit](https://www.reddit.com/r/devvit/) or our [Discord](https://discord.gg/Cd43ExtEFS) to connect with other developers, get feedback, and show off your creations.
 
 
 ---
@@ -1867,11 +1854,16 @@ While your app will work with just these changes, we recommend exploring the add
 
 # Launch Your App
 
-As you build your app, you can get valuable feedback from the community by launching your app in three stages:
+Once your app is ready, you can launch it to users and moderators across Reddit. There are a few things you need to do to get your app "launch ready". This guide will walk you through that process.
 
-- **Alpha**: Use this stage to validate your core concept and catch major issues early
+Once you have created a polished app, you may also apply for **Reddit featuring**, which includes on-platform promotion and boosting of your app. Make sure to read this guide closely before filling out a [Reddit featuring request](https://forms.gle/pLEfhZFf6skc4Rto8).
+
+We've broken the Devvit App Launch guide into four phases:
+
+- **Alpha**: Use this stage to validate your core concept and catch major issues early.
 - **Beta**: Test your game with real users on a public subreddit.
 - **General Availability (GA)**: Share your app with all of Reddit!
+- **Featured**: Work with the Reddit team to promote your app across the site.
 
 How you launch your app in each of these stages depends on the type of app you’re building: a game or a community app.
 
@@ -1883,11 +1875,11 @@ Select your launch stage for instructions and guidelines to maximize your game's
   <summary>Alpha</summary>
   <div>
     <div>
-   Launch your game on r/Devvit to get technical feedback from other devs and Reddit admins:
+   Share your app on r/Devvit to get technical feedback from other devs and Reddit admins:
 
 1.  Create a public subreddit for your game.
 2.  Create a game post in your public subreddit.
-3.  On a Friday, cross-post your game to r/Devvit with the flair "Feedback Friday”.
+3.  [Cross-post](https://support.reddithelp.com/hc/en-us/articles/4835584113684-What-is-Crossposting) your game to r/Devvit with the flair "Feedback Friday”.
 
 **Guidelines**
 
@@ -1909,13 +1901,13 @@ To get the best feedback:
   
   1. Go to your public subreddit for your game.
   2. Create a game post in your public subreddit.
-  3. Cross-post a game post to r/GamesOnReddit with flair "Feedback”.
+  3. [Cross-post](https://support.reddithelp.com/hc/en-us/articles/4835584113684-What-is-Crossposting) a game post to r/GamesOnReddit with flair "Feedback”.
 
 **Guidelines**
 
 To get the best results, engage with players that give you feedback to start growing your community.
 
-**Apps that have strong post engagement metrics will automatically move to the next launch phase.**
+**Apps that have strong post engagement are great candidates for the next launch phase.**
 
 </div>
     <br/>
@@ -1931,24 +1923,34 @@ To get the best results, engage with players that give you feedback to start gro
   1. Upload the latest version of your app with `npx devvit upload`
   2. Publish your app with `npx devvit publish`
   
-  Publishing your app triggers a thorough app review.
+  Publishing your app triggers a thorough app review. Make sure your app has a detailed README in accordance with our [guidelines](https://www.reddit.com/r/Devvit/comments/1gfvsfy/all_published_apps_must_have_readmes/).
 
 </div>
     <br/>
   </div>
 </details>
 
-### Distribution
+### Best Practices for GAing your game
 
-Once your game has been published and approved, it may be featured by Reddit in one or more ways, such as:
+In order to have a successful app launch, please ensure your game has the following required and suggested best practices integrated into your experience. Reddit will not feature games that do not have these best practices implemented.
 
-- Games directory
-- Home feed distribution
-- Featured promotional units
+#### Required
 
-### Engagement
+- A compelling first screen - you **must** have a custom [splash screen](../../capabilities/server/splash-screen.mdx).
+- Working across platforms - your game's viewport must be accessible and clean on both mobile and desktop platforms.
+- Self-explanatory - anyone should be able to click into your post and have the context needed to play or participate.
+- Responsive design - all screens should be visible within fullscreen, mobile, and desktop. Avoid unnecessary scrolls. Scrolling within inline webviews is prohibited.
 
-An approved app is automatically shared with a small number of redditors, and engagement metrics will determine if it is picked up by larger audiences.
+#### Suggested
+
+- A subscribe button - encourage re-engagement.
+- Leaderboards - a view into a user's community standing.
+- Community Flair - leverage [user flair](https://support.reddithelp.com/hc/en-us/articles/205242695-How-do-I-get-user-flair) to give users special distinction in the community (this can be done programmatically via the API).
+- User Generated Content - provide ways for users to contribute (think: custom post comments, drawings, level builders, etc).
+
+### Organic distribution
+
+A published app is automatically shared with a small number of redditors, and engagement metrics will determine if our feed algorithms start to organically pick up your posts.
 
 Key engagement metrics for games include:
 
@@ -1958,6 +1960,17 @@ Key engagement metrics for games include:
 - Post score - upvotes vs downvotes ratio
 
 Successful games will generate genuine conversation within each post, and create compelling content that engages redditors.
+
+### Featuring with Reddit
+
+Once your game has been published and approved, it may be featured by Reddit in one or more ways, such as:
+
+- Games directory
+- Featured promotional units
+- Reddit's Game Feed
+- Highlight in Reddit's Games sidebar
+
+If you would like to apply for featuring, please [use this form](https://forms.gle/pLEfhZFf6skc4Rto8). We will respond to requests within two business days.
 
 ## Community apps
 
@@ -1995,7 +2008,7 @@ To get the best feedback:
   
   1. Upload the latest version of your app with `npx devvit upload`
   2. Publish your app as unlisted with `npx devvit publish`
-  3. Once your app is approved, your can install it to a larger subreddit that you moderate for further testing. 
+  3. Once your app is approved, you can install it to a larger subreddit that you moderate for further testing. 
 </div>
     <br/>
   </div>
@@ -2019,6 +2032,107 @@ When you're ready to publicly release your app, you’ll need to add it to the A
 - Got questions? Join our Discord or post in [r/Devvit](https://www.reddit.com/r/Devvit/).
 - Review the [rules](../../devvit_rules.md) before publishing.
 - Learn more about [how to earn](../../earn-money/payments/payments_overview.md) for apps you launch.
+
+
+---
+
+# AI Tools
+
+Devvit ships with first class support for common AI tools and patterns.
+
+## LLMs.txt files
+
+- https://developers.reddit.com/docs/llms.txt: Most useful for pasting into the chat UI of common LLMs BEFORE your prompt. Place your prompt last as models are auto-regressive.
+- https://developers.reddit.com/docs/llms-full.txt: Useful for pasting into the chat UI of LLMs with large context windows (Gemini, Claude Sonnet 4). This lets you chat with the docs instead of reading them. It's easy to pollute your context if your using this for coding so we recommend only using this to learn about Devvit or plan. To execute, use `llms.txt` as most modern LLMs can tool call websites.
+
+## Cursor Support
+
+The React, ThreeJS, and Phaser templates ship with support for cursor rules out of the box. We've found these helps Cursor output high quality code for Devvit. Feel free to add and remove them as you see fit.
+
+## MCP
+
+Devvit ships with a MCP server to assist with agent driven development. There are two commands at the moment:
+
+- `devvit_search`: Executes hybrid search over all of our docs. This is preferable to pasting in tons of docs since it can be more specific and lowers the risk of polluting your context.
+- `devvit_logs` [experimental]: Queries for logs of your app and a subreddit to place into an agent's context. It can be fun any useful, and shows a glimpse of the future of AI Devvit! Try this after MCP is turned on in your agent, "find a bug in my app deployed to the subreddit <YOUR_SUBREDDIT_NAME> from the past week and a fix it". It might not work, but when it does, magic!
+
+### Cursor
+
+> Note that React, ThreeJS, and Phaser ship with first class support. All you have to do is run a template from [/new](https://developers.reddit.com/new) in cursor and you will see a popup at the bottom-left corner to enable.
+
+1.  In your project, ensure a `.cursor` directory exists at the root. Create it if necessary.
+2.  Inside `.cursor`, create or open the `mcp.json` file.
+3.  Paste the following configuration into `mcp.json`:
+
+    ```json
+    {
+      "mcpServers": {
+        "devvit": {
+          "command": "npx",
+          "args": ["-y", "@devvit/mcp"]
+        }
+      }
+    }
+    ```
+
+4.  Save the file.
+5.  Check [Cursor](https://www.cursor.com/)'s **Settings/MCP** section. The Devvit MCP server should show an active status (green indicator). You might need to click "Refresh" if it doesn't appear immediately.
+
+### Claude Code
+
+```sh
+claude mcp add devvit -- npx -y @devvit/mcp
+```
+
+Things should work after that!
+
+### Claude Desktop
+
+1.  Open the [Claude desktop](https://claude.ai/download) application and go to **Settings**.
+2.  Navigate to the **Developer** tab and click **Edit Config**.
+3.  Add the Devvit server configuration:
+
+```json
+{
+  "mcpServers": {
+    "devvit": {
+      "command": "npx",
+      "args": ["-y", "@devvit/mcp"]
+    }
+  }
+}
+```
+
+4.  Save the configuration file and restart the Claude desktop application.
+5.  When starting a new chat, look for the MCP icon (hammer); the Devvit server should now be listed as available.
+
+### Visual Studio Code (Copilot)
+
+1.  Ensure your project root contains a `.vscode` directory. Create one if it's missing.
+2.  Create or open the `mcp.json` file within the `.vscode` directory.
+3.  Insert the following configuration:
+
+    ```json
+    {
+      "servers": {
+        "devvit": {
+          "command": "npx",
+          "args": ["-y", "@devvit/mcp"]
+        }
+      }
+    }
+    ```
+
+4.  Save `mcp.json`.
+5.  In the Copilot chat panel within [Visual Studio Code](https://code.visualstudio.com/), ensure you're in "Agent" mode. The tool icon should now indicate that Devvit MCP tools are available for use.
+
+Refer to the [official Copilot documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for further details on VS Code MCP integration.
+
+### Testing the Connection
+
+With your AI tool configured, you should now be able to leverage the Devvit MCP server. A good way to test this is to ask your AI assistant a question that requires accessing Devvit resources, for example: "Search the Devvit docs for information on redis."
+
+If you encounter problems, refer to the official Devvit documentation or reach out in the [Discord](https://discord.com/invite/R7yu2wh9Qz).
 
 
 ---
@@ -2199,107 +2313,6 @@ Your game should be fun at any player count:
 ## Key takeaway
 
 The most successful Reddit community games create interesting content while being played, establishing a virtuous cycle of engagement and discovery. Focus on simplicity, scalability, and social interaction to make your game thrive.
-
-
----
-
-# AI Tools
-
-Devvit ships with first class support for common AI tools and patterns.
-
-## LLMs.txt files
-
-- https://developers.reddit.com/docs/llms.txt: Most useful for pasting into the chat UI of common LLMs BEFORE your prompt. Place your prompt last as models are auto-regressive.
-- https://developers.reddit.com/docs/llms-full.txt: Useful for pasting into the chat UI of LLMs with large context windows (Gemini, Claude Sonnet 4). This lets you chat with the docs instead of reading them. It's easy to pollute your context if your using this for coding so we recommend only using this to learn about Devvit or plan. To execute, use `llms.txt` as most modern LLMs can tool call websites.
-
-## Cursor Support
-
-The React, ThreeJS, and Phaser templates ship with support for cursor rules out of the box. We've found these helps Cursor output high quality code for Devvit. Feel free to add and remove them as you see fit.
-
-## MCP
-
-Devvit ships with a MCP server to assist with agent driven development. There are two commands at the moment:
-
-- `devvit_search`: Executes hybrid search over all of our docs. This is preferable to pasting in tons of docs since it can be more specific and lowers the risk of polluting your context.
-- `devvit_logs` [experimental]: Queries for logs of your app and a subreddit to place into an agent's context. It can be fun any useful, and shows a glimpse of the future of AI Devvit! Try this after MCP is turned on in your agent, "find a bug in my app deployed to the subreddit <YOUR_SUBREDDIT_NAME> from the past week and a fix it". It might not work, but when it does, magic!
-
-### Cursor
-
-> Note that React, ThreeJS, and Phaser ship with first class support. All you have to do is run a template from [/new](https://developers.reddit.com/new) in cursor and you will see a popup at the bottom-left corner to enable.
-
-1.  In your project, ensure a `.cursor` directory exists at the root. Create it if necessary.
-2.  Inside `.cursor`, create or open the `mcp.json` file.
-3.  Paste the following configuration into `mcp.json`:
-
-    ```json
-    {
-      "mcpServers": {
-        "devvit": {
-          "command": "npx",
-          "args": ["-y", "@devvit/mcp"]
-        }
-      }
-    }
-    ```
-
-4.  Save the file.
-5.  Check [Cursor](https://www.cursor.com/)'s **Settings/MCP** section. The Devvit MCP server should show an active status (green indicator). You might need to click "Refresh" if it doesn't appear immediately.
-
-### Claude Code
-
-```sh
-claude mcp add devvit -- npx -y @devvit/mcp
-```
-
-Things should work after that!
-
-### Claude Desktop
-
-1.  Open the [Claude desktop](https://claude.ai/download) application and go to **Settings**.
-2.  Navigate to the **Developer** tab and click **Edit Config**.
-3.  Add the Devvit server configuration:
-
-```json
-{
-  "mcpServers": {
-    "devvit": {
-      "command": "npx",
-      "args": ["-y", "@devvit/mcp"]
-    }
-  }
-}
-```
-
-4.  Save the configuration file and restart the Claude desktop application.
-5.  When starting a new chat, look for the MCP icon (hammer); the Devvit server should now be listed as available.
-
-### Visual Studio Code (Copilot)
-
-1.  Ensure your project root contains a `.vscode` directory. Create one if it's missing.
-2.  Create or open the `mcp.json` file within the `.vscode` directory.
-3.  Insert the following configuration:
-
-    ```json
-    {
-      "servers": {
-        "devvit": {
-          "command": "npx",
-          "args": ["-y", "@devvit/mcp"]
-        }
-      }
-    }
-    ```
-
-4.  Save `mcp.json`.
-5.  In the Copilot chat panel within [Visual Studio Code](https://code.visualstudio.com/), ensure you're in "Agent" mode. The tool icon should now indicate that Devvit MCP tools are available for use.
-
-Refer to the [official Copilot documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers) for further details on VS Code MCP integration.
-
-### Testing the Connection
-
-With your AI tool configured, you should now be able to leverage the Devvit MCP server. A good way to test this is to ask your AI assistant a question that requires accessing Devvit resources, for example: "Search the Devvit docs for information on redis."
-
-If you encounter problems, refer to the official Devvit documentation or reach out in the [Discord](https://discord.com/invite/R7yu2wh9Qz).
 
 
 ---
@@ -2813,6 +2826,334 @@ const payments = usePayments((result: OnPurchaseResult) => { console.log('Tried 
 
 ---
 
+# Realtime in Devvit Blocks
+
+This guide walks through step-by-step instructions on how to set up [Realtime](./overview.md) in a [Devvit Blocks](../blocks/overview.md) application
+
+## Create a live interactive post
+
+#### 1. Configure realtime
+
+```tsx
+Devvit.configure({
+  realtime: true,
+});
+```
+
+#### 2. Create and subscribe to a channel
+
+`useChannel` hook allows interactive posts to subscribe and send to an event stream.
+
+A new channel can be setup with function handlers containing custom logic to update state:
+
+- `onMessage` - called every time a message is received on a channel
+- `onSubscribed` - optional hook to be informed when channel has connected
+- `onUnsubscribed` - optional hook to be informed when channel has disconnected
+
+```tsx
+import { Devvit, useChannel } from '@devvit/public-api';
+
+// Defined within render function of an interactive post
+
+// Choose a channel name that works for you
+
+// You have the flexibility to define the message data shape to be published
+// via channel.send - same shape will be received in the onMessage handler
+
+const channel = useChannel({
+  name: 'events',
+  onMessage: (data) => {
+    // modify local state
+  },
+  onSubscribed: () => {
+    // handle connection setup
+  },
+  onUnsubscribed: () => {
+    // handle network degradation with fallback scenarios
+  },
+});
+
+// subscribe to the channel to receive messages
+channel.subscribe();
+```
+
+#### 3. Send messages to a channel
+
+`channel.send` is recommended for peer-to-peer synchronization across clients. See [Mini Place](#mini-place) and [Snoo Club](#snoo-club)
+
+```tsx
+<button
+  icon="add-fill"
+  width={50}
+  onPress={async () => {
+    const newProgress = Math.max(progress + 10, 0);
+    const message: RealtimeMessage = {
+      payload: { progress: newProgress },
+      session: UUID,
+    };
+    setProgress(newProgress); // set local state
+    await channel.send(message); // publish message to the channel
+  }}
+/>
+```
+
+`realtime.send` is recommended for re-rendering interactive posts based on server events. This can be invoked on an event trigger, scheduled job, or after a HTTP fetch call. [Server-Push](#server-push) example illustrates how to compose scheduler and realtime together.
+
+```tsx
+// During app installation, we create a scheduled job 'publish_to_channel' that runs
+// every minute - it uses realtime plugin to publish events to an arbitrary channel
+
+Devvit.addTrigger({
+  event: 'AppInstall',
+  onEvent: async (_event, context) => {
+    await context.scheduler.runJob({
+      name: 'publish_to_channel',
+      cron: '* * * * *',
+    });
+  },
+});
+
+// Interactive posts subscribed to the 'events' channel via useChannel hook will start
+// receiving messages which can processed in the onMessage handler to update local state.
+Devvit.addSchedulerJob({
+  name: 'publish_to_channel',
+  onRun: async (_event, context) => {
+    await context.realtime.send('events', {
+      message: payload,
+    });
+  },
+});
+```
+
+## Limits and quotas
+
+- Messages/sec per installation: 100
+- Maximum message payload: 1 MB
+- Channels per app installation: 5
+
+## Examples
+
+:::note
+Try the demos with multiple browser windows and see local changes sync across sessions without any lag.
+:::
+
+### Mini place
+
+![mini_place_high](../../assets/realtime/mini_place_high.gif)
+
+**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bumd7e/mini_place/)**,
+**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/mini-place)**
+
+### Snoo club
+
+![snoo_club](../../assets/realtime/snoo_club.gif)
+
+**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bunpzv/interactive_snooclub/)**,
+**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/snooclub)**
+
+### Synced progress bar
+
+![synced_progress_bar](../../assets/realtime/synced_progress_bar.gif)
+
+**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1b3ccp9/synced_progress_bar/),**
+**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/synced-progress-bar)**
+
+### Devvit emoji chat
+
+![devvit_emoji_chat](../../assets/realtime/devvit_emoji_chat.gif)
+
+**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bvf6if/emoji_chat/),**
+**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/devvit-emoji-chat)**
+
+### Server push
+
+![server_push](../../assets/realtime/server_push.gif)
+
+**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bnnc60/server_push/),**
+**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/server-push)**
+
+
+---
+
+# Overview
+
+Create live and event-driven interactive posts. Realtime provides a set of primitives that lets you build interactive posts that are:
+
+- **Live**. Users engaging with the same interactive post see each others’ changes without any observable lag.
+- **Event-driven**. Posts render automatically in response to server events.
+- **Synced**. Using realtime with [Redis](../server/redis.mdx) lets you build persistent community experiences that are backed by high performance data synchronization.
+
+Realtime is supported in both [Devvit Web](../devvit-web/devvit_web_overview.mdx) and [Devvit Blocks](../blocks/overview.md) applications.
+
+Follow this guide, [Realtime in Devvit Blocks](./realtime_in_devvit_blocks.md), for instructions on using realtime in Devvit Blocks.
+
+# Realtime in Devvit Web
+
+This guide walks through step-by-step instructions on how to set up [Realtime](./overview.md) in a [Devvit Web](../devvit-web/devvit_web_overview.mdx) application
+
+## Overview
+
+The realtime client allows you to:
+
+- **Connect** to realtime channels for receiving messages
+- **Handle** connection lifecycle events (connect/disconnect)
+- **Process** incoming messages with custom logic
+- **Manage** multiple channel subscriptions
+- **Disconnect** from channels when no longer needed
+
+## Architecture
+
+Realtime functionality in Devvit follows a client/server architecture:
+
+- **Client-side** (connectRealtime): Subscribe to channels and receive messages
+- **Server-side** (realtime.send): Send messages to channels
+
+This separation ensures that message sending is controlled by server-side logic while clients can freely subscribe to channels they're interested in.
+
+## Client-side API reference
+
+### connectRealtime
+
+Connects to a realtime channel for receiving messages.
+
+```tsx
+import { connectRealtime } from '@devvit/web/client';
+
+const connection = await connectRealtime({
+  channel: 'my-channel',
+  onConnect: (channel) => {
+    console.log(`Connected to ${channel}`);
+  },
+  onDisconnect: (channel) => {
+    console.log(`Disconnected from ${channel}`);
+  },
+  onMessage: (data) => {
+    console.log('Received message:', data);
+  },
+});
+```
+
+#### Parameters
+
+- `opts` - Connection options object
+  - `channel` (string) - The name of the channel to connect to
+  - `onConnect?` (function) - Optional callback called when connection is established
+  - `onDisconnect?` (function) - Optional callback called when connection is lost
+  - `onMessage` (function) - Required callback called when a message is received
+
+#### Returns
+
+A `Connection` object with a `disconnect()` method.
+
+### Connection
+
+A connection object returned by `connectRealtime()`.
+
+#### Methods
+
+##### disconnect()
+
+Disconnects from the realtime channel.
+
+```tsx
+await connection.disconnect();
+```
+
+This method:
+
+- Removes the channel from active subscriptions
+- Cleans up event listeners
+- Calls the `onDisconnect` callback if provided
+
+## Server-side API reference
+
+### Realtime plugin
+
+The server-side plugin for sending messages to realtime channels.
+
+```tsx
+import { realtime } from '@devvit/web/server';
+
+// Send a message to a channel
+await realtime.send('my-channel', {
+  type: 'user-joined',
+  userId: '123',
+});
+```
+
+#### Methods
+
+##### send(channel: string, msg: JSONValue): Promise<void>
+
+Sends a message to a specific channel.
+
+- `channel` (string) - The name of the channel to send the message to
+- `msg` (JSONValue) - The message data to send
+
+## Usage examples
+
+### Client-side: basic channel connection
+
+```tsx
+import { connectRealtime } from '@devvit/web/client';
+
+// Connect to a channel
+const connection = await connectRealtime({
+  channel: 'user-updates',
+  onMessage: (data) => {
+    // Handle incoming messages
+    console.log('User update:', data);
+  },
+});
+
+// Later, disconnect when done
+await connection.disconnect();
+```
+
+### Client-side: connection lifecycle management
+
+```tsx
+import { connectRealtime } from '@devvit/web/client';
+
+const connection = await connectRealtime({
+  channel: 'live-chat',
+  onConnect: (channel) => {
+    console.log(`Connected to ${channel}`);
+    // Update UI to show connected state
+    setIsConnected(true);
+  },
+  onDisconnect: (channel) => {
+    console.log(`Disconnected from ${channel}`);
+    // Update UI to show disconnected state
+    setIsConnected(false);
+  },
+  onMessage: (data) => {
+    // Process chat messages
+    addMessageToChat(data);
+  },
+});
+```
+
+### Server-side: sending messages
+
+```tsx
+import { realtime } from '@devvit/web/server';
+
+// Send a simple message
+await realtime.send('notifications', 'New user joined!');
+
+// Send a structured message
+await realtime.send('game-updates', {
+  type: 'score-update',
+  playerId: 'user123',
+  score: 1500,
+  timestamp: Date.now(),
+});
+```
+
+
+---
+
 # User actions
 
 User actions allow your app to perform certain actions—such as creating posts, comments, or subscribing to subreddits—on behalf of the user, rather than the app account. This enables stronger user engagement while ensuring user control and transparency.
@@ -3272,24 +3613,26 @@ The `splash` object supports the following customization options:
 
 Images can be referenced in two ways:
 
-1. **Local assets**: Place images in your app's client/public directory and reference them by filename:
-
+1. **Local assets**: Place images in your app's assets directory and reference them by filename:
+    For example, if your image is in `assets/splash-background.png`, then you can just reference it with `splash-background.png`
+    
     :::note
-    To access assets in the client/public directory from the server, add the `media` property to your `devvit.json` file. The directory path should be relative to the `client/public` folder. 
+    If you put the images in a different directory, you can configure that by adding the `media` property to your `devvit.json` file. Set `media.dir` to the directory path you are using.
     :::
-    For example, to use an image at `client/public/assets/splash-background.png`: 
+    For example, if you are putting the image in `assets/images`, then you can write it like this: 
    ```json title="devvit.json"
    "media": {
-     "dir": "assets"
+     "dir": "assets/images"
    }
    ```
 
-  
+    And you can reference them by their filename
 
-   ```ts title="server/index.ts"
-   backgroundUri: '/splash-background.png'
-   appIconUri: '/app-icon.png'
-   ```
+    ```ts title="server/index.ts"
+    backgroundUri: '/splash-background.png'
+    appIconUri: '/app-icon.png'
+    ```
+    Without configuring `media.dir`, you have to reference the images relative to the `assets` directory, which would be `images/splash-background.png` in this example
 
    
 
@@ -5211,6 +5554,10 @@ Allows you to execute some actions, like posting or commenting, on behalf of the
 
 Allows you to specify how your interactive post is displayed on platforms that don't support Devvit, for example old.reddit.com
 
+## [Cache helper](./cache-helper.mdx)
+
+Allows you to cache fetch requests on the server side, reducing the number of requests made to external APIs and improving performance.
+
 
 ---
 
@@ -5492,330 +5839,202 @@ The following domains are globally allowed and can be fetched by any app:
 
 ---
 
-# Realtime in Devvit Blocks
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
-This guide walks through step-by-step instructions on how to set up [Realtime](./overview.md) in a [Devvit Blocks](../blocks/overview.md) application
+# Cache helper
 
-## Create a live interactive post
+Cache helper lets you build a more performant app by reducing the number of server side calls for the same data. You can create a short-term cache that stores JSON objects in your Devvit app for a limited amount of time. This is valuable when you have many clients trying to get the same data, for example a stock ticker value or a sports score.
 
-#### 1. Configure realtime
+Under the covers, it's Redis plus a local in-memory write-through cache. This provides a pattern for fetching data without involving a scheduler and allows small time-to-live (TTL, ~1 second). Cache helper lets the app make one request for the data, save the response, and provide this response to all users requesting the same data.
 
-```tsx
-Devvit.configure({
-  realtime: true,
-});
-```
-
-#### 2. Create and subscribe to a channel
-
-`useChannel` hook allows interactive posts to subscribe and send to an event stream.
-
-A new channel can be setup with function handlers containing custom logic to update state:
-
-- `onMessage` - called every time a message is received on a channel
-- `onSubscribed` - optional hook to be informed when channel has connected
-- `onUnsubscribed` - optional hook to be informed when channel has disconnected
-
-```tsx
-import { Devvit, useChannel } from '@devvit/public-api';
-
-// Defined within render function of an interactive post
-
-// Choose a channel name that works for you
-
-// You have the flexibility to define the message data shape to be published
-// via channel.send - same shape will be received in the onMessage handler
-
-const channel = useChannel({
-  name: 'events',
-  onMessage: (data) => {
-    // modify local state
-  },
-  onSubscribed: () => {
-    // handle connection setup
-  },
-  onUnsubscribed: () => {
-    // handle network degradation with fallback scenarios
-  },
-});
-
-// subscribe to the channel to receive messages
-channel.subscribe();
-```
-
-#### 3. Send messages to a channel
-
-`channel.send` is recommended for peer-to-peer synchronization across clients. See [Mini Place](#mini-place) and [Snoo Club](#snoo-club)
-
-```tsx
-<button
-  icon="add-fill"
-  width={50}
-  onPress={async () => {
-    const newProgress = Math.max(progress + 10, 0);
-    const message: RealtimeMessage = {
-      payload: { progress: newProgress },
-      session: UUID,
-    };
-    setProgress(newProgress); // set local state
-    await channel.send(message); // publish message to the channel
-  }}
-/>
-```
-
-`realtime.send` is recommended for re-rendering interactive posts based on server events. This can be invoked on an event trigger, scheduled job, or after a HTTP fetch call. [Server-Push](#server-push) example illustrates how to compose scheduler and realtime together.
-
-```tsx
-// During app installation, we create a scheduled job 'publish_to_channel' that runs
-// every minute - it uses realtime plugin to publish events to an arbitrary channel
-
-Devvit.addTrigger({
-  event: 'AppInstall',
-  onEvent: async (_event, context) => {
-    await context.scheduler.runJob({
-      name: 'publish_to_channel',
-      cron: '* * * * *',
-    });
-  },
-});
-
-// Interactive posts subscribed to the 'events' channel via useChannel hook will start
-// receiving messages which can processed in the onMessage handler to update local state.
-Devvit.addSchedulerJob({
-  name: 'publish_to_channel',
-  onRun: async (_event, context) => {
-    await context.realtime.send('events', {
-      message: payload,
-    });
-  },
-});
-```
-
-## Limits and quotas
-
-- Messages/sec per installation: 100
-- Maximum message payload: 1 MB
-- Channels per app installation: 5
-
-## Examples
-
-:::note
-Try the demos with multiple browser windows and see local changes sync across sessions without any lag.
+:::warning
+**Do not cache sensitive information**. Cache helper randomly selects one user to make the real request and saves the response to the cache for others to use. You should only use cache helper for non-personalized fetches, since the same response is available to all users.
 :::
 
-### Mini place
 
-![mini_place_high](../../assets/realtime/mini_place_high.gif)
-
-**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bumd7e/mini_place/)**,
-**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/mini-place)**
-
-### Snoo club
-
-![snoo_club](../../assets/realtime/snoo_club.gif)
-
-**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bunpzv/interactive_snooclub/)**,
-**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/snooclub)**
-
-### Synced progress bar
-
-![synced_progress_bar](../../assets/realtime/synced_progress_bar.gif)
-
-**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1b3ccp9/synced_progress_bar/),**
-**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/synced-progress-bar)**
-
-### Devvit emoji chat
-
-![devvit_emoji_chat](../../assets/realtime/devvit_emoji_chat.gif)
-
-**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bvf6if/emoji_chat/),**
-**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/devvit-emoji-chat)**
-
-### Server push
-
-![server_push](../../assets/realtime/server_push.gif)
-
-**[Demo](https://sh.reddit.com/r/devvit_sandbox/comments/1bnnc60/server_push/),**
-**[Source Code](https://github.com/reddit/devvit/tree/main/packages/apps/server-push)**
-
-
----
-
-# Overview
-
-Create live and event-driven interactive posts. Realtime provides a set of primitives that lets you build interactive posts that are:
-
-- **Live**. Users engaging with the same interactive post see each others’ changes without any observable lag.
-- **Event-driven**. Posts render automatically in response to server events.
-- **Synced**. Using realtime with [Redis](../server/redis.mdx) lets you build persistent community experiences that are backed by high performance data synchronization.
-
-Realtime is supported in both [Devvit Web](../devvit-web/devvit_web_overview.mdx) and [Devvit Blocks](../blocks/overview.md) applications.
-
-Follow this guide, [Realtime in Devvit Blocks](./realtime_in_devvit_blocks.md), for instructions on using realtime in Devvit Blocks.
-
-# Realtime in Devvit Web
-
-This guide walks through step-by-step instructions on how to set up [Realtime](./overview.md) in a [Devvit Web](../devvit-web/devvit_web_overview.mdx) application
-
-## Overview
-
-The realtime client allows you to:
-
-- **Connect** to realtime channels for receiving messages
-- **Handle** connection lifecycle events (connect/disconnect)
-- **Process** incoming messages with custom logic
-- **Manage** multiple channel subscriptions
-- **Disconnect** from channels when no longer needed
-
-## Architecture
-
-Realtime functionality in Devvit follows a client/server architecture:
-
-- **Client-side** (connectRealtime): Subscribe to channels and receive messages
-- **Server-side** (realtime.send): Send messages to channels
-
-This separation ensures that message sending is controlled by server-side logic while clients can freely subscribe to channels they're interested in.
-
-## Client-side API reference
-
-### connectRealtime
-
-Connects to a realtime channel for receiving messages.
-
-```tsx
-import { connectRealtime } from '@devvit/web/client';
-
-const connection = await connectRealtime({
-  channel: 'my-channel',
-  onConnect: (channel) => {
-    console.log(`Connected to ${channel}`);
-  },
-  onDisconnect: (channel) => {
-    console.log(`Disconnected from ${channel}`);
-  },
-  onMessage: (data) => {
-    console.log('Received message:', data);
-  },
-});
-```
-
-#### Parameters
-
-- `opts` - Connection options object
-  - `channel` (string) - The name of the channel to connect to
-  - `onConnect?` (function) - Optional callback called when connection is established
-  - `onDisconnect?` (function) - Optional callback called when connection is lost
-  - `onMessage` (function) - Required callback called when a message is received
-
-#### Returns
-
-A `Connection` object with a `disconnect()` method.
-
-### Connection
-
-A connection object returned by `connectRealtime()`.
-
-#### Methods
-
-##### disconnect()
-
-Disconnects from the realtime channel.
-
-```tsx
-await connection.disconnect();
-```
-
-This method:
-
-- Removes the channel from active subscriptions
-- Cleans up event listeners
-- Calls the `onDisconnect` callback if provided
-
-## Server-side API reference
-
-### Realtime plugin
-
-The server-side plugin for sending messages to realtime channels.
-
-```tsx
-import { realtime } from '@devvit/web/server';
-
-// Send a message to a channel
-await realtime.send('my-channel', {
-  type: 'user-joined',
-  userId: '123',
-});
-```
-
-#### Methods
-
-##### send(channel: string, msg: JSONValue): Promise<void>
-
-Sends a message to a specific channel.
-
-- `channel` (string) - The name of the channel to send the message to
-- `msg` (JSONValue) - The message data to send
-
-## Usage examples
-
-### Client-side: basic channel connection
-
-```tsx
-import { connectRealtime } from '@devvit/web/client';
-
-// Connect to a channel
-const connection = await connectRealtime({
-  channel: 'user-updates',
-  onMessage: (data) => {
-    // Handle incoming messages
-    console.log('User update:', data);
-  },
-});
-
-// Later, disconnect when done
-await connection.disconnect();
-```
-
-### Client-side: connection lifecycle management
-
-```tsx
-import { connectRealtime } from '@devvit/web/client';
-
-const connection = await connectRealtime({
-  channel: 'live-chat',
-  onConnect: (channel) => {
-    console.log(`Connected to ${channel}`);
-    // Update UI to show connected state
-    setIsConnected(true);
-  },
-  onDisconnect: (channel) => {
-    console.log(`Disconnected from ${channel}`);
-    // Update UI to show disconnected state
-    setIsConnected(false);
-  },
-  onMessage: (data) => {
-    // Process chat messages
-    addMessageToChat(data);
-  },
-});
-```
-
-### Server-side: sending messages
-
-```tsx
-import { realtime } from '@devvit/web/server';
-
-// Send a simple message
-await realtime.send('notifications', 'New user joined!');
-
-// Send a structured message
-await realtime.send('game-updates', {
-  type: 'score-update',
-  playerId: 'user123',
-  score: 1500,
-  timestamp: Date.now(),
-});
-```
+## Usage
+
+<Tabs>
+  <TabItem value="web" label="Devvit Web">
+    You can import cache helper from `@devvit/web/server` in your server source files. The cache helper is not available client-side, so you will see an error if you try to import it in client source files.
+
+    ```tsx
+    import { cache } from '@devvit/web/server';
+    ```
+  </TabItem>
+  <TabItem value="blocks" label="Devvit Blocks / Mod Tools">
+    You need to enable [Redis](../server/redis.mdx) in order to use Cache helper.
+
+    ```tsx
+    Devvit.configure({
+      redis: true,
+      // other capabilities
+    });
+    ```
+  </TabItem>
+</Tabs>
+
+## Parameters
+
+The cache takes a key and a TTL regardless of whether you are using Devvit Web or Devvit Blocks. The only difference is that **the TTL is in seconds for Devvit Web** and **milliseconds for Devvit Blocks / Mod Tools**.
+
+<Tabs>
+  <TabItem value="web" label="Devvit Web">
+
+| **Parameters** | **Description**                                                                                                                                                                                                                                                                                                               |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`          | This is a string that identifies a cached response. Instead of making a real request, the app gets the cached response with the key you provide. Make sure to use different keys for different data. For example, if you’re saving post-specific data, add the postId to the cache key, like this: `post_data_${postId})`.    |
+| `ttl`          | Time to live is the number of **seconds** the cached response is expected to be relevant. Once the cached response expires, it will be voided and a real request is made to populate the cache again. You can treat it as a threshold, where ttl of 30 would mean that a request is done no more than once per 30 seconds.    |
+
+  </TabItem>
+  <TabItem value="blocks" label="Devvit Blocks / Mod Tools">
+
+| **Parameters** | **Description**                                                                                                                                                                                                                                                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `key`          | This is a string that identifies a cached response. Instead of making a real request, the app gets the cached response with the key you provide. Make sure to use different keys for different data. For example, if you’re saving post-specific data, add the postId to the cache key, like this: `post_data_${postId})`.         |
+| `ttl`          | Time to live is the number of **milliseconds** the cached response is expected to be relevant. Once the cached response expires, it will be voided and a real request is made to populate the cache again. You can treat it as a threshold, where ttl of 30000 would mean that a request is done no more than once per 30 seconds. |
+
+  </TabItem>
+</Tabs>
+
+## Example
+
+Here’s a way to set up in-app caching instead of using scheduler or interval to fetch.
+
+<Tabs>
+  <TabItem value="web" label="Devvit Web">
+    ```tsx
+    // src/server/index.ts
+    import express from "express";
+    import {
+      SubredditResponse,
+    } from "../shared/types/api";
+    import {
+      cache,
+      createServer,
+      context,
+      getServerPort,
+      reddit,
+    } from "@devvit/web/server";
+
+    const app = express();
+
+    // Middleware for JSON body parsing
+    app.use(express.json());
+    // Middleware for URL-encoded body parsing
+    app.use(express.urlencoded({ extended: true }));
+    // Middleware for plain text body parsing
+    app.use(express.text());
+
+    const router = express.Router();
+
+    router.get<
+      { postId: string },
+      SubredditResponse | { status: string; message: string }
+    >("/api/subreddit", async (_req, res): Promise<void> => {
+      const { postId } = context;
+
+      if (!postId) {
+        console.error("API Subreddit Error: postId not found in devvit context");
+        res.status(400).json({
+          status: "error",
+          message: "postId is required but missing from context",
+        });
+        return;
+      }
+
+      try {
+        const subredditName = await cache(
+          async () => {
+            const subreddit = await reddit.getCurrentSubreddit();
+            if (!subreddit) {
+              throw new Error("Subreddit is required but missing from context");
+            }
+            return subreddit.name;
+          },
+          {
+            key: `current_subreddit`,
+            ttl: 24 * 60 * 60 // expire after one day.
+          }
+        );
+        console.log(`Current subreddit: ${subredditName}`);
+
+        res.json({
+          type: "subreddit" as "subreddit",
+          subreddit: subredditName,
+        });
+      } catch (error) {
+        console.error(`API Subreddit Error for post ${postId}:`, error);
+        let errorMessage = "Unknown error during subreddit retrieval";
+        if (error instanceof Error) {
+          errorMessage = `Subreddit retrieval failed: ${error.message}`;
+        }
+        res.status(400).json({ status: "error", message: errorMessage });
+      }
+    });
+
+    app.use(router);
+
+    const server = createServer(app);
+    server.on("error", (err) => console.error(`server error; ${err.stack}`));
+    server.listen(getServerPort());
+    ```
+  </TabItem>
+
+  <TabItem value="blocks" label="Devvit Blocks / Mod Tools">
+    ```tsx
+    import { Devvit, useState } from '@devvit/public-api';
+
+    Devvit.configure({
+      redis: true,
+      http: true, // to use `fetch()`
+      // other capabilities
+    });
+
+    Devvit.addCustomPostType({
+      name: 'Name',
+      render: (context) => {
+        const [data, setData] = useState({});
+
+        async function getData() {
+          const result = await context.cache(
+            async () => {
+              const response = await fetch('https://example.com');
+              if (!response.ok) {
+                throw Error(`HTTP error ${response.status}: ${response.statusText}`);
+              }
+              return await response.json();
+            },
+            {
+              key: context.userId!,
+              ttl: 10_000, // millis
+            }
+          );
+
+          setData(result);
+        }
+
+        return (
+          <blocks>
+            <button
+              onPress={() => {
+                getData();
+              }}
+            >
+              Load data
+            </button>
+
+            <text>{data.something}</text>
+          </blocks>
+        );
+      },
+    });
+
+    export default Devvit;
+    ```
+  </TabItem>
+</Tabs>
 
 
 ---
