@@ -41,7 +41,7 @@ app.get('/api/init', async (c) => {
         return {
           id: puzzleData.id,
           size: Number.parseInt(puzzleData.size || '6', 10),
-          difficulty: puzzleData.difficulty,
+          difficulty: puzzleData.difficulty ?? null,
           fixed: JSON.parse(puzzleData.fixed || '[]'),
           initial: JSON.parse(puzzleData.initial || '[]')
         }
