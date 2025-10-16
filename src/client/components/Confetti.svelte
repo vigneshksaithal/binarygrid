@@ -6,10 +6,10 @@ const DURATION_MS = 4500
 const PARTICLES_PER_BURST = 70
 const BURST_INTERVAL_MS = 400
 
-let canvas: HTMLCanvasElement
+let canvas: HTMLCanvasElement | null = null
 let cleanup: (() => void) | null = null
-let intervalId: ReturnType<typeof setInterval> | null = null
-let timeoutId: ReturnType<typeof setTimeout> | null = null
+let intervalId: number | null = null
+let timeoutId: number | null = null
 
 const fire = (confetti: ReturnType<typeof canvasConfetti.create>) => {
   confetti({
@@ -31,23 +31,26 @@ const fire = (confetti: ReturnType<typeof canvasConfetti.create>) => {
 }
 
 onMount(() => {
+  if (!canvas) {
+    return
+  }
   const confetti = canvasConfetti.create(canvas, {
     resize: true,
     useWorker: true
   })
 
   fire(confetti)
-  intervalId = setInterval(() => fire(confetti), BURST_INTERVAL_MS)
-  timeoutId = setTimeout(() => {
+  intervalId = window.setInterval(() => fire(confetti), BURST_INTERVAL_MS)
+  timeoutId = window.setTimeout(() => {
     cleanup?.()
   }, DURATION_MS)
   cleanup = () => {
     if (intervalId) {
-      clearInterval(intervalId)
+      window.clearInterval(intervalId)
       intervalId = null
     }
     if (timeoutId) {
-      clearTimeout(timeoutId)
+      window.clearTimeout(timeoutId)
       timeoutId = null
     }
     confetti.reset()
