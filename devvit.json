@@ -36,8 +36,8 @@
   "scheduler": {
     "tasks": {
       "daily-puzzle-post": {
-        "endpoint": "/internal/scheduler/daily-puzzle-post",
-        "cron": "30 15 * * *"
+        "endpoint": "/internal/schedule/daily",
+        "cron": "35 16 * * *"
       }
     }
   },
