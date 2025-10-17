@@ -8,14 +8,13 @@ const formatDays = (value: number): string => {
 }
 </script>
 
-<section
-	class="w-full max-w-lg flex items-center justify-center gap-4 p-3 rounded-xl bg-zinc-800 text-zinc-200 shadow-sm"
-	aria-live="polite"
->
-	<span class="text-sm sm:text-base font-semibold text-primary-green">
+<div class="flex items-center gap-3 sm:gap-4" aria-live="polite">
+	<span class="text-sm sm:text-base font-semibold text-zinc-400">
 		Daily streak: {formatDays($streak.current)}
 	</span>
+	<!-- {#if $streak.longest > 1}
 	<span class="text-xs sm:text-sm text-zinc-400">
-		Best: {formatDays($streak.longest)}
-	</span>
-</section>
+			Best: {formatDays($streak.longest)}
+		</span>
+	{/if} -->
+</div>
