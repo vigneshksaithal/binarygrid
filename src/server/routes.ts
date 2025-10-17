@@ -1,5 +1,10 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
+import {
+  computeNextStreak,
+  normalizeStreakFromRedis,
+  serializeStreakForRedis
+} from '../shared/streak'
 import type { Grid, PuzzleWithGrid } from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
 
@@ -10,6 +15,17 @@ const HTTP_OK = 200
 const DEFAULT_GRID_SIZE = 6
 const DECIMAL_RADIX = 10
 const GRID_SIZE_TYPE = 6 as const
+const HTTP_UNAUTHORIZED = 401
+
+const streakKey = (id: string) => `user:${id}:streak`
+
+const resolveUserKey = async (): Promise<string | null> => {
+  if (context.userId) {
+    return context.userId
+  }
+  const username = await reddit.getCurrentUsername()
+  return username ?? null
+}
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 
@@ -20,6 +36,59 @@ app.post('/api/join-subreddit', async (c) => {
   } catch (error) {
     return c.json(
       { status: 'error', message: `Failed to join subreddit. Error: ${error}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.get('/api/streak', async (c) => {
+  try {
+    const userIdentifier = await resolveUserKey()
+    if (!userIdentifier) {
+      return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
+    }
+    const raw = await redis.hGetAll(streakKey(userIdentifier))
+    const streak = normalizeStreakFromRedis(raw)
+    return c.json({ streak })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to load streak: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.post('/api/streak', async (c) => {
+  const payload = await c.req.json<{ date: string }>().catch(() => null)
+  if (!payload || typeof payload.date !== 'string') {
+    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
+  }
+
+  try {
+    const userIdentifier = await resolveUserKey()
+    if (!userIdentifier) {
+      return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
+    }
+
+    const key = streakKey(userIdentifier)
+    const previous = normalizeStreakFromRedis(await redis.hGetAll(key))
+    const targetDate = payload.date
+    if (previous.lastPlayed === targetDate) {
+      return c.json({ streak: previous })
+    }
+
+    const updated = computeNextStreak(previous, targetDate)
+
+    await redis.hSet(key, serializeStreakForRedis(updated))
+
+    return c.json({ streak: updated })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to update streak: ${errorMessage}` },
       HTTP_BAD_REQUEST
     )
   }

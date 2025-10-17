@@ -1,10 +1,17 @@
 <script lang="ts">
+import { streak } from '../stores/streak'
 import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 import { closeSuccessModal, showSuccessModal } from '../stores/ui'
 
 import Button from './Button.svelte'
 
 let isJoining = $state(false)
+
+const formatDays = (value: number): string => {
+  const absolute = Math.max(0, Math.floor(value))
+  const suffix = absolute === 1 ? 'day' : 'days'
+  return `${absolute} ${suffix}`
+}
 
 const joinSubreddit = async () => {
   if (isJoining) {
@@ -50,6 +57,20 @@ const joinSubreddit = async () => {
 						>{formatElapsedTime($elapsedSeconds)}</span
 					>.
 				</p>
+				<div class="grid gap-1 text-sm text-zinc-300">
+					<p>
+						Current streak:
+						<span class="text-primary-green font-semibold"
+							>{formatDays($streak.current)}</span
+						>
+					</p>
+					<p>
+						Best streak:
+						<span class="text-primary-green font-semibold"
+							>{formatDays($streak.longest)}</span
+						>
+					</p>
+				</div>
 				<p class="text-sm text-zinc-300">
 					Join r/binarygrid for daily challenges.
 				</p>

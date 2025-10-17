@@ -8,6 +8,7 @@ import type {
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
+import { recordCompletion } from './streak'
 import { resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -35,6 +36,7 @@ export type GameState = {
     | undefined
   solution: Grid | null
   lastHint: { r: number; c: number } | null
+  dateISO: string | null
 }
 
 const emptyGrid = (): Grid =>
@@ -101,7 +103,8 @@ const initial: GameState = {
   errors: [],
   errorLocations: undefined,
   solution: null,
-  lastHint: null
+  lastHint: null,
+  dateISO: null
 }
 
 export const game = writable<GameState>(initial)
@@ -144,7 +147,8 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
       columns: number[]
     },
     solution,
-    lastHint: null
+    lastHint: null,
+    dateISO: date
   })
   resetTimer()
   startTimer()
@@ -211,6 +215,7 @@ export const cycleCell = (r: number, c: number) => {
   }
 
   let solved = false
+  let solvedDate: string | null = null
   game.update((s) => {
     if (s.status === 'solved') {
       return s
@@ -230,6 +235,9 @@ export const cycleCell = (r: number, c: number) => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
+    if (solved) {
+      solvedDate = s.dateISO ?? new Date().toISOString().slice(0, 10)
+    }
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -263,6 +271,7 @@ export const cycleCell = (r: number, c: number) => {
     }
   })
   if (solved) {
+    void recordCompletion(solvedDate ?? new Date().toISOString().slice(0, 10))
     stopTimer()
     openSuccessModal()
   }
@@ -274,6 +283,7 @@ export const revealHint = () => {
     errorTimer = undefined
   }
   let solved = false
+  let solvedDate: string | null = null
   game.update((s) => {
     if (!s.solution || s.status === 'solved') {
       return s
@@ -298,6 +308,9 @@ export const revealHint = () => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
+    if (solved) {
+      solvedDate = s.dateISO ?? new Date().toISOString().slice(0, 10)
+    }
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -330,6 +343,7 @@ export const revealHint = () => {
     }
   })
   if (solved) {
+    void recordCompletion(solvedDate ?? new Date().toISOString().slice(0, 10))
     stopTimer()
     openSuccessModal()
   }
