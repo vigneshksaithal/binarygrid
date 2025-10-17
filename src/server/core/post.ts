@@ -13,9 +13,9 @@ export const createPost = async (difficulty: Difficulty = 'medium') => {
     splash: {
       appDisplayName: 'Binary Grid',
       backgroundUri: 'splash-screen-dark.png',
-      buttonLabel: 'Play Now',
-      description: 'A fast-paced daily logic puzzle of 0s and 1s',
-      heading: 'Welcome to Binary Grid!',
+      buttonLabel: 'Start Solving 🔥',
+      description: 'Can you beat today’s Binary Grid? 🟩🟥\nTap to play & post your time in the comments! (No spreadsheet, just pure logic.)',
+      heading: '🧠 Binary Grid Daily Challenge!',
       appIconUri: 'icon-512.png'
     },
     subredditName,
