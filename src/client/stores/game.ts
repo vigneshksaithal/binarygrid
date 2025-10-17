@@ -2,13 +2,17 @@ import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type {
+  LeaderboardEntry,
+  LeaderboardResponse
+} from '../../shared/types/leaderboard'
+import type {
   Cell,
   Difficulty,
   Grid,
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
-import { resetTimer, startTimer, stopTimer } from './timer'
+import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
 type Status =
@@ -35,6 +39,11 @@ export type GameState = {
     | undefined
   solution: Grid | null
   lastHint: { r: number; c: number } | null
+  leaderboard: {
+    scores: LeaderboardEntry[]
+    nextCursor: number | null
+    loading: boolean
+  }
 }
 
 const emptyGrid = (): Grid =>
@@ -101,7 +110,12 @@ const initial: GameState = {
   errors: [],
   errorLocations: undefined,
   solution: null,
-  lastHint: null
+  lastHint: null,
+  leaderboard: {
+    scores: [],
+    nextCursor: null,
+    loading: false
+  }
 }
 
 export const game = writable<GameState>(initial)
@@ -131,7 +145,8 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
   const initialGrid = cloneGrid(data.puzzle.initial)
   const grid: Grid = saved ? JSON.parse(saved) : cloneGrid(initialGrid)
   const solution = solvePuzzle(initialGrid, data.puzzle.fixed) ?? null
-  game.set({
+  game.update((s) => ({
+    ...s,
     puzzleId: id,
     difficulty,
     grid,
@@ -144,8 +159,13 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
       columns: number[]
     },
     solution,
-    lastHint: null
-  })
+    lastHint: null,
+    leaderboard: {
+      scores: [],
+      nextCursor: null,
+      loading: false
+    }
+  }))
   resetTimer()
   startTimer()
 }
@@ -343,6 +363,37 @@ export const autosubmitIfSolved = async () => {
   await fetch('/api/submit', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ id: snapshot.puzzleId, grid: snapshot.grid })
+    body: JSON.stringify({
+      id: snapshot.puzzleId,
+      grid: snapshot.grid,
+      score: get(elapsedSeconds)
+    })
   })
+
+  // After submitting, fetch the leaderboard
+  fetchLeaderboard()
+}
+
+export const fetchLeaderboard = async (cursor?: number) => {
+  game.update((s) => ({
+    ...s,
+    leaderboard: { ...s.leaderboard, loading: true }
+  }))
+  const url = cursor
+    ? `/api/leaderboard?cursor=${cursor}`
+    : '/api/leaderboard'
+  const res = await fetch(url)
+  if (!res.ok) {
+    // Handle error
+    return
+  }
+  const data = (await res.json()) as LeaderboardResponse
+  game.update((s) => ({
+    ...s,
+    leaderboard: {
+      scores: cursor ? [...s.leaderboard.scores, ...data.scores] : data.scores,
+      nextCursor: data.nextCursor,
+      loading: false
+    }
+  }))
 }

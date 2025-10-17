@@ -3,6 +3,7 @@ import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 import { closeSuccessModal, showSuccessModal } from '../stores/ui'
 
 import Button from './Button.svelte'
+import Leaderboard from './Leaderboard.svelte'
 
 let isJoining = $state(false)
 
@@ -54,6 +55,7 @@ const joinSubreddit = async () => {
 					Join r/binarygrid for daily challenges.
 				</p>
 			</div>
+      <Leaderboard />
 			<footer class="grid gap-3">
 				<button
 					type="button"

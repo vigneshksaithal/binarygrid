@@ -67,12 +67,19 @@ app.get('/api/puzzle', async (c) => {
 })
 
 app.post('/api/submit', async (c) => {
-  const body = await c.req.json<{ id: string; grid: Grid }>().catch(() => null)
-  if (!body || typeof body.id !== 'string' || !Array.isArray(body.grid)) {
+  const body = await c.req
+    .json<{ id: string; grid: Grid; score: number }>()
+    .catch(() => null)
+  if (
+    !body ||
+    typeof body.id !== 'string' ||
+    !Array.isArray(body.grid) ||
+    typeof body.score !== 'number'
+  ) {
     return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
   }
 
-  const { postId } = context
+  const { postId, user } = context
   if (!postId) {
     return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
   }
@@ -102,6 +109,15 @@ app.post('/api/submit', async (c) => {
       await redis.set(key, '1')
     }
 
+    if (user) {
+      const leaderboardKey = `leaderboard:${postId}`
+      await redis.zAdd(
+        leaderboardKey,
+        { score: body.score, member: user.name },
+        { lt: true }
+      )
+    }
+
     return c.json({ ok: true })
   } catch (error) {
     const errorMessage =
@@ -111,6 +127,27 @@ app.post('/api/submit', async (c) => {
       HTTP_BAD_REQUEST
     )
   }
+})
+
+app.get('/api/leaderboard', async (c) => {
+  const { postId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  const { cursor } = c.req.query()
+  const start = cursor ? Number.parseInt(cursor, 10) : 0
+  const end = start + 9
+
+  const leaderboardKey = `leaderboard:${postId}`
+  const scores = await redis.zRange(leaderboardKey, start, end, {
+    withScores: true
+  })
+
+  return c.json({
+    scores,
+    nextCursor: scores.length === 10 ? start + 10 : null
+  })
 })
 
 export default app
