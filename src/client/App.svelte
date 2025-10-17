@@ -1,7 +1,6 @@
 <script lang="ts">
 import { onMount } from 'svelte'
 import './app.css'
-// import AnnouncementBar from './components/AnnouncementBar.svelte'
 import Confetti from './components/Confetti.svelte'
 import Grid from './components/Grid.svelte'
 import StreakBadge from './components/StreakBadge.svelte'
@@ -29,9 +28,6 @@ $effect(() => {
 	<StreakBadge />
 	<Grid />
 	<Toolbar />
-	<!-- <AnnouncementBar
-		text="This is in Alpha stage. Please give your feedback here >> https://tally.so/r/wzPvga"
-	/> -->
 </main>
 
 {#if shouldCelebrate}
