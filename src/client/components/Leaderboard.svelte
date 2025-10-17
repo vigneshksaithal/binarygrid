@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { game, fetchLeaderboard } from '../stores/game'
-  import { formatElapsedTime } from '../stores/timer'
+import { fetchLeaderboard, game } from '../stores/game'
+import { formatElapsedTime } from '../stores/timer'
 
-  const { leaderboard } = $game
+const { leaderboard } = $game
 
-  const handleLoadMore = () => {
-    if (leaderboard.nextCursor) {
-      fetchLeaderboard(leaderboard.nextCursor)
-    }
+const handleLoadMore = () => {
+  if (leaderboard.nextCursor) {
+    fetchLeaderboard(leaderboard.nextCursor)
   }
+}
 </script>
 
 <div class="leaderboard">

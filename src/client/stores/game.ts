@@ -12,6 +12,7 @@ import type {
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
+import { recordCompletion } from './streak'
 import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -231,6 +232,7 @@ export const cycleCell = (r: number, c: number) => {
   }
 
   let solved = false
+  let solvedDate: string | null = null
   game.update((s) => {
     if (s.status === 'solved') {
       return s
@@ -250,6 +252,9 @@ export const cycleCell = (r: number, c: number) => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
+    if (solved) {
+      solvedDate = new Date().toISOString().slice(0, 10)
+    }
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -283,6 +288,9 @@ export const cycleCell = (r: number, c: number) => {
     }
   })
   if (solved) {
+    recordCompletion(solvedDate ?? new Date().toISOString().slice(0, 10)).catch(
+      () => undefined
+    )
     stopTimer()
     openSuccessModal()
   }
@@ -294,6 +302,7 @@ export const revealHint = () => {
     errorTimer = undefined
   }
   let solved = false
+  let solvedDate: string | null = null
   game.update((s) => {
     if (!s.solution || s.status === 'solved') {
       return s
@@ -318,6 +327,9 @@ export const revealHint = () => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
+    if (solved) {
+      solvedDate = new Date().toISOString().slice(0, 10)
+    }
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -350,6 +362,9 @@ export const revealHint = () => {
     }
   })
   if (solved) {
+    recordCompletion(solvedDate ?? new Date().toISOString().slice(0, 10)).catch(
+      () => undefined
+    )
     stopTimer()
     openSuccessModal()
   }
@@ -379,9 +394,7 @@ export const fetchLeaderboard = async (cursor?: number) => {
     ...s,
     leaderboard: { ...s.leaderboard, loading: true }
   }))
-  const url = cursor
-    ? `/api/leaderboard?cursor=${cursor}`
-    : '/api/leaderboard'
+  const url = cursor ? `/api/leaderboard?cursor=${cursor}` : '/api/leaderboard'
   const res = await fetch(url)
   if (!res.ok) {
     // Handle error
