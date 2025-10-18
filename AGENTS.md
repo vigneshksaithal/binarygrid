@@ -1,28 +1,30 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+## Project Overview & Key Entry Points
+- **Client (Svelte 5)** lives under `src/client`. `App.svelte` mounts the UI while `main.ts` hydrates the client via Vite. Components are colocated in `src/client/components` and must rely on runes (`$props`, `$derived`, `$state`) rather than the legacy Svelte syntax. Shared styling is in `app.css` with Tailwind utility classes; avoid `<style>` blocks except for truly missing utilities. Color tokens live in `colors.css` and should be referenced via CSS variables.
+- **State management** for the UI is handled with Svelte stores under `src/client/stores` (`game.ts`, `timer.ts`, `ui.ts`, `theme.ts`, and streak helpers). Prefer derived stores and pure helpers; make stores tree-shakeable by exporting factory functions when appropriate.
+- **Server (Hono)** code sits in `src/server`. `routes.ts` wires REST endpoints consumed by the client and Devvit runtime, `index.ts` is the web entry. Core puzzle logic (generation, post metadata) lives under `src/server/core`.
+- **Shared logic** resides in `src/shared`. This directory exposes rule helpers (`rules.ts`), validation (`validator.ts`), solver utilities (`solver.ts`), streak helpers (`streak.ts`), and shared types under `src/shared/types`. Keep server and client imports pointed at these modules to avoid duplication.
+- **TypeScript project references** inherit from `tools/tsconfig-base.json`; update the base config first when changing compiler options, then extend within each package-specific `tsconfig.json` (`src/client/tsconfig.json`, `src/server/tsconfig.json`, `src/shared/tsconfig.json`).
+- **Assets** for branding and puzzles belong in `assets/`; distribution artifacts go to `dist/client` and `dist/server` after builds. Generated files should not be committed unless explicitly required.
 
-Binary Grid pairs a Svelte client with a Hono backend and shared logic. Client code lives in `src/client` (interactive UI in `src/client/components`, state stores in `src/client/stores`). Server modules sit in `src/server`; HTTP entry is `src/server/routes.ts` and puzzle helpers live under `src/server/core`. Shared rules, types, and validators are in `src/shared`, with tests colocated such as `src/shared/validator.test.ts` and `src/server/core/generator.test.ts`. Static assets stay in `assets/`, while build outputs target `dist/client` and `dist/server`.
+## Coding Style & Implementation Notes
+- Use strict TypeScript with ES modules. Omit semicolons unless syntactically required. Keep imports sorted by package, shared modules, then relative paths. Avoid default exports; prefer named exports for tree-shaking.
+- Svelte components must be PascalCase filenames, export props via the `$props()` rune, and keep markup declarative. Favor Tailwind utility classes and existing design tokens; create reusable components in `src/client/components` before duplicating markup.
+- Server handlers should be small pure functions registered on the shared `Hono` instance. Validate external input with `src/shared/validator.ts` helpers before mutating state. Redis access occurs through `@devvit/web/server` `redis`; encapsulate key formats via helper functions to prevent drift.
+- Shared utilities should remain framework-agnostic. Write deterministic, side-effect-free functions wherever possible so they can be exercised from both client and server tests.
+- When adding tests, colocate Vitest files using the `*.test.ts` suffix next to the module under test (`streak.test.ts`, `generator.test.ts`, `validator.test.ts`). Use lightweight fakes instead of hitting live services.
 
-## Build, Test, and Development Commands
+## Build, Test, and Quality Gates
+- Install dependencies with `pnpm install`.
+- Development server: `pnpm dev` (runs Svelte client, Hono server, and Devvit playtest concurrently).
+- Run unit tests with `pnpm test`; add `-- --coverage` before opening a PR.
+- Type-check all packages using `pnpm type-check`.
+- Lint and format with Biome via `pnpm fix` (autofix) or `pnpm check:biome` (read-only).
+- Build production bundles using `pnpm build`. Use `pnpm deploy` / `pnpm launch` for Devvit publishing when applicable.
 
-- `pnpm install` — install all workspace dependencies.
-- `pnpm dev` — run client, server, and Devvit playtest concurrently.
-- `pnpm test` — execute the Vitest suite.
-- `pnpm type-check` — ensure TS project references compile cleanly.
-- `pnpm fix` — run Biome lint autofix and formatting.
-- `pnpm check:biome` — lint without modifying files.
-- `pnpm build` — emit production bundles into `dist/`.
-- `pnpm deploy` / `pnpm launch` — publish the Devvit app.
-
-## Coding Style & Naming Conventions
-
-Use strict TypeScript with ES modules, single quotes, and omit semicolons unless required. Prefer arrow functions and type aliases, and favor small pure helpers in shared code. Svelte 5 components should rely solely on Tailwind utility classes; avoid `<style>` blocks unless a utility gap exists. Name stores descriptively (`game.ts`, `timer.ts`) and keep files PascalCase for components, camelCase for functions, and kebab-case for folders when adding new modules.
-
-## Testing Guidelines
-
-Vitest powers unit coverage. Name specs with the `*.test.ts` suffix beside implementation files to keep context close. Focus on puzzle validation, generation, and API routes; mock Redis interactions using lightweight fakes. Run `pnpm test -- --coverage` before PR submission, and use `pnpm test -- --watch` during active development to keep feedback fast.
-
-## Commit & Pull Request Guidelines
-
-Commits follow conventional prefixes (`feat:`, `fix:`, `chore:`) as shown in the history; keep subjects ≤72 characters and explain notable decisions in the body. Each PR should summarize scope, link related issues, list verification steps (tests, build, type-check), and attach UI screenshots or clips when visual changes occur. Ensure lint, tests, and builds pass locally before requesting review.
+## Contribution Workflow & Best Practices
+- Follow conventional commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.) with subjects ≤ 72 characters. Include context in the body when non-trivial decisions are made.
+- Before submitting a PR, ensure linting, tests, builds, and type-checks pass locally. Provide screenshots for visual changes (Svelte components) using the prescribed tooling.
+- Keep diffs focused; prefer small, incremental commits. Document new utilities or architectural decisions in code comments or module docstrings when clarity is needed.
+- When introducing new modules, update this file if the project structure or conventions change so future contributors stay aligned.
