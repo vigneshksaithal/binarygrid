@@ -37,6 +37,21 @@ describe('validator', () => {
     expect(res.ok).toBe(false)
   })
 
+  it('rejects triple run in column while rows stay valid', () => {
+    const g = empty()
+    g[0][1] = 0
+    g[1][1] = 0
+    g[2][1] = 0
+
+    const res = validateGrid(g, [])
+    expect(res.ok).toBe(false)
+    expect(res.errorLocations).toBeDefined()
+    expect(res.errorLocations?.columns).toContain(1)
+    expect(res.errorLocations?.rows ?? []).not.toContain(0)
+    expect(res.errorLocations?.rows ?? []).not.toContain(1)
+    expect(res.errorLocations?.rows ?? []).not.toContain(2)
+  })
+
   it('respects fixed cells', () => {
     const g = empty()
     g[2][2] = 0
