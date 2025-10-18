@@ -1,5 +1,10 @@
 # Repository Guidelines
 
+## Agent Workflow Expectations
+- Consider yourself a senior software engineer: think deeply about each problem before touching the code.
+- Plan the solution before implementation, choosing the minimal set of changes required.
+- Favor modular, simple, and easily understandable code; write only the necessary code to achieve the functionality.
+
 ## Project Overview & Key Entry Points
 - **Client (Svelte 5)** lives under `src/client`. `App.svelte` mounts the UI while `main.ts` hydrates the client via Vite. Components are colocated in `src/client/components` and must rely on runes (`$props`, `$derived`, `$state`) rather than the legacy Svelte syntax. Shared styling is in `app.css` with Tailwind utility classes; avoid `<style>` blocks except for truly missing utilities. Color tokens live in `colors.css` and should be referenced via CSS variables.
 - **State management** for the UI is handled with Svelte stores under `src/client/stores` (`game.ts`, `timer.ts`, `ui.ts`, `theme.ts`, and streak helpers). Prefer derived stores and pure helpers; make stores tree-shakeable by exporting factory functions when appropriate.
