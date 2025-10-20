@@ -115,25 +115,6 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 - Don't use 8 and 9 escape sequences in string literals.
 - Don't use literal numbers that lose precision.
 
-### React and JSX Best Practices
-
-- Don't use the return value of React.render.
-- Make sure all dependencies are correctly specified in React hooks.
-- Make sure all React hooks are called from the top level of component functions.
-- Don't forget key props in iterators and collection literals.
-- Don't destructure props inside JSX components in Solid projects.
-- Don't define React components inside other components.
-- Don't use event handlers on non-interactive elements.
-- Don't assign to React component props.
-- Don't use both `children` and `dangerouslySetInnerHTML` props on the same element.
-- Don't use dangerous JSX props.
-- Don't use Array index in keys.
-- Don't insert comments as text nodes.
-- Don't assign JSX properties multiple times.
-- Don't add extra closing tags for components without children.
-- Use `<>...</>` instead of `<Fragment>...</Fragment>`.
-- Watch out for possible "wrong" semicolons inside JSX elements.
-
 ### Correctness and Safety
 
 - Don't assign a value to itself.
@@ -302,13 +283,6 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 - Use Array.isArray() instead of instanceof Array.
 - Make sure to use the digits argument with Number#toFixed().
 - Make sure to use the "use strict" directive in script files.
-
-### Next.js Specific Rules
-
-- Don't use `<img>` elements in Next.js projects.
-- Don't use `<head>` elements in Next.js projects.
-- Don't import next/document outside of pages/_document.jsx in Next.js projects.
-- Don't use the next/head module in pages/_document.js on Next.js projects.
 
 ### Testing Best Practices
 
