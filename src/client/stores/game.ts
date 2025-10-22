@@ -26,6 +26,8 @@ export type GameState = {
   grid: Grid
   initial: Grid
   fixed: { r: number; c: number; v: 0 | 1 }[]
+  // Stack of prior grids; enables multi-level undo without mutating originals
+  history: Grid[]
   status: Status
   errors: string[]
   errorLocations?:
@@ -99,6 +101,7 @@ const initial: GameState = {
   grid: emptyGrid(),
   initial: emptyGrid(),
   fixed: [],
+  history: [],
   status: 'idle',
   errors: [],
   errorLocations: undefined,
@@ -140,6 +143,7 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
     grid,
     initial: initialGrid,
     fixed: data.puzzle.fixed,
+    history: [],
     status: 'in_progress',
     errors: [],
     errorLocations: undefined as unknown as {
@@ -172,6 +176,7 @@ export const resetPuzzle = () => {
     return {
       ...s,
       grid,
+      history: [],
       status: 'in_progress',
       errors: [],
       errorLocations: undefined,
@@ -223,6 +228,7 @@ export const cycleCell = (r: number, c: number) => {
     if (isCellFixed(s.fixed, r, c)) {
       return s
     }
+    const previousGrid = cloneGrid(s.grid)
     const nextGrid = s.grid.map((gridRow) => gridRow.slice())
     const targetRow = nextGrid[r]
     if (!targetRow) {
@@ -238,6 +244,7 @@ export const cycleCell = (r: number, c: number) => {
     if (solved) {
       solvedDate = s.dateISO ?? new Date().toISOString().slice(0, 10)
     }
+    const history = [...s.history, previousGrid]
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -260,10 +267,10 @@ export const cycleCell = (r: number, c: number) => {
       status = 'in_progress'
       errors = []
     }
-
     return {
       ...s,
       grid: nextGrid,
+      history,
       status,
       errors,
       errorLocations: undefined,
@@ -311,6 +318,8 @@ export const revealHint = () => {
     if (solved) {
       solvedDate = s.dateISO ?? new Date().toISOString().slice(0, 10)
     }
+    // Record the state prior to mutation so undo can restore it later
+    const history = [...s.history, cloneGrid(s.grid)]
 
     if (s.puzzleId && typeof localStorage !== 'undefined') {
       localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(nextGrid))
@@ -336,6 +345,7 @@ export const revealHint = () => {
     return {
       ...s,
       grid: nextGrid,
+      history,
       status,
       errors,
       errorLocations: undefined,
@@ -359,4 +369,62 @@ export const autosubmitIfSolved = async () => {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ id: snapshot.puzzleId, grid: snapshot.grid })
   })
+}
+
+// Restore the most recent grid snapshot, respecting validation and timers
+export const undoLastMove = () => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+  let resumeTimer = false
+  game.update((s) => {
+    if (s.history.length === 0) {
+      return s
+    }
+    const history = s.history.slice()
+    const previousGrid = history.pop()
+    if (!previousGrid) {
+      return s
+    }
+    const result = validateGrid(previousGrid, s.fixed)
+    let status = determineStatus(result.ok, previousGrid)
+    let errors = result.ok ? [] : result.errors
+
+    if (s.puzzleId && typeof localStorage !== 'undefined') {
+      localStorage.setItem(storageKey(s.puzzleId), JSON.stringify(previousGrid))
+    }
+
+    if (!result.ok) {
+      const currentGridJSON = JSON.stringify(previousGrid)
+      errorTimer = setTimeout(() => {
+        const currentGameState = get(game)
+        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
+          game.update((gameState) => ({
+            ...gameState,
+            status: 'invalid',
+            errors: result.errors,
+            errorLocations: result.errorLocations
+          }))
+        }
+      }, ERROR_DISPLAY_DELAY)
+      status = 'in_progress'
+      errors = []
+    }
+    resumeTimer = s.status === 'solved' && status !== 'solved'
+
+    return {
+      ...s,
+      grid: previousGrid,
+      history,
+      status,
+      errors,
+      errorLocations: undefined,
+      lastHint: null
+    }
+  })
+  if (resumeTimer) {
+    startTimer()
+    closeSuccessModal()
+  }
 }
