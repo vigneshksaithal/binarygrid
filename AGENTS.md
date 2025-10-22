@@ -130,6 +130,9 @@ When building these experiences, people will refer to the "devvit app" ([/src/de
 
 - First read code (don’t code yet).
 - Think harder and plan.
+- Ask questions if unclear. Don’t assume.
+- Break down tasks into smaller steps.
+- Ask user to approve plan before coding.
 - Review plan → approve → code → verify → commit.
 
 ### #2. Test-First Workflow (TDD)
