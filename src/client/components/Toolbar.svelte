@@ -36,10 +36,14 @@ onMount(() => {
 <div class="flex items-center gap-2.5 sm:gap-4 max-w-lg mx-auto">
 	<Button onClick={openHowTo}>How to Play</Button>
 	<Button onClick={revealHint} disabled={hintDisabled}>Hint</Button>
-	<Button onClick={undoLastMove} disabled={undoDisabled} ariaLabel="Undo last move">
+	<Button
+		onClick={undoLastMove}
+		disabled={undoDisabled}
+		ariaLabel="Undo last move"
+	>
 		<Undo2 size={20} strokeWidth={2} aria-hidden="true" />
 	</Button>
-	<Button onClick={resetPuzzle} ariaLabel="Reset puzzle">
+	<Button onClick={resetPuzzle} ariaLabel="Reset puzzle" variant="destructive">
 		<RotateCcw size={20} strokeWidth={2} aria-hidden="true" />
 	</Button>
 	<!-- <Button>Feedback</Button> -->
