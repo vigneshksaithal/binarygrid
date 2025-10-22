@@ -126,14 +126,25 @@ When building these experiences, people will refer to the "devvit app" ([/src/de
 
 ## Development Workflow
 
-1. Start development: pnpm dev
-2. Write tests for new functionality
-3. Make changes to client/server/shared code
-4. Run tests: pnpm test
-5. Check types: pnpm type-check
-6. Format & lint code: pnpm fix
-7. Build: pnpm build
-8. Deploy: pnpm deploy
+### #1. Explore → Plan → Code → Commit
+
+- First read code (don’t code yet).
+- Think harder and plan.
+- Review plan → approve → code → verify → commit.
+
+### #2. Test-First Workflow (TDD)
+
+- Write tests first, confirm they fail.
+- Implement and iterate until green.
+- Verify no overfitting.
+
+### #3. Start development
+
+- Start development by running `pnpm dev`.
+- Make changes to client/server/shared code.
+- Run tests by running `pnpm test`.
+- Check types by running `pnpm type-check`.
+- Format & lint code by running `pnpm fix`.
 
 ---
 
