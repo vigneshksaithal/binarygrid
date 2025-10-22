@@ -1,4 +1,5 @@
 <script lang="ts">
+import { RotateCcw, Undo2 } from '@lucide/svelte'
 import { onMount } from 'svelte'
 import {
   game,
@@ -35,8 +36,12 @@ onMount(() => {
 <div class="flex items-center gap-2.5 sm:gap-4 max-w-lg mx-auto">
 	<Button onClick={openHowTo}>How to Play</Button>
 	<Button onClick={revealHint} disabled={hintDisabled}>Hint</Button>
-	<Button onClick={undoLastMove} disabled={undoDisabled}>Undo</Button>
-	<Button onClick={resetPuzzle}>Reset</Button>
+	<Button onClick={undoLastMove} disabled={undoDisabled} ariaLabel="Undo last move">
+		<Undo2 size={20} strokeWidth={2} aria-hidden="true" />
+	</Button>
+	<Button onClick={resetPuzzle} ariaLabel="Reset puzzle">
+		<RotateCcw size={20} strokeWidth={2} aria-hidden="true" />
+	</Button>
 	<!-- <Button>Feedback</Button> -->
 </div>
 
