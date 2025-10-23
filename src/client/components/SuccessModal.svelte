@@ -38,7 +38,7 @@ const joinSubreddit = async () => {
 {#if $showSuccessModal}
 	<section class="fixed inset-0 z-50 grid place-items-center p-4">
 		<div
-			class="w-full max-w-lg gap-6 p-6 rounded-xl shadow-md grid bg-zinc-800"
+			class="w-full max-w-lg p-6 rounded-xl shadow-md grid bg-zinc-800"
 			role="dialog"
 			aria-modal="true"
 			aria-labelledby="success-modal-title"
@@ -46,36 +46,35 @@ const joinSubreddit = async () => {
 		>
 			<h2
 				id="success-modal-title"
-				class="text-center text-primary-green text-2xl font-semibold"
+				class="text-primary-green"
 			>
 				Congratulations!
 			</h2>
-			<div id="success-modal-body" class="grid gap-3 text-center text-zinc-100">
+			<div id="success-modal-body" class="grid gap-2 text-zinc-100">
 				<p class="text-lg font-semibold">
 					You solved the puzzle in
 					<span class="text-primary-green"
 						>{formatElapsedTime($elapsedSeconds)}</span
 					>.
 				</p>
-				<div class="grid gap-1 text-sm text-zinc-300">
+				<div class="flex gap-1 text-sm text-zinc-300">
 					<p>
 						Current streak:
 						<span class="text-primary-green font-semibold"
 							>{formatDays($streak.current)}</span
 						>
-					</p>
-					<p>
+						<span class="text-zinc-500">|</span>
 						Best streak:
 						<span class="text-primary-green font-semibold"
 							>{formatDays($streak.longest)}</span
 						>
 					</p>
 				</div>
-				<p class="text-sm text-zinc-300">
+				<p class="text-sm text-zinc-300 mb-6">
 					Join r/binarygrid for daily challenges.
 				</p>
 			</div>
-			<footer class="grid gap-3">
+			<footer class="flex justify-end gap-4">
 				<button
 					type="button"
 					class="text-sm font-medium text-zinc-300 hover:text-primary-green transition-colors"
