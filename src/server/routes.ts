@@ -18,14 +18,34 @@ const GRID_SIZE_TYPE = 6 as const
 const HTTP_UNAUTHORIZED = 401
 
 const streakKey = (id: string) => `user:${id}:streak`
+const puzzleProgressKey = (userId: string, puzzleId: string) =>
+  `user:${userId}:puzzle:${puzzleId}`
+const themeKey = (userId: string) => `user:${userId}:theme`
 
 const resolveUserKey = async (): Promise<string | null> => {
   if (context.userId) {
     return context.userId
   }
-  const username = await reddit.getCurrentUsername()
-  return username ?? null
+  try {
+    const username = await reddit.getCurrentUsername()
+    return username ?? null
+  } catch {
+    return null
+  }
 }
+
+const isValidCellValue = (value: unknown): value is 0 | 1 | null =>
+  value === 0 || value === 1 || value === null
+
+const isValidGrid = (grid: unknown): grid is Grid =>
+  Array.isArray(grid) &&
+  grid.length === DEFAULT_GRID_SIZE &&
+  grid.every(
+    (row) =>
+      Array.isArray(row) &&
+      row.length === DEFAULT_GRID_SIZE &&
+      row.every((cell) => isValidCellValue(cell))
+  )
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 
@@ -124,7 +144,24 @@ app.get('/api/puzzle', async (c) => {
       initial: JSON.parse(puzzleData.initial || '[]')
     }
 
-    return c.json({ puzzle })
+    const userIdentifier = await resolveUserKey()
+    let progress: Grid | null = null
+
+    if (userIdentifier) {
+      const stored = await redis.get(puzzleProgressKey(userIdentifier, puzzle.id))
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored) as unknown
+          if (isValidGrid(parsed)) {
+            progress = parsed
+          }
+        } catch {
+          progress = null
+        }
+      }
+    }
+
+    return c.json({ puzzle, progress })
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
@@ -133,6 +170,51 @@ app.get('/api/puzzle', async (c) => {
       HTTP_BAD_REQUEST
     )
   }
+})
+
+app.post('/api/puzzle/progress', async (c) => {
+  const payload = await c
+    .req
+    .json<{ id: string; grid: Grid }>()
+    .catch(() => null)
+
+  if (
+    !payload ||
+    typeof payload.id !== 'string' ||
+    !isValidGrid(payload.grid)
+  ) {
+    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
+  }
+
+  const userIdentifier = await resolveUserKey()
+  if (!userIdentifier) {
+    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
+  }
+
+  await redis.set(
+    puzzleProgressKey(userIdentifier, payload.id),
+    JSON.stringify(payload.grid)
+  )
+
+  return c.json({ ok: true })
+})
+
+app.delete('/api/puzzle/progress', async (c) => {
+  const id = c.req.query('id')
+
+  if (!id) {
+    return c.json({ error: 'id is required' }, HTTP_BAD_REQUEST)
+  }
+
+  const userIdentifier = await resolveUserKey()
+
+  if (!userIdentifier) {
+    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
+  }
+
+  await redis.del(puzzleProgressKey(userIdentifier, id))
+
+  return c.json({ ok: true })
 })
 
 app.post('/api/submit', async (c) => {
@@ -180,6 +262,37 @@ app.post('/api/submit', async (c) => {
       HTTP_BAD_REQUEST
     )
   }
+})
+
+app.get('/api/theme', async (c) => {
+  const userIdentifier = await resolveUserKey()
+  if (!userIdentifier) {
+    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
+  }
+
+  const stored = await redis.get(themeKey(userIdentifier))
+  if (stored === 'dark' || stored === 'light') {
+    return c.json({ theme: stored })
+  }
+
+  return c.json({ theme: null })
+})
+
+app.post('/api/theme', async (c) => {
+  const payload = await c.req.json<{ theme: string }>().catch(() => null)
+
+  if (!payload || (payload.theme !== 'dark' && payload.theme !== 'light')) {
+    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
+  }
+
+  const userIdentifier = await resolveUserKey()
+  if (!userIdentifier) {
+    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
+  }
+
+  await redis.set(themeKey(userIdentifier), payload.theme)
+
+  return c.json({ ok: true })
 })
 
 export default app

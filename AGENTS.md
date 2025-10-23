@@ -114,6 +114,8 @@ pnpm fix            # Format and lint code
 - Do not install libraries requiring restricted modules.
 - Websockets and HTTP streaming are not supported.
 - Redis is accessible via `import { redis } from '@devvit/web/server'`.
+- Persist puzzle progress via the `/api/puzzle/progress` routes, which write to Redis keys shaped like `user:{userId}:puzzle:{puzzleId}`; clients must not rely on `localStorage`.
+- Store theme preferences through the `/api/theme` routes (Redis key `user:{userId}:theme`) so the mobile app and web stay in sync.
 
 ### Shared
 
