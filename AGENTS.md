@@ -2,78 +2,87 @@
 
 ## Project Overview
 
-Binary Grid is a daily 6×6 logic puzzle game, where players fill a grid with 0s and 1s following three core rules: each row and column must contain exactly three 0s and three 1s, no three consecutive identical digits are allowed, and players must respect pre-filled clue cells.
+Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1s according to three rules:
+
+1. Each row and column must contain exactly three 0s and three 1s.
+2. No three consecutive identical digits are allowed.
+3. Players must respect pre-filled clue cells.
 
 ## Tech Stack
 
 ### Frontend
 
-- [Devvit](https://developers.reddit.com/docs/) (version 0.12.1) - Reddit App Platform
-- [Svelte](https://svelte.dev/) (version 5, runes) - UI library
-- [TypeScript](https://www.typescriptlang.org/) - Programming language
-- [Tailwind CSS](https://tailwindcss.com/) (version 4) - CSS framework
+- [Devvit](https://developers.reddit.com/docs/) (v0.12.1) — Reddit App Platform
+- [Svelte](https://svelte.dev/) (v5, runes) — UI framework
+- [TypeScript](https://www.typescriptlang.org/) — Programming language
+- [Tailwind CSS](https://tailwindcss.com/) (v4) — CSS framework
+- [Lucide Svelte](https://lucide.dev/) — Icon library
+
+>**IMPORTANT NOTE:**
+>For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
 
 ### Backend
 
-- [Hono JS](https://hono.dev/) - Backend framework
-- [Redis](https://redis.io/) - Database
-- [TypeScript](https://www.typescriptlang.org/) - Programming language
+- [Hono JS](https://hono.dev/) — Backend framework
+- [Redis](https://redis.io/) — Database
+- [TypeScript](https://www.typescriptlang.org/) — Programming language
 
 ### Testing
 
-- [Vitest](https://vitest.dev/) - Testing framework
-- [Google Chrome](https://www.google.com/chrome/) - Browser
+- [Vitest](https://vitest.dev/) — Testing framework
+- [Google Chrome](https://www.google.com/chrome/) — Browser
 
 ### Tools
 
-- [Vite](https://vite.dev/) - Build tool
-- [pnpm](https://pnpm.io/) - Package manager
-- [Biome JS](https://biomejs.dev) - Linter and formatter
-- [Ultracite](https://www.ultracite.ai) - Linter and formatter
+- [Vite](https://vite.dev/) — Build tool
+- [pnpm](https://pnpm.io/) — Package manager
+- [Biome JS](https://biomejs.dev) — Linter and formatter
+- [Ultracite](https://www.ultracite.ai) — Linter and formatter
 
-> IMPORTANT NOTE:
-> For Svelte use v5 runes syntax ONLY.
-> For Tailwind CSS use v4 syntax ONLY.
-> For Devvit the full docs are available at /docs/devvit-docs.txt
+> **IMPORTANT NOTE:**
+>
+> - Use Svelte v5 runes syntax ONLY.
+> - Use Tailwind CSS v4 syntax ONLY.
+> - Devvit full documentation is available at `/docs/devvit-docs.txt`.
 
 ---
 
 ## File Structure
 
 ```text
-assets/  // Public assets (images, sprites, audio, fonts)
-docs/  // Project and Devvit documentation
-dist/  // Build output
+assets/           # Public assets (images, sprites, audio, fonts)
+docs/             # Project and Devvit documentation
+dist/             # Build output
 src/
-  client/  // Svelte frontend. To persist data and access the server, call `fetch(/my/api/endpoint)`. This is how you get access to the APIs you write in /src/server.
-    components/  // Reusable Svelte components
-    index.html  // Entry point
-  server/  // External API service (Hono). A serverless backend written in Node.js. This is where you can access redis and save data.
-  shared/  // This is where you can place code that is to be shared between the devvit app, client, and server and the webview. It's a great place for shared types.
-devvit.json  // Devvit config
+  client/         # Svelte frontend; use `fetch(/my/api/endpoint)` to access server APIs in `/src/server`
+    components/   # Reusable Svelte components
+    index.html    # Entry point
+  server/         # Hono external API service (serverless backend in Node.js, with Redis access)
+  shared/         # Shared code for devvit app, client, server, and webview (e.g., shared types)
+devvit.json       # Devvit config
 ```
 
 ---
 
 ## Guiding Principles
 
-- Clarity and Reuse: Every component and page should be modular and reusable. Avoid duplication by factoring repeated UI patterns into components.
-- Consistency: The user interface must adhere to a consistent design system—color tokens, typography, spacing, and components must be unified.
-- Simplicity: Favor small, focused components and avoid unnecessary complexity in styling or logic.
-- Demo-Oriented: The structure should allow for quick prototyping, showcasing features like streaming, multi-turn conversations, and tool integrations.
-- Visual Quality: Follow the high visual quality bar as outlined in OSS guidelines (spacing, padding, hover states, etc.)
+- Clarity and Reuse: Make every component and page modular and reusable; abstract repeated UI patterns into components.
+- Consistency: Maintain a unified design system (color tokens, typography, spacing, components).
+- Simplicity: Prefer small, focused components and avoid unnecessary complexity.
+- Demo-Oriented: Enable quick prototyping to showcase streaming, multi-turn conversations, and tool integrations.
+- Visual Quality: Uphold a high standard of visual polish per OSS guidelines (spacing, padding, hover states, etc.).
 
 ---
 
 ## Setup Commands
 
 ```zsh
-pnpm install # install dependencies
-pnpm dev # start the development server
-pnpm build # build the project
-pnpm test # run tests
-pnpm type-check # check types
-pnpm fix # format and lint code
+pnpm install        # Install dependencies
+pnpm dev            # Start development server
+pnpm build          # Build the project
+pnpm test           # Run tests
+pnpm type-check     # Check types
+pnpm fix            # Format and lint code
 ```
 
 ---
@@ -84,94 +93,88 @@ pnpm fix # format and lint code
 
 - Use strict TypeScript with ES modules.
 - Omit semicolons unless syntactically required.
-- Use functional programming patterns where possible.
-- Arrow functions preferred.
-- Keep imports sorted by package, shared modules, then relative paths.
-- Avoid default exports; prefer named exports for tree-shaking.
+- Favor functional programming patterns.
+- Use arrow functions by default.
+- Sort imports: packages, shared modules, then relative paths.
+- Prefer named exports (tree-shaking) over default exports.
 
 ### Svelte
 
-- Svelte components must be PascalCase filenames, export props via the `$props()` rune, and keep markup declarative.
+- Svelte components: PascalCase filenames, export props via `$props()` rune, keep markup declarative.
 - Favor Tailwind utility classes and existing design tokens.
 - Create reusable components in `src/client/components` before duplicating markup.
 
-- Server handlers should be small pure functions registered on the shared `Hono` instance.
-- Validate external input with `src/shared/validator.ts` helpers before mutating state.
+### Server
+
+- Server handlers: Small, pure functions registered on shared `Hono` instance.
+- Validate external input using `src/shared/validator.ts` before mutating state.
+- Serverless Node.js: all Node globals except `fs`, `http`, `https`, and `net` are available.
+- Use `fetch` instead of `http`/`https`.
+- File system is read-only; you cannot write files.
+- Do not install libraries requiring restricted modules.
+- Websockets and HTTP streaming are not supported.
+- Redis is accessible via `import { redis } from '@devvit/web/server'`.
 
 ### Shared
 
-- Shared utilities should remain framework-agnostic. Write deterministic, side-effect-free functions wherever possible so they can be exercised from both client and server tests.
-
-- When adding tests, colocate Vitest files using the `*.test.ts` suffix next to the module under test (e.g. `streak.test.ts`, `validator.test.ts`). Use lightweight fakes instead of hitting live services.
-
-### Server
-
-- This is a serverless node.js environment, you have all node globals at your disposal except: fs, http, https, and net.
-
-- Instead of http or https, prefer fetch.
-- You cannot write files as you are running on a read only file system.
-- Do not install any libraries that rely on these to function.
-- Websockets are not supported.
-- HTTP streaming is not supported.
-- Redis is accessible from `import { redis } from '@devvit/web/server'`.
+- Shared utilities must be framework-agnostic and deterministic; no side-effects. They must be testable from both client and server.
+- Colocate Vitest test files next to the module under test (e.g. `streak.test.ts`, `validator.test.ts`). Use lightweight fakes over live services.
 
 ### Devvit
 
-When building these experiences, people will refer to the "devvit app" ([/src/devvit](mdc:src/devvit)) and "client" ([/src/client](mdc:src/client)).
+Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 
-> IMPORTANT NOTE:
-> As this is a serverless runtime (akin to AWS Lambda), do not try to run SQLite or stateful in memory processes. For realtime use cases, consult the docs with devvit_search to learn more about the realtime service you can use.
+> **IMPORTANT:**
+> This is a serverless runtime (like AWS Lambda); do not run SQLite or stateful in-memory processes. For real-time use cases, see `devvit_search` docs regarding the real-time service.
 
 ---
 
 ## Development Workflow
 
-### #1. Explore → Plan → Code → Commit
+### 1. Explore → Plan → Code → Commit
 
-- First read code (don’t code yet).
-- Think harder and plan.
-- Ask questions if unclear. Don’t assume.
-- Break down tasks into smaller steps.
-- Ask user to approve plan before coding.
-- Review plan → approve → code → verify → commit.
+- Begin with a concise checklist (3–7 bullets) of what you will do; keep items conceptual, not implementation-level.
+- Read the code; do not begin coding immediately.
+- Plan your approach.
+- Ask questions if unclear—do not assume.
+- Break tasks into smaller steps.
+- Request user approval for your plan before coding.
+- Iterate: Review → Approve → Code → Verify → Commit.
 
-### #2. Test-First Workflow (TDD)
+### 2. Test-First Workflow (TDD)
 
-- Write tests first, confirm they fail.
-- Implement and iterate until green.
-- Verify no overfitting.
+- Write failing tests first.
+- Implement until tests pass.
+- Guard against overfitting.
 
-### #3. Start development
+### 3. Start Development
 
-- Start development by running `pnpm dev`.
-- Make changes to client/server/shared code.
-- Run tests by running `pnpm test`.
-- Check types by running `pnpm type-check`.
-- Format & lint code by running `pnpm fix`.
+- Run `pnpm dev` to start development.
+- Modify code as needed in client/server/shared.
+- Test with `pnpm test`.
+- Type-check with `pnpm type-check`.
+- Format and lint with `pnpm fix`.
 
 ---
 
 ## Git Workflows
 
-- Follow conventional commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.) with subjects ≤ 72 characters. Include context in the body when non-trivial decisions are made.
-- Branch naming: `feat/`, `fix/`, `chore/`, `docs/`
-- Default merge method: rebase
-- Avoid force-push to main
-
+- Use conventional commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.), limiting the subject to 72 characters. Add context in the body for non-trivial changes.
+- Branches: `feat/`, `fix/`, `chore/`, `docs/`
+- Use rebase as the default merge method; avoid force-pushing to `main`.
 - Commit messages:
-  - Follow conventional commit prefixes (`feat:`, `fix:`, `chore:`, `refactor:`, `docs:`, etc.) with subjects ≤ 72 characters. Include context in the body when non-trivial decisions are made.
   - Start with an imperative verb.
+  - Always type-check before committing.
   - Example: `feat(auth): add token validation`
-  - Always typecheck before committing.
 
 ## Repository Etiquette
 
 - Keep commits small and descriptive.
-- Update AGENTS.md with every new workflow or major tool.
+- Update `AGENTS.md` with every new workflow or major tool.
 - Never commit secrets or local settings.
-- REMEMBER: After updating write a detailed changelog entry in CHANGELOG.md.
+- After updates, write a detailed changelog in `CHANGELOG.md`.
 
-> REMEMBER: This file is the source of truth for all project workflows, tools, and conventions. Keep it up to date with every new addition or change.
+> This file is the single source of truth for project workflows, tools, and conventions. Keep it current with every addition or change.
 
 ---
 
@@ -179,7 +182,7 @@ When building these experiences, people will refer to the "devvit app" ([/src/de
 
 ### Project Context
 
-Ultracite enforces strict type safety, accessibility standards, and consistent code quality for JavaScript/TypeScript projects using Biome's lightning-fast formatter and linter.
+Ultracite enforces strict type safety, accessibility, and code quality for (JavaScript/TypeScript) using Biome's linter and formatter.
 
 ### Key Principles
 
@@ -190,10 +193,10 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 
 ### Before Writing Code
 
-1. Analyze existing patterns in the codebase
-2. Consider edge cases and error scenarios
-3. Follow the rules below strictly
-4. Validate accessibility requirements
+1. Analyze codebase patterns
+2. Consider edge cases and errors
+3. Apply all rules strictly
+4. Validate accessibility
 
 ### Rules
 
@@ -468,9 +471,9 @@ Ultracite enforces strict type safety, accessibility standards, and consistent c
 
 ### Common Tasks
 
-- `npx ultracite init` - Initialize Ultracite in your project
-- `npx ultracite fix` - Format and fix code automatically
-- `npx ultracite check` - Check for issues without fixing
+- `npx ultracite init`    # Initialize Ultracite
+- `npx ultracite fix`    # Auto-format and fix issues
+- `npx ultracite check`  # Check for issues
 
 ### Example: Error Handling
 
