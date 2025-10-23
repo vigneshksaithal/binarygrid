@@ -120,7 +120,7 @@ pnpm fix            # Format and lint code
 ### Shared
 
 - Shared utilities must be framework-agnostic and deterministic; no side-effects. They must be testable from both client and server.
-- Colocate Vitest test files next to the module under test (e.g. `streak.test.ts`, `validator.test.ts`). Use lightweight fakes over live services.
+- Colocate Vitest test files next to the module under test (e.g. `generator.test.ts`, `validator.test.ts`). Use lightweight fakes over live services.
 
 ### Devvit
 

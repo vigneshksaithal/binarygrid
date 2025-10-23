@@ -8,7 +8,6 @@ import type {
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
-import { recordCompletion } from './streak'
 import { resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -253,7 +252,6 @@ export const cycleCell = (r: number, c: number) => {
   }
 
   let solved = false
-  let solvedDate: string | null = null
   let puzzleId: string | null = null
   let nextGridSnapshot: Grid | null = null
   game.update((s) => {
@@ -277,9 +275,6 @@ export const cycleCell = (r: number, c: number) => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
-    if (solved) {
-      solvedDate = s.dateISO ?? new Date().toISOString().slice(0, 10)
-    }
     const history = [...s.history, previousGrid]
 
     nextGridSnapshot = nextGrid
@@ -311,7 +306,6 @@ export const cycleCell = (r: number, c: number) => {
     }
   })
   if (solved) {
-    void recordCompletion(solvedDate ?? new Date().toISOString().slice(0, 10))
     stopTimer()
     openSuccessModal()
   }
@@ -330,7 +324,6 @@ export const revealHint = () => {
     errorTimer = undefined
   }
   let solved = false
-  let solvedDate: string | null = null
   let puzzleId: string | null = null
   let nextGridSnapshot: Grid | null = null
   game.update((s) => {
@@ -358,9 +351,6 @@ export const revealHint = () => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
-    if (solved) {
-      solvedDate = s.dateISO ?? new Date().toISOString().slice(0, 10)
-    }
     // Record the state prior to mutation so undo can restore it later
     const history = [...s.history, cloneGrid(s.grid)]
 
@@ -393,7 +383,6 @@ export const revealHint = () => {
     }
   })
   if (solved) {
-    void recordCompletion(solvedDate ?? new Date().toISOString().slice(0, 10))
     stopTimer()
     openSuccessModal()
   }
