@@ -25,11 +25,6 @@ export type PuzzleWithGrid = Puzzle & {
   initial: Grid
 }
 
-export type Submission = {
-  id: string
-  grid: Grid
-}
-
 export type ValidationResult = {
   ok: boolean
   errors: string[]
