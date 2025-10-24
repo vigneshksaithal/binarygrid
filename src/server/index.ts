@@ -1,5 +1,4 @@
 import {
-  cache,
   context,
   createServer,
   getServerPort,
@@ -30,27 +29,19 @@ app.get('/api/init', async (c) => {
   }
 
   try {
-    const puzzle = await cache(
-      async () => {
-        const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
+    const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
 
-        if (!puzzleData?.id) {
-          throw new Error('Puzzle not found for this post')
-        }
+    if (!puzzleData?.id) {
+      throw new Error('Puzzle not found for this post')
+    }
 
-        return {
-          id: puzzleData.id,
-          size: Number.parseInt(puzzleData.size || '6', 10),
-          difficulty: puzzleData.difficulty ?? null,
-          fixed: JSON.parse(puzzleData.fixed || '[]'),
-          initial: JSON.parse(puzzleData.initial || '[]')
-        }
-      },
-      {
-        key: `post:${postId}:puzzle`,
-        ttl: 60 * 60 * 24
-      }
-    )
+    const puzzle = {
+      id: puzzleData.id,
+      size: Number.parseInt(puzzleData.size || '6', 10),
+      difficulty: puzzleData.difficulty ?? null,
+      fixed: JSON.parse(puzzleData.fixed || '[]'),
+      initial: JSON.parse(puzzleData.initial || '[]')
+    }
 
     const username = await reddit.getCurrentUsername()
 
