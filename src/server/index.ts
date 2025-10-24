@@ -2,7 +2,6 @@ import {
   context,
   createServer,
   getServerPort,
-  reddit,
   redis
 } from '@devvit/web/server'
 import { serve } from '@hono/node-server'
@@ -43,13 +42,10 @@ app.get('/api/init', async (c) => {
       initial: JSON.parse(puzzleData.initial || '[]')
     }
 
-    const username = await reddit.getCurrentUsername()
-
     return c.json({
       type: 'init',
       postId,
-      puzzle,
-      username: username ?? 'anonymous'
+      puzzle
     })
   } catch (error) {
     if (

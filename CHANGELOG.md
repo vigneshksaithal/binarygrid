@@ -2,6 +2,7 @@
 
 ## 2025-10-24
 
+- Removed unused username lookup in `/api/init`, simplifying the init payload.
 - Removed the legacy light/dark theme toggle, deleted `/api/theme`, and reverted the client to the default dark presentation.
 
 ## 2025-10-23
