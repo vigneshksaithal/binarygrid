@@ -15,17 +15,8 @@ const HTTP_UNAUTHORIZED = 401
 const puzzleProgressKey = (userId: string, puzzleId: string) =>
   `user:${userId}:puzzle:${puzzleId}`
 
-const resolveUserKey = async (): Promise<string | null> => {
-  if (context.userId) {
-    return context.userId
-  }
-  try {
-    const username = await reddit.getCurrentUsername()
-    return username ?? null
-  } catch {
-    return null
-  }
-}
+const resolveUserKey = async (): Promise<string | null> =>
+  context.userId ?? null
 
 const isValidCellValue = (value: unknown): value is 0 | 1 | null =>
   value === 0 || value === 1 || value === null
