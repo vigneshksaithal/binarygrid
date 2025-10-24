@@ -14,7 +14,6 @@ const HTTP_UNAUTHORIZED = 401
 
 const puzzleProgressKey = (userId: string, puzzleId: string) =>
   `user:${userId}:puzzle:${puzzleId}`
-const themeKey = (userId: string) => `user:${userId}:theme`
 
 const resolveUserKey = async (): Promise<string | null> => {
   if (context.userId) {
@@ -203,37 +202,6 @@ app.post('/api/submit', async (c) => {
       HTTP_BAD_REQUEST
     )
   }
-})
-
-app.get('/api/theme', async (c) => {
-  const userIdentifier = await resolveUserKey()
-  if (!userIdentifier) {
-    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
-  }
-
-  const stored = await redis.get(themeKey(userIdentifier))
-  if (stored === 'dark' || stored === 'light') {
-    return c.json({ theme: stored })
-  }
-
-  return c.json({ theme: null })
-})
-
-app.post('/api/theme', async (c) => {
-  const payload = await c.req.json<{ theme: string }>().catch(() => null)
-
-  if (!payload || (payload.theme !== 'dark' && payload.theme !== 'light')) {
-    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
-  }
-
-  const userIdentifier = await resolveUserKey()
-  if (!userIdentifier) {
-    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
-  }
-
-  await redis.set(themeKey(userIdentifier), payload.theme)
-
-  return c.json({ ok: true })
 })
 
 export default app
