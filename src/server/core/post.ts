@@ -8,7 +8,6 @@ export const createPost = async (difficulty: Difficulty = 'medium') => {
     throw new Error('subredditName is required')
   }
 
-  // Create the post first
   const post = await reddit.submitCustomPost({
     splash: {
       appDisplayName: 'Binary Grid',
