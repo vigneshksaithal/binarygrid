@@ -29,11 +29,6 @@ pnpm dev
 - GET `/api/puzzle` → `{ puzzle }`
 - POST `/api/submit` body `{ id, grid }` → `{ ok: boolean, errors?: string[] }`
 
-## Theming
-
-- Toggle in toolbar (Dark/Light)
-- Dark: black bg, green text; Light: white bg, green text
-
 ## Tests
 
 ```bash
