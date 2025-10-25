@@ -26,7 +26,7 @@ pnpm dev
 ## API
 
 - GET `/api/health` → `{ ok: true }`
-- GET `/api/puzzle?date=YYYY-MM-DD&difficulty=easy|medium|hard` → `{ puzzle }`
+- GET `/api/puzzle` → `{ puzzle }`
 - POST `/api/submit` body `{ id, grid }` → `{ ok: boolean, errors?: string[] }`
 
 ## Theming
