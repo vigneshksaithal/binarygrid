@@ -81,7 +81,7 @@ app.get('/api/puzzle', async (c) => {
 
     if (!puzzle) {
       const date = resolveDate(c.req.query('date') ?? null)
-      const difficulty = resolveDifficulty(c.req.query('difficulty') ?? null)
+      const difficulty = 'easy'
       puzzle = generateDailyPuzzle(date, difficulty)
     }
 

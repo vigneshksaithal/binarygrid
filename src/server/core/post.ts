@@ -2,7 +2,7 @@ import { context, reddit, redis } from '@devvit/web/server'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { generatePuzzleForPost } from './generator'
 
-export const createPost = async (difficulty: Difficulty = 'medium') => {
+export const createPost = async (difficulty: Difficulty = 'easy') => {
   const { subredditName } = context
   if (!subredditName) {
     throw new Error('subredditName is required')
