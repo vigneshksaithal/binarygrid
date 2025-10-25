@@ -89,7 +89,7 @@ app.post('/internal/on-app-install', async (c) => {
 
 app.post('/internal/menu/post-create', async (c) => {
   try {
-    const post = await createPost('medium')
+    const post = await createPost('easy')
 
     return c.json({
       navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
