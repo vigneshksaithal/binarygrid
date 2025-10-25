@@ -17,7 +17,7 @@ $effect(() => {
   shouldCelebrate = $game.status === 'solved'
 })
 </script>
-mm
+
 <main
 	class="w-full max-w-md lg:max-w-lg mx-auto flex flex-col items-center gap-4 sm:gap-4 p-4 md:p-6"
 >
