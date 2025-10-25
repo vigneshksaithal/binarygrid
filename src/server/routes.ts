@@ -1,7 +1,12 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
-import type { Grid, PuzzleWithGrid } from '../shared/types/puzzle'
+import type {
+  Difficulty,
+  Grid,
+  PuzzleWithGrid
+} from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
+import { generateDailyPuzzle } from './core/generator'
 
 const app = new Hono()
 
@@ -10,26 +15,32 @@ const HTTP_OK = 200
 const DEFAULT_GRID_SIZE = 6
 const DECIMAL_RADIX = 10
 const GRID_SIZE_TYPE = 6 as const
-const HTTP_UNAUTHORIZED = 401
+const DEFAULT_DIFFICULTY: Difficulty = 'medium'
+const DIFFICULTY_VALUES = ['easy', 'medium', 'hard'] as const
 
-const puzzleProgressKey = (userId: string, puzzleId: string) =>
-  `user:${userId}:puzzle:${puzzleId}`
+const isDifficultyValue = (value: string): value is Difficulty =>
+  (DIFFICULTY_VALUES as readonly string[]).includes(value)
 
-const resolveUserKey = async (): Promise<string | null> =>
-  context.userId ?? null
+const resolveDifficulty = (value: string | null): Difficulty => {
+  if (!value) {
+    return DEFAULT_DIFFICULTY
+  }
+  const normalized = value.toLowerCase()
+  return isDifficultyValue(normalized) ? normalized : DEFAULT_DIFFICULTY
+}
 
-const isValidCellValue = (value: unknown): value is 0 | 1 | null =>
-  value === 0 || value === 1 || value === null
+const todayISO = (): string => new Date().toISOString().slice(0, 10)
 
-const isValidGrid = (grid: unknown): grid is Grid =>
-  Array.isArray(grid) &&
-  grid.length === DEFAULT_GRID_SIZE &&
-  grid.every(
-    (row) =>
-      Array.isArray(row) &&
-      row.length === DEFAULT_GRID_SIZE &&
-      row.every((cell) => isValidCellValue(cell))
-  )
+const resolveDate = (value: string | null): string => {
+  if (!value) {
+    return todayISO()
+  }
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) {
+    return todayISO()
+  }
+  return parsed.toISOString().slice(0, 10)
+}
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 
@@ -47,52 +58,34 @@ app.post('/api/join-subreddit', async (c) => {
 
 // Get puzzle for the current post
 app.get('/api/puzzle', async (c) => {
-  const { postId } = context
-
-  if (!postId) {
-    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
-  }
-
   try {
-    // Fetch puzzle from Redis using postId
-    const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
+    const { postId } = context
+    let puzzle: PuzzleWithGrid | null = null
 
-    if (!puzzleData?.id) {
-      return c.json(
-        { error: 'Puzzle not found for this post' },
-        HTTP_BAD_REQUEST
-      )
-    }
+    if (postId) {
+      const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
 
-    const puzzle: PuzzleWithGrid = {
-      id: puzzleData.id,
-      size: Number.parseInt(
-        puzzleData.size || DEFAULT_GRID_SIZE.toString(),
-        DECIMAL_RADIX
-      ) as typeof GRID_SIZE_TYPE,
-      difficulty: puzzleData.difficulty as 'easy' | 'medium' | 'hard',
-      fixed: JSON.parse(puzzleData.fixed || '[]'),
-      initial: JSON.parse(puzzleData.initial || '[]')
-    }
-
-    const userIdentifier = await resolveUserKey()
-    let progress: Grid | null = null
-
-    if (userIdentifier) {
-      const stored = await redis.get(puzzleProgressKey(userIdentifier, puzzle.id))
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored) as unknown
-          if (isValidGrid(parsed)) {
-            progress = parsed
-          }
-        } catch {
-          progress = null
+      if (puzzleData?.id) {
+        puzzle = {
+          id: puzzleData.id,
+          size: Number.parseInt(
+            puzzleData.size || DEFAULT_GRID_SIZE.toString(),
+            DECIMAL_RADIX
+          ) as typeof GRID_SIZE_TYPE,
+          difficulty: resolveDifficulty(puzzleData.difficulty ?? null),
+          fixed: JSON.parse(puzzleData.fixed || '[]'),
+          initial: JSON.parse(puzzleData.initial || '[]')
         }
       }
     }
 
-    return c.json({ puzzle, progress })
+    if (!puzzle) {
+      const date = resolveDate(c.req.query('date') ?? null)
+      const difficulty = resolveDifficulty(c.req.query('difficulty') ?? null)
+      puzzle = generateDailyPuzzle(date, difficulty)
+    }
+
+    return c.json({ puzzle })
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
@@ -101,51 +94,6 @@ app.get('/api/puzzle', async (c) => {
       HTTP_BAD_REQUEST
     )
   }
-})
-
-app.post('/api/puzzle/progress', async (c) => {
-  const payload = await c
-    .req
-    .json<{ id: string; grid: Grid }>()
-    .catch(() => null)
-
-  if (
-    !payload ||
-    typeof payload.id !== 'string' ||
-    !isValidGrid(payload.grid)
-  ) {
-    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
-  }
-
-  const userIdentifier = await resolveUserKey()
-  if (!userIdentifier) {
-    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
-  }
-
-  await redis.set(
-    puzzleProgressKey(userIdentifier, payload.id),
-    JSON.stringify(payload.grid)
-  )
-
-  return c.json({ ok: true })
-})
-
-app.delete('/api/puzzle/progress', async (c) => {
-  const id = c.req.query('id')
-
-  if (!id) {
-    return c.json({ error: 'id is required' }, HTTP_BAD_REQUEST)
-  }
-
-  const userIdentifier = await resolveUserKey()
-
-  if (!userIdentifier) {
-    return c.json({ error: 'user not available' }, HTTP_UNAUTHORIZED)
-  }
-
-  await redis.del(puzzleProgressKey(userIdentifier, id))
-
-  return c.json({ ok: true })
 })
 
 app.post('/api/submit', async (c) => {

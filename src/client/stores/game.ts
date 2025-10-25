@@ -94,19 +94,6 @@ const collectHintCandidates = (state: GameState): HintCandidate[] => {
 export const hasHintAvailable = (state: GameState): boolean =>
   collectHintCandidates(state).length > 0
 
-const isCellValue = (value: unknown): value is Cell =>
-  value === 0 || value === 1 || value === null
-
-const isGridStructure = (grid: unknown): grid is Grid =>
-  Array.isArray(grid) &&
-  grid.length === SIZE &&
-  grid.every(
-    (row) =>
-      Array.isArray(row) &&
-      row.length === SIZE &&
-      row.every((cell) => isCellValue(cell))
-  )
-
 const initial: GameState = {
   puzzleId: null,
   difficulty: 'medium',
@@ -124,28 +111,6 @@ const initial: GameState = {
 
 export const game = writable<GameState>(initial)
 
-const persistProgress = async (puzzleId: string, grid: Grid) => {
-  try {
-    await fetch('/api/puzzle/progress', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ id: puzzleId, grid })
-    })
-  } catch {
-    // Persistence is best-effort; ignore failures
-  }
-}
-
-const clearProgress = async (puzzleId: string) => {
-  try {
-    await fetch(`/api/puzzle/progress?id=${encodeURIComponent(puzzleId)}`, {
-      method: 'DELETE'
-    })
-  } catch {
-    // Clearing is best-effort; ignore failures
-  }
-}
-
 export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
   resetTimer()
   closeSuccessModal()
@@ -162,13 +127,10 @@ export const loadPuzzle = async (difficulty: Difficulty, dateISO?: string) => {
   }
   const data = (await res.json()) as {
     puzzle: PuzzleWithGrid
-    progress?: unknown
   }
   const id = data.puzzle.id
   const initialGrid = cloneGrid(data.puzzle.initial)
-  const grid: Grid = isGridStructure(data.progress)
-    ? cloneGrid(data.progress)
-    : cloneGrid(initialGrid)
+  const grid = cloneGrid(initialGrid)
   const solution = solvePuzzle(initialGrid, data.puzzle.fixed) ?? null
   game.set({
     puzzleId: id,
@@ -194,13 +156,11 @@ export const resetPuzzle = () => {
     errorTimer = undefined
   }
   let didReset = false
-  let puzzleId: string | null = null
   game.update((s) => {
     if (!s.puzzleId) {
       return s
     }
     didReset = true
-    puzzleId = s.puzzleId
     const grid = cloneGrid(s.initial)
     return {
       ...s,
@@ -216,9 +176,6 @@ export const resetPuzzle = () => {
     resetTimer()
     startTimer()
     closeSuccessModal()
-    if (puzzleId) {
-      void clearProgress(puzzleId)
-    }
   }
 }
 
@@ -252,10 +209,7 @@ export const cycleCell = (r: number, c: number) => {
   }
 
   let solved = false
-  let puzzleId: string | null = null
-  let nextGridSnapshot: Grid | null = null
   game.update((s) => {
-    puzzleId = s.puzzleId
     if (s.status === 'solved') {
       return s
     }
@@ -277,7 +231,6 @@ export const cycleCell = (r: number, c: number) => {
     solved = status === 'solved'
     const history = [...s.history, previousGrid]
 
-    nextGridSnapshot = nextGrid
     const currentGridJSON = JSON.stringify(nextGrid)
     if (!result.ok) {
       errorTimer = setTimeout(() => {
@@ -309,13 +262,6 @@ export const cycleCell = (r: number, c: number) => {
     stopTimer()
     openSuccessModal()
   }
-  if (puzzleId) {
-    if (solved) {
-      void clearProgress(puzzleId)
-    } else if (nextGridSnapshot) {
-      void persistProgress(puzzleId, nextGridSnapshot)
-    }
-  }
 }
 
 export const revealHint = () => {
@@ -324,10 +270,7 @@ export const revealHint = () => {
     errorTimer = undefined
   }
   let solved = false
-  let puzzleId: string | null = null
-  let nextGridSnapshot: Grid | null = null
   game.update((s) => {
-    puzzleId = s.puzzleId
     if (!s.solution || s.status === 'solved') {
       return s
     }
@@ -354,7 +297,6 @@ export const revealHint = () => {
     // Record the state prior to mutation so undo can restore it later
     const history = [...s.history, cloneGrid(s.grid)]
 
-    nextGridSnapshot = nextGrid
     if (!result.ok) {
       const currentGridJSON = JSON.stringify(nextGrid)
       errorTimer = setTimeout(() => {
@@ -386,13 +328,6 @@ export const revealHint = () => {
     stopTimer()
     openSuccessModal()
   }
-  if (puzzleId) {
-    if (solved) {
-      void clearProgress(puzzleId)
-    } else if (nextGridSnapshot) {
-      void persistProgress(puzzleId, nextGridSnapshot)
-    }
-  }
 }
 
 export const autosubmitIfSolved = async () => {
@@ -414,11 +349,7 @@ export const undoLastMove = () => {
     errorTimer = undefined
   }
   let resumeTimer = false
-  let puzzleId: string | null = null
-  let gridSnapshot: Grid | null = null
-  let remainsSolved = false
   game.update((s) => {
-    puzzleId = s.puzzleId
     if (s.history.length === 0) {
       return s
     }
@@ -431,7 +362,6 @@ export const undoLastMove = () => {
     let status = determineStatus(result.ok, previousGrid)
     let errors = result.ok ? [] : result.errors
 
-    gridSnapshot = previousGrid
     if (!result.ok) {
       const currentGridJSON = JSON.stringify(previousGrid)
       errorTimer = setTimeout(() => {
@@ -449,7 +379,6 @@ export const undoLastMove = () => {
       errors = []
     }
     resumeTimer = s.status === 'solved' && status !== 'solved'
-    remainsSolved = status === 'solved'
 
     return {
       ...s,
@@ -464,12 +393,5 @@ export const undoLastMove = () => {
   if (resumeTimer) {
     startTimer()
     closeSuccessModal()
-  }
-  if (puzzleId) {
-    if (remainsSolved) {
-      void clearProgress(puzzleId)
-    } else if (gridSnapshot) {
-      void persistProgress(puzzleId, gridSnapshot)
-    }
   }
 }
