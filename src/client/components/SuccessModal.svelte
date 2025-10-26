@@ -7,23 +7,23 @@ import Modal from './Modal.svelte'
 let isJoining = $state(false)
 
 const joinSubreddit = async () => {
-  if (isJoining) {
-    return
-  }
-  isJoining = true
+	if (isJoining) {
+		return
+	}
+	isJoining = true
 
-  try {
-    const res = await fetch('/api/join-subreddit')
-    if (res.ok) {
-      closeSuccessModal()
-    } else {
-      console.error('Failed to join subreddit')
-    }
-  } catch (error) {
-    console.error('Failed to join subreddit', error)
-  } finally {
-    isJoining = false
-  }
+	try {
+		const res = await fetch('/api/join-subreddit')
+		if (res.ok) {
+			closeSuccessModal()
+		} else {
+			console.error('Failed to join subreddit')
+		}
+	} catch (error) {
+		console.error('Failed to join subreddit', error)
+	} finally {
+		isJoining = false
+	}
 }
 </script>
 

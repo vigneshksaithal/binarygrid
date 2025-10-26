@@ -10,11 +10,11 @@ import { game, loadPuzzle } from './stores/game'
 let shouldCelebrate = $state(false)
 
 onMount(() => {
-  loadPuzzle('easy')
+	loadPuzzle('easy')
 })
 
 $effect(() => {
-  shouldCelebrate = $game.status === 'solved'
+	shouldCelebrate = $game.status === 'solved'
 })
 </script>
 

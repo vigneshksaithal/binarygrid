@@ -1,22 +1,22 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte'
+import type { Snippet } from 'svelte'
 
-	const {
-		open = false,
-		labelledby,
-		describedby,
-		role = 'dialog',
-		ariaModal = true,
-		children,
-	}: {
-		open?: boolean
-		labelledby?: string
-		describedby?: string
-		role?: 'dialog' | 'alertdialog'
-		ariaModal?: boolean
-		onClose?: () => void
-		children?: Snippet
-	} = $props()
+const {
+	open = false,
+	labelledby,
+	describedby,
+	role = 'dialog',
+	ariaModal = true,
+	children
+}: {
+	open?: boolean
+	labelledby?: string
+	describedby?: string
+	role?: 'dialog' | 'alertdialog'
+	ariaModal?: boolean
+	onClose?: () => void
+	children?: Snippet
+} = $props()
 </script>
 
 {#if open}

@@ -1,30 +1,30 @@
 <script lang="ts">
 const {
-  value = null,
-  fixed = false,
-  hasError = false,
-  onClick,
-  isHint = false
+	value = null,
+	fixed = false,
+	hasError = false,
+	onClick,
+	isHint = false
 }: {
-  value?: 0 | 1 | null
-  fixed?: boolean
-  hasError?: boolean
-  onClick?: () => void
-  isHint?: boolean
+	value?: 0 | 1 | null
+	fixed?: boolean
+	hasError?: boolean
+	onClick?: () => void
+	isHint?: boolean
 } = $props()
 
 const handleClick = () => {
-  if (onClick) {
-    onClick()
-  }
+	if (onClick) {
+		onClick()
+	}
 }
 
 const label = fixed ? 'Fixed cell' : 'Editable cell'
 
 const borderClass = $derived(
-  (hasError && 'border-2 border-error') ||
-    (isHint && 'border-2 border-[rgb(var(--color-primary-green-rgb)/0.7)]') ||
-    'border border-zinc-700'
+	(hasError && 'border-2 border-error') ||
+		(isHint && 'border-2 border-[rgb(var(--color-primary-green-rgb)/0.7)]') ||
+		'border border-zinc-700'
 )
 </script>
 

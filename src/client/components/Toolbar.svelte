@@ -3,12 +3,12 @@ import RotateCcw from '@lucide/svelte/icons/rotate-ccw'
 import Undo2 from '@lucide/svelte/icons/undo-2'
 import { onMount } from 'svelte'
 import {
-  game,
-  hasHintAvailable,
-  loadPuzzle,
-  resetPuzzle,
-  revealHint,
-  undoLastMove
+	game,
+	hasHintAvailable,
+	loadPuzzle,
+	resetPuzzle,
+	revealHint,
+	undoLastMove
 } from '../stores/game'
 import { openHowToModal } from '../stores/ui'
 import Button from './Button.svelte'
@@ -19,18 +19,16 @@ let difficulty = $state<'easy' | 'medium' | 'hard'>('easy')
 let hintDisabled = $state(true)
 let undoDisabled = $state(true)
 
-const start = () => loadPuzzle(difficulty)
-
 $effect(() => {
-  const snapshot = $game
-  const statusAllowsHint =
-    snapshot.status === 'in_progress' || snapshot.status === 'invalid'
-  hintDisabled = !(statusAllowsHint && hasHintAvailable(snapshot))
-  undoDisabled = snapshot.history.length === 0
+	const snapshot = $game
+	const statusAllowsHint =
+		snapshot.status === 'in_progress' || snapshot.status === 'invalid'
+	hintDisabled = !(statusAllowsHint && hasHintAvailable(snapshot))
+	undoDisabled = snapshot.history.length === 0
 })
 
 onMount(() => {
-  start()
+	loadPuzzle(difficulty)
 })
 </script>
 

@@ -1,15 +1,15 @@
 {
-  "extends": "../../tools/tsconfig-base.json",
-  "compilerOptions": {
-    "customConditions": ["browser"],
+	"extends": "../../tools/tsconfig-base.json",
+	"compilerOptions": {
+		"customConditions": ["browser"],
 
-    "lib": ["DOM", "ES2023", "esnext.disposable"],
+		"lib": ["DOM", "ES2023", "esnext.disposable"],
 
-    "outDir": "../../dist/types/client",
+		"outDir": "../../dist/types/client",
 
-    "tsBuildInfoFile": "../../dist/types/client/tsconfig.tsbuildinfo"
-  },
-  "include": ["**/*", "**/*.json", "vite.config.ts"],
-  "exclude": ["**/*.test.ts"],
-  "references": [{ "path": "../shared" }]
+		"tsBuildInfoFile": "../../dist/types/client/tsconfig.tsbuildinfo"
+	},
+	"include": ["**/*", "**/*.json", "vite.config.ts"],
+	"exclude": ["**/*.test.ts"],
+	"references": [{ "path": "../shared" }]
 }

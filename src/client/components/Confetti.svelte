@@ -12,53 +12,53 @@ let intervalId: number | null = null
 let timeoutId: number | null = null
 
 const fire = (confetti: ReturnType<typeof canvasConfetti.create>) => {
-  confetti({
-    particleCount: PARTICLES_PER_BURST,
-    origin: { x: 0.25, y: 0.6 },
-    spread: 70,
-    startVelocity: 45,
-    decay: 0.9,
-    scalar: 0.9
-  })
-  confetti({
-    particleCount: PARTICLES_PER_BURST,
-    origin: { x: 0.75, y: 0.6 },
-    spread: 70,
-    startVelocity: 45,
-    decay: 0.9,
-    scalar: 0.9
-  })
+	confetti({
+		particleCount: PARTICLES_PER_BURST,
+		origin: { x: 0.25, y: 0.6 },
+		spread: 70,
+		startVelocity: 45,
+		decay: 0.9,
+		scalar: 0.9
+	})
+	confetti({
+		particleCount: PARTICLES_PER_BURST,
+		origin: { x: 0.75, y: 0.6 },
+		spread: 70,
+		startVelocity: 45,
+		decay: 0.9,
+		scalar: 0.9
+	})
 }
 
 onMount(() => {
-  if (!canvas) {
-    return
-  }
-  const confetti = canvasConfetti.create(canvas, {
-    resize: true,
-    useWorker: true
-  })
+	if (!canvas) {
+		return
+	}
+	const confetti = canvasConfetti.create(canvas, {
+		resize: true,
+		useWorker: true
+	})
 
-  fire(confetti)
-  intervalId = window.setInterval(() => fire(confetti), BURST_INTERVAL_MS)
-  timeoutId = window.setTimeout(() => {
-    cleanup?.()
-  }, DURATION_MS)
-  cleanup = () => {
-    if (intervalId) {
-      window.clearInterval(intervalId)
-      intervalId = null
-    }
-    if (timeoutId) {
-      window.clearTimeout(timeoutId)
-      timeoutId = null
-    }
-    confetti.reset()
-  }
+	fire(confetti)
+	intervalId = window.setInterval(() => fire(confetti), BURST_INTERVAL_MS)
+	timeoutId = window.setTimeout(() => {
+		cleanup?.()
+	}, DURATION_MS)
+	cleanup = () => {
+		if (intervalId) {
+			window.clearInterval(intervalId)
+			intervalId = null
+		}
+		if (timeoutId) {
+			window.clearTimeout(timeoutId)
+			timeoutId = null
+		}
+		confetti.reset()
+	}
 })
 
 onDestroy(() => {
-  cleanup?.()
+	cleanup?.()
 })
 </script>
 

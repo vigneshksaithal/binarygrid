@@ -4,7 +4,7 @@ import App from './App.svelte'
 
 const target = document.getElementById('app')
 if (!target) {
-  throw new Error('App mount point not found')
+	throw new Error('App mount point not found')
 }
 
 const app = mount(App, { target })
