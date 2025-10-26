@@ -1,4 +1,5 @@
 <script lang="ts">
+import confetti from 'canvas-confetti'
 import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 import { closeSuccessModal, showSuccessModal } from '../stores/ui'
 import Button from './Button.svelte'
@@ -25,6 +26,23 @@ const joinSubreddit = async () => {
 		isJoining = false
 	}
 }
+
+/**
+ * Trigger confetti when the success modal is shown
+ */
+const CONFETTI_PARTICLE_COUNT = 100 // Number of confetti particles for a festive look
+const CONFETTI_SPREAD = 70 // Spread value for wider confetti dispersion
+const CONFETTI_ORIGIN_Y = 0.6 // Vertical origin to start confetti lower on the screen
+
+$effect(() => {
+	if ($showSuccessModal) {
+		confetti({
+			particleCount: CONFETTI_PARTICLE_COUNT,
+			spread: CONFETTI_SPREAD,
+			origin: { y: CONFETTI_ORIGIN_Y }
+		})
+	}
+})
 </script>
 
 <Modal
@@ -33,12 +51,7 @@ const joinSubreddit = async () => {
 	labelledby="success-modal-title"
 	describedby="success-modal-body"
 >
-	<h2
-		id="success-modal-title"
-		class="text-primary-green"
-	>
-		Congratulations!
-	</h2>
+	<h2 id="success-modal-title" class="text-primary-green">Congratulations!</h2>
 	<div id="success-modal-body" class="grid gap-2 text-zinc-100">
 		<h3 class="text-lg font-semibold">
 			You solved the puzzle in

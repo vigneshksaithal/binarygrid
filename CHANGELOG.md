@@ -3,6 +3,7 @@
 ## 2025-10-26
 
 - Replaced the bespoke success and how-to overlays with a reusable modal wrapper so future dialogs share layout and accessibility defaults.
+- Simplified celebrations by firing a canvas-confetti burst directly from the success modal and removing the standalone `Confetti` overlay.
 
 ## 2025-10-24
 

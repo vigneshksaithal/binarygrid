@@ -1,20 +1,13 @@
 <script lang="ts">
 import { onMount } from 'svelte'
 import './app.css'
-import Confetti from './components/Confetti.svelte'
 import Grid from './components/Grid.svelte'
 import Timer from './components/Timer.svelte'
 import Toolbar from './components/Toolbar.svelte'
-import { game, loadPuzzle } from './stores/game'
-
-let shouldCelebrate = $state(false)
+import { loadPuzzle } from './stores/game'
 
 onMount(() => {
 	loadPuzzle('easy')
-})
-
-$effect(() => {
-	shouldCelebrate = $game.status === 'solved'
 })
 </script>
 
@@ -29,7 +22,3 @@ $effect(() => {
 	<Grid />
 	<Toolbar />
 </main>
-
-{#if shouldCelebrate}
-	<Confetti />
-{/if}
