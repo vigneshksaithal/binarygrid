@@ -1,5 +1,9 @@
 # Changelog
 
+## 2025-10-26
+
+- Replaced the bespoke success and how-to overlays with a reusable modal wrapper so future dialogs share layout and accessibility defaults.
+
 ## 2025-10-24
 
 - Simplified puzzle progress user resolution to rely on `context.userId` instead of fetching usernames.
