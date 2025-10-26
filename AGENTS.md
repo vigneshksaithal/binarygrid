@@ -185,13 +185,6 @@ Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 
 Ultracite enforces strict type safety, accessibility, and code quality for (JavaScript/TypeScript) using Biome's linter and formatter.
 
-### Key Principles
-
-- Zero configuration required
-- Subsecond performance
-- Maximum type safety
-- AI-friendly code generation
-
 ### Before Writing Code
 
 1. Analyze codebase patterns
