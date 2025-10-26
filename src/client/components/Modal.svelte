@@ -7,8 +7,6 @@
 		describedby,
 		role = 'dialog',
 		ariaModal = true,
-		backdropClass = 'fixed inset-0 z-50 grid place-items-center p-4',
-		contentClass = 'w-full max-w-lg p-6 rounded-xl shadow-md bg-zinc-800',
 		children,
 	}: {
 		open?: boolean
@@ -16,18 +14,15 @@
 		describedby?: string
 		role?: 'dialog' | 'alertdialog'
 		ariaModal?: boolean
-		backdropClass?: string
-		contentClass?: string
 		onClose?: () => void
-		closeOnBackdrop?: boolean
 		children?: Snippet
 	} = $props()
 </script>
 
 {#if open}
-	<section class={backdropClass}>
+	<section class="fixed inset-0 z-50 grid place-items-center bg-zinc-950/60 backdrop-blur-xs p-4">
 		<div
-			class={contentClass}
+			class="w-full max-w-lg p-6 rounded-xl shadow-md bg-zinc-800"
 			{role}
 			aria-modal={ariaModal}
 			aria-labelledby={labelledby}
