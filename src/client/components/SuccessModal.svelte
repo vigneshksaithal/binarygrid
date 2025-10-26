@@ -32,7 +32,6 @@ const joinSubreddit = async () => {
 	onClose={closeSuccessModal}
 	labelledby="success-modal-title"
 	describedby="success-modal-body"
-	contentClass="w-full max-w-lg p-6 rounded-xl shadow-md grid bg-zinc-800"
 >
 	<h2
 		id="success-modal-title"
