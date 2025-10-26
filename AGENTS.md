@@ -488,3 +488,5 @@ try {
   console.log(e);
 }
 ```
+
+> REMEMBER: After coding you need to update the CHANGELOG.md file with a detailed summary of changes made.
