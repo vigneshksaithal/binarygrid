@@ -17,11 +17,9 @@ const joinSubreddit = async () => {
     if (res.ok) {
       closeSuccessModal()
     } else {
-      // biome-ignore lint/suspicious/noConsole: surface failure in devtools
       console.error('Failed to join subreddit')
     }
   } catch (error) {
-    // biome-ignore lint/suspicious/noConsole: surface failure in devtools
     console.error('Failed to join subreddit', error)
   } finally {
     isJoining = false
