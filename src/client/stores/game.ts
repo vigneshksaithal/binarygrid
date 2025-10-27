@@ -4,8 +4,7 @@ import { solvePuzzle } from '../../shared/solver'
 import type {
 	Cell,
 	Difficulty,
-	Grid,
-	PuzzleWithGrid
+	Grid
 } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
 import { resetTimer, startTimer, stopTimer } from './timer'
