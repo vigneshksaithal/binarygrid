@@ -33,18 +33,10 @@
 			}
 		]
 	},
-	"scheduler": {
-		"tasks": {
-			"daily-puzzle-post": {
-				"endpoint": "/internal/schedule/daily",
-				"cron": "0 16 * * *"
-			}
-		}
-	},
 	"triggers": {
 		"onAppInstall": "/internal/on-app-install"
 	},
 	"dev": {
-		"subreddit": "cat543"
+		"subreddit": "binarygrid"
 	}
 }
