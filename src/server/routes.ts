@@ -10,9 +10,9 @@ const HTTP_BAD_REQUEST = 400
 const HTTP_OK = 200
 const DEFAULT_GRID_SIZE = 6
 const DECIMAL_RADIX = 10
-const GRID_SIZE_TYPE = 6 as const
+const GRID_SIZE_TYPE = 6
 const DEFAULT_DIFFICULTY: Difficulty = 'medium'
-const DIFFICULTY_VALUES = ['easy', 'medium', 'hard'] as const
+const DIFFICULTY_VALUES = ['easy', 'medium', 'hard']
 
 const isDifficultyValue = (value: string): value is Difficulty =>
 	(DIFFICULTY_VALUES as readonly string[]).includes(value)
