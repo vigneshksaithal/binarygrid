@@ -1,11 +1,7 @@
 import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
-import type {
-	Cell,
-	Difficulty,
-	Grid
-} from '../../shared/types/puzzle'
+import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
 import { resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
