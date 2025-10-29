@@ -27,20 +27,21 @@ const joinSubreddit = async () => {
 	}
 }
 
-/**
- * Trigger confetti when the success modal is shown
- */
-const CONFETTI_PARTICLE_COUNT = 100 // Number of confetti particles for a festive look
-const CONFETTI_SPREAD = 70 // Spread value for wider confetti dispersion
-const CONFETTI_ORIGIN_Y = 0.6 // Vertical origin to start confetti lower on the screen
+const showConfetti = () => {
+	const CONFETTI_PARTICLE_COUNT = 100
+	const CONFETTI_SPREAD = 70
+	const CONFETTI_ORIGIN_Y = 0.6 // Vertical origin to start confetti lower on the screen
+
+	confetti({
+		particleCount: CONFETTI_PARTICLE_COUNT,
+		spread: CONFETTI_SPREAD,
+		origin: { y: CONFETTI_ORIGIN_Y }
+	})
+}
 
 $effect(() => {
 	if ($showSuccessModal) {
-		confetti({
-			particleCount: CONFETTI_PARTICLE_COUNT,
-			spread: CONFETTI_SPREAD,
-			origin: { y: CONFETTI_ORIGIN_Y }
-		})
+		showConfetti()
 	}
 })
 </script>
