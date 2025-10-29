@@ -1,42 +1,42 @@
 {
-	"$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-	"name": "binarygrid",
-	"post": {
-		"dir": "dist/client",
-		"entrypoints": {
-			"default": {
-				"entry": "index.html"
-			}
-		}
-	},
-	"server": {
-		"dir": "dist/server",
-		"entry": "index.cjs"
-	},
-	"permissions": {
-		"redis": true,
-		"reddit": {
-			"asUser": ["SUBSCRIBE_TO_SUBREDDIT"]
-		}
-	},
-	"media": {
-		"dir": "assets"
-	},
-	"menu": {
-		"items": [
-			{
-				"label": "Create a new Game",
-				"description": "Binary Grid",
-				"location": "subreddit",
-				"forUserType": "moderator",
-				"endpoint": "/internal/menu/post-create"
-			}
-		]
-	},
-	"triggers": {
-		"onAppInstall": "/internal/on-app-install"
-	},
-	"dev": {
-		"subreddit": "binarygrid"
-	}
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "binarygrid",
+  "post": {
+    "dir": "dist/client",
+    "entrypoints": {
+      "default": {
+        "entry": "index.html"
+      }
+    }
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "permissions": {
+    "redis": true,
+    "reddit": {
+      "asUser": ["SUBSCRIBE_TO_SUBREDDIT"]
+    }
+  },
+  "media": {
+    "dir": "assets"
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Create a new Game",
+        "description": "Binary Grid",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/post-create"
+      }
+    ]
+  },
+  "triggers": {
+    "onAppInstall": "/internal/on-app-install"
+  },
+  "dev": {
+    "subreddit": "binarygrid"
+  }
 }
