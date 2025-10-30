@@ -1,12 +1,10 @@
 <script lang="ts">
-import RotateCcw from '@lucide/svelte/icons/rotate-ccw'
 import Undo2 from '@lucide/svelte/icons/undo-2'
 import { onMount } from 'svelte'
 import {
 	game,
 	hasHintAvailable,
 	loadPuzzle,
-	resetPuzzle,
 	revealHint,
 	undoLastMove
 } from '../stores/game'
@@ -41,9 +39,6 @@ onMount(() => {
 		ariaLabel="Undo last move"
 	>
 		<Undo2 size={20} strokeWidth={2} aria-hidden="true" />
-	</Button>
-	<Button onClick={resetPuzzle} ariaLabel="Reset puzzle" variant="destructive">
-		<RotateCcw size={20} strokeWidth={2} aria-hidden="true" />
 	</Button>
 </div>
 

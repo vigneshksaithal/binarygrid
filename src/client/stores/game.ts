@@ -150,37 +150,6 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
 	startTimer()
 }
 
-export const resetPuzzle = () => {
-	if (errorTimer) {
-		clearTimeout(errorTimer)
-		errorTimer = undefined
-	}
-
-	let didReset = false
-
-	game.update((s) => {
-		if (!s.puzzleId) {
-			return s
-		}
-		didReset = true
-		const grid = cloneGrid(s.initial)
-		return {
-			...s,
-			grid,
-			history: [],
-			status: 'in_progress',
-			errors: [],
-			errorLocations: undefined,
-			lastHint: null
-		}
-	})
-	if (didReset) {
-		resetTimer()
-		startTimer()
-		closeSuccessModal()
-	}
-}
-
 const getNextCellValue = (current: Cell): Cell => {
 	if (current === null) {
 		return 0

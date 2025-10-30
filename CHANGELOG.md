@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-10-30
+
+- Removed the toolbar reset control so puzzle retries rely on existing hint and undo pathways.
+- Pruned the unused `resetPuzzle` store helper after removing the toolbar control.
+
 ## 2025-10-26
 
 - Replaced the bespoke success and how-to overlays with a reusable modal wrapper so future dialogs share layout and accessibility defaults.
