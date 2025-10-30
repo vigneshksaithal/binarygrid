@@ -43,7 +43,6 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 >
 > - Use Svelte v5 runes syntax ONLY.
 > - Use Tailwind CSS v4 syntax ONLY.
-> - Devvit full documentation is available at `/docs/devvit-docs.txt`.
 
 ---
 
@@ -51,7 +50,6 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 
 ```text
 assets/           # Public assets (images, sprites, audio, fonts)
-docs/             # Project and Devvit documentation
 dist/             # Build output
 src/
   client/         # Svelte frontend; use `fetch(/my/api/endpoint)` to access server APIs in `/src/server`
