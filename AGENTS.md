@@ -179,7 +179,7 @@ Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 
 ---
 
-## Ultracite Configuration
+## Ultracite Linter and Formatter Rules
 
 ### Before Writing Code
 
