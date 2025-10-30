@@ -4,6 +4,7 @@
 
 - Removed the undo control from the toolbar so only hints remain as the in-game assist.
 - Deleted the undo history stack and `undoLastMove` store helper to keep game state lean.
+- Reduced the timer label size by adding the `text-sm` utility so its typography matches adjacent controls.
 
 ## 2025-10-30
 
