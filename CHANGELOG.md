@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-11-01
+
+- Removed the hint control from `Toolbar.svelte`, leaving the modal launcher as the sole quick action in the header.
+- Deleted hint-related state, helpers, and props across the game store and grid cells so gameplay no longer surfaces hint highlights.
+
 ## 2025-10-31
 
 - Removed the undo control from the toolbar so only hints remain as the in-game assist.

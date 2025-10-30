@@ -29,7 +29,6 @@ $effect(() => {
 					hasError={$game.errorLocations?.rows.includes(r) ||
 						$game.errorLocations?.columns.includes(c) ||
 						false}
-					isHint={$game.lastHint?.r === r && $game.lastHint?.c === c}
 					onClick={() => cycleCell(r, c)}
 				/>
 			{/if}
