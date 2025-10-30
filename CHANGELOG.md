@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-10-31
+
+- Removed the undo control from the toolbar so only hints remain as the in-game assist.
+- Deleted the undo history stack and `undoLastMove` store helper to keep game state lean.
+
 ## 2025-10-30
 
 - Removed the toolbar reset control so puzzle retries rely on existing hint and undo pathways.
