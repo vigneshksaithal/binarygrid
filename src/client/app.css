@@ -1,5 +1,46 @@
 @import "tailwindcss";
-@import "./colors.css";
+
+/**
+ * Binary Grid Color System
+ * CSS Custom Properties for Tailwind CSS
+ * Only includes colors actually used in the codebase
+ */
+
+:root {
+  /* Primary Colors */
+  --color-primary-green: #14f195;
+  --color-primary-green-rgb: 20 241 149;
+
+  /* Accent Colors */
+  --color-accent-red: #ff4d4d;
+  --color-accent-red-rgb: 255 77 77;
+
+  /* Semantic Color Mappings */
+  --color-error: var(--color-accent-red);
+}
+
+/* Utility classes using custom properties */
+.text-primary-green {
+  color: var(--color-primary-green);
+}
+
+.text-error {
+  color: var(--color-accent-red);
+}
+
+.border-error {
+  border-color: var(--color-accent-red);
+}
+
+/* Ring utilities with custom colors */
+.ring-primary-green {
+  --tw-ring-color: rgb(var(--color-primary-green-rgb) / 0.6);
+}
+
+/* Hover state utilities */
+.hover-bg-primary-green-10:hover {
+  background-color: rgb(var(--color-primary-green-rgb) / 0.1);
+}
 
 * {
   box-sizing: border-box;

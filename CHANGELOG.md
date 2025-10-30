@@ -1,15 +1,14 @@
 # Changelog
 
-## 2025-11-01
+## 2025-10-31
 
 - Removed the hint control from `Toolbar.svelte`, leaving the modal launcher as the sole quick action in the header.
 - Deleted hint-related state, helpers, and props across the game store and grid cells so gameplay no longer surfaces hint highlights.
-
-## 2025-10-31
-
 - Removed the undo control from the toolbar so only hints remain as the in-game assist.
 - Deleted the undo history stack and `undoLastMove` store helper to keep game state lean.
 - Reduced the timer label size by adding the `text-sm` utility so its typography matches adjacent controls.
+- Consolidated the color tokens and utility classes into `src/client/app.css` so palette updates live in a single stylesheet.
+- Deleted the redundant `src/client/colors.css` import path to simplify asset management.
 
 ## 2025-10-30
 
