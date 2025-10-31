@@ -10,12 +10,8 @@ export const createPost = async (difficulty: Difficulty = 'easy') => {
 
 	const post = await reddit.submitCustomPost({
 		splash: {
-			appDisplayName: 'Binary Grid',
-			// backgroundUri: 'splash-screen-dark.png',
+			backgroundUri: 'splash-screen.png',
 			buttonLabel: 'PLAY NOW',
-			description:
-				'Can you beat today’s Binary Grid? 🟩🟥\nTap to play & post your time in the comments!',
-			heading: '🧠 Binary Grid Daily Challenge!',
 			appIconUri: 'icon-512.png'
 		},
 		subredditName,
