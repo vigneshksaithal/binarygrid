@@ -6,6 +6,7 @@ export default defineConfig({
 	plugins: [svelte(), tailwindcss()],
 	build: {
 		outDir: '../../dist/client',
+		emptyOutDir: true,
 		rollupOptions: {
 			output: {
 				entryFileNames: '[name].js',
