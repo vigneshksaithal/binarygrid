@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-11-01
+
+- Integrated `HowToPlayModal` and `SuccessModal` directly into `App.svelte` so modals are rendered at the app root level.
+- Replaced the `Toolbar` component with a standalone `Button` component in the header for a cleaner, more focused UI.
+- Updated the header layout from `justify-center` to `justify-between` to accommodate the new button placement alongside the timer.
+- Deleted the `Toolbar.svelte` component after migrating its functionality to individual buttons and modal components.
+
 ## 2025-10-31
 
 - Removed the hint control from `Toolbar.svelte`, leaving the modal launcher as the sole quick action in the header.
