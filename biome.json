@@ -25,5 +25,5 @@
 			}
 		}
 	],
-	"extends": ["ultracite"]
+	"extends": ["ultracite/core", "ultracite/svelte"]
 }
