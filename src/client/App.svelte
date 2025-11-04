@@ -14,9 +14,7 @@
   })
 </script>
 
-<main
-  class="w-full max-w-md lg:max-w-lg mx-auto flex flex-col items-center gap-4 sm:gap-4 p-4 md:p-6"
->
+<main class="w-full max-w-md mx-auto flex flex-col items-center gap-4 p-8">
   <div
     class="w-full flex items-center justify-between p-3 bg-zinc-800 rounded-3xl"
   >
