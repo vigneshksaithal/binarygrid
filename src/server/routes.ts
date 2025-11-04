@@ -1,7 +1,9 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
+import { LeaderboardEntry } from '../shared/types/leaderboard'
 import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
+import { submitScore } from './core/leaderboard'
 import { generateDailyPuzzle } from './core/generator'
 
 const app = new Hono()
@@ -134,6 +136,142 @@ app.post('/api/submit', async (c) => {
       error instanceof Error ? error.message : 'Unknown error'
     return c.json(
       { error: `Submission failed: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.post('/api/leaderboard/submit', async (c) => {
+  const { userId, username } = context
+  if (!userId || !username) {
+    return c.json({ error: 'user not logged in' }, HTTP_BAD_REQUEST)
+  }
+
+  const { postId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  const body = await c.req
+    .json<{
+      rawScore: number
+      achievedAt: number
+    }>()
+    .catch(() => null)
+  if (!body) {
+    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
+  }
+
+  try {
+    const rateLimitKey = `ratelimit:score:${postId}:${userId}`
+    const current = await redis.get(rateLimitKey)
+    if (current && Number.parseInt(current, 10) > 10) {
+      return c.json({ error: 'rate limit exceeded' }, HTTP_BAD_REQUEST)
+    }
+    await redis.incr(rateLimitKey)
+    await redis.expire(rateLimitKey, 60)
+
+    const result = await submitScore(
+      postId,
+      userId,
+      username,
+      body.rawScore,
+      body.achievedAt
+    )
+    return c.json(result)
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Submission failed: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.get('/api/leaderboard/top', async (c) => {
+  const { postId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  const limit = Number.parseInt(c.req.query('limit') || '10', 10)
+
+  try {
+    const topUserIds = await redis.zRevRange(`lb:${postId}:z`, 0, limit - 1)
+    if (topUserIds.length === 0) {
+      return c.json({ rows: [] })
+    }
+
+    const pipeline = redis.pipeline()
+    for (const userId of topUserIds) {
+      pipeline.hGetAll(`lb:${postId}:u:${userId}`)
+    }
+    const userHashes = await pipeline.exec()
+
+    const rows: LeaderboardEntry[] = userHashes.map((user, i) => ({
+      rank: i + 1,
+      username: user.username,
+      score: Number.parseInt(user.rawScore, 10)
+    }))
+
+    return c.json({ rows })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to fetch leaderboard: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.get('/api/leaderboard/me', async (c) => {
+  const { userId } = context
+  if (!userId) {
+    return c.json({ error: 'user not logged in' }, HTTP_BAD_REQUEST)
+  }
+
+  const { postId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  const window = Number.parseInt(c.req.query('window') || '5', 10)
+
+  try {
+    const rank = await redis.zRevRank(`lb:${postId}:z`, `user:${userId}`)
+    if (rank === null) {
+      return c.json({ me: null, peers: [] })
+    }
+
+    const start = Math.max(0, rank - window)
+    const end = rank + window
+    const peerIds = await redis.zRevRange(`lb:${postId}:z`, start, end)
+
+    if (peerIds.length === 0) {
+      return c.json({ me: null, peers: [] })
+    }
+
+    const pipeline = redis.pipeline()
+    for (const peerId of peerIds) {
+      pipeline.hGetAll(`lb:${postId}:u:${peerId}`)
+    }
+    const userHashes = await pipeline.exec()
+
+    const rows: LeaderboardEntry[] = userHashes.map((user, i) => ({
+      rank: start + i + 1,
+      username: user.username,
+      score: Number.parseInt(user.rawScore, 10)
+    }))
+
+    const me = rows.find((row) => row.rank === rank + 1)
+    return c.json({ me, peers: rows })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to fetch user rank: ${errorMessage}` },
       HTTP_BAD_REQUEST
     )
   }
