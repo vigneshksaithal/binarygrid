@@ -1,11 +1,14 @@
 <script lang="ts">
+  import { client } from '@devvit/web/client'
   import confetti from 'canvas-confetti'
+  import { leaderboard } from '../stores/leaderboard'
   import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
   import { closeSuccessModal, showSuccessModal } from '../stores/ui'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
 
   let isJoining = $state(false)
+  let postId: string | undefined
 
   const joinSubreddit = async () => {
     if (isJoining) {
@@ -44,6 +47,9 @@
   $effect(() => {
     if ($showSuccessModal) {
       showConfetti()
+      // Invert the score so that a lower time is better.
+      const score = Math.floor(1_000_000_000 - $elapsedSeconds)
+      leaderboard.submit(score)
     }
   })
 </script>

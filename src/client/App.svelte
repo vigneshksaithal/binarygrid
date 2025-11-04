@@ -6,6 +6,7 @@
   import HowToPlayModal from './components/HowToPlayModal.svelte'
   import SuccessModal from './components/SuccessModal.svelte'
   import Timer from './components/Timer.svelte'
+  import Leaderboard from './components/Leaderboard.svelte'
   import { loadPuzzle } from './stores/game'
   import { openHowToModal } from './stores/ui'
 
@@ -22,6 +23,7 @@
     <Button onClick={openHowToModal}>How to Play</Button>
   </div>
   <Grid/>
+  <Leaderboard/>
 </main>
 
 <HowToPlayModal/>

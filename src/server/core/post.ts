@@ -9,6 +9,8 @@ export const createPost = async (difficulty: Difficulty = 'easy') => {
   }
 
   const post = await reddit.submitCustomPost({
+    textFallback:
+      'This post contains a Binary Grid puzzle. Please view it on New Reddit to play.',
     splash: {
       backgroundUri: 'splash-screen.png',
       buttonLabel: 'PLAY NOW',
