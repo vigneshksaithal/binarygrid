@@ -18,9 +18,11 @@
       if (res.ok) {
         closeSuccessModal()
       } else {
+        // biome-ignore lint/suspicious/noConsole: we want to log the error
         console.error('Failed to join subreddit')
       }
     } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: we want to log the error
       console.error('Failed to join subreddit', error)
     } finally {
       isJoining = false
@@ -72,12 +74,12 @@
     >
       Maybe later
     </button>
-    <button onClick={joinSubreddit} disabled={isJoining}>
+    <Button onClick={joinSubreddit} disabled={isJoining}>
       {#if isJoining}
       Joining…
       {:else}
       Join r/binarygrid
       {/if}
-    </button>
+    </Button>
   </footer>
 </Modal>
