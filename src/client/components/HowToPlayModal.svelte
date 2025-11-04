@@ -21,6 +21,6 @@
     </ul>
   </div>
   <footer class="flex justify-end">
-    <button onClick={closeHowTo}>Got it</button>
+    <Button onClick={closeHowTo}>Got it</Button>
   </footer>
 </Modal>
