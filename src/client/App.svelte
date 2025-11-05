@@ -16,9 +16,9 @@
   })
 </script>
 
-<main class="w-full max-w-md mx-auto flex flex-col items-center p-8">
+<main class="w-full max-w-sm mx-auto flex flex-col items-center p-6">
   <div
-    class="w-full flex items-center justify-between p-3 bg-zinc-800 rounded-3xl mb-8"
+    class="w-full flex items-center justify-between p-3 bg-zinc-800 rounded-3xl mb-4"
   >
     <Timer/>
     <div class="flex items-center gap-2">
