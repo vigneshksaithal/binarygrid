@@ -52,15 +52,15 @@
   }
 
   h1 {
-    @apply text-4xl font-semibold tracking-wide text-slate-300 mb-4;
+    @apply text-3xl font-semibold tracking-wide text-slate-300 mb-4;
   }
 
   h2 {
-    @apply text-3xl font-semibold tracking-wide text-slate-300 mb-3;
+    @apply text-2xl font-semibold tracking-wide text-slate-300 mb-3;
   }
 
   h3 {
-    @apply text-4xl font-semibold tracking-wide text-slate-300 mb-2;
+    @apply text-xl font-semibold tracking-wide text-slate-300 mb-2;
   }
 
   p {
@@ -68,10 +68,10 @@
   }
 
   ul {
-    @apply list-disc list-inside text-slate-300 mb-2;
+    @apply text-sm list-disc list-inside text-slate-300 mb-2;
   }
 
   ol {
-    @apply list-decimal list-inside text-slate-300 mb-2;
+    @apply text-sm list-decimal list-inside text-slate-300 mb-2;
   }
 }
