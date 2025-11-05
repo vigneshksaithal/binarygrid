@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte'
 
-  type Variant = 'default' | 'destructive'
+  type Variant = 'default' | 'destructive' | 'secondary'
 
   const {
     onClick,
@@ -26,7 +26,9 @@
     default:
       'bg-green-900 text-green-500 shadow-md hover:bg-green-900/90 focus-visible:ring-green-500 disabled:bg-green-900/50 disabled:text-green-700 disabled:shadow-none',
     destructive:
-      'bg-red-900 text-red-100 shadow-md hover:bg-red-900/85 focus-visible:ring-red-500 disabled:bg-red-900/60 disabled:text-red-600 disabled:shadow-none'
+      'bg-red-900 text-red-100 shadow-md hover:bg-red-900/85 focus-visible:ring-red-500 disabled:bg-red-900/60 disabled:text-red-600 disabled:shadow-none',
+    secondary:
+      'bg-zinc-700 text-zinc-100 shadow-md hover:bg-zinc-600 focus-visible:ring-zinc-400 disabled:bg-zinc-800 disabled:text-zinc-500 disabled:shadow-none'
   }
 </script>
 
