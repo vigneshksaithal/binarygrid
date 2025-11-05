@@ -2,6 +2,8 @@
 
 ## 2025-11-05
 
+- Tightened modal responsiveness so dialogs respect viewport bounds, adding dynamic sizing and scroll containment to the shared `Modal` wrapper.
+- Streamlined the leaderboard modal layout with simpler markup, accessible description text, and a scrollable results pane that keeps pagination and actions visible.
 - Added Redis-backed leaderboard tracking: `/api/submit` now records solve times and exposes standings through the new `/api/leaderboard` endpoint.
 - Introduced shared leaderboard types plus client stores and a modal UI so players can browse top solvers, paginate results, and see their own rank.
 - Extended the button component with a `secondary` variant and wired the success modal to jump straight into the leaderboard.

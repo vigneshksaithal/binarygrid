@@ -71,128 +71,117 @@
   labelledby="leaderboard-title"
   describedby="leaderboard-description"
 >
-  <header class="space-y-1 mb-4">
-    <h2 id="leaderboard-title">
-      Leaderboard
-    </h2>
-  </header>
+  <section class="flex max-h-full flex-col gap-4">
+    <h2 id="leaderboard-title">Leaderboard</h2>
 
-{#if $leaderboard.status === 'loading'}
-  <div class="flex flex-col items-center gap-3 py-10" role="status" aria-live="polite">
-    <div
-      class="size-6 rounded-full border-2 border-primary-green border-t-transparent animate-spin"
-      aria-hidden="true"
-    ></div>
-    <p class="text-sm">Loading leaderboard…</p>
-  </div>
-  {:else if $leaderboard.status === 'error'}
-  <div class="rounded-lg bg-error/10 p-4 text-sm text-error">
-    {$leaderboard.error ?? 'Unable to load leaderboard. Please try again.'}
-  </div>
-  {:else}
-  <div class="space-y-3">
-    {#if $leaderboard.entries.length === 0}
-    <p class="text-sm">
-      No leaderboard entries yet. Be the first to submit a blazing-fast time!
+    {#if $leaderboard.status === 'loading'}
+    <div class="flex flex-1 flex-col items-center justify-center gap-3 py-10" role="status" aria-live="polite">
+      <div
+        class="size-6 rounded-full border-2 border-primary-green border-t-transparent animate-spin"
+        aria-hidden="true"
+      ></div>
+      <p class="text-sm">Loading leaderboard…</p>
+    </div>
+    {:else if $leaderboard.status === 'error'}
+    <p class="rounded-lg bg-error/10 p-4 text-sm text-error">
+      {$leaderboard.error ?? 'Unable to load leaderboard. Please try again.'}
     </p>
     {:else}
-    <ol class="space-y-2">
-      {#each $leaderboard.entries as entry (entry.userId)}
-      <li
-        class={`flex items-center gap-3 p-3 rounded-lg bg-zinc-800/80 border border-transparent hover:border-primary-green/40 transition-colors ${
-          entry.userId === $leaderboard.playerEntry?.userId
-            ? 'bg-primary-green/10 border-primary-green/60'
-            : ''
-        }`}
-      >
-        <p class="w-8 text-sm font-semibold text-primary-green">
-          {formatRankLabel(entry.rank)}
-        </p>
-        {#if entry.avatarUrl}
-        <img
-          alt={`${entry.username}'s avatar`}
-          src={entry.avatarUrl}
-          class="size-8 rounded-full object-cover border border-primary-green/60"
-          loading="lazy"
-        />
-        {:else}
-        <div
-          class="size-8 rounded-full bg-zinc-700 text-zinc-300 grid place-items-center text-sm font-semibold"
-          aria-hidden="true"
+    {@const state = $leaderboard}
+    <div class="flex-1 overflow-y-auto space-y-3 pr-1">
+      {#if state.entries.length === 0}
+      <p class="text-sm">
+        No leaderboard entries yet. Be the first to submit a blazing-fast time!
+      </p>
+      {:else}
+      <ol class="space-y-1">
+        {#each state.entries as entry (entry.userId)}
+        <li
+          class={`flex items-center gap-3 rounded-lg border border-transparent bg-zinc-800/80 transition-colors hover:border-primary-green/40 ${
+            entry.userId === state.playerEntry?.userId
+              ? 'border-primary-green/60 bg-primary-green/10'
+              : ''
+          }`}
         >
-          {getAvatarInitial(entry.username)}
-        </div>
-        {/if}
-        <div class="flex-1">
-          <p class="text-sm font-semibold text-zinc-100">{entry.username}</p>
-        </div>
-        <p class="text-sm font-semibold text-primary-green">
-          {formatElapsedTime(Math.round(entry.timeSeconds))}
-        </p>
-      </li>
-      {/each}
-    </ol>
-    {/if}
+          <p class="text-xs truncate font-semibold text-primary-green">
+            {formatRankLabel(entry.rank)}
+          </p>
+          {#if entry.avatarUrl}
+          <img
+            alt={`${entry.username}'s avatar`}
+            src={entry.avatarUrl}
+            class="size-8 rounded-full border border-primary-green/60 object-cover"
+            loading="lazy"
+          />
+          {:else}
+          <div
+            class="grid size-8 place-items-center rounded-full bg-zinc-700 text-sm font-semibold text-zinc-300"
+            aria-hidden="true"
+          >
+            {getAvatarInitial(entry.username)}
+          </div>
+          {/if}
+          <p class="flex-1 text-xs text-zinc-100">
+            {entry.username}
+          </p>
+          <p class="text-sm font-semibold text-primary-green">
+            {formatElapsedTime(Math.round(entry.timeSeconds))}
+          </p>
+        </li>
+        {/each}
+      </ol>
+      {/if}
 
-    {#if showPlayerSummary()}
-    <div class="rounded-lg border border-primary-green/50 bg-primary-green/10 p-4 text-sm text-zinc-100">
-      <h3 class="text-primary-green">
-        Your ranking
-      </h3>
-      <div class="flex items-center gap-3">
-        <span class="text-sm font-semibold text-primary-green">
-          {formatRankLabel($leaderboard.playerEntry?.rank ?? 0)}
-        </span>
-        {#if $leaderboard.playerEntry?.avatarUrl}
-        <img
-          alt="Your avatar"
-          src={$leaderboard.playerEntry.avatarUrl}
-          class="size-6 rounded-full object-cover border border-primary-green/60"
-          loading="lazy"
-        />
-        {:else}
-        <div
-          class="size-6 rounded-full bg-zinc-700 text-zinc-300 grid place-items-center text-xs font-semibold"
-          aria-hidden="true"
-        >
-          {getAvatarInitial($leaderboard.playerEntry?.username ?? '?')}
-        </div>
-        {/if}
-        <div class="flex-1">
-          <p class="text-sm font-semibold">
-            {$leaderboard.playerEntry?.username ?? 'You'}
-          </p>
-          <p class="text-xs text-zinc-300">
-            Time: {formatElapsedTime(
-              Math.round($leaderboard.playerEntry?.timeSeconds ?? 0)
-            )}
-          </p>
+      {#if showPlayerSummary()}
+      <div class="rounded-lg border border-primary-green/50 bg-primary-green/10 p-4 text-sm text-zinc-100">
+        <h3 class="text-primary-green">Your ranking</h3>
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-semibold text-primary-green">
+            {formatRankLabel(state.playerEntry?.rank ?? 0)}
+          </span>
+          {#if state.playerEntry?.avatarUrl}
+          <img
+            alt="Your avatar"
+            src={state.playerEntry.avatarUrl}
+            class="size-6 rounded-full border border-primary-green/60 object-cover"
+            loading="lazy"
+          />
+          {:else}
+          <div
+            class="grid size-6 place-items-center rounded-full bg-zinc-700 text-xs font-semibold text-zinc-300"
+            aria-hidden="true"
+          >
+            {getAvatarInitial(state.playerEntry?.username ?? '?')}
+          </div>
+          {/if}
+          <div class="flex-1">
+            <p class="text-sm font-semibold">
+              {state.playerEntry?.username ?? 'You'}
+            </p>
+            <p class="text-xs text-zinc-300">
+              Time: {formatElapsedTime(Math.round(state.playerEntry?.timeSeconds ?? 0))}
+            </p>
+          </div>
         </div>
       </div>
+      {/if}
     </div>
-    {/if}
 
     {#if $leaderboard.entries.length > 0}
-    <footer class="flex items-center justify-between pt-2">
-      <Button
-        variant="secondary"
-        onClick={goToPreviousPage}
-        disabled={!$leaderboard.hasPreviousPage}
-      >
+    <nav class="flex items-center justify-between text-xs text-zinc-400">
+      <Button variant="secondary" onClick={goToPreviousPage} disabled={!$leaderboard.hasPreviousPage}>
         Previous
       </Button>
-      <span class="text-xs text-zinc-400">
-        Page {$leaderboard.page + 1}
-      </span>
+      <span>Page {$leaderboard.page + 1}</span>
       <Button variant="secondary" onClick={goToNextPage} disabled={!$leaderboard.hasNextPage}>
         Next
       </Button>
-    </footer>
+    </nav>
     {/if}
-  </div>
-  {/if}
+    {/if}
 
-  <footer class="mt-6 flex justify-end">
-    <Button onClick={handleClose}>Done</Button>
-  </footer>
+    <div class="flex justify-end">
+      <Button onClick={handleClose}>Done</Button>
+    </div>
+  </section>
 </Modal>
