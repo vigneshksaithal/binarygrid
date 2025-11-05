@@ -3,7 +3,7 @@ import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
-import { resetTimer, startTimer, stopTimer } from './timer'
+import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
 type Status =
@@ -101,6 +101,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
 
   resetTimer()
   startTimer()
+  lastSubmittedPuzzleId = null
 }
 
 const getNextCellValue = (current: Cell): Cell => {
@@ -125,6 +126,7 @@ const determineStatus = (isValid: boolean, grid: Grid): Status => {
 
 const ERROR_DISPLAY_DELAY = 3000
 let errorTimer: ReturnType<typeof setTimeout> | undefined
+let lastSubmittedPuzzleId: string | null = null
 
 export const cycleCell = (r: number, c: number) => {
   if (errorTimer) {
@@ -189,9 +191,26 @@ export const autosubmitIfSolved = async () => {
   if (!snapshot || snapshot.status !== 'solved' || !snapshot.puzzleId) {
     return
   }
-  await fetch('/api/submit', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ id: snapshot.puzzleId, grid: snapshot.grid })
-  })
+  if (snapshot.puzzleId === lastSubmittedPuzzleId) {
+    return
+  }
+
+  const timeSeconds = get(elapsedSeconds)
+
+  try {
+    const res = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        id: snapshot.puzzleId,
+        grid: snapshot.grid,
+        solveTimeSeconds: timeSeconds
+      })
+    })
+    if (res.ok) {
+      lastSubmittedPuzzleId = snapshot.puzzleId
+    }
+  } catch {
+    // ignore network errors - autosubmit best effort only
+  }
 }

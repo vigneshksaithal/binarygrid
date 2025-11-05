@@ -313,3 +313,10 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 6. **Documentation** - Add comments for complex logic, but prefer self-documenting code
 
 Most formatting and common issues are automatically fixed by Biome. Run `npx ultracite fix` before committing to ensure compliance.
+
+### Leaderboard
+
+- Solves are recorded via `POST /api/submit`, which now expects a `solveTimeSeconds` number in the payload. Missing or negative values will be rejected.
+- Leaderboard data is stored per puzzle in Redis sorted sets (`leaderboard:{puzzleId}`) with metadata hashes for usernames and avatars.
+- Fetch standings with `GET /api/leaderboard?puzzleId=<id>&page=<index>&pageSize=<n>`. Responses follow the shared `LeaderboardResponse` type and include the caller's rank when available.
+- Client state lives in `src/client/stores/leaderboard.ts` and surfaces a Svelte modal (`LeaderboardModal.svelte`) that handles pagination and player highlighting.

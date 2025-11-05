@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-11-05
+
+- Added Redis-backed leaderboard tracking: `/api/submit` now records solve times and exposes standings through the new `/api/leaderboard` endpoint.
+- Introduced shared leaderboard types plus client stores and a modal UI so players can browse top solvers, paginate results, and see their own rank.
+- Extended the button component with a `secondary` variant and wired the success modal to jump straight into the leaderboard.
+- Documented the leaderboard workflow in `AGENTS.md` and refreshed the app header controls to surface the new modal entry point.
+
 ## 2025-11-01
 
 - Integrated `HowToPlayModal` and `SuccessModal` directly into `App.svelte` so modals are rendered at the app root level.

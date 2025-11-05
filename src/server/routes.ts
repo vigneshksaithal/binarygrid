@@ -1,5 +1,6 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
+import type { LeaderboardEntry, LeaderboardResponse } from '../shared/types/leaderboard'
 import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
 import { generateDailyPuzzle } from './core/generator'
@@ -13,6 +14,13 @@ const DECIMAL_RADIX = 10
 const GRID_SIZE_TYPE = 6
 const DEFAULT_DIFFICULTY: Difficulty = 'medium'
 const DIFFICULTY_VALUES = ['easy', 'medium', 'hard']
+const LEADERBOARD_DEFAULT_PAGE_SIZE = 10
+const LEADERBOARD_MAX_PAGE_SIZE = 50
+
+type StoredLeaderboardMeta = {
+  username: string
+  avatarUrl: string | null
+}
 
 const isDifficultyValue = (value: string): value is Difficulty =>
   (DIFFICULTY_VALUES as readonly string[]).includes(value)
@@ -36,6 +44,38 @@ const resolveDate = (value: string | null): string => {
     return todayISO()
   }
   return parsed.toISOString().slice(0, 10)
+}
+
+const leaderboardKey = (puzzleId: string): string => `leaderboard:${puzzleId}`
+
+const leaderboardMetaKey = (puzzleId: string): string =>
+  `leaderboard:${puzzleId}:meta`
+
+const clampPageSize = (value: number | null | undefined): number => {
+  if (!value || Number.isNaN(value)) {
+    return LEADERBOARD_DEFAULT_PAGE_SIZE
+  }
+  return Math.min(Math.max(value, 1), LEADERBOARD_MAX_PAGE_SIZE)
+}
+
+const parseLeaderboardMeta = (
+  value: string | null | undefined
+): StoredLeaderboardMeta => {
+  if (!value) {
+    return { username: 'Unknown player', avatarUrl: null }
+  }
+  try {
+    const parsed = JSON.parse(value) as StoredLeaderboardMeta
+    if (
+      typeof parsed.username === 'string' &&
+      (parsed.avatarUrl === null || typeof parsed.avatarUrl === 'string')
+    ) {
+      return parsed
+    }
+  } catch {
+    // ignore malformed JSON payloads
+  }
+  return { username: 'Unknown player', avatarUrl: null }
 }
 
 app.get('/api/health', (c) => c.json({ ok: true }))
@@ -93,14 +133,30 @@ app.get('/api/puzzle', async (c) => {
 })
 
 app.post('/api/submit', async (c) => {
-  const body = await c.req.json<{ id: string; grid: Grid }>().catch(() => null)
-  if (!body || typeof body.id !== 'string' || !Array.isArray(body.grid)) {
+  const body = await c
+    .req
+    .json<{ id: string; grid: Grid; solveTimeSeconds: number }>()
+    .catch(() => null)
+  if (
+    !body ||
+    typeof body.id !== 'string' ||
+    !Array.isArray(body.grid) ||
+    typeof body.solveTimeSeconds !== 'number'
+  ) {
     return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
   }
 
-  const { postId } = context
+  const solveTimeSeconds = Number(body.solveTimeSeconds)
+  if (!Number.isFinite(solveTimeSeconds) || solveTimeSeconds < 0) {
+    return c.json({ error: 'invalid solve time' }, HTTP_BAD_REQUEST)
+  }
+
+  const { postId, userId } = context
   if (!postId) {
     return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+  if (!userId) {
+    return c.json({ error: 'login required' }, HTTP_BAD_REQUEST)
   }
 
   try {
@@ -128,12 +184,149 @@ app.post('/api/submit', async (c) => {
       await redis.set(key, '1')
     }
 
+    const currentUser = await reddit.getCurrentUser().catch(() => undefined)
+    const username =
+      currentUser?.username ||
+      (await reddit.getCurrentUsername().catch(() => undefined)) ||
+      'Unknown player'
+    const avatarUrl = username
+      ? await reddit.getSnoovatarUrl(username).catch(() => undefined)
+      : undefined
+
+    const leaderboardSetKey = leaderboardKey(body.id)
+    const leaderboardDetailsKey = leaderboardMetaKey(body.id)
+    const existingScore = await redis.zScore(leaderboardSetKey, userId)
+
+    if (existingScore === undefined || solveTimeSeconds < existingScore) {
+      await redis.zAdd(leaderboardSetKey, {
+        score: solveTimeSeconds,
+        member: userId
+      })
+    }
+
+    await redis.hSet(leaderboardDetailsKey, {
+      [userId]: JSON.stringify({
+        username,
+        avatarUrl: avatarUrl ?? null
+      } satisfies StoredLeaderboardMeta)
+    })
+
     return c.json({ ok: true })
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
     return c.json(
       { error: `Submission failed: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.get('/api/leaderboard', async (c) => {
+  const queryPuzzleId = c.req.query('puzzleId') ?? ''
+  if (!queryPuzzleId) {
+    return c.json({ error: 'puzzleId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  const pageParam = Number.parseInt(c.req.query('page') ?? '0', DECIMAL_RADIX)
+  const page = Number.isNaN(pageParam) || pageParam < 0 ? 0 : pageParam
+  const requestedPageSize = Number.parseInt(
+    c.req.query('pageSize') ?? `${LEADERBOARD_DEFAULT_PAGE_SIZE}`,
+    DECIMAL_RADIX
+  )
+  const pageSize = clampPageSize(requestedPageSize)
+  const offset = page * pageSize
+
+  const leaderboardSetKey = leaderboardKey(queryPuzzleId)
+  const leaderboardDetailsKey = leaderboardMetaKey(queryPuzzleId)
+
+  try {
+    const totalEntries = await redis.zCard(leaderboardSetKey)
+    if (totalEntries === 0) {
+      const emptyResponse: LeaderboardResponse = {
+        entries: [],
+        totalEntries,
+        page,
+        pageSize,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        playerEntry: null
+      }
+      return c.json(emptyResponse)
+    }
+
+    const rangeMembers = await redis.zRange(
+      leaderboardSetKey,
+      offset,
+      offset + pageSize - 1,
+      { by: 'rank' }
+    )
+
+    const metaValues =
+      rangeMembers.length > 0
+        ? await redis.hMGet(
+            leaderboardDetailsKey,
+            rangeMembers.map((entry) => entry.member)
+          )
+        : []
+
+    const entries: LeaderboardEntry[] = rangeMembers.map((entry, index) => {
+      const rawMeta = metaValues[index]
+      const parsedMeta = parseLeaderboardMeta(
+        rawMeta !== null ? rawMeta : undefined
+      )
+
+      return {
+        userId: entry.member,
+        username: parsedMeta.username,
+        avatarUrl: parsedMeta.avatarUrl,
+        timeSeconds: entry.score,
+        rank: offset + index + 1
+      }
+    })
+
+    const { userId } = context
+    let playerEntry: LeaderboardEntry | null = null
+    if (userId) {
+      const [playerRank, playerScore, playerMetaRaw] = await Promise.all([
+        redis.zRank(leaderboardSetKey, userId),
+        redis.zScore(leaderboardSetKey, userId),
+        redis.hGet(leaderboardDetailsKey, userId)
+      ])
+
+      if (
+        playerRank !== undefined &&
+        playerRank !== null &&
+        playerScore !== undefined &&
+        playerScore !== null
+      ) {
+        const playerMeta = parseLeaderboardMeta(playerMetaRaw)
+        playerEntry = {
+          userId,
+          username: playerMeta.username,
+          avatarUrl: playerMeta.avatarUrl,
+          timeSeconds: playerScore,
+          rank: playerRank + 1
+        }
+      }
+    }
+
+    const response: LeaderboardResponse = {
+      entries,
+      totalEntries,
+      page,
+      pageSize,
+      hasNextPage: offset + pageSize < totalEntries,
+      hasPreviousPage: page > 0,
+      playerEntry
+    }
+
+    return c.json(response)
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to load leaderboard: ${errorMessage}` },
       HTTP_BAD_REQUEST
     )
   }

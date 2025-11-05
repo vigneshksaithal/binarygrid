@@ -1,11 +1,20 @@
 <script lang="ts">
   import confetti from 'canvas-confetti'
   import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
-  import { closeSuccessModal, showSuccessModal } from '../stores/ui'
+  import {
+  	closeSuccessModal,
+  	openLeaderboardModal,
+  	showSuccessModal
+  } from '../stores/ui'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
 
   let isJoining = $state(false)
+
+  const viewLeaderboard = () => {
+    closeSuccessModal()
+    openLeaderboardModal()
+  }
 
   const joinSubreddit = async () => {
     if (isJoining) {
@@ -72,13 +81,16 @@
       class="text-sm font-medium text-zinc-300 hover:text-primary-green transition-colors"
       onclick={closeSuccessModal}
     >
-      Maybe later
+      Back
     </button>
+    <Button variant="secondary" onClick={viewLeaderboard}>
+      Leaderboard
+    </Button>
     <Button onClick={joinSubreddit} disabled={isJoining}>
       {#if isJoining}
       Joining…
       {:else}
-      Join r/binarygrid
+      Join
       {/if}
     </Button>
   </footer>

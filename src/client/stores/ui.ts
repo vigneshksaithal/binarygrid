@@ -9,3 +9,8 @@ export const showSuccessModal = writable(false)
 
 export const openSuccessModal = () => showSuccessModal.set(true)
 export const closeSuccessModal = () => showSuccessModal.set(false)
+
+export const showLeaderboardModal = writable(false)
+
+export const openLeaderboardModal = () => showLeaderboardModal.set(true)
+export const closeLeaderboardModal = () => showLeaderboardModal.set(false)
