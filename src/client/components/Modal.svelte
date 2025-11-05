@@ -24,7 +24,7 @@
   class="fixed inset-0 z-50 grid place-items-center bg-zinc-950/60 backdrop-blur-xs p-4"
 >
   <div
-    class="w-full max-w-lg p-6 rounded-3xl shadow-md bg-zinc-800"
+    class="w-full max-w-sm p-6 rounded-3xl shadow-md bg-zinc-800"
     {role}
     aria-modal={ariaModal}
     aria-labelledby={labelledby}
