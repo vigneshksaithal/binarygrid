@@ -48,7 +48,7 @@ app.post('/internal/menu/post-create', async (c) => {
 // Scheduler endpoint for daily post creation
 app.post('/internal/schedule/daily', async (c) => {
   try {
-    await createPost('easy')
+    const post = await createPost('easy')
 
     return c.json({
       status: 'ok',
