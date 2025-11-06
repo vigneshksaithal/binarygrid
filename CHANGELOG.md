@@ -1,5 +1,10 @@
 # Changelog
 
+## 2025-11-06
+
+- Added a `daily-post` cron entry (`0 14 * * *`) in `devvit.json` so Devvit automatically calls `/internal/schedule/daily` right at 9:00 AM US Eastern (14:00 UTC) each day.
+- Simplified `/internal/schedule/daily` to just call `createPost('easy')`, letting the scheduler handle all timing.
+
 ## 2025-11-05
 
 - Tightened modal responsiveness so dialogs respect viewport bounds, adding dynamic sizing and scroll containment to the shared `Modal` wrapper.

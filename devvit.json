@@ -37,6 +37,14 @@
   "triggers": {
     "onAppInstall": "/internal/on-app-install"
   },
+  "scheduler": {
+    "tasks": {
+      "daily-post": {
+        "endpoint": "/internal/schedule/daily",
+        "cron": "0 14 * * *"
+      }
+    }
+  },
   "dev": {
     "subreddit": "binarygrid"
   }
