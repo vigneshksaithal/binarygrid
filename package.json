@@ -28,7 +28,7 @@
     "canvas-confetti": "^1.9.4",
     "devvit": "0.12.1",
     "hono": "^4.10.4",
-    "tailwindcss": "^4.1.16"
+    "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.4",
