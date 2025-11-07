@@ -2,9 +2,9 @@
   import confetti from 'canvas-confetti'
   import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
   import {
-  	closeSuccessModal,
-  	openLeaderboardModal,
-  	showSuccessModal
+    closeSuccessModal,
+    openLeaderboardModal,
+    showSuccessModal
   } from '../stores/ui'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
@@ -83,9 +83,7 @@
     >
       Back
     </button>
-    <Button variant="secondary" onClick={viewLeaderboard}>
-      Leaderboard
-    </Button>
+    <Button variant="secondary" onClick={viewLeaderboard}>Leaderboard</Button>
     <Button onClick={joinSubreddit} disabled={isJoining}>
       {#if isJoining}
       Joining…

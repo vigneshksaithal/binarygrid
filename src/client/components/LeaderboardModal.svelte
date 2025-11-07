@@ -1,16 +1,13 @@
 <script lang="ts">
-  import { formatElapsedTime } from '../stores/timer'
   import { game } from '../stores/game'
-  import {
-    closeLeaderboardModal,
-    showLeaderboardModal
-  } from '../stores/ui'
   import {
     goToLeaderboardPage,
     leaderboard,
     loadLeaderboard,
     resetLeaderboard
   } from '../stores/leaderboard'
+  import { formatElapsedTime } from '../stores/timer'
+  import { closeLeaderboardModal, showLeaderboardModal } from '../stores/ui'
   import Button from './Button.svelte'
   import Modal from './Modal.svelte'
 
@@ -75,7 +72,11 @@
     <h2 id="leaderboard-title">Leaderboard</h2>
 
     {#if $leaderboard.status === 'loading'}
-    <div class="flex flex-1 flex-col items-center justify-center gap-3 py-10" role="status" aria-live="polite">
+    <div
+      class="flex flex-1 flex-col items-center justify-center gap-3 py-10"
+      role="status"
+      aria-live="polite"
+    >
       <div
         class="size-6 rounded-full border-2 border-primary-green border-t-transparent animate-spin"
         aria-hidden="true"
@@ -112,7 +113,7 @@
             src={entry.avatarUrl}
             class="size-8 rounded-full border border-primary-green/60 object-cover"
             loading="lazy"
-          />
+          >
           {:else}
           <div
             class="grid size-8 place-items-center rounded-full bg-zinc-700 text-sm font-semibold text-zinc-300"
@@ -121,9 +122,7 @@
             {getAvatarInitial(entry.username)}
           </div>
           {/if}
-          <p class="flex-1 text-xs text-zinc-100">
-            {entry.username}
-          </p>
+          <p class="flex-1 text-xs text-zinc-100">{entry.username}</p>
           <p class="text-sm font-semibold text-primary-green">
             {formatElapsedTime(Math.round(entry.timeSeconds))}
           </p>
@@ -133,7 +132,9 @@
       {/if}
 
       {#if showPlayerSummary()}
-      <div class="rounded-lg border border-primary-green/50 bg-primary-green/10 p-4 text-sm text-zinc-100">
+      <div
+        class="rounded-lg border border-primary-green/50 bg-primary-green/10 p-4 text-sm text-zinc-100"
+      >
         <h3 class="text-primary-green">Your ranking</h3>
         <div class="flex items-center gap-3">
           <span class="text-sm font-semibold text-primary-green">
@@ -145,7 +146,7 @@
             src={state.playerEntry.avatarUrl}
             class="size-6 rounded-full border border-primary-green/60 object-cover"
             loading="lazy"
-          />
+          >
           {:else}
           <div
             class="grid size-6 place-items-center rounded-full bg-zinc-700 text-xs font-semibold text-zinc-300"
@@ -159,7 +160,8 @@
               {state.playerEntry?.username ?? 'You'}
             </p>
             <p class="text-xs text-zinc-300">
-              Time: {formatElapsedTime(Math.round(state.playerEntry?.timeSeconds ?? 0))}
+              Time:
+              {formatElapsedTime(Math.round(state.playerEntry?.timeSeconds ?? 0))}
             </p>
           </div>
         </div>
@@ -169,11 +171,19 @@
 
     {#if $leaderboard.entries.length > 0}
     <nav class="flex items-center justify-between text-xs text-zinc-400">
-      <Button variant="secondary" onClick={goToPreviousPage} disabled={!$leaderboard.hasPreviousPage}>
+      <Button
+        variant="secondary"
+        onClick={goToPreviousPage}
+        disabled={!$leaderboard.hasPreviousPage}
+      >
         Previous
       </Button>
       <span>Page {$leaderboard.page + 1}</span>
-      <Button variant="secondary" onClick={goToNextPage} disabled={!$leaderboard.hasNextPage}>
+      <Button
+        variant="secondary"
+        onClick={goToNextPage}
+        disabled={!$leaderboard.hasNextPage}
+      >
         Next
       </Button>
     </nav>

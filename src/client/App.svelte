@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import './app.css'
+  import HelpCircle from '@lucide/svelte/icons/help-circle'
   import Button from './components/Button.svelte'
   import Grid from './components/Grid.svelte'
   import HowToPlayModal from './components/HowToPlayModal.svelte'
@@ -9,7 +10,6 @@
   import Timer from './components/Timer.svelte'
   import { loadPuzzle } from './stores/game'
   import { openHowToModal, openLeaderboardModal } from './stores/ui'
-  import HelpCircle from '@lucide/svelte/icons/help-circle'
 
   onMount(() => {
     loadPuzzle('easy')
@@ -28,7 +28,7 @@
         onClick={openHowToModal}
         ariaLabel="How to Play"
       >
-        <HelpCircle class="size-5" />
+        <HelpCircle class="size-5"/>
       </Button>
     </div>
   </div>

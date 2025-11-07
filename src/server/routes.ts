@@ -1,6 +1,9 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
-import type { LeaderboardEntry, LeaderboardResponse } from '../shared/types/leaderboard'
+import type {
+  LeaderboardEntry,
+  LeaderboardResponse
+} from '../shared/types/leaderboard'
 import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
 import { validateGrid } from '../shared/validator'
 import { generateDailyPuzzle } from './core/generator'
@@ -133,8 +136,7 @@ app.get('/api/puzzle', async (c) => {
 })
 
 app.post('/api/submit', async (c) => {
-  const body = await c
-    .req
+  const body = await c.req
     .json<{ id: string; grid: Grid; solveTimeSeconds: number }>()
     .catch(() => null)
   if (
@@ -184,13 +186,13 @@ app.post('/api/submit', async (c) => {
       await redis.set(key, '1')
     }
 
-    const currentUser = await reddit.getCurrentUser().catch(() => undefined)
+    const currentUser = await reddit.getCurrentUser().catch(() => {})
     const username =
       currentUser?.username ||
-      (await reddit.getCurrentUsername().catch(() => undefined)) ||
+      (await reddit.getCurrentUsername().catch(() => {})) ||
       'Unknown player'
     const avatarUrl = username
-      ? await reddit.getSnoovatarUrl(username).catch(() => undefined)
+      ? await reddit.getSnoovatarUrl(username).catch(() => {})
       : undefined
 
     const leaderboardSetKey = leaderboardKey(body.id)
