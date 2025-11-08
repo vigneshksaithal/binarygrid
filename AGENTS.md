@@ -12,37 +12,39 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 
 ### Frontend
 
-- [Devvit](https://developers.reddit.com/docs/) (v0.12.1) — Reddit App Platform
-- [Svelte](https://svelte.dev/) (v5, runes) — UI framework
-- [TypeScript](https://www.typescriptlang.org/) — Programming language
-- [Tailwind CSS](https://tailwindcss.com/) (v4) — CSS framework
-- [Lucide Svelte](https://lucide.dev/) — Icon library
+- Devvit (v0.12.1) — Reddit App Platform
+- Svelte (v5, runes) — UI framework
+- TypeScript (v5) — Programming language
+- Tailwind CSS (v4) — CSS framework
+- Lucide Svelte — Icon library
+
+<!-- TODO: UPDATE THIS SECTION -->
 
 >**IMPORTANT NOTE:**
 >For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
-
-### Backend
-
-- [Hono JS](https://hono.dev/) — Backend framework
-- [Redis](https://redis.io/) — Database
-- [TypeScript](https://www.typescriptlang.org/) — Programming language
-
-### Testing
-
-- [Vitest](https://vitest.dev/) — Testing framework
-- [Google Chrome](https://www.google.com/chrome/) — Browser
-
-### Tools
-
-- [Vite](https://vite.dev/) — Build tool
-- [pnpm](https://pnpm.io/) — Package manager
-- [Biome JS](https://biomejs.dev) — Linter and formatter
-- [Ultracite](https://www.ultracite.ai) — Linter and formatter
-
-> **IMPORTANT NOTE:**
 >
 > - Use Svelte v5 runes syntax ONLY.
 > - Use Tailwind CSS v4 syntax ONLY.
+
+### Backend
+
+- Hono JS — Backend framework
+- Redis — Database
+- TypeScript — Programming language
+
+<!-- TODO: UPDATE THIS SECTION -->
+
+### Testing
+
+- Vitest — Testing framework
+- Google Chrome — Browser
+
+### Tools
+
+- Vite — Build tool
+- Pnpm — Package manager
+- Biome JS — Linter and formatter
+- Ultracite — Linter and formatter
 
 ---
 
@@ -98,11 +100,26 @@ devvit.json       # Devvit config
 
 ## Guiding Principles
 
-- Clarity and Reuse: Make every component and page modular and reusable; abstract repeated UI patterns into components.
+- Follow DRY (Don't Repeat Yourself) principles. Keep code simple and intention-revealing. Small functions, clear names, no duplication, and it passes tests.
+- Make code review a first-class practice. Optimize for readability, small CLs, and respectful, actionable feedback.
 - Consistency: Maintain a unified design system (color tokens, typography, spacing, components).
 - Simplicity: Prefer small, focused components and avoid unnecessary complexity.
-- Demo-Oriented: Enable quick prototyping to showcase streaming, multi-turn conversations, and tool integrations.
 - Visual Quality: Uphold a high standard of visual polish per OSS guidelines (spacing, padding, hover states, etc.).
+
+### Review Criteria
+
+- The code is well-designed.
+- The functionality is good for the users of the code.
+- Any UI changes are sensible and look good.
+- Any parallel programming is done safely.
+- The code isn't more complex than it needs to be.
+- The developer isn't implementing things they might need in the future but don't know they need now.
+- Code has appropriate unit tests.
+- Tests are well-designed.
+- The developer used clear names for everything.
+- Comments are clear and useful, and mostly explain why instead of what.
+- Code is appropriately documented.
+- The code conforms to the style guides.
 
 ---
 
@@ -123,18 +140,23 @@ pnpm fix            # Format and lint code
 
 ### General
 
-- Use strict TypeScript with ES modules.
+- Follow the DRY (Don't Repeat Yourself) principles.
+- Keep functions small (SHOULD target <= 20–30 lines) and single-purpose.
 - Omit semicolons unless syntactically required.
-- Favor functional programming patterns.
-- Use arrow functions by default.
+- Favor functional programming patterns over object-oriented programming patterns.
 - Sort imports: packages, shared modules, then relative paths.
 - Prefer named exports (tree-shaking) over default exports.
+- Use meaningful variable names instead of magic numbers - extract constants with descriptive names
+- Use descriptive function names instead of generic names like `handle` or `process`.
 
 ### Svelte
 
 - Svelte components: PascalCase filenames, export props via `$props()` rune, keep markup declarative.
 - Favor Tailwind utility classes and existing design tokens.
 - Create reusable components in `src/client/components` before duplicating markup.
+- Use Tailwind CSS classes and existing design tokens. **DO NOT use style blocks in Svelte components unless absolutely necessary.**
+- Use arrow functions for all functions.
+- Write short, focused components with a single responsibility.
 
 ### Server
 
@@ -146,7 +168,7 @@ pnpm fix            # Format and lint code
 - Do not install libraries requiring restricted modules.
 - Websockets and HTTP streaming are not supported.
 - Redis is accessible via `import { redis } from '@devvit/web/server'`.
-- Persist puzzle progress via the `/api/puzzle/progress` routes, which write to Redis keys shaped like `user:{userId}:puzzle:{puzzleId}`; clients must not rely on `localStorage`.
+- Clients must not rely on `localStorage`.
 
 ### Shared
 
@@ -164,12 +186,18 @@ Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 
 ## Development Workflow
 
+Follow the following workflow:
+
+1. Explore → Plan → Code → Commit
+2. Test-First Workflow (TDD)
+3. Start Development
+
 ### 1. Explore → Plan → Code → Commit
 
 - Begin with a concise checklist (3–7 bullets) of what you will do; keep items conceptual, not implementation-level.
-- Read the code; do not begin coding immediately.
-- Plan your approach.
-- Ask questions if unclear—do not assume.
+- Read the code; DO NOT begin coding immediately.
+- Plan your approach; write a detailed plan of what you will do.
+- Ask questions if unclear — **DO NOT ASSUME**.
 - Break tasks into smaller steps.
 - Request user approval for your plan before coding.
 - Iterate: Review → Approve → Code → Verify → Commit.
@@ -207,8 +235,8 @@ Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 - Never commit secrets or local settings.
 - After updates, write a detailed changelog in `CHANGELOG.md`.
 
-> This file is the single source of truth for project workflows, tools, and conventions. Keep it current with every addition or change.
-> REMEMBER: After coding you need to update the CHANGELOG.md file with a detailed summary of changes made.
+> **NOTE:** This file is the single source of truth for project workflows, tools, and conventions. Keep it current with every addition or change.
+> **REMEMBER:** After coding you need to update the CHANGELOG.md file with a detailed summary of changes made.
 
 ---
 
@@ -233,15 +261,7 @@ Biome (the underlying engine) provides extremely fast Rust-based linting and for
 
 ### Core Principles
 
-Write code that is **accessible, performant, type-safe, and maintainable**. Focus on clarity and explicit intent over brevity.
-
-### Type Safety & Explicitness
-
-- Use explicit types for function parameters and return values when they enhance clarity
-- Prefer `unknown` over `any` when the type is genuinely unknown
-- Use const assertions (`as const`) for immutable values and literal types
-- Leverage TypeScript's type narrowing instead of type assertions
-- Use meaningful variable names instead of magic numbers - extract constants with descriptive names
+Write code that is **clean, readable, accessible, performant, type-safe, and maintainable**. Focus on clarity and explicit intent over brevity.
 
 ### Modern JavaScript/TypeScript
 
@@ -251,6 +271,11 @@ Write code that is **accessible, performant, type-safe, and maintainable**. Focu
 - Prefer template literals over string concatenation
 - Use destructuring for object and array assignments
 - Use `const` by default, `let` only when reassignment is needed, never `var`
+- Use explicit types for function parameters and return values when they enhance clarity and readability
+- Prefer `unknown` over `any` when the type is genuinely unknown
+- Use const assertions (`as const`) for immutable values and literal types
+- Leverage TypeScript's type narrowing instead of type assertions
+- Use meaningful variable names instead of magic numbers - extract constants with descriptive names
 
 ### Async & Promises
 
@@ -313,10 +338,3 @@ Biome's linter will catch most issues automatically. Focus your attention on:
 6. **Documentation** - Add comments for complex logic, but prefer self-documenting code
 
 Most formatting and common issues are automatically fixed by Biome. Run `npx ultracite fix` before committing to ensure compliance.
-
-### Leaderboard
-
-- Solves are recorded via `POST /api/submit`, which now expects a `solveTimeSeconds` number in the payload. Missing or negative values will be rejected.
-- Leaderboard data is stored per puzzle in Redis sorted sets (`leaderboard:{puzzleId}`) with metadata hashes for usernames and avatars.
-- Fetch standings with `GET /api/leaderboard?puzzleId=<id>&page=<index>&pageSize=<n>`. Responses follow the shared `LeaderboardResponse` type and include the caller's rank when available.
-- Client state lives in `src/client/stores/leaderboard.ts` and surfaces a Svelte modal (`LeaderboardModal.svelte`) that handles pagination and player highlighting.
