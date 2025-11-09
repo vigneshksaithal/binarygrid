@@ -18,8 +18,6 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 - Tailwind CSS (v4) — CSS framework
 - Lucide Svelte — Icon library
 
-<!-- TODO: UPDATE THIS SECTION -->
-
 >**IMPORTANT NOTE:**
 >For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
 >
@@ -31,8 +29,6 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 - Hono JS — Backend framework
 - Redis — Database
 - TypeScript — Programming language
-
-<!-- TODO: UPDATE THIS SECTION -->
 
 ### Testing
 
