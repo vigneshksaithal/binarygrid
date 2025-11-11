@@ -23,11 +23,11 @@ export type GameState = {
   status: Status
   errors: string[]
   errorLocations?:
-    | {
-        rows: number[]
-        columns: number[]
-      }
-    | undefined
+  | {
+    rows: number[]
+    columns: number[]
+  }
+  | undefined
   solution: Grid | null
   dateISO: string | null
 }

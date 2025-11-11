@@ -186,13 +186,13 @@ app.post('/api/submit', async (c) => {
       await redis.set(key, '1')
     }
 
-    const currentUser = await reddit.getCurrentUser().catch(() => {})
+    const currentUser = await reddit.getCurrentUser().catch(() => { })
     const username =
       currentUser?.username ||
-      (await reddit.getCurrentUsername().catch(() => {})) ||
+      (await reddit.getCurrentUsername().catch(() => { })) ||
       'Unknown player'
     const avatarUrl = username
-      ? await reddit.getSnoovatarUrl(username).catch(() => {})
+      ? await reddit.getSnoovatarUrl(username).catch(() => { })
       : undefined
 
     const leaderboardSetKey = leaderboardKey(body.id)
@@ -267,9 +267,9 @@ app.get('/api/leaderboard', async (c) => {
     const metaValues =
       rangeMembers.length > 0
         ? await redis.hMGet(
-            leaderboardDetailsKey,
-            rangeMembers.map((entry) => entry.member)
-          )
+          leaderboardDetailsKey,
+          rangeMembers.map((entry) => entry.member)
+        )
         : []
 
     const entries: LeaderboardEntry[] = rangeMembers.map((entry, index) => {
