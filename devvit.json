@@ -17,7 +17,9 @@
   "permissions": {
     "redis": true,
     "reddit": {
-      "asUser": ["SUBSCRIBE_TO_SUBREDDIT"]
+      "asUser": [
+        "SUBSCRIBE_TO_SUBREDDIT"
+      ]
     }
   },
   "media": {
