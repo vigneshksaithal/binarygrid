@@ -5,7 +5,7 @@
 </script>
 
 <div
-	class="text-primary-green text-sm font-semibold text-left flex items-center gap-2"
+	class="text-sm text-neutral-900 dark:text-neutral-300 font-semibold text-left flex items-center gap-2"
 >
 	<TimerIcon size={24} />
 	{#if $game.status === 'idle'}
