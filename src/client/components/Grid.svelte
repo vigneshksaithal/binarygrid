@@ -11,11 +11,11 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 p-3 bg-zinc-800 text-primary-green rounded-3xl"
+	class="w-full grid grid-cols-6 border-2 border-neutral-800 dark:border-neutral-500 text-lime-900 dark:text-lime-300 divide-x-2 divide-y-2 divide-neutral-800 dark:divide-neutral-500"
 >
 	{#if $game.status === 'solved'}
 		<div
-			class="col-span-6 text-sm text-primary-green mb-2 font-semibold text-center"
+			class="col-span-6 text-sm text-lime-600 dark:text-lime-400 mb-2 font-semibold text-center"
 		>
 			Solved
 		</div>
