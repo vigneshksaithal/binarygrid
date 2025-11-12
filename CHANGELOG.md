@@ -10,6 +10,13 @@
 - Added shadow effects with green glow (`shadow-green-500/50`) for visual depth.
 - Extended the UI store (`src/client/stores/ui.ts`) with `showPlayOverlay`, `openPlayOverlay()`, and `closePlayOverlay()` functions following existing modal state management patterns.
 - Integrated the play overlay into `App.svelte` to display on mount, with the play button triggering overlay dismissal and timer start when clicked.
+- Standardized all green colors across the app to use Tailwind's `green-500`/`green-600` color scheme for consistency with the PlayOverlay button.
+- Updated Button component default variant to use `bg-green-500 dark:bg-green-600` with proper text contrast for both light and dark modes.
+- Updated Cell component fixed cells to use `bg-green-500 dark:bg-green-600` with explicit text colors (`text-neutral-900 dark:text-neutral-100`) for improved contrast and readability.
+- Updated Cell component hover states to use `hover:bg-green-500/10 dark:hover:bg-green-600/10` and focus rings to use `focus:ring-green-500`.
+- Updated Grid component to use Tailwind green colors (`text-green-600 dark:text-green-500`) for grid text, solved status, and loading states.
+- Updated SuccessModal component to use `text-green-500 dark:text-green-400` for all green text elements.
+- Updated LeaderboardModal component to use Tailwind green colors (`green-500`/`green-600`) for borders, backgrounds, text, and loading spinners with proper dark mode support.
 
 ## 2025-11-06
 

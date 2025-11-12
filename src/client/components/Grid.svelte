@@ -11,11 +11,11 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 border-2 border-neutral-800 dark:border-neutral-500 text-lime-900 dark:text-lime-300 divide-x-2 divide-y-2 divide-neutral-800 dark:divide-neutral-500"
+	class="w-full grid grid-cols-6 border-2 border-neutral-800 dark:border-neutral-500 text-green-600 dark:text-green-500 divide-x-2 divide-y-2 divide-neutral-800 dark:divide-neutral-500"
 >
 	{#if $game.status === 'solved'}
 		<div
-			class="col-span-6 text-sm text-lime-600 dark:text-lime-400 mb-2 font-semibold text-center"
+			class="col-span-6 text-sm text-green-500 dark:text-green-400 mb-2 font-semibold text-center"
 		>
 			Solved
 		</div>
@@ -60,7 +60,9 @@
 		</div>
 	{/if}
 	{#if $game.status === 'loading'}
-		<div class="col-span-6 text-sm text-primary-green mt-2 font-medium">
+		<div
+			class="col-span-6 text-sm text-green-500 dark:text-green-400 mt-2 font-medium"
+		>
 			Loading…
 		</div>
 	{/if}

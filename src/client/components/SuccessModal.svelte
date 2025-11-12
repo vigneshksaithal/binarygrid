@@ -63,11 +63,13 @@
 	labelledby="success-modal-title"
 	describedby="success-modal-body"
 >
-	<h2 id="success-modal-title" class="text-primary-green">Congratulations!</h2>
+	<h2 id="success-modal-title" class="text-green-500 dark:text-green-400">
+		Congratulations!
+	</h2>
 	<div id="success-modal-body" class="grid gap-2 text-zinc-100">
 		<h3 class="text-lg font-semibold">
 			You solved the puzzle in
-			<span class="text-primary-green"
+			<span class="text-green-500 dark:text-green-400"
 				>{formatElapsedTime($elapsedSeconds)}</span
 			>.
 		</h3>
@@ -78,7 +80,7 @@
 	<footer class="flex justify-end gap-4">
 		<button
 			type="button"
-			class="text-sm font-medium text-zinc-300 hover:text-primary-green transition-colors"
+			class="text-sm font-medium text-zinc-300 hover:text-green-500 dark:hover:text-green-400 transition-colors"
 			onclick={closeSuccessModal}
 		>
 			Back

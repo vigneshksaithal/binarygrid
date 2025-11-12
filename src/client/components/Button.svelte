@@ -24,7 +24,7 @@
 
 	const variantClasses = {
 		default:
-			'bg-green-900 text-green-500 shadow-md hover:bg-green-900/90 focus-visible:ring-green-500 shadow-md disabled:bg-green-900/50 disabled:text-green-700 disabled:shadow-none',
+			'bg-green-500 dark:bg-green-600 text-neutral-900 dark:text-neutral-100 shadow-md hover:bg-green-600 dark:hover:bg-green-500 focus-visible:ring-green-500 shadow-md disabled:bg-green-500/50 dark:disabled:bg-green-600/50 disabled:text-neutral-600 dark:disabled:text-neutral-400 disabled:shadow-none',
 		destructive:
 			'bg-red-900 text-red-100 shadow-md hover:bg-red-900/85 focus-visible:ring-red-500 disabled:bg-red-900/60 disabled:text-red-600 disabled:shadow-none',
 		secondary:

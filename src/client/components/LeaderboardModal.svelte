@@ -78,7 +78,7 @@
 				aria-live="polite"
 			>
 				<div
-					class="size-6 rounded-full border-2 border-primary-green border-t-transparent animate-spin"
+					class="size-6 rounded-full border-2 border-green-500 dark:border-green-400 border-t-transparent animate-spin"
 					aria-hidden="true"
 				></div>
 				<p class="text-sm">Loading leaderboard…</p>
@@ -99,20 +99,22 @@
 					<ol class="space-y-1">
 						{#each state.entries as entry (entry.userId)}
 							<li
-								class={`flex items-center gap-3 rounded-lg border border-transparent bg-zinc-800/80 transition-colors hover:border-primary-green/40 ${
+								class={`flex items-center gap-3 rounded-lg border border-transparent bg-zinc-800/80 transition-colors hover:border-green-500/40 dark:hover:border-green-400/40 ${
 									entry.userId === state.playerEntry?.userId
-										? 'border-primary-green/60 bg-primary-green/10'
+										? 'border-green-500/60 dark:border-green-400/60 bg-green-500/10 dark:bg-green-400/10'
 										: ''
 								}`}
 							>
-								<p class="text-xs truncate font-semibold text-primary-green">
+								<p
+									class="text-xs truncate font-semibold text-green-500 dark:text-green-400"
+								>
 									{formatRankLabel(entry.rank)}
 								</p>
 								{#if entry.avatarUrl}
 									<img
 										alt={`${entry.username}'s avatar`}
 										src={entry.avatarUrl}
-										class="size-8 rounded-full border border-primary-green/60 object-cover"
+										class="size-8 rounded-full border border-green-500/60 dark:border-green-400/60 object-cover"
 										loading="lazy"
 									/>
 								{:else}
@@ -124,7 +126,9 @@
 									</div>
 								{/if}
 								<p class="flex-1 text-xs text-zinc-100">{entry.username}</p>
-								<p class="text-sm font-semibold text-primary-green">
+								<p
+									class="text-sm font-semibold text-green-500 dark:text-green-400"
+								>
 									{formatElapsedTime(Math.round(entry.timeSeconds))}
 								</p>
 							</li>
@@ -134,18 +138,20 @@
 
 				{#if showPlayerSummary()}
 					<div
-						class="rounded-lg border border-primary-green/50 bg-primary-green/10 p-4 text-sm text-zinc-100"
+						class="rounded-lg border border-green-500/50 dark:border-green-400/50 bg-green-500/10 dark:bg-green-400/10 p-4 text-sm text-zinc-100"
 					>
-						<h3 class="text-primary-green">Your ranking</h3>
+						<h3 class="text-green-500 dark:text-green-400">Your ranking</h3>
 						<div class="flex items-center gap-3">
-							<span class="text-sm font-semibold text-primary-green">
+							<span
+								class="text-sm font-semibold text-green-500 dark:text-green-400"
+							>
 								{formatRankLabel(state.playerEntry?.rank ?? 0)}
 							</span>
 							{#if state.playerEntry?.avatarUrl}
 								<img
 									alt="Your avatar"
 									src={state.playerEntry.avatarUrl}
-									class="size-6 rounded-full border border-primary-green/60 object-cover"
+									class="size-6 rounded-full border border-green-500/60 dark:border-green-400/60 object-cover"
 									loading="lazy"
 								/>
 							{:else}
