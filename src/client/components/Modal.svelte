@@ -21,10 +21,10 @@
 
 {#if open}
 	<section
-		class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-300/60 dark:bg-neutral-800/60 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto"
 	>
 		<div
-			class="w-full max-w-sm rounded-3xl bg-zinc-800 shadow-md p-4 sm:p-6 max-h-[min(90dvh,42rem)] overflow-y-auto"
+			class="w-full max-w-sm rounded-xl bg-neutral-200 dark:bg-neutral-700 shadow-md p-4 sm:p-6 max-h-[min(90dvh,42rem)] overflow-y-auto"
 			{role}
 			aria-modal={ariaModal}
 			aria-labelledby={labelledby}
