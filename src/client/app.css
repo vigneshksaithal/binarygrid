@@ -8,8 +8,8 @@
 
 :root {
   /* Primary Colors */
-  --color-primary-green: #14f195;
-  --color-primary-green-rgb: 20 241 149;
+  --color-primary-green: #25f447;
+  --color-primary-green-rgb: 37 244 71;
 
   /* Accent Colors */
   --color-accent-red: #ff4d4d;
@@ -42,36 +42,37 @@
   background-color: rgb(var(--color-primary-green-rgb) / 0.1);
 }
 
-* {
-  box-sizing: border-box;
+@theme {
+  --primary-green: #25f447;
 }
 
 @layer base {
   body {
-    @apply bg-zinc-900 min-h-screen min-w-80 w-full;
+    @apply min-h-screen min-w-80 w-full bg-white dark:bg-black;
   }
 
+
   h1 {
-    @apply text-3xl font-semibold tracking-wide text-slate-300 mb-4;
+    @apply text-3xl font-semibold tracking-wide text-neutral-900 dark:text-neutral-300 mb-4;
   }
 
   h2 {
-    @apply text-2xl font-semibold tracking-wide text-slate-300 mb-3;
+    @apply text-2xl font-semibold tracking-wide text-neutral-900 dark:text-neutral-300 mb-3;
   }
 
   h3 {
-    @apply text-xl font-semibold tracking-wide text-slate-300 mb-2;
+    @apply text-xl font-semibold tracking-wide text-neutral-900 dark:text-neutral-300 mb-2;
   }
 
   p {
-    @apply text-base text-slate-300 mb-2;
+    @apply text-base text-neutral-900 dark:text-neutral-300 mb-2;
   }
 
   ul {
-    @apply text-sm list-disc list-inside text-slate-300 mb-2;
+    @apply text-sm list-disc list-inside text-neutral-900 dark:text-neutral-300 mb-2;
   }
 
   ol {
-    @apply text-sm list-decimal list-inside text-slate-300 mb-2;
+    @apply text-sm list-decimal list-inside text-neutral-900 dark:text-neutral-300 mb-2;
   }
 }
