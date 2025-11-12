@@ -30,7 +30,6 @@
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.4",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^24.10.0",
