@@ -14,3 +14,8 @@ export const showLeaderboardModal = writable(false)
 
 export const openLeaderboardModal = () => showLeaderboardModal.set(true)
 export const closeLeaderboardModal = () => showLeaderboardModal.set(false)
+
+export const showPlayOverlay = writable(false)
+
+export const openPlayOverlay = () => showPlayOverlay.set(true)
+export const closePlayOverlay = () => showPlayOverlay.set(false)

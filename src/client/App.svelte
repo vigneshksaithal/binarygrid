@@ -6,12 +6,18 @@
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
 	import LeaderboardModal from './components/LeaderboardModal.svelte'
+	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { loadPuzzle } from './stores/game'
-	import { openHowToModal, openLeaderboardModal } from './stores/ui'
+	import {
+		openHowToModal,
+		openLeaderboardModal,
+		openPlayOverlay,
+	} from './stores/ui'
 
 	onMount(() => {
+		openPlayOverlay()
 		loadPuzzle('easy')
 	})
 </script>
@@ -40,6 +46,7 @@
 	<Grid />
 </main>
 
+<PlayOverlay />
 <HowToPlayModal />
 <SuccessModal />
 <LeaderboardModal />

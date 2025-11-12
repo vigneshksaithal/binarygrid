@@ -1,5 +1,16 @@
 # Changelog
 
+## 2025-11-12
+
+- Added a custom play overlay that appears on initial app load with a large, bouncing "PLAY" button and blurred background.
+- Created `PlayOverlay.svelte` component with a custom large button (not using Modal component) featuring Tailwind green colors and smooth bounce animation.
+- Added blurred background overlay using Tailwind's `backdrop-blur-md` utility with semi-transparent backgrounds for both light and dark modes.
+- Implemented Tailwind's built-in `animate-bounce` animation for the play button instead of custom CSS keyframes.
+- Styled the play button with Tailwind green colors (`bg-green-500`/`bg-green-600`) with proper dark mode support and hover effects.
+- Added shadow effects with green glow (`shadow-green-500/50`) for visual depth.
+- Extended the UI store (`src/client/stores/ui.ts`) with `showPlayOverlay`, `openPlayOverlay()`, and `closePlayOverlay()` functions following existing modal state management patterns.
+- Integrated the play overlay into `App.svelte` to display on mount, with the play button triggering overlay dismissal and timer start when clicked.
+
 ## 2025-11-06
 
 - Added a `daily-post` cron entry (`0 14 * * *`) in `devvit.json` so Devvit automatically calls `/internal/schedule/daily` right at 9:00 AM US Eastern (14:00 UTC) each day.

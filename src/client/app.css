@@ -24,6 +24,10 @@
   color: var(--color-primary-green);
 }
 
+.bg-primary-green {
+  background-color: var(--color-primary-green);
+}
+
 .text-error {
   color: var(--color-accent-red);
 }
