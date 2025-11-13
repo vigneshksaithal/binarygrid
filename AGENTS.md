@@ -18,11 +18,11 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 - Tailwind CSS (v4) — CSS framework
 - Lucide Svelte — Icon library
 
->**IMPORTANT NOTE:**
->For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
+> **IMPORTANT NOTE:**
+> For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
 >
-> - Use Svelte v5 runes syntax ONLY.
-> - Use Tailwind CSS v4 syntax ONLY.
+> Use Svelte v5 runes syntax ONLY.
+> Use Tailwind CSS v4 syntax ONLY.
 
 ### Backend
 
