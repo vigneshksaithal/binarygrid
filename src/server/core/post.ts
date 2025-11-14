@@ -9,11 +9,6 @@ export const createPost = async (difficulty: Difficulty = 'easy') => {
   }
 
   const post = await reddit.submitCustomPost({
-    splash: {
-      backgroundUri: 'splash-screen.png',
-      buttonLabel: 'PLAY NOW',
-      appIconUri: 'icon-512.png'
-    },
     subredditName,
     title: `Binary Grid - ${new Date().toISOString().split('T')[0]}`
   })
