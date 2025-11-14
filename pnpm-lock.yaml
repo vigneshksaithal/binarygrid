@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@devvit/web':
-        specifier: 0.12.1
-        version: 0.12.1(twirp-ts@2.5.0)
+        specifier: 0.12.2
+        version: 0.12.2(twirp-ts@2.5.0)
       '@hono/node-server':
         specifier: ^1.19.6
         version: 1.19.6(hono@4.10.5)
@@ -25,7 +25,7 @@ importers:
         version: 1.9.4
       devvit:
         specifier: 0.12.1
-        version: 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(@devvit/shared@0.12.1(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3)
+        version: 0.12.1(@devvit/server@0.12.2(twirp-ts@2.5.0))(@devvit/shared@0.12.2(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3)
       hono:
         specifier: ^4.10.5
         version: 4.10.5
@@ -107,24 +107,30 @@ packages:
       '@devvit/server': '*'
       '@devvit/shared': '*'
 
-  '@devvit/cache@0.12.1':
-    resolution: {integrity: sha512-kOU/t58PmtJK7vsQulT1fOiN+6GA4nH7rg5r41nwubxIbE/QF+l9aDmWJ8o1Y56inscVPoTtkgarba63+7bg0w==}
+  '@devvit/cache@0.12.2':
+    resolution: {integrity: sha512-0GsxqcKh1Wf/8VsNctTarcnVc5KkMS8naSKtgRNv4qiYKRcDCBzyypHQs0UP2EoCftVEwEB8yz2WIZc1TIqiFw==}
 
   '@devvit/cli@0.12.1':
     resolution: {integrity: sha512-gXFqG7MmXxlNCz/WZus5ytxQpCbu6PLg1d1bLZTTkumKeuPzrlfE9Wq09RmiTrlp6GN4hXQgsXMdXTBXa7ojIg==}
     engines: {node: '>=20'}
     hasBin: true
 
-  '@devvit/client@0.12.1':
-    resolution: {integrity: sha512-MXo7Xj1jnIiT24B+O5LK+58vzK6avYgVRbWTv5FevDMKo4sX36J5MVu7MST5dXanqrqIFOa3iUjygvatieQp0w==}
+  '@devvit/client@0.12.2':
+    resolution: {integrity: sha512-OUFdO1fPDYnHYKjpf/oh1D+QMJ5FrgXJDD74J1O4lIOGTcETSDAiH5ffGPrhtVb87qrVZPE9pjgabD0MgIy8HQ==}
 
-  '@devvit/media@0.12.1':
-    resolution: {integrity: sha512-rViD2GZ9583UEYnkADyZGT2aBj62QOX3btAKkQPQFNYjd0683XbmCkSoLtFO/iSEbzGF5c3kvuQT/5ixSPvZpA==}
+  '@devvit/media@0.12.2':
+    resolution: {integrity: sha512-n8hRTDTZbS/lFqzCbotWErX6MsGbYG+2dDu+5W3gxBx4BFbFyjnOBgfJPf31JWr3+84pN02mgpdGpKpRYw9y3A==}
     peerDependencies:
       '@devvit/server': '*'
 
   '@devvit/metrics@0.12.1':
     resolution: {integrity: sha512-5zH3rKsGVTJJhViA4ERhF7ngbAbjYFh/hXxS2xdQzHAs1N4BJ9EtIz6iBFU/R8GNCRQYzNp04rjJTRGpTjWgaA==}
+
+  '@devvit/metrics@0.12.2':
+    resolution: {integrity: sha512-tx2+YJPdV9D9xRnvXcpFsfrvkmT4o9OzIz9ybVwNhQ6r+69tGKLXpNxDk2AdiWtoL8lUy9lCI5NUxgBv/N9vHw==}
+
+  '@devvit/payments@0.12.2':
+    resolution: {integrity: sha512-YgODiSmSKKaxAbqNUof0V4Uo1cRA7RlIvDZfX6bxFHyQcS1Ybqf3KAisK72dDmNkLDOOIkFbsjqv2GlQ4aS1EA==}
 
   '@devvit/protos@0.12.1':
     resolution: {integrity: sha512-arrHyQ17peG/IsQpYw0tCvcidsk/A/PqjO6ewphrLtDFUem7Y9C1tPkt4DJFWd124KtJVKp8m6sHck87KufZmQ==}
@@ -134,49 +140,69 @@ packages:
       twirp-ts:
         optional: true
 
+  '@devvit/protos@0.12.2':
+    resolution: {integrity: sha512-z9hvNwPzZeQe9o/MFgXlSjOfRLieZayuDC7Kqjhpbx9DAThrcMIaE68/2UEpl8wl/pk+VbtT5lpJBB5jOhaQaw==}
+    peerDependencies:
+      twirp-ts: ^2.5.0
+    peerDependenciesMeta:
+      twirp-ts:
+        optional: true
+
   '@devvit/public-api@0.12.1':
     resolution: {integrity: sha512-0cw0GJaEY8W8iPONakPqMGvQ3fu5IUQUMkDNCUiSo1sCpFXWmD8rMLJhe/OcPWVIqimp8NAA7Nh5Eo7Hg78r/w==}
 
-  '@devvit/realtime@0.12.1':
-    resolution: {integrity: sha512-JweHlqCwRVKyWebK9VfgeT6hCUTNkT1bNfMHBczCq0kdOioZ3hMHZbCfpUiXTKeL/I89EVlkSFp5IpamHsCmLA==}
+  '@devvit/public-api@0.12.2':
+    resolution: {integrity: sha512-Ivtlpf9mt4LhgIoN8l4lSz5QG5n2SLUt4NCn07/KKz1B73mMsFglUM6tx7GbqOTx6wpgkVgj/bSUja/K7VikVg==}
+
+  '@devvit/realtime@0.12.2':
+    resolution: {integrity: sha512-HF9wpd/dNT4Rfpzm9QojBU8yBKF+jyZNIQV1NMV331Ru7TjYeRkk68Sp5WovRTbcewUmpO4Qez8WexBRauJddQ==}
     peerDependencies:
       '@devvit/client': '*'
       '@devvit/server': '*'
 
-  '@devvit/reddit@0.12.1':
-    resolution: {integrity: sha512-WTMdTiw+6tpWC3yKt4UyPUndvqudS9obur3/uXoZZyVoS6IbkgnznSFUBWBJb7Uz2ePhdFeVh0bOgpODDewf8g==}
+  '@devvit/reddit@0.12.2':
+    resolution: {integrity: sha512-xo9E41l4w+yL/VtF1VPeEO3JnZiw4kNS1QSZYemWa1UD7XZPkzYvfIMSaDJuQAhI17qMgrf/shb5my/1GnfhYg==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/redis@0.12.1':
-    resolution: {integrity: sha512-4rCIebRx50j2qqWWhCewUj4N+/4OkBD4VGhzsINGSqnkP74g+SH2YQmBaR/UlxRJmH6BrxLzeoohp4Jabx7e9A==}
+  '@devvit/redis@0.12.2':
+    resolution: {integrity: sha512-kvzfbS3tKQ590KDxIy38+ExxuFxPgrlXrfUOrt4rtM/OgW5BBeCCXdIszLX2ivudaPRvc2aBBOg+0hxjWfA9IA==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/scheduler@0.12.1':
-    resolution: {integrity: sha512-6j2445fP5GKZsiHztir5qxeQSbAdEKzaQ20a2nB3lrzhusce1VQ6PlUWnCMSZPHf6ohfXatg27bbIrrd1JHgcw==}
+  '@devvit/scheduler@0.12.2':
+    resolution: {integrity: sha512-+CIkaabyqnw0tvAcXZzPX3o19MLxxvKkxzrCB/MBGbcNvHokIuBHPpep1zq/dS16+mbquBIE+wrSiswO2kmKGg==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/server@0.12.1':
-    resolution: {integrity: sha512-7GOp1jRh2m4CR0+8p72CGkhbGgELmXjsko5zPSF3zcwq3Da/caz9Nce0b7OrsBUUiwtMXFqg2LLcZH8OmmRM9Q==}
+  '@devvit/server@0.12.2':
+    resolution: {integrity: sha512-1T92DKDcTswyHObUCjtRd5quZpC23moiMp4QkWvmeyeZnC3DOxqc6CBXgb6LuYsHJmH/6k9MNRebGZBBqC69Yw==}
 
-  '@devvit/settings@0.12.1':
-    resolution: {integrity: sha512-3SrgxqKX0aJR94/aR9xoeH18GseILeGqxs3cWb7UYHptbrRvfwV+WW+XWyG/jRH393dsEj2BN3kt+sEJlpacog==}
+  '@devvit/settings@0.12.2':
+    resolution: {integrity: sha512-NMH1N3An0M8q3vlTh56/0ZpDr9uGFoGG7dK7TuApyBPCqg6WcNYLjuKurlnMaU+rchmNZWM1TfQGVdCljq9BHg==}
     peerDependencies:
       '@devvit/server': '*'
 
   '@devvit/shared-types@0.12.1':
     resolution: {integrity: sha512-yJMzAjqYO6ILg4E/11aQhbj2Wpdw2lRArHrIWYd1LhAjYfpSBgtSJ3JLkv0gRajnXc1ciApPYiPJ8lHAYM85vg==}
 
+  '@devvit/shared-types@0.12.2':
+    resolution: {integrity: sha512-/syBux+GeqqX9gx68xhQLDCiSTwG9vfjsMdVhcn6ZzyVqGsbwHf10PT0hT3wCJF/56tThZ8xsnY/hF8pSWgdLQ==}
+
   '@devvit/shared@0.12.1':
     resolution: {integrity: sha512-cyMlMqX77ab7fRoCz7NJm4UM52AGSDT/nilSgoj+yPtSoVmE/bWRZay532D5PESeCZFAipPPkNVT5tCZx1wLJg==}
+
+  '@devvit/shared@0.12.2':
+    resolution: {integrity: sha512-JvDRx3leqhbvl0h32gBGlTgCYV1tZQDR+ZTcKYnvM8nu45Wc6TQNOntjwefNzsK1FVKKN7xtKpeQdW4ylkt4uQ==}
 
   '@devvit/splash@0.12.1':
     resolution: {integrity: sha512-/UTcl69ChzAV7lV0o1AH9UEFmErUY1+HbuTt2o+xC8ooJPZzVgD1jr5O58dOm8xs8qL1GFBo1nTq7buanbU3RQ==}
 
-  '@devvit/web@0.12.1':
-    resolution: {integrity: sha512-2rWT1IcOW/qJs1CxDe0svMJrIHn7gtF9logj9MTlIvIaqjRDfjjDwrAc/Om4S1xSUgrkSmJCUVdjQWWZnMBaNA==}
+  '@devvit/splash@0.12.2':
+    resolution: {integrity: sha512-tVAVQ36n9RFiAK5p/cXpn4vxwOAy438N9dcCViQ7PjQlz5Y2c50m/Xr1oUIydDJHTDmfE29h7f02H8dFe7z0Nw==}
+
+  '@devvit/web@0.12.2':
+    resolution: {integrity: sha512-3z0Y3vWg3sqSs6Fw846VlEeGZkwYNL1Aq6K5iF4UuoYziC/dTquNbhVhhX/xBH358duxU417/0kCtIvDAeKyDA==}
 
   '@emnapi/core@1.7.0':
     resolution: {integrity: sha512-pJdKGq/1iquWYtv1RRSljZklxHCOCAJFJrImO5ZLKPJVJlVUcs8yFwNQlqS0Lo8xT1VAXXTCZocF9n26FWEKsw==}
@@ -2688,11 +2714,11 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@devvit/build-pack@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(@devvit/shared@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/build-pack@0.12.1(@devvit/server@0.12.2(twirp-ts@2.5.0))(@devvit/shared@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
       '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
       '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
       '@devvit/splash': 0.12.1(twirp-ts@2.5.0)
       esbuild: 0.25.9
@@ -2702,17 +2728,17 @@ snapshots:
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/cache@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/cache@0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/redis': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/redis': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - '@devvit/server'
       - twirp-ts
 
-  '@devvit/cli@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(@devvit/shared@0.12.1(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3)':
+  '@devvit/cli@0.12.1(@devvit/server@0.12.2(twirp-ts@2.5.0))(@devvit/shared@0.12.2(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3)':
     dependencies:
-      '@devvit/build-pack': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(@devvit/shared@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/build-pack': 0.12.1(@devvit/server@0.12.2(twirp-ts@2.5.0))(@devvit/shared@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
       '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
       '@devvit/public-api': 0.12.1(twirp-ts@2.5.0)
       '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
@@ -2758,18 +2784,18 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@devvit/client@0.12.1(twirp-ts@2.5.0)':
+  '@devvit/client@0.12.2(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/media@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/media@0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
@@ -2779,7 +2805,29 @@ snapshots:
     transitivePeerDependencies:
       - twirp-ts
 
+  '@devvit/metrics@0.12.2(twirp-ts@2.5.0)':
+    dependencies:
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+    transitivePeerDependencies:
+      - twirp-ts
+
+  '@devvit/payments@0.12.2(twirp-ts@2.5.0)':
+    dependencies:
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
+    transitivePeerDependencies:
+      - twirp-ts
+
   '@devvit/protos@0.12.1(twirp-ts@2.5.0)':
+    dependencies:
+      protobufjs: 7.5.4
+      rxjs: 7.8.1
+    optionalDependencies:
+      twirp-ts: 2.5.0
+
+  '@devvit/protos@0.12.2(twirp-ts@2.5.0)':
     dependencies:
       protobufjs: 7.5.4
       rxjs: 7.8.1
@@ -2798,65 +2846,85 @@ snapshots:
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/realtime@0.12.1(@devvit/client@0.12.1(twirp-ts@2.5.0))(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/public-api@0.12.2(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/client': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/metrics': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
+      base64-js: 1.5.1
+      clone-deep: 4.0.1
+      moderndash: 4.0.0
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/reddit@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/realtime@0.12.2(@devvit/client@0.12.2(twirp-ts@2.5.0))(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/public-api': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/splash': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/client': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/redis@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/reddit@0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/splash': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/scheduler@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/redis@0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/server@0.12.1(twirp-ts@2.5.0)':
+  '@devvit/scheduler@0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/public-api': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/settings@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/server@0.12.2(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
+    transitivePeerDependencies:
+      - twirp-ts
+
+  '@devvit/settings@0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+    dependencies:
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
   '@devvit/shared-types@0.12.1(twirp-ts@2.5.0)':
     dependencies:
       '@devvit/protos': 0.12.1(twirp-ts@2.5.0)
+      jsonschema: 1.4.1
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - twirp-ts
+
+  '@devvit/shared-types@0.12.2(twirp-ts@2.5.0)':
+    dependencies:
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
       jsonschema: 1.4.1
       uuid: 9.0.0
     transitivePeerDependencies:
@@ -2869,24 +2937,38 @@ snapshots:
     transitivePeerDependencies:
       - twirp-ts
 
+  '@devvit/shared@0.12.2(twirp-ts@2.5.0)':
+    dependencies:
+      '@devvit/protos': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.2(twirp-ts@2.5.0)
+    transitivePeerDependencies:
+      - twirp-ts
+
   '@devvit/splash@0.12.1(twirp-ts@2.5.0)':
     dependencies:
       '@devvit/public-api': 0.12.1(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/web@0.12.1(twirp-ts@2.5.0)':
+  '@devvit/splash@0.12.2(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/cache': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/client': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/media': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/realtime': 0.12.1(@devvit/client@0.12.1(twirp-ts@2.5.0))(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/reddit': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/redis': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/scheduler': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.1(twirp-ts@2.5.0)
-      '@devvit/settings': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.1(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.2(twirp-ts@2.5.0)
+    transitivePeerDependencies:
+      - twirp-ts
+
+  '@devvit/web@0.12.2(twirp-ts@2.5.0)':
+    dependencies:
+      '@devvit/cache': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/client': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/media': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/payments': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/realtime': 0.12.2(@devvit/client@0.12.2(twirp-ts@2.5.0))(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/reddit': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/redis': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/scheduler': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.2(twirp-ts@2.5.0)
+      '@devvit/settings': 0.12.2(@devvit/server@0.12.2(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.2(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
@@ -3814,9 +3896,9 @@ snapshots:
 
   detect-libc@2.1.2: {}
 
-  devvit@0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(@devvit/shared@0.12.1(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3):
+  devvit@0.12.1(@devvit/server@0.12.2(twirp-ts@2.5.0))(@devvit/shared@0.12.2(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3):
     dependencies:
-      '@devvit/cli': 0.12.1(@devvit/server@0.12.1(twirp-ts@2.5.0))(@devvit/shared@0.12.1(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3)
+      '@devvit/cli': 0.12.1(@devvit/server@0.12.2(twirp-ts@2.5.0))(@devvit/shared@0.12.2(twirp-ts@2.5.0))(@types/node@24.10.1)(google-protobuf@3.21.4)(typescript@5.9.3)
     transitivePeerDependencies:
       - '@devvit/server'
       - '@devvit/shared'
@@ -4203,7 +4285,7 @@ snapshots:
       mute-stream: 0.0.8
       ora: 6.3.1
       run-async: 2.4.1
-      rxjs: 7.8.1
+      rxjs: 7.8.2
       string-width: 5.1.2
       strip-ansi: 7.1.2
       through: 2.3.8
