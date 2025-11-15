@@ -29,7 +29,7 @@
     "@tailwindcss/vite": "^4.1.17",
     "canvas-confetti": "^1.9.4",
     "devvit": "0.12.2",
-    "hono": "^4.10.5",
+    "hono": "^4.10.6",
     "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
