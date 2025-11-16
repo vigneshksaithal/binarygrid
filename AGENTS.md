@@ -19,10 +19,9 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 - Lucide Svelte — Icon library
 
 > **IMPORTANT NOTE:**
-> For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
->
-> Use Svelte v5 runes syntax ONLY.
-> Use Tailwind CSS v4 syntax ONLY.
+> - For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
+> - Use Svelte v5 runes syntax ONLY.
+> - Use Tailwind CSS v4 syntax ONLY.
 
 ### Backend
 
@@ -40,7 +39,6 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 - Vite — Build tool
 - Pnpm — Package manager
 - Biome JS — Linter and formatter
-- Ultracite — Linter and formatter
 
 ---
 
@@ -90,13 +88,16 @@ src/
   server/         # Hono external API service (serverless backend in Node.js, with Redis access)
   shared/         # Shared code for devvit app, client, server, and webview (e.g., shared types)
 devvit.json       # Devvit config
+CHANGELOG.md      # Changelog
 ```
 
 ---
 
 ## Guiding Principles
 
-- Follow DRY (Don't Repeat Yourself) principles. Keep code simple and intention-revealing. Small functions, clear names, no duplication, and it passes tests.
+- Follow DRY (Don't Repeat Yourself) principles.
+- Keep code simple and intention-revealing. 
+- Keep functions small (SHOULD target <= 20–30 lines) and single-purpose.
 - Make code review a first-class practice. Optimize for readability, small CLs, and respectful, actionable feedback.
 - Consistency: Maintain a unified design system (color tokens, typography, spacing, components).
 - Simplicity: Prefer small, focused components and avoid unnecessary complexity.
@@ -136,8 +137,6 @@ pnpm fix            # Format and lint code
 
 ### General
 
-- Follow the DRY (Don't Repeat Yourself) principles.
-- Keep functions small (SHOULD target <= 20–30 lines) and single-purpose.
 - Omit semicolons unless syntactically required.
 - Favor functional programming patterns over object-oriented programming patterns.
 - Sort imports: packages, shared modules, then relative paths.
@@ -148,11 +147,13 @@ pnpm fix            # Format and lint code
 ### Svelte
 
 - Svelte components: PascalCase filenames, export props via `$props()` rune, keep markup declarative.
-- Favor Tailwind utility classes and existing design tokens.
 - Create reusable components in `src/client/components` before duplicating markup.
-- Use Tailwind CSS classes and existing design tokens. **DO NOT use style blocks in Svelte components unless absolutely necessary.**
 - Use arrow functions for all functions.
 - Write short, focused components with a single responsibility.
+
+> **IMPORTANT:**
+> - DO NOT use style blocks in Svelte components unless absolutely necessary.
+> - Use Tailwind CSS classes and existing design tokens.
 
 ### Server
 
@@ -176,7 +177,8 @@ pnpm fix            # Format and lint code
 Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 
 > **IMPORTANT:**
-> This is a serverless runtime (like AWS Lambda); do not run SQLite or stateful in-memory processes. For real-time use cases, see `devvit_search` docs regarding the real-time service.
+> This is a serverless runtime (like AWS Lambda); do not run SQLite or stateful in-memory processes. 
+> For real-time use cases, see `devvit_search` docs regarding the real-time service.
 
 ---
 
@@ -192,6 +194,7 @@ Follow the following workflow:
 
 - Begin with a concise checklist (3–7 bullets) of what you will do; keep items conceptual, not implementation-level.
 - Read the code; DO NOT begin coding immediately.
+- Proceed to code ONLY if you are >90% sure about the approach.
 - Plan your approach; write a detailed plan of what you will do.
 - Ask questions if unclear — **DO NOT ASSUME**.
 - Break tasks into smaller steps.
@@ -236,7 +239,7 @@ Follow the following workflow:
 
 ---
 
-## Ultracite Linter and Formatter Rules
+## Linter and Formatter Rules
 
 ### Before Writing Code
 
