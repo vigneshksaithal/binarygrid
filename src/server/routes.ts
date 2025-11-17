@@ -1,4 +1,4 @@
-import { context, reddit, redis } from '@devvit/web/server'
+import { cache, context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import type {
   LeaderboardEntry,
@@ -19,6 +19,7 @@ const DEFAULT_DIFFICULTY: Difficulty = 'medium'
 const DIFFICULTY_VALUES = ['easy', 'medium', 'hard']
 const LEADERBOARD_DEFAULT_PAGE_SIZE = 10
 const LEADERBOARD_MAX_PAGE_SIZE = 50
+const CACHE_TTL_ONE_DAY = 86400
 
 type StoredLeaderboardMeta = {
   username: string
@@ -121,7 +122,13 @@ app.get('/api/puzzle', async (c) => {
     if (!puzzle) {
       const date = resolveDate(c.req.query('date') ?? null)
       const difficulty = 'easy'
-      puzzle = generateDailyPuzzle(date, difficulty)
+      puzzle = await cache(
+        async () => generateDailyPuzzle(date, difficulty),
+        {
+          key: `puzzle:cache:${date}:${difficulty}`,
+          ttl: CACHE_TTL_ONE_DAY
+        }
+      )
     }
 
     return c.json({ puzzle })
