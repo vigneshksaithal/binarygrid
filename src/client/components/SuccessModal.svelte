@@ -10,6 +10,9 @@
 	import Modal from './Modal.svelte'
 
 	let isJoining = $state(false)
+	let isCommenting = $state(false)
+	let commentError = $state<string | null>(null)
+	let commentSuccess = $state(false)
 
 	const viewLeaderboard = () => {
 		closeSuccessModal()
@@ -35,6 +38,38 @@
 			console.error('Failed to join subreddit', error)
 		} finally {
 			isJoining = false
+		}
+	}
+
+	const commentScore = async () => {
+		if (isCommenting) {
+			return
+		}
+		isCommenting = true
+		commentError = null
+		commentSuccess = false
+
+		try {
+			const res = await fetch('/api/comment-score', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					solveTimeSeconds: $elapsedSeconds,
+				}),
+			})
+
+			if (res.ok) {
+				commentSuccess = true
+			} else {
+				const data = await res.json().catch(() => ({}))
+				commentError = data.error || 'Failed to post comment'
+			}
+		} catch (error) {
+			commentError = 'Failed to post comment. Please try again.'
+			// biome-ignore lint/suspicious/noConsole: we want to log the error
+			console.error('Failed to post comment', error)
+		} finally {
+			isCommenting = false
 		}
 	}
 
@@ -73,6 +108,25 @@
 				>{formatElapsedTime($elapsedSeconds)}</span
 			>.
 		</h3>
+		<div class="flex justify-center my-4">
+			<Button onClick={commentScore} disabled={isCommenting}>
+				{#if isCommenting}
+					Posting…
+				{:else}
+					Comment Score
+				{/if}
+			</Button>
+		</div>
+		{#if commentError}
+			<p class="text-sm text-red-500 dark:text-red-400 mb-2">
+				{commentError}
+			</p>
+		{/if}
+		{#if commentSuccess}
+			<p class="text-sm text-green-500 dark:text-green-400 mb-2">
+				Comment posted successfully!
+			</p>
+		{/if}
 		<p class="text-sm text-zinc-300 mb-6">
 			Join r/binarygrid for daily challenges.
 		</p>

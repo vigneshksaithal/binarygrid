@@ -96,6 +96,61 @@ app.post('/api/join-subreddit', async (c) => {
   }
 })
 
+// Format elapsed time in MM:SS format
+const formatElapsedTime = (elapsed: number): string => {
+  const minutes = Math.floor(elapsed / 60)
+  const seconds = elapsed % 60
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+// Comment score endpoint
+app.post('/api/comment-score', async (c) => {
+  const body = await c.req
+    .json<{ solveTimeSeconds: number }>()
+    .catch(() => null)
+  if (!body || typeof body.solveTimeSeconds !== 'number') {
+    return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
+  }
+
+  const solveTimeSeconds = Number(body.solveTimeSeconds)
+  if (!Number.isFinite(solveTimeSeconds) || solveTimeSeconds < 0) {
+    return c.json({ error: 'invalid solve time' }, HTTP_BAD_REQUEST)
+  }
+
+  const { postId, userId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+  if (!userId) {
+    return c.json({ error: 'login required' }, HTTP_BAD_REQUEST)
+  }
+
+  try {
+    const formattedTime = formatElapsedTime(solveTimeSeconds)
+    const commentText = `I solved today's Binary Grid puzzle in ${formattedTime}!`
+
+    // Ensure postId has t3_ prefix for Reddit API
+    const postIdWithPrefix = postId.startsWith('t3_')
+      ? (postId as `t3_${string}`)
+      : (`t3_${postId}` as `t3_${string}`)
+
+    await reddit.submitComment({
+      id: postIdWithPrefix,
+      text: commentText,
+      runAs: 'USER'
+    })
+
+    return c.json({ ok: true })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to post comment: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
 // Get puzzle for the current post
 app.get('/api/puzzle', async (c) => {
   try {

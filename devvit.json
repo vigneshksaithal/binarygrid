@@ -18,7 +18,8 @@
     "redis": true,
     "reddit": {
       "asUser": [
-        "SUBSCRIBE_TO_SUBREDDIT"
+        "SUBSCRIBE_TO_SUBREDDIT",
+        "SUBMIT_COMMENT"
       ]
     }
   },
