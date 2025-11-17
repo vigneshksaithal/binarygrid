@@ -3,7 +3,7 @@ import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
-import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
+import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
 type Status =
@@ -100,7 +100,6 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   })
 
   resetTimer()
-  startTimer()
   lastSubmittedPuzzleId = null
 }
 
