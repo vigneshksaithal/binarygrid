@@ -10,7 +10,7 @@ export const createPost = async (difficulty: Difficulty = 'easy') => {
 
   const post = await reddit.submitCustomPost({
     subredditName,
-    title: `Binary Grid - ${new Date().toISOString().split('T')[0]}`
+    title: `Binary Grid: ${new Date().toISOString().split('T')[0]}`
   })
 
   // Generate and store the puzzle for this specific post
