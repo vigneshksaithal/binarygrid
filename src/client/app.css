@@ -7,10 +7,6 @@
  */
 
 :root {
-  /* Primary Colors */
-  --color-primary-green: #25f447;
-  --color-primary-green-rgb: 37 244 71;
-
   /* Accent Colors */
   --color-accent-red: #ff4d4d;
   --color-accent-red-rgb: 255 77 77;
@@ -20,34 +16,12 @@
 }
 
 /* Utility classes using custom properties */
-.text-primary-green {
-  color: var(--color-primary-green);
-}
-
-.bg-primary-green {
-  background-color: var(--color-primary-green);
-}
-
 .text-error {
   color: var(--color-accent-red);
 }
 
 .border-error {
   border-color: var(--color-accent-red);
-}
-
-/* Ring utilities with custom colors */
-.ring-primary-green {
-  --tw-ring-color: rgb(var(--color-primary-green-rgb) / 0.6);
-}
-
-/* Hover state utilities */
-.hover-bg-primary-green-10:hover {
-  background-color: rgb(var(--color-primary-green-rgb) / 0.1);
-}
-
-@theme {
-  --primary-green: #25f447;
 }
 
 @layer base {

@@ -15,9 +15,3 @@ export type LeaderboardResponse = {
   hasPreviousPage: boolean
   playerEntry: LeaderboardEntry | null
 }
-
-export type LeaderboardRequest = {
-  puzzleId: string
-  page?: number
-  pageSize?: number
-}
