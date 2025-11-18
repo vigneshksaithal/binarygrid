@@ -155,10 +155,15 @@ app.post('/api/comment-score', async (c) => {
 app.get('/api/puzzle', async (c) => {
   try {
     const { postId } = context
+    const requestedDifficulty = resolveDifficulty(
+      c.req.query('difficulty') ?? null
+    )
     let puzzle: PuzzleWithGrid | null = null
 
     if (postId) {
-      const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
+      const puzzleData = await redis.hGetAll(
+        `post:${postId}:puzzle:${requestedDifficulty}`
+      )
 
       if (puzzleData?.id) {
         puzzle = {
@@ -176,7 +181,7 @@ app.get('/api/puzzle', async (c) => {
 
     if (!puzzle) {
       const date = resolveDate(c.req.query('date') ?? null)
-      const difficulty = 'easy'
+      const difficulty = requestedDifficulty
       puzzle = await cache(
         async () => generateDailyPuzzle(date, difficulty),
         {
@@ -224,8 +229,24 @@ app.post('/api/submit', async (c) => {
   }
 
   try {
-    // Fetch puzzle from Redis
-    const puzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
+    // Extract difficulty from puzzle ID (format: ${postId}:${difficulty} or ${dateISO}:${difficulty})
+    const puzzleIdParts = body.id.split(':')
+    const lastPart = puzzleIdParts[puzzleIdParts.length - 1]
+    const difficulty =
+      lastPart && isDifficultyValue(lastPart) ? (lastPart as Difficulty) : DEFAULT_DIFFICULTY
+
+    // Fetch puzzle from Redis using new format
+    const puzzleData = await redis.hGetAll(
+      `post:${postId}:puzzle:${difficulty}`
+    )
+
+    // Fallback to old format for backward compatibility
+    if (!puzzleData?.id) {
+      const oldPuzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
+      if (oldPuzzleData?.id) {
+        Object.assign(puzzleData, oldPuzzleData)
+      }
+    }
 
     if (!puzzleData?.id) {
       return c.json(

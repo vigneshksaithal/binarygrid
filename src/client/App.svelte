@@ -9,7 +9,6 @@
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
-	import { loadPuzzle } from './stores/game'
 	import {
 		openHowToModal,
 		openLeaderboardModal,
@@ -18,7 +17,6 @@
 
 	onMount(() => {
 		openPlayOverlay()
-		loadPuzzle('easy')
 	})
 </script>
 

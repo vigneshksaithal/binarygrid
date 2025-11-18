@@ -67,7 +67,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
 
   game.update((s) => ({ ...s, status: 'loading', errors: [] }))
 
-  const res = await fetch('/api/puzzle')
+  const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
 
   if (!res.ok) {
     game.update((s) => ({

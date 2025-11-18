@@ -1,24 +1,47 @@
 <script lang="ts">
+	import type { Difficulty } from '../../shared/types/puzzle'
+	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
 	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
+	import Button from './Button.svelte'
 
-	const handlePlay = () => {
+	const selectDifficulty = async (difficulty: Difficulty) => {
 		closePlayOverlay()
+		await loadPuzzle(difficulty)
 		startTimer()
 	}
 </script>
 
 {#if $showPlayOverlay}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-neutral-100/40 dark:bg-neutral-900/50 backdrop-blur-[0.25px]"
+		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-neutral-900 px-6"
 	>
-		<button
-			type="button"
-			onclick={handlePlay}
-			class="animate-bounce text-xl tracking-wide font-extrabold text-neutral-900 dark:text-neutral-100 bg-green-500/90 dark:bg-green-600/90 border-2 border-green-400/50 dark:border-green-500/50 hover:bg-green-600/95 dark:hover:bg-green-500/95 hover:border-green-400/80 dark:hover:border-green-500/80 hover:scale-105 rounded-full px-6 py-3 shadow-2xl shadow-green-500/30 dark:shadow-green-500/20 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-green-500 focus-visible:ring-offset-4"
-			aria-label="Start playing"
-		>
-			PLAY
-		</button>
+		<h1>Binary Grid</h1>
+		<p class="text-center mb-12">
+			Fill the grid with 0s and 1s,
+			<br />
+			following the rules.
+		</p>
+		<p class="mb-4">Choose Your Difficulty:</p>
+		<div class="flex flex-col gap-4 w-full max-w-3xs">
+			<Button
+				onClick={() => selectDifficulty('easy')}
+				ariaLabel="Easy difficulty"
+			>
+				Easy
+			</Button>
+			<Button
+				onClick={() => selectDifficulty('medium')}
+				ariaLabel="Medium difficulty"
+			>
+				Medium
+			</Button>
+			<Button
+				onClick={() => selectDifficulty('hard')}
+				ariaLabel="Hard difficulty"
+			>
+				Hard
+			</Button>
+		</div>
 	</div>
 {/if}

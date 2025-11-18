@@ -11,7 +11,7 @@ const HTTP_BAD_REQUEST = 400
 
 app.post('/internal/on-app-install', async (c) => {
   try {
-    const post = await createPost('easy')
+    const post = await createPost()
 
     return c.json({
       navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
@@ -29,7 +29,7 @@ app.post('/internal/on-app-install', async (c) => {
 
 app.post('/internal/menu/post-create', async (c) => {
   try {
-    const post = await createPost('easy')
+    const post = await createPost()
 
     return c.json({
       navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
@@ -48,7 +48,7 @@ app.post('/internal/menu/post-create', async (c) => {
 // Scheduler endpoint for daily post creation
 app.post('/internal/schedule/daily', async (c) => {
   try {
-    const post = await createPost('easy')
+    const post = await createPost()
 
     return c.json({
       status: 'ok',
