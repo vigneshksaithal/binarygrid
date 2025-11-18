@@ -6,7 +6,8 @@
     "entrypoints": {
       "default": {
         "entry": "index.html",
-        "inline": true
+        "inline": true,
+        "height": "tall"
       }
     }
   },
