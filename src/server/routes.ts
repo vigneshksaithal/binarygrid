@@ -236,21 +236,24 @@ app.post('/api/submit', async (c) => {
       lastPart && isDifficultyValue(lastPart) ? (lastPart as Difficulty) : DEFAULT_DIFFICULTY
 
     // Fetch puzzle from Redis using new format
-    const puzzleData = await redis.hGetAll(
+    let puzzleData = await redis.hGetAll(
       `post:${postId}:puzzle:${difficulty}`
     )
 
     // Fallback to old format for backward compatibility
-    if (!puzzleData?.id) {
+    // Only use fallback if puzzle ID matches (prevents validating against wrong puzzle)
+    if (!puzzleData?.id || puzzleData.id !== body.id) {
       const oldPuzzleData = await redis.hGetAll(`post:${postId}:puzzle`)
-      if (oldPuzzleData?.id) {
-        Object.assign(puzzleData, oldPuzzleData)
+      // Verify the old puzzle ID matches the submission ID before using it
+      if (oldPuzzleData?.id && oldPuzzleData.id === body.id) {
+        puzzleData = oldPuzzleData
       }
     }
 
-    if (!puzzleData?.id) {
+    // Verify puzzle ID matches submission ID to prevent validating against wrong puzzle
+    if (!puzzleData?.id || puzzleData.id !== body.id) {
       return c.json(
-        { error: 'Puzzle not found for this post' },
+        { error: 'Puzzle not found or puzzle ID mismatch' },
         HTTP_BAD_REQUEST
       )
     }
