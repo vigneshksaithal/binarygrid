@@ -113,7 +113,7 @@
 				{#if isCommenting}
 					Posting…
 				{:else}
-					Comment Score
+					Comment Result
 				{/if}
 			</Button>
 		</div>
