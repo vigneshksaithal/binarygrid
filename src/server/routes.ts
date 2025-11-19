@@ -191,6 +191,15 @@ app.get('/api/puzzle', async (c) => {
       )
     }
 
+    // Increment play count for this post if postId exists
+    if (postId) {
+      try {
+        await redis.incrBy(`playCount:${postId}`, 1)
+      } catch {
+        // Ignore errors - play count tracking is best effort
+      }
+    }
+
     return c.json({ puzzle })
   } catch (error) {
     const errorMessage =
@@ -199,6 +208,23 @@ app.get('/api/puzzle', async (c) => {
       { error: `Failed to fetch puzzle: ${errorMessage}` },
       HTTP_BAD_REQUEST
     )
+  }
+})
+
+app.get('/api/play-count', async (c) => {
+  try {
+    const { postId } = context
+    if (!postId) {
+      return c.json({ count: 0 })
+    }
+
+    const countStr = await redis.get(`playCount:${postId}`)
+    const count = countStr ? Number.parseInt(countStr, DECIMAL_RADIX) : 0
+
+    return c.json({ count: Number.isNaN(count) ? 0 : count })
+  } catch (error) {
+    // Return 0 on error - play count is best effort
+    return c.json({ count: 0 })
   }
 })
 

@@ -5,10 +5,36 @@
 	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
 	import Button from './Button.svelte'
 
+	let playCount = $state<number | null>(null)
+
 	const selectDifficulty = async (difficulty: Difficulty) => {
 		closePlayOverlay()
 		await loadPuzzle(difficulty)
 		startTimer()
+	}
+
+	const fetchPlayCount = async () => {
+		try {
+			const res = await fetch('/api/play-count')
+			if (res.ok) {
+				const data = await res.json()
+				playCount = data.count ?? 0
+			} else {
+				playCount = 0
+			}
+		} catch {
+			playCount = 0
+		}
+	}
+
+	$effect(() => {
+		if ($showPlayOverlay) {
+			fetchPlayCount()
+		}
+	})
+
+	const formatPlayCount = (count: number): string => {
+		return count.toLocaleString()
 	}
 </script>
 
@@ -43,5 +69,11 @@
 				Hard
 			</Button>
 		</div>
+		{#if playCount !== null}
+			<p class="mt-6">
+				{formatPlayCount(playCount)}
+				{playCount === 1 ? 'play' : 'plays'}
+			</p>
+		{/if}
 	</div>
 {/if}
