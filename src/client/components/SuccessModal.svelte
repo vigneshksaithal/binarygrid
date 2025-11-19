@@ -4,6 +4,7 @@
 	import {
 		closeSuccessModal,
 		openLeaderboardModal,
+		openPlayOverlay,
 		showSuccessModal,
 	} from '../stores/ui'
 	import Button from './Button.svelte'
@@ -17,6 +18,11 @@
 	const viewLeaderboard = () => {
 		closeSuccessModal()
 		openLeaderboardModal()
+	}
+
+	const playAnotherDifficulty = () => {
+		closeSuccessModal()
+		openPlayOverlay()
 	}
 
 	const joinSubreddit = async () => {
@@ -102,14 +108,18 @@
 		Congratulations!
 	</h2>
 	<div id="success-modal-body" class="grid gap-2 text-zinc-100">
-		<h3 class="text-lg font-semibold">
-			You solved the puzzle in
+		<h3>
+			You solved it in
 			<span class="text-green-500 dark:text-green-400"
 				>{formatElapsedTime($elapsedSeconds)}</span
 			>.
 		</h3>
 		<div class="flex justify-center my-4">
-			<Button onClick={commentScore} disabled={isCommenting}>
+			<Button
+				variant="secondary"
+				onClick={commentScore}
+				disabled={isCommenting}
+			>
 				{#if isCommenting}
 					Posting…
 				{:else}
@@ -127,6 +137,11 @@
 				Comment posted successfully!
 			</p>
 		{/if}
+		<div class="flex justify-center my-4">
+			<Button variant="secondary" onClick={playAnotherDifficulty}>
+				Play Another Difficulty
+			</Button>
+		</div>
 		<p class="text-sm text-zinc-300 mb-6">
 			Join r/binarygrid for daily challenges.
 		</p>
