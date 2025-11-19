@@ -1,4 +1,5 @@
 <script lang="ts">
+	import iconUrl from '../../../assets/icon-512.png'
 	import type { Difficulty } from '../../shared/types/puzzle'
 	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
@@ -42,8 +43,9 @@
 	<div
 		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-neutral-900 px-6"
 	>
+		<img src={iconUrl} alt="Binary Grid icon" class="size-20" />
 		<h1>Binary Grid</h1>
-		<p class="text-center mb-12">
+		<p class="text-center mb-8">
 			Fill the grid with 0s and 1s,
 			<br />
 			following the rules.
