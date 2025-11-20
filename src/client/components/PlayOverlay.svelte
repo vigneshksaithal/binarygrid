@@ -1,5 +1,5 @@
 <script lang="ts">
-	import iconUrl from '../../../assets/icon-512.png'
+	import iconUrl from '../public/icon-512.png'
 	import type { Difficulty } from '../../shared/types/puzzle'
 	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
