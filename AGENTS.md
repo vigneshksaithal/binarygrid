@@ -12,7 +12,7 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 
 ### Frontend
 
-- Devvit (v0.12.2) — Reddit App Platform
+- Devvit (v0.12.3) — Reddit App Platform
 - Svelte (v5, runes) — UI framework
 - TypeScript (v5) — Programming language
 - Tailwind CSS (v4) — CSS framework
