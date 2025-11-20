@@ -26,7 +26,7 @@
 
 @layer base {
   body {
-    @apply min-h-screen min-w-80 w-full bg-neutral-100 dark:bg-neutral-900;
+    @apply min-h-screen min-w-80 w-full bg-green-100 dark:bg-green-950;
   }
 
 

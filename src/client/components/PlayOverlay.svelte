@@ -41,7 +41,7 @@
 
 {#if $showPlayOverlay}
 	<div
-		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-neutral-900 px-6"
+		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-green-100 dark:bg-green-950 px-6"
 	>
 		<img src={iconUrl} alt="Binary Grid icon" class="size-20" />
 		<h1 class="mb-6">Binary Grid</h1>
