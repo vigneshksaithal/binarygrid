@@ -44,12 +44,7 @@
 		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-neutral-900 px-6"
 	>
 		<img src={iconUrl} alt="Binary Grid icon" class="size-20" />
-		<h1>Binary Grid</h1>
-		<p class="text-center mb-8">
-			Fill the grid with 0s and 1s,
-			<br />
-			following the rules.
-		</p>
+		<h1 class="mb-6">Binary Grid</h1>
 		<p class="mb-4">Choose Your Difficulty:</p>
 		<div class="flex flex-col gap-4 w-full max-w-3xs">
 			<Button
