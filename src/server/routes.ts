@@ -135,9 +135,9 @@ app.post('/api/comment-score', async (c) => {
       : (`t3_${postId}` as `t3_${string}`)
 
     await reddit.submitComment({
+      runAs: 'USER',
       id: postIdWithPrefix,
-      text: commentText,
-      runAs: 'USER'
+      text: commentText
     })
 
     return c.json({ ok: true })
