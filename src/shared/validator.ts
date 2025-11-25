@@ -41,9 +41,15 @@ function validateShapeAndDomain(grid: Grid, errors: string[]): void {
 // Safe access helpers to satisfy strict typing when callers may not guarantee shape
 const getRow = (grid: Grid, r: number): Cell[] => {
   const row = grid[r]
+  // Fast path: return directly if row is valid (most common case)
   if (Array.isArray(row) && row.length === SIZE) {
     return row as Cell[]
   }
+  // Slow path: create fallback only when needed
+  return createFallbackRow(row)
+}
+
+const createFallbackRow = (row: Cell[] | undefined): Cell[] => {
   const fallback: Cell[] = new Array(SIZE)
   for (let c = 0; c < SIZE; c++) {
     fallback[c] = (row?.[c] ?? null) as Cell
@@ -59,14 +65,22 @@ const getCell = (grid: Grid, r: number, c: number): Cell => {
 /**
  * Returns true if the line contains a forbidden triple run (e.g., 000 or 111).
  * Nulls break runs and are ignored for the triple check.
+ * Optimized to track run length incrementally instead of checking windows.
  */
 export function hasTripleRun(line: Cell[]): boolean {
-  for (let i = 0; i <= line.length - TRIPLE_RUN_LENGTH; i++) {
-    const a = line[i]
-    const b = line[i + 1]
-    const c = line[i + 2]
-    if (a !== null && a === b && b === c) {
-      return true
+  let runLength = 1
+  let lastValue: Cell = line[0] ?? null
+
+  for (let i = 1; i < line.length; i++) {
+    const current = line[i]
+    if (current !== null && current === lastValue) {
+      runLength++
+      if (runLength >= TRIPLE_RUN_LENGTH) {
+        return true
+      }
+    } else {
+      runLength = 1
+      lastValue = current ?? null
     }
   }
   return false
@@ -195,13 +209,13 @@ export function validateGrid(
     }
   }
 
-  // Columns
+  // Columns - reuse single array to reduce allocations
+  const col: Cell[] = new Array(SIZE)
   for (let c = 0; c < SIZE; c++) {
-    const col: Cell[] = new Array(SIZE)
     for (let r = 0; r < SIZE; r++) {
       col[r] = getCell(grid, r, c)
     }
-    const hasError = validateLine(col as Cell[], `Column ${c}`, errors)
+    const hasError = validateLine(col, `Column ${c}`, errors)
     if (hasError) {
       errorColumns.push(c)
     }

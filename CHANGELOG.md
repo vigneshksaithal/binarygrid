@@ -1,5 +1,37 @@
 # Changelog
 
+## 2025-11-25
+
+### Performance Optimizations
+
+- **validator.ts**: 
+  - Optimized `hasTripleRun` function to use incremental run tracking instead of window-based iteration, reducing time complexity.
+  - Split `getRow` into fast path (direct return) and slow path (fallback creation) to avoid unnecessary array allocations.
+  - Reused column array in `validateGrid` to reduce memory allocations during validation loops.
+
+- **solver.ts**:
+  - Replaced full grid validation in `solveFrom` with lightweight constraint checking (`canPlaceValue`).
+  - Added localized triple-run detection (`wouldCreateTripleRun`) that only checks the affected window instead of the entire line.
+  - Only performs full `validateGrid` when the grid is complete, significantly reducing validation overhead during backtracking.
+
+- **generator.ts**:
+  - Replaced `hasTripleRunAfterPlace` with non-mutating `wouldCreateTripleRunAt` that only checks affected positions.
+  - Added reusable column array (`reusableCol`) to eliminate repeated allocations in `canPlace`.
+  - Reduced `ensureRow` calls by caching row references in tight loops (`tryFill`, `dfs`, `carveToClueTarget`).
+
+- **game.ts (client)**:
+  - Added `fixedSet` (Set<string>) to `GameState` for O(1) fixed cell lookups instead of O(n) array scans.
+  - Updated `cycleCell` to use the optimized Set-based lookup.
+
+- **Grid.svelte (client)**:
+  - Pre-computed `errorRowSet` and `errorColSet` using Svelte's `$derived` to avoid O(n) `.includes()` calls on every cell render.
+  - Changed fixed cell check to use `fixedSet.has()` instead of `.some()` for O(1) lookups.
+
+### Tests
+
+- Added comprehensive tests for `hasTripleRun` function covering edge cases (start, middle, end runs; null breaks; empty lines).
+- Added new test file `solver.test.ts` with tests for the puzzle solver including empty grids, fixed cells, invalid grids, and unsolvable configurations.
+
 ## 2025-11-12
 
 - Added a custom play overlay that appears on initial app load with a large, bouncing "PLAY" button and blurred background.

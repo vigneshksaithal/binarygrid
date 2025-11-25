@@ -8,6 +8,14 @@
 			autosubmitIfSolved()
 		}
 	})
+
+	// Pre-compute error sets for O(1) lookups instead of O(n) .includes() calls
+	const errorRowSet = $derived(
+		new Set($game.errorLocations?.rows ?? [])
+	)
+	const errorColSet = $derived(
+		new Set($game.errorLocations?.columns ?? [])
+	)
 </script>
 
 <div
@@ -25,10 +33,8 @@
 			{#if $game.grid[r]}
 				<Cell
 					value={$game.grid[r][c] ?? null}
-					fixed={$game.fixed.some((f) => f.r === r && f.c === c)}
-					hasError={$game.errorLocations?.rows.includes(r) ||
-						$game.errorLocations?.columns.includes(c) ||
-						false}
+					fixed={$game.fixedSet.has(`${r},${c}`)}
+					hasError={errorRowSet.has(r) || errorColSet.has(c)}
 					onClick={() => cycleCell(r, c)}
 				/>
 			{/if}
