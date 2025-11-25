@@ -74,7 +74,7 @@ const canPlaceValue = (
   val: 0 | 1
 ): boolean => {
   const row = grid[r]
-  if (!Array.isArray(row)) {
+  if (!Array.isArray(row) || row.length !== SIZE) {
     return false
   }
 

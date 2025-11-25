@@ -68,12 +68,17 @@ const getCell = (grid: Grid, r: number, c: number): Cell => {
  * Optimized to track run length incrementally instead of checking windows.
  */
 export function hasTripleRun(line: Cell[]): boolean {
+  if (line.length < TRIPLE_RUN_LENGTH) {
+    return false
+  }
+
   let runLength = 1
   let lastValue: Cell = line[0] ?? null
 
   for (let i = 1; i < line.length; i++) {
     const current = line[i]
-    if (current !== null && current === lastValue) {
+    // Only continue run if both current and lastValue are non-null and equal
+    if (current !== null && lastValue !== null && current === lastValue) {
       runLength++
       if (runLength >= TRIPLE_RUN_LENGTH) {
         return true
