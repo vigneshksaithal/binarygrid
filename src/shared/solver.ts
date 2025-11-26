@@ -4,20 +4,23 @@ import { validateGrid } from './validator'
 
 const cloneGrid = (grid: Grid): Grid => grid.map((row) => row.slice())
 
-const findNextEmpty = (grid: Grid): { r: number; c: number } | null => {
-  for (let r = 0; r < grid.length; r++) {
+/**
+ * Collects all empty cell positions in the grid for efficient iteration.
+ */
+const collectEmptyCells = (grid: Grid): Array<{ r: number; c: number }> => {
+  const emptyCells: Array<{ r: number; c: number }> = []
+  for (let r = 0; r < SIZE; r++) {
     const row = grid[r]
     if (!Array.isArray(row)) {
       continue
     }
     for (let c = 0; c < row.length; c++) {
-      const cell = row[c]
-      if (cell === null) {
-        return { r, c }
+      if (row[c] === null) {
+        emptyCells.push({ r, c })
       }
     }
   }
-  return null
+  return emptyCells
 }
 
 const MAX_COUNT_PER_LINE = 3
@@ -63,6 +66,9 @@ const wouldCreateTripleRun = (
   return false
 }
 
+// Reusable column array to reduce allocations in hot path
+const reusableCol: Cell[] = new Array(SIZE)
+
 /**
  * Validates if placing a value at (r, c) would violate constraints.
  * This is a lightweight check that avoids full grid validation.
@@ -87,12 +93,11 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Build column using reusable array to avoid allocations
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    reusableCol[i] = (grid[i]?.[c] ?? null) as Cell
   }
-  const colCounts = countLine(col)
+  const colCounts = countLine(reusableCol)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -106,20 +111,28 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRun(reusableCol, r, val)) {
     return false
   }
 
   return true
 }
 
-const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
-  const spot = findNextEmpty(grid)
-  if (!spot) {
+const solveFromIndex = (
+  grid: Grid,
+  emptyCells: Array<{ r: number; c: number }>,
+  idx: number,
+  fixed: FixedCell[]
+): boolean => {
+  if (idx === emptyCells.length) {
     // All cells filled - do a final validation
     return validateGrid(grid, fixed).ok
   }
-  const { r, c } = spot
+  const cell = emptyCells[idx]
+  if (!cell) {
+    return false
+  }
+  const { r, c } = cell
   const row = grid[r]
   if (!Array.isArray(row) || c < 0 || c >= row.length) {
     return false
@@ -130,7 +143,7 @@ const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
       continue
     }
     row[c] = value
-    if (solveFrom(grid, fixed)) {
+    if (solveFromIndex(grid, emptyCells, idx + 1, fixed)) {
       return true
     }
     row[c] = null
@@ -143,7 +156,8 @@ export const solvePuzzle = (initial: Grid, fixed: FixedCell[]): Grid | null => {
   if (!validateGrid(grid, fixed).ok) {
     return null
   }
-  if (!solveFrom(grid, fixed)) {
+  const emptyCells = collectEmptyCells(grid)
+  if (!solveFromIndex(grid, emptyCells, 0, fixed)) {
     return null
   }
   return cloneGrid(grid)

@@ -280,39 +280,41 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
   let solutions = 0
   const grid = cloneGrid(start)
 
-  const findNext = (): { r: number; c: number } | null => {
-    for (let r = 0; r < SIZE; r++) {
-      const row = grid[r] as Cell[]
-      for (let c = 0; c < SIZE; c++) {
-        if (row[c] === null) {
-          return { r, c }
-        }
+  // Pre-compute empty cells to avoid repeated grid scans
+  const emptyCells: Array<{ r: number; c: number }> = []
+  for (let r = 0; r < SIZE; r++) {
+    const row = grid[r] as Cell[]
+    for (let c = 0; c < SIZE; c++) {
+      if (row[c] === null) {
+        emptyCells.push({ r, c })
       }
     }
-    return null
   }
 
-  const dfs = (): void => {
+  const dfs = (idx: number): void => {
     if (solutions >= limit) {
       return
     }
-    const spot = findNext()
-    if (!spot) {
+    if (idx === emptyCells.length) {
       const res = validateGrid(grid, [])
       if (res.ok) {
         solutions++
       }
       return
     }
-    const r = spot.r
-    const c = spot.c
+    const cell = emptyCells[idx]
+    if (!cell) {
+      return
+    }
+    const r = cell.r
+    const c = cell.c
     const row = grid[r] as Cell[]
     for (const v of [0, 1] as const) {
       if (!canPlace(grid, r, c, v)) {
         continue
       }
       row[c] = v
-      dfs()
+      dfs(idx + 1)
       if (solutions >= limit) {
         return
       }
@@ -320,7 +322,7 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
     }
   }
 
-  dfs()
+  dfs(0)
   return solutions
 }
 

@@ -53,6 +53,28 @@ const createFixedSet = (fixed: { r: number; c: number; v: 0 | 1 }[]): Set<string
   return set
 }
 
+/**
+ * Compares two grids for equality efficiently without JSON serialization.
+ */
+const gridsAreEqual = (a: Grid, b: Grid): boolean => {
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let r = 0; r < a.length; r++) {
+    const rowA = a[r]
+    const rowB = b[r]
+    if (!rowA || !rowB || rowA.length !== rowB.length) {
+      return false
+    }
+    for (let c = 0; c < rowA.length; c++) {
+      if (rowA[c] !== rowB[c]) {
+        return false
+      }
+    }
+  }
+  return true
+}
+
 const isCellFixed = (
   fixedSet: Set<string>,
   r: number,
@@ -151,6 +173,7 @@ export const cycleCell = (r: number, c: number) => {
   }
 
   let solved = false
+  let snapshotGrid: Grid | null = null
   game.update((s) => {
     if (s.status === 'solved') {
       return s
@@ -171,11 +194,12 @@ export const cycleCell = (r: number, c: number) => {
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
 
-    const currentGridJSON = JSON.stringify(nextGrid)
     if (!result.ok) {
+      // Store a reference to compare later instead of JSON.stringify
+      snapshotGrid = nextGrid
       errorTimer = setTimeout(() => {
         const currentGameState = get(game)
-        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
+        if (snapshotGrid && gridsAreEqual(currentGameState.grid, snapshotGrid)) {
           game.update((gameState) => ({
             ...gameState,
             status: 'invalid',
