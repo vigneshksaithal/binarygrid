@@ -302,10 +302,7 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
       }
       return
     }
-    const cell = emptyCells[idx]
-    if (!cell) {
-      return
-    }
+    const cell = emptyCells[idx] as { r: number; c: number }
     const r = cell.r
     const c = cell.c
     const row = grid[r] as Cell[]

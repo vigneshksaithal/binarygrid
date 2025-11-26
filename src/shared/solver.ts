@@ -128,10 +128,7 @@ const solveFromIndex = (
     // All cells filled - do a final validation
     return validateGrid(grid, fixed).ok
   }
-  const cell = emptyCells[idx]
-  if (!cell) {
-    return false
-  }
+  const cell = emptyCells[idx] as { r: number; c: number }
   const { r, c } = cell
   const row = grid[r]
   if (!Array.isArray(row) || c < 0 || c >= row.length) {
