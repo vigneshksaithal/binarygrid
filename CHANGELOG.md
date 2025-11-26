@@ -1,5 +1,24 @@
 # Changelog
 
+## 2025-11-26
+
+### Performance Optimizations
+
+- **solver.ts**:
+  - Pre-compute empty cell positions once before backtracking starts, avoiding O(n²) grid scans per recursion.
+  - Added reusable column array to reduce memory allocations in constraint checking hot path.
+  - Changed from `findNextEmpty` (scans entire grid each call) to index-based iteration over pre-computed empty cells.
+
+- **generator.ts**:
+  - Pre-compute empty cells in `countSolutionsUpTo` to avoid repeated grid scans during DFS.
+  - Critical for puzzle carving performance as this function is called many times.
+  - Reduces complexity from O(n² * recursions) to O(n² + recursions) for empty cell lookups.
+
+- **game.ts (client)**:
+  - Replaced expensive `JSON.stringify` grid comparison with efficient `gridsAreEqual` function.
+  - New function does cell-by-cell comparison and exits early on first difference.
+  - Reduces grid comparison from O(n² serialization + string compare) to O(n² cell compare with early exit).
+
 ## 2025-11-25
 
 ### Performance Optimizations
