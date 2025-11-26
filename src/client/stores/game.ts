@@ -20,6 +20,7 @@ export type GameState = {
   grid: Grid
   initial: Grid
   fixed: { r: number; c: number; v: 0 | 1 }[]
+  fixedSet: Set<string>
   status: Status
   errors: string[]
   errorLocations?:
@@ -40,11 +41,23 @@ const emptyGrid = (): Grid =>
 const cloneGrid = (grid: Grid): Grid =>
   grid.map((row) => row.map((cell) => cell))
 
+/**
+ * Creates a Set for O(1) fixed cell lookups.
+ * Key format: "r,c"
+ */
+const createFixedSet = (fixed: { r: number; c: number; v: 0 | 1 }[]): Set<string> => {
+  const set = new Set<string>()
+  for (const f of fixed) {
+    set.add(`${f.r},${f.c}`)
+  }
+  return set
+}
+
 const isCellFixed = (
-  fixed: GameState['fixed'],
+  fixedSet: Set<string>,
   r: number,
   c: number
-): boolean => fixed.some((f) => f.r === r && f.c === c)
+): boolean => fixedSet.has(`${r},${c}`)
 
 const initial: GameState = {
   puzzleId: null,
@@ -52,6 +65,7 @@ const initial: GameState = {
   grid: emptyGrid(),
   initial: emptyGrid(),
   fixed: [],
+  fixedSet: new Set(),
   status: 'idle',
   errors: [],
   errorLocations: undefined,
@@ -84,14 +98,17 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   const id = data.puzzle.id
   const initialGrid = cloneGrid(data.puzzle.initial)
   const grid = cloneGrid(initialGrid)
-  const solution = solvePuzzle(initialGrid, data.puzzle.fixed) ?? null
+  const fixed = data.puzzle.fixed
+  const fixedSet = createFixedSet(fixed)
+  const solution = solvePuzzle(initialGrid, fixed) ?? null
 
   game.set({
     puzzleId: id,
     difficulty,
     grid,
     initial: initialGrid,
-    fixed: data.puzzle.fixed,
+    fixed,
+    fixedSet,
     status: 'in_progress',
     errors: [],
     errorLocations: undefined,
@@ -138,7 +155,7 @@ export const cycleCell = (r: number, c: number) => {
     if (s.status === 'solved') {
       return s
     }
-    if (isCellFixed(s.fixed, r, c)) {
+    if (isCellFixed(s.fixedSet, r, c)) {
       return s
     }
     const nextGrid = s.grid.map((gridRow) => gridRow.slice())

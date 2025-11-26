@@ -164,55 +164,63 @@ const countLine = (line: (0 | 1 | null)[]) => {
 
 const TRIPLE_RUN_LENGTH = 3
 
-const hasTripleRunAfterPlace = (
+/**
+ * Checks if placing a value at idx would create a triple run.
+ * Optimized: only checks the windows that could be affected by the placement.
+ */
+const wouldCreateTripleRunAt = (
   line: (0 | 1 | null)[],
   idx: number,
   val: 0 | 1
 ): boolean => {
-  const prev: 0 | 1 | null = (line[idx] ?? null) as 0 | 1 | null
-  line[idx] = val
-  let bad = false
-  for (let i = 0; i <= line.length - TRIPLE_RUN_LENGTH; i++) {
-    const a = line[i]
-    const b = line[i + 1]
-    const c = line[i + 2]
+  // Check window of 3 cells that could include idx
+  const start = Math.max(0, idx - 2)
+  const end = Math.min(line.length - TRIPLE_RUN_LENGTH, idx)
+
+  for (let i = start; i <= end; i++) {
+    const a = i === idx ? val : line[i]
+    const b = i + 1 === idx ? val : line[i + 1]
+    const c = i + 2 === idx ? val : line[i + 2]
     if (a !== null && a === b && b === c) {
-      bad = true
-      break
+      return true
     }
   }
-  line[idx] = prev
-  return bad
+  return false
 }
 
 const MAX_COUNT_PER_LINE = 3
 
+// Reusable column array to reduce allocations in hot path
+const reusableCol: (0 | 1 | null)[] = new Array(SIZE)
+
 const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
-  if (ensureRow(grid, r)[c] !== null) {
+  const row = grid[r] as Cell[]
+  if (row[c] !== null) {
     return false
   }
-  const rowCounts = countLine(ensureRow(grid, r))
+  const rowCounts = countLine(row)
   if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
   if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
     return false
   }
-  const col: (0 | 1 | null)[] = new Array(SIZE)
+
+  // Build column using reusable array
   for (let i = 0; i < SIZE; i++) {
-    col[i] = ensureRow(grid, i)[c] as Cell
+    reusableCol[i] = (grid[i] as Cell[])[c] as Cell
   }
-  const colCounts = countLine(col)
+  const colCounts = countLine(reusableCol)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
   if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
     return false
   }
-  if (hasTripleRunAfterPlace(ensureRow(grid, r), c, val)) {
+  if (wouldCreateTripleRunAt(row, c, val)) {
     return false
   }
-  if (hasTripleRunAfterPlace(col, r, val)) {
+  if (wouldCreateTripleRunAt(reusableCol, r, val)) {
     return false
   }
   return true
@@ -243,7 +251,8 @@ const generateFullSolution = (rnd: Rng): Grid => {
     }
     const r = cell.r
     const c = cell.c
-    if (ensureRow(grid, r)[c] !== null) {
+    const row = grid[r] as Cell[]
+    if (row[c] !== null) {
       return tryFill(idx + 1)
     }
     const values: (0 | 1)[] = [0, 1]
@@ -252,11 +261,11 @@ const generateFullSolution = (rnd: Rng): Grid => {
       if (!canPlace(grid, r, c, v)) {
         continue
       }
-      ensureRow(grid, r)[c] = v
+      row[c] = v
       if (tryFill(idx + 1)) {
         return true
       }
-      ensureRow(grid, r)[c] = null
+      row[c] = null
     }
     return false
   }
@@ -273,8 +282,9 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
 
   const findNext = (): { r: number; c: number } | null => {
     for (let r = 0; r < SIZE; r++) {
+      const row = grid[r] as Cell[]
       for (let c = 0; c < SIZE; c++) {
-        if (ensureRow(grid, r)[c] === null) {
+        if (row[c] === null) {
           return { r, c }
         }
       }
@@ -296,16 +306,17 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
     }
     const r = spot.r
     const c = spot.c
+    const row = grid[r] as Cell[]
     for (const v of [0, 1] as const) {
       if (!canPlace(grid, r, c, v)) {
         continue
       }
-      ensureRow(grid, r)[c] = v
+      row[c] = v
       dfs()
       if (solutions >= limit) {
         return
       }
-      ensureRow(grid, r)[c] = null
+      row[c] = null
     }
   }
 
@@ -332,16 +343,16 @@ const carveToClueTarget = (
   const totalCells = SIZE * SIZE
   let clues = totalCells
   for (const pos of positions) {
-    const r = pos.r
-    const c = pos.c
+    const { r, c } = pos
     if (clues <= targetClues) {
       break
     }
-    const saved = ensureRow(work, r)[c] as Cell
-    ensureRow(work, r)[c] = null
+    const row = work[r] as Cell[]
+    const saved = row[c] as Cell
+    row[c] = null
     const count = countSolutionsUpTo(work, 2)
     if (count !== 1) {
-      ensureRow(work, r)[c] = saved
+      row[c] = saved
     } else {
       clues--
     }
