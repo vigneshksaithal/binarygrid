@@ -10,12 +10,8 @@
 	})
 
 	// Pre-compute error sets for O(1) lookups instead of O(n) .includes() calls
-	const errorRowSet = $derived(
-		new Set($game.errorLocations?.rows ?? [])
-	)
-	const errorColSet = $derived(
-		new Set($game.errorLocations?.columns ?? [])
-	)
+	const errorRowSet = $derived(new Set($game.errorLocations?.rows ?? []))
+	const errorColSet = $derived(new Set($game.errorLocations?.columns ?? []))
 </script>
 
 <div
