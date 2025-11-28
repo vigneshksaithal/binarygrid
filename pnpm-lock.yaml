@@ -15,8 +15,8 @@ importers:
         specifier: ^1.19.6
         version: 1.19.6(hono@4.10.7)
       '@lucide/svelte':
-        specifier: ^0.554.0
-        version: 0.554.0(svelte@5.44.1)
+        specifier: ^0.555.0
+        version: 0.555.0(svelte@5.44.1)
       '@tailwindcss/vite':
         specifier: ^4.1.17
         version: 4.1.17(rolldown-vite@7.2.8(@types/node@24.10.1)(esbuild@0.25.12)(jiti@2.6.1))
@@ -542,8 +542,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@lucide/svelte@0.554.0':
-    resolution: {integrity: sha512-CM6wLEH8uk3WBpC42t8R0hF7SlQrsYEL6qGuXdB99xKZwKglpWmX5XgYu7FIYOCBYOyC1rm4dNhIe6uF9pOXqw==}
+  '@lucide/svelte@0.555.0':
+    resolution: {integrity: sha512-aqTOMjBjf/HNwrhggRdb83T0QslZdpJTyTwr/chtXTGw7u4Hcu4zQb/5uA+csF0KKawKWVnsNI1MdHEHeEXTcQ==}
     peerDependencies:
       svelte: ^5
 
@@ -3133,7 +3133,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lucide/svelte@0.554.0(svelte@5.44.1)':
+  '@lucide/svelte@0.555.0(svelte@5.44.1)':
     dependencies:
       svelte: 5.44.1
 
