@@ -20,12 +20,13 @@
 	})
 </script>
 
-<main class="w-full max-w-sm mx-auto flex flex-col items-center p-4">
-	<div class="w-full flex items-center justify-between p-2 mb-2">
-		<Timer />
+<main
+	class="w-full max-w-sm mx-auto flex flex-col justify-center items-center p-4"
+>
+	<div class="w-full flex items-center justify-between mb-6">
 		<div class="flex items-center gap-2">
 			<Button
-				variant="secondary"
+				variant="default"
 				onClick={openLeaderboardModal}
 				ariaLabel="Leaderboard"
 			>
@@ -33,13 +34,14 @@
 				<span class="sr-only">Leaderboard</span>
 			</Button>
 			<Button
-				variant="secondary"
+				variant="default"
 				onClick={openHowToModal}
 				ariaLabel="How to Play"
 			>
 				How to Play
 			</Button>
 		</div>
+		<Timer />
 	</div>
 	<Grid />
 </main>
