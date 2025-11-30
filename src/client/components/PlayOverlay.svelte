@@ -40,14 +40,10 @@
 
 {#if $showPlayOverlay}
 	<div
-		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-green-100 dark:bg-green-950 px-6"
+		class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-green-200 dark:bg-green-950"
 	>
-		<h1 class="tracking-wider text-green-600 dark:text-green-400 mb-8">
-			Binary Grid
-		</h1>
-		<p class="text-green-700 dark:text-green-400 mb-4 font-mono">
-			> Select Difficulty:
-		</p>
+		<h1 class="mb-8">Binary Grid</h1>
+		<p class="mb-4">> Select Difficulty:</p>
 		<div class="flex flex-col gap-4 w-full max-w-3xs mb-8">
 			<Button
 				onClick={() => selectDifficulty('easy')}
