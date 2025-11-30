@@ -19,13 +19,15 @@
 
 	const label = fixed ? 'Fixed cell' : 'Editable cell'
 
-	const borderClass = $derived((hasError && 'border-2 border-error') || '')
+	const borderClass = $derived(
+		(hasError && 'ring-2 ring-red-600 dark:ring-red-500') || '',
+	)
 </script>
 
 <button
 	type="button"
-	class="aspect-square w-full flex items-center justify-center font-mono font-bold text-lg md:text-xl focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors hover:bg-green-500/10 dark:hover:bg-green-600/10 relative {fixed
-		? 'bg-green-500 dark:bg-green-600 text-neutral-900 dark:text-neutral-100'
+	class="aspect-square font-mono font-bold text-lg md:text-xl text-green-800 dark:text-green-400 focus:outline-none border border-green-600 dark:border-green-600 focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed transition-colors hover:bg-green-500/10 dark:hover:bg-green-600/10 relative {fixed
+		? 'bg-green-300 dark:bg-green-900 text-green-700 dark:text-green-400'
 		: ''} {borderClass}"
 	onclick={handleClick}
 	aria-label={label}
