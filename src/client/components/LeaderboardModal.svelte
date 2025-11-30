@@ -4,7 +4,6 @@
 		goToLeaderboardPage,
 		leaderboard,
 		loadLeaderboard,
-		resetLeaderboard,
 	} from '../stores/leaderboard'
 	import { formatElapsedTime } from '../stores/timer'
 	import { closeLeaderboardModal, showLeaderboardModal } from '../stores/ui'
@@ -12,12 +11,6 @@
 	import Modal from './Modal.svelte'
 
 	let lastLoadedPuzzleId = $state<string | null>(null)
-
-	const handleClose = () => {
-		closeLeaderboardModal()
-		resetLeaderboard()
-		lastLoadedPuzzleId = null
-	}
 
 	const showPlayerSummary = () => {
 		const state = $leaderboard
@@ -65,11 +58,12 @@
 
 <Modal
 	open={$showLeaderboardModal}
-	labelledby="leaderboard-title"
-	describedby="leaderboard-description"
+	onClose={closeLeaderboardModal}
+	labelledby="leaderboard-modal-title"
+	describedby="leaderboard-modal-description"
 >
 	<section class="flex max-h-full flex-col gap-4">
-		<h2 id="leaderboard-title">Leaderboard</h2>
+		<h2 id="leaderboard-modal-title">Leaderboard</h2>
 
 		{#if $leaderboard.status === 'loading'}
 			<div
@@ -78,7 +72,7 @@
 				aria-live="polite"
 			>
 				<div
-					class="size-6 rounded-full border-2 border-green-500 dark:border-green-400 border-t-transparent animate-spin"
+					class="size-4 md:size-6 rounded-full border-2 border-green-500 dark:border-green-400 border-t-transparent animate-spin"
 					aria-hidden="true"
 				></div>
 				<p class="text-sm">Loading leaderboard…</p>
@@ -198,9 +192,5 @@
 				</nav>
 			{/if}
 		{/if}
-
-		<div class="flex justify-end">
-			<Button onClick={handleClose}>Done</Button>
-		</div>
 	</section>
 </Modal>
