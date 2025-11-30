@@ -14,15 +14,9 @@
 	const errorColSet = $derived(new Set($game.errorLocations?.columns ?? []))
 </script>
 
-<div
-	class="w-full grid grid-cols-6 border-2 border-neutral-800 dark:border-neutral-500 text-green-600 dark:text-green-500 divide-x-2 divide-y-2 divide-neutral-800 dark:divide-neutral-500"
->
+<div class="w-full grid grid-cols-6 gap-1">
 	{#if $game.status === 'solved'}
-		<div
-			class="col-span-6 text-sm text-green-500 dark:text-green-400 mb-2 font-semibold text-center"
-		>
-			Solved
-		</div>
+		<p class="col-span-6 text-center">Solved</p>
 	{/if}
 	{#each Array.from({ length: SIZE }) as _, r}
 		{#each Array.from({ length: SIZE }) as __, c}
@@ -62,10 +56,6 @@
 		</div>
 	{/if}
 	{#if $game.status === 'loading'}
-		<div
-			class="col-span-6 text-sm text-green-500 dark:text-green-400 mt-2 font-medium"
-		>
-			Loading…
-		</div>
+		<p class="col-span-6 text-center">Loading…</p>
 	{/if}
 </div>
