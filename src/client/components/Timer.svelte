@@ -1,16 +1,14 @@
 <script lang="ts">
-	import TimerIcon from '@lucide/svelte/icons/timer'
 	import { game } from '../stores/game'
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 </script>
 
 <div
-	class="text-sm text-neutral-900 dark:text-neutral-300 font-semibold text-left flex items-center gap-2"
+	class="text-xl font-mono font-semibold text-green-600 dark:text-green-400 text-left flex items-center gap-2"
 >
-	<TimerIcon size={24} />
 	{#if $game.status === 'idle'}
 		--:--
 	{:else}
-		{formatElapsedTime($elapsedSeconds)}
+		~{formatElapsedTime($elapsedSeconds)}
 	{/if}
 </div>
