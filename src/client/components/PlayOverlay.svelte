@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Difficulty } from '../../shared/types/puzzle'
-	import iconUrl from '../public/icon-512.png'
 	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
 	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
@@ -28,7 +27,7 @@
 		}
 	}
 
-	$effect(() => {
+	$effect.pre(() => {
 		if ($showPlayOverlay) {
 			fetchPlayCount()
 		}
@@ -43,10 +42,13 @@
 	<div
 		class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-green-100 dark:bg-green-950 px-6"
 	>
-		<img src={iconUrl} alt="Binary Grid icon" class="size-20" />
-		<h1 class="mb-6">Binary Grid</h1>
-		<p class="mb-4">Choose Your Difficulty:</p>
-		<div class="flex flex-col gap-4 w-full max-w-3xs">
+		<h1 class="tracking-wider text-green-600 dark:text-green-400 mb-8">
+			Binary Grid
+		</h1>
+		<p class="text-green-700 dark:text-green-400 mb-4 font-mono">
+			> Select Difficulty:
+		</p>
+		<div class="flex flex-col gap-4 w-full max-w-3xs mb-8">
 			<Button
 				onClick={() => selectDifficulty('easy')}
 				ariaLabel="Easy difficulty"
@@ -66,10 +68,12 @@
 				Hard
 			</Button>
 		</div>
-		{#if playCount !== null}
-			<p class="mt-6">
-				{formatPlayCount(playCount)}
-				{playCount === 1 ? 'play' : 'plays'}
+		{#if playCount === null}
+			<p>Loading...</p>
+		{:else}
+			<p>
+				[{formatPlayCount(playCount)}
+				{playCount === 1 ? 'play' : 'plays'}]
 			</p>
 		{/if}
 	</div>
