@@ -20,10 +20,6 @@
   color: var(--color-accent-red);
 }
 
-.border-error {
-  border-color: var(--color-accent-red);
-}
-
 @layer base {
   body {
     @apply min-h-screen min-w-80 w-full bg-green-200 dark:bg-green-950;
