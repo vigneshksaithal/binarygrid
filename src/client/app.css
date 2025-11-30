@@ -31,26 +31,34 @@
 
 
   h1 {
-    @apply text-3xl font-semibold tracking-wide text-neutral-900 dark:text-neutral-300 mb-4;
+    @apply text-3xl font-semibold font-mono tracking-wide text-neutral-900 dark:text-neutral-300 mb-4;
   }
 
   h2 {
-    @apply text-2xl font-semibold tracking-wide text-neutral-900 dark:text-neutral-300 mb-3;
+    @apply text-2xl font-semibold font-mono tracking-wide text-neutral-900 dark:text-neutral-300 mb-3;
   }
 
   h3 {
-    @apply text-xl font-semibold tracking-wide text-neutral-900 dark:text-neutral-300 mb-2;
+    @apply text-xl font-semibold font-mono tracking-wide text-neutral-900 dark:text-neutral-300 mb-2;
   }
 
   p {
-    @apply text-base text-neutral-900 dark:text-neutral-300 mb-2;
+    @apply text-sm font-mono font-semibold tracking-wider text-neutral-900 dark:text-neutral-300 mb-2;
   }
 
   ul {
-    @apply text-sm list-disc list-inside text-neutral-900 dark:text-neutral-300 mb-2;
+    @apply text-base font-mono list-disc list-inside text-neutral-900 dark:text-neutral-300 mb-2;
+  }
+
+  ul li {
+    @apply mb-4;
   }
 
   ol {
-    @apply text-sm list-decimal list-inside text-neutral-900 dark:text-neutral-300 mb-2;
+    @apply text-base font-mono list-decimal list-inside text-neutral-900 dark:text-neutral-300 mb-2;
+  }
+
+  ol li {
+    @apply mb-4;
   }
 }
