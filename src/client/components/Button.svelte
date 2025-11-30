@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte'
 
-	type Variant = 'default' | 'destructive' | 'secondary'
+	type Variant = 'default' | 'secondary'
 
 	const {
 		onClick,
@@ -25,8 +25,6 @@
 	const variantClasses = {
 		default:
 			'bg-green-300 dark:bg-green-900 text-green-800 dark:text-green-400 border-green-800 dark:border-green-400 hover:border-green-500 focus-visible:ring-green-500',
-		destructive:
-			'text-red-900 border-red-900 hover:border-red-900/85 focus-visible:ring-red-500',
 		secondary:
 			'text-neutral-900 dark:text-neutral-300 border-neutral-900 dark:border-neutral-300 hover:border-neutral-900/85 focus-visible:ring-neutral-400',
 	}
