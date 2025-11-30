@@ -9,13 +9,14 @@
 		role = 'dialog',
 		ariaModal = true,
 		children,
+		onClose,
 	}: {
 		open?: boolean
 		labelledby?: string
 		describedby?: string
 		role?: 'dialog' | 'alertdialog'
 		ariaModal?: boolean
-		onClose?: () => void
+		onClose: () => void
 		children?: Snippet
 	} = $props()
 </script>
@@ -33,7 +34,7 @@
 		>
 			{@render children?.()}
 			<footer class="flex justify-end">
-				<Button>Close</Button>
+				<Button onClick={onClose} ariaLabel="Close">Exit</Button>
 			</footer>
 		</div>
 	</section>
