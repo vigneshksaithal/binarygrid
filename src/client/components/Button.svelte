@@ -27,7 +27,7 @@
 
 	const sizeClasses = {
 		sm: 'h-8 px-3 text-sm gap-1.5',
-		default: 'px-4 py-2 text-sm',
+		default: 'px-4 py-3 text-sm',
 		lg: 'h-10 px-6 text-base',
 		icon: 'size-9 p-0',
 		'icon-sm': 'size-8 p-0',
