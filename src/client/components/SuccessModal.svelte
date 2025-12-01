@@ -73,12 +73,10 @@
 		Congratulations!
 	</h2>
 	<div id="success-modal-body" class="grid gap-2 text-zinc-100">
-		<h3>
+		<p>
 			You solved it in
-			<span class="text-green-500 dark:text-green-400"
-				>{formatElapsedTime($elapsedSeconds)}</span
-			>.
-		</h3>
+			<span>{formatElapsedTime($elapsedSeconds)}</span>.
+		</p>
 		<p class="mb-4">
 			Drop your result in the comments! But only if you feel like it.
 		</p>
@@ -93,13 +91,6 @@
 		</p>
 	</div>
 	<footer class="flex justify-end gap-4">
-		<button
-			type="button"
-			class="text-sm font-medium text-zinc-300 hover:text-green-500 dark:hover:text-green-400 transition-colors"
-			onclick={closeSuccessModal}
-		>
-			Back
-		</button>
 		<Button onClick={joinSubreddit} disabled={isJoining}>
 			{#if isJoining}
 				Joining…
