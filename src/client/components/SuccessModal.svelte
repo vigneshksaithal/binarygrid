@@ -73,12 +73,8 @@
 		Congratulations!
 	</h2>
 	<div id="success-modal-body" class="grid gap-2 text-zinc-100">
-		<p>
-			You solved it in
-			<span>{formatElapsedTime($elapsedSeconds)}</span>.
-		</p>
 		<p class="mb-4">
-			Drop your result in the comments! But only if you feel like it.
+			You solved it in {formatElapsedTime($elapsedSeconds)}.
 		</p>
 		<div class="flex flex-col gap-4 justify-center mb-6">
 			<Button variant="default" onClick={playAnotherDifficulty}>
