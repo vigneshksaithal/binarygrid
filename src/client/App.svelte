@@ -13,7 +13,6 @@
 		openHowToModal,
 		openLeaderboardModal,
 		openPlayOverlay,
-		openSuccessModal,
 	} from './stores/ui'
 
 	onMount(() => {
@@ -21,21 +20,10 @@
 	})
 </script>
 
-<!-- TODO: DELETE THIS BUTTON -->
-<Button
-	variant="ghost"
-	size="sm"
-	onClick={openSuccessModal}
-	ariaLabel="Success"
->
-	<TrophyIcon class="size-5" />
-	<span class="sr-only">Success</span>
-</Button>
-
 <main
-	class="w-full max-w-sm mx-auto flex flex-col justify-center items-center p-4"
+	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-4"
 >
-	<div class="w-full flex items-center justify-between mb-6">
+	<div class="flex justify-between items-center mb-4">
 		<div class="flex items-center gap-2">
 			<Button
 				variant="ghost"
