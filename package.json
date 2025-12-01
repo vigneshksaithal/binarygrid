@@ -28,7 +28,7 @@
     "@lucide/svelte": "^0.555.0",
     "@tailwindcss/vite": "^4.1.17",
     "canvas-confetti": "^1.9.4",
-    "devvit": "0.12.4",
+    "devvit": "1.0.0",
     "hono": "^4.10.7",
     "tailwindcss": "^4.1.17"
   },
