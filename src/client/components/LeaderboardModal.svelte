@@ -85,10 +85,7 @@
 				style="background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(74, 222, 128, 0.03) 1px, rgba(74, 222, 128, 0.03) 2px);"
 			>
 				{#if state.entries.length === 0}
-					<p class="text-sm text-green-400">
-						No leaderboard entries yet. Be the first to submit a blazing-fast
-						time!
-					</p>
+					<p class="text-sm text-green-400">No leaderboard entries yet.</p>
 				{:else}
 					<ol class="space-y-1">
 						{#each state.entries as entry (entry.userId)}
@@ -99,11 +96,11 @@
 										: ''
 								}`}
 							>
-								<p class="text-xs truncate font-semibold text-green-300">
+								<p class="text-xs truncate">
 									{formatRankLabel(entry.rank)}
 								</p>
-								<p class="flex-1 text-xs text-green-400">{entry.username}</p>
-								<p class="text-sm font-semibold text-green-400">
+								<p class="flex-1 text-xs">{entry.username}</p>
+								<p class="text-sm">
 									{formatElapsedTime(Math.round(entry.timeSeconds))}
 								</p>
 							</li>
@@ -117,14 +114,14 @@
 					>
 						<h3 class="text-green-400">Your ranking</h3>
 						<div class="flex items-center gap-3">
-							<span class="text-sm font-semibold text-green-300">
+							<span class="text-sm font-semibold">
 								{formatRankLabel(state.playerEntry?.rank ?? 0)}
 							</span>
 							<div class="flex-1">
-								<p class="text-sm font-semibold text-green-400">
+								<p class="text-sm">
 									{state.playerEntry?.username ?? 'You'}
 								</p>
-								<p class="text-xs text-green-400">
+								<p class="text-xs">
 									Time:
 									{formatElapsedTime(
 										Math.round(state.playerEntry?.timeSeconds ?? 0),
@@ -137,18 +134,18 @@
 			</div>
 
 			{#if $leaderboard.entries.length > 0}
-				<nav class="flex items-center justify-between text-xs text-green-400">
+				<nav class="flex items-center justify-between text-xs">
 					<Button
-						variant="secondary"
+						variant="ghost"
 						size="sm"
 						onClick={goToPreviousPage}
 						disabled={!$leaderboard.hasPreviousPage}
 					>
 						Previous
 					</Button>
-					<span>Page {$leaderboard.page + 1}</span>
+					<p class="text-sm mb-0">[Page {$leaderboard.page + 1}]</p>
 					<Button
-						variant="secondary"
+						variant="ghost"
 						size="sm"
 						onClick={goToNextPage}
 						disabled={!$leaderboard.hasNextPage}
