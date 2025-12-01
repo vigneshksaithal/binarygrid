@@ -33,9 +33,14 @@
 			aria-labelledby={labelledby}
 			aria-describedby={describedby}
 		>
-			<div class="absolute top-2 right-2">
-				<Button onClick={onClose} ariaLabel="Close" variant="ghost" size="icon-sm">
-					<XIcon class="size-4" />
+			<div class="absolute top-4 right-4">
+				<Button
+					onClick={onClose}
+					ariaLabel="Close"
+					variant="default"
+					size="icon-sm"
+				>
+					<XIcon class="size-6" />
 				</Button>
 			</div>
 			{@render children?.()}
