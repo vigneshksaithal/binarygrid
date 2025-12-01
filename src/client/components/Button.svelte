@@ -38,7 +38,7 @@
 		default:
 			'bg-green-300 dark:bg-green-900 text-green-800 dark:text-green-400 border-green-800 dark:border-green-400 hover:border-green-500 focus-visible:ring-green-500 disabled:opacity-50 disabled:bg-green-200 dark:disabled:bg-green-950 disabled:text-green-600 dark:disabled:text-green-600 disabled:border-green-600 dark:disabled:border-green-600 disabled:hover:border-green-800',
 		secondary:
-			'text-neutral-900 dark:text-neutral-300 border-neutral-900 dark:border-neutral-300 hover:border-neutral-900/85 focus-visible:ring-neutral-400 disabled:opacity-50 disabled:text-neutral-500 dark:disabled:text-neutral-600 disabled:border-neutral-500 dark:disabled:border-neutral-600 disabled:hover:border-neutral-900',
+			'text-neutral-900 dark:text-neutral-300 border-neutral-900 dark:border-neutral-300 hover:border-neutral-900/85 focus-visible:ring-neutral-400 disabled:opacity-90 disabled:text-neutral-500 dark:disabled:text-neutral-400 disabled:border-neutral-500 dark:disabled:border-neutral-400 disabled:hover:border-neutral-900',
 		ghost:
 			'bg-transparent text-green-800 dark:text-green-400 border-transparent hover:bg-green-200/50 dark:hover:bg-green-900/30 focus-visible:ring-green-500 disabled:opacity-50 disabled:text-green-600 dark:disabled:text-green-600 disabled:hover:bg-transparent',
 	}
