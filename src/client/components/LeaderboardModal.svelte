@@ -60,7 +60,7 @@
 	describedby="leaderboard-modal-description"
 >
 	<section class="flex max-h-full flex-col gap-4">
-		<h2 id="leaderboard-modal-title">>Leaderboard</h2>
+		<h2 id="leaderboard-modal-title">Leaderboard</h2>
 
 		{#if $leaderboard.status === 'loading'}
 			<div
