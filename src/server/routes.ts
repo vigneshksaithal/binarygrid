@@ -106,15 +106,23 @@ const formatElapsedTime = (elapsed: number): string => {
 // Comment score endpoint
 app.post('/api/comment-score', async (c) => {
   const body = await c.req
-    .json<{ solveTimeSeconds: number }>()
+    .json<{ solveTimeSeconds: number; difficulty: Difficulty }>()
     .catch(() => null)
-  if (!body || typeof body.solveTimeSeconds !== 'number') {
+  if (
+    !body ||
+    typeof body.solveTimeSeconds !== 'number' ||
+    typeof body.difficulty !== 'string'
+  ) {
     return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
   }
 
   const solveTimeSeconds = Number(body.solveTimeSeconds)
   if (!Number.isFinite(solveTimeSeconds) || solveTimeSeconds < 0) {
     return c.json({ error: 'invalid solve time' }, HTTP_BAD_REQUEST)
+  }
+
+  if (!isDifficultyValue(body.difficulty)) {
+    return c.json({ error: 'invalid difficulty' }, HTTP_BAD_REQUEST)
   }
 
   const { postId, userId } = context
@@ -127,7 +135,9 @@ app.post('/api/comment-score', async (c) => {
 
   try {
     const formattedTime = formatElapsedTime(solveTimeSeconds)
-    const commentText = `I solved today's Binary Grid puzzle in ${formattedTime}!`
+    const capitalizedDifficulty =
+      body.difficulty.charAt(0).toUpperCase() + body.difficulty.slice(1)
+    const commentText = `I solved today's Binary Grid puzzle on ${capitalizedDifficulty} difficulty in ${formattedTime}!`
 
     // Ensure postId has t3_ prefix for Reddit API
     const postIdWithPrefix = postId.startsWith('t3_')

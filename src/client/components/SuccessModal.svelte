@@ -1,5 +1,6 @@
 <script lang="ts">
 	import confetti from 'canvas-confetti'
+	import { game } from '../stores/game'
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 	import {
 		closeSuccessModal,
@@ -10,6 +11,8 @@
 	import Modal from './Modal.svelte'
 
 	let isJoining = $state(false)
+	let isCommenting = $state(false)
+	let commentPosted = $state(false)
 
 	const playAnotherDifficulty = () => {
 		closeSuccessModal()
@@ -38,6 +41,35 @@
 		}
 	}
 
+	const commentResult = async () => {
+		if (isCommenting) {
+			return
+		}
+		isCommenting = true
+
+		try {
+			const res = await fetch('/api/comment-score', {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify({
+					solveTimeSeconds: $elapsedSeconds,
+					difficulty: $game.difficulty,
+				}),
+			})
+			if (res.ok) {
+				commentPosted = true
+			} else {
+				// biome-ignore lint/suspicious/noConsole: we want to log the error
+				console.error('Failed to comment result')
+			}
+		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: we want to log the error
+			console.error('Failed to comment result', error)
+		} finally {
+			isCommenting = false
+		}
+	}
+
 	const showConfetti = () => {
 		const CONFETTI_PARTICLE_COUNT = 100
 		const CONFETTI_SPREAD = 70
@@ -53,6 +85,7 @@
 	$effect(() => {
 		if ($showSuccessModal) {
 			showConfetti()
+			commentPosted = false
 		}
 	})
 </script>
@@ -69,7 +102,19 @@
 			You solved it in {formatElapsedTime($elapsedSeconds)}.
 		</p>
 		<div class="flex flex-col gap-3 justify-center mb-6">
-			<Button>Comment Result</Button>
+			{#if commentPosted}
+				<p class="text-green-600 dark:text-green-400 font-semibold">
+					Comment posted successfully!
+				</p>
+			{:else}
+				<Button onClick={commentResult} disabled={isCommenting}>
+					{#if isCommenting}
+						Commenting…
+					{:else}
+						Comment Result
+					{/if}
+				</Button>
+			{/if}
 		</div>
 	</div>
 	<hr class="border-b-2 border-green-400 dark:border-green-600 mb-4" />
