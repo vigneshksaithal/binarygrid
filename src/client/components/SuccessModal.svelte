@@ -3,7 +3,6 @@
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 	import {
 		closeSuccessModal,
-		openLeaderboardModal,
 		openPlayOverlay,
 		showSuccessModal,
 	} from '../stores/ui'
@@ -11,11 +10,6 @@
 	import Modal from './Modal.svelte'
 
 	let isJoining = $state(false)
-
-	const viewLeaderboard = () => {
-		closeSuccessModal()
-		openLeaderboardModal()
-	}
 
 	const playAnotherDifficulty = () => {
 		closeSuccessModal()
@@ -69,27 +63,27 @@
 	labelledby="success-modal-title"
 	describedby="success-modal-body"
 >
-	<h2 id="success-modal-title">Congratulations!</h2>
+	<h2 id="success-modal-title">CONGRATS!</h2>
 	<div id="success-modal-body" class="grid gap-2">
 		<p class="mb-4">
 			You solved it in {formatElapsedTime($elapsedSeconds)}.
 		</p>
 		<div class="flex flex-col gap-3 justify-center mb-6">
 			<Button>Comment Result</Button>
-			<Button variant="default" onClick={playAnotherDifficulty}>
-				Play next Difficulty
-			</Button>
-			<Button variant="secondary" onClick={viewLeaderboard}>Leaderboard</Button>
 		</div>
-		<p class="text-sm mb-6">Join r/binarygrid for daily challenges.</p>
 	</div>
-	<footer class="flex justify-end gap-4">
+	<hr class="border-b-2 border-green-400 dark:border-green-600 mb-4" />
+	<p class="mb-6">[Join r/binarygrid for daily challenges.]</p>
+	<footer class="flex flex-col gap-4">
 		<Button onClick={joinSubreddit} disabled={isJoining}>
 			{#if isJoining}
 				Joining…
 			{:else}
-				Join
+				Join Subreddit
 			{/if}
+		</Button>
+		<Button variant="default" onClick={playAnotherDifficulty}>
+			Change Difficulty
 		</Button>
 	</footer>
 </Modal>
