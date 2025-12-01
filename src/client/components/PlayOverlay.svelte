@@ -46,18 +46,21 @@
 		<p class="mb-4">> Select Difficulty:</p>
 		<div class="flex flex-col gap-4 w-full max-w-3xs mb-8">
 			<Button
+				size="lg"
 				onClick={() => selectDifficulty('easy')}
 				ariaLabel="Easy difficulty"
 			>
 				Easy
 			</Button>
 			<Button
+				size="lg"
 				onClick={() => selectDifficulty('medium')}
 				ariaLabel="Medium difficulty"
 			>
 				Medium
 			</Button>
 			<Button
+				size="lg"
 				onClick={() => selectDifficulty('hard')}
 				ariaLabel="Hard difficulty"
 			>

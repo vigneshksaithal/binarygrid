@@ -27,6 +27,7 @@
 		<div class="flex items-center gap-2">
 			<Button
 				variant="default"
+				size="icon"
 				onClick={openLeaderboardModal}
 				ariaLabel="Leaderboard"
 			>
@@ -35,6 +36,7 @@
 			</Button>
 			<Button
 				variant="default"
+				size="default"
 				onClick={openHowToModal}
 				ariaLabel="How to Play"
 			>
