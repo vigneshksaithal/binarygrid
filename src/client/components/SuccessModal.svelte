@@ -69,22 +69,19 @@
 	labelledby="success-modal-title"
 	describedby="success-modal-body"
 >
-	<h2 id="success-modal-title" class="text-green-500 dark:text-green-400">
-		Congratulations!
-	</h2>
-	<div id="success-modal-body" class="grid gap-2 text-zinc-100">
+	<h2 id="success-modal-title">Congratulations!</h2>
+	<div id="success-modal-body" class="grid gap-2">
 		<p class="mb-4">
 			You solved it in {formatElapsedTime($elapsedSeconds)}.
 		</p>
-		<div class="flex flex-col gap-4 justify-center mb-6">
+		<div class="flex flex-col gap-3 justify-center mb-6">
+			<Button>Comment Result</Button>
 			<Button variant="default" onClick={playAnotherDifficulty}>
 				Play next Difficulty
 			</Button>
 			<Button variant="secondary" onClick={viewLeaderboard}>Leaderboard</Button>
 		</div>
-		<p class="text-sm text-zinc-300 mb-6">
-			Join r/binarygrid for daily challenges.
-		</p>
+		<p class="text-sm mb-6">Join r/binarygrid for daily challenges.</p>
 	</div>
 	<footer class="flex justify-end gap-4">
 		<Button onClick={joinSubreddit} disabled={isJoining}>
