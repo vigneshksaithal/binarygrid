@@ -44,7 +44,7 @@
 	>
 		<h1 class="mb-8">Binary Grid</h1>
 		<p class="mb-4">> Select Difficulty:</p>
-		<div class="flex flex-col gap-4 w-full max-w-3xs mb-8">
+		<div class="flex flex-col gap-3 w-full max-w-3xs mb-8">
 			<Button
 				size="lg"
 				onClick={() => selectDifficulty('easy')}
