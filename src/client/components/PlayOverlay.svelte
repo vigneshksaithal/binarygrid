@@ -40,7 +40,7 @@
 
 {#if $showPlayOverlay}
 	<div
-		class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-green-200 dark:bg-green-950"
+		class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-green-50 dark:bg-green-950"
 	>
 		<h1 class="mb-8">Binary Grid</h1>
 		<p class="mb-4">> Select Difficulty:</p>
