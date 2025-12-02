@@ -46,6 +46,9 @@ export const crossPost = async (postId: string, subredditName: string) => {
 
   // Get the original post to retrieve its title
   const originalPost = await reddit.getPostById(postIdWithPrefix)
+  if (!originalPost) {
+    throw new Error(`Post not found: ${postIdWithPrefix}`)
+  }
   const title = originalPost.title || 'Can you solve today\'s puzzle?'
 
   const crosspostedPost = await reddit.crosspost({
