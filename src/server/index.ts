@@ -1,7 +1,11 @@
 import { context, createServer, getServerPort } from '@devvit/web/server'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import { createPost } from './core/post'
+import {
+  createPost,
+  crosspostLatestPost,
+  TARGET_CROSSPOST_SUBREDDIT
+} from './core/post'
 import routes from './routes'
 
 const app = new Hono()
@@ -49,6 +53,19 @@ app.post('/internal/menu/post-create', async (c) => {
 app.post('/internal/schedule/daily', async (c) => {
   try {
     const post = await createPost()
+
+    // Crosspost to target subreddit (don't fail daily post if crosspost fails)
+    try {
+      await crosspostLatestPost(post.id, TARGET_CROSSPOST_SUBREDDIT)
+    } catch (crosspostError) {
+      // Log error but don't fail the daily post creation
+      const errorMessage =
+        crosspostError instanceof Error
+          ? crosspostError.message
+          : 'Unknown error'
+      // biome-ignore lint/suspicious/noConsole: we want to log crosspost errors
+      console.error(`Failed to crosspost daily post: ${errorMessage}`)
+    }
 
     return c.json({
       status: 'ok',
