@@ -22,7 +22,7 @@
 
 @layer base {
   body {
-    @apply min-h-screen min-w-80 w-full bg-green-200 dark:bg-green-950;
+    @apply min-h-screen min-w-80 w-full bg-green-50 dark:bg-green-950;
   }
 
 
