@@ -26,7 +26,7 @@
 
 <button
 	type="button"
-	class="aspect-square font-mono font-bold text-xl text-green-800 dark:text-green-400 focus:outline-none border-2 border-green-500 dark:border-green-700 focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed transition-colors hover:bg-green-500/10 dark:hover:bg-green-600/10 relative {fixed
+	class="aspect-square font-mono font-extrabold text-2xl text-green-800 dark:text-green-400 focus:outline-none border-2 border-green-500 dark:border-green-700 focus:ring-2 focus:ring-green-500 disabled:cursor-not-allowed transition-colors hover:bg-green-500/10 dark:hover:bg-green-600/10 relative {fixed
 		? 'bg-green-400 dark:bg-green-800 text-green-600 dark:text-green-400'
 		: ''} {borderClass}"
 	onclick={handleClick}
