@@ -1,11 +1,5 @@
 @import "tailwindcss";
 
-/**
- * Binary Grid Color System
- * CSS Custom Properties for Tailwind CSS
- * Only includes colors actually used in the codebase
- */
-
 :root {
   /* Accent Colors */
   --color-accent-red: #ff4d4d;
