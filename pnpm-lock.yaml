@@ -13,7 +13,7 @@ importers:
         version: 0.12.5(twirp-ts@2.5.0)
       '@hono/node-server':
         specifier: ^1.19.7
-        version: 1.19.7(hono@4.10.7)
+        version: 1.19.7(hono@4.10.8)
       '@lucide/svelte':
         specifier: ^0.556.0
         version: 0.556.0(svelte@5.45.8)
@@ -27,8 +27,8 @@ importers:
         specifier: 0.12.5
         version: 0.12.5(@devvit/server@0.12.5(twirp-ts@2.5.0))(@devvit/shared@0.12.5(twirp-ts@2.5.0))(@types/node@24.10.2)(google-protobuf@3.21.4)(typescript@5.9.3)
       hono:
-        specifier: ^4.10.7
-        version: 4.10.7
+        specifier: ^4.10.8
+        version: 4.10.8
       tailwindcss:
         specifier: ^4.1.17
         version: 4.1.17
@@ -1582,8 +1582,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.10.7:
-    resolution: {integrity: sha512-icXIITfw/07Q88nLSkB9aiUrd8rYzSweK681Kjo/TSggaGbOX4RRyxxm71v+3PC8C/j+4rlxGeoTRxQDkaJkUw==}
+  hono@4.10.8:
+    resolution: {integrity: sha512-DDT0A0r6wzhe8zCGoYOmMeuGu3dyTAE40HHjwUsWFTEy5WxK1x2WDSsBPlEXgPbRIFY6miDualuUDbasPogIww==}
     engines: {node: '>=16.9.0'}
 
   hotscript@1.0.13:
@@ -3091,9 +3091,9 @@ snapshots:
   '@esbuild/win32-x64@0.25.9':
     optional: true
 
-  '@hono/node-server@1.19.7(hono@4.10.7)':
+  '@hono/node-server@1.19.7(hono@4.10.8)':
     dependencies:
-      hono: 4.10.7
+      hono: 4.10.8
 
   '@improbable-eng/grpc-web-node-http-transport@0.15.0(@improbable-eng/grpc-web@0.15.0(google-protobuf@3.21.4))':
     dependencies:
@@ -4159,7 +4159,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.10.7: {}
+  hono@4.10.8: {}
 
   hotscript@1.0.13: {}
 
