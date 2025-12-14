@@ -15,8 +15,8 @@ importers:
         specifier: ^1.19.7
         version: 1.19.7(hono@4.10.8)
       '@lucide/svelte':
-        specifier: ^0.559.0
-        version: 0.559.0(svelte@5.45.10)
+        specifier: ^0.561.0
+        version: 0.561.0(svelte@5.45.10)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@8.0.0-beta.0(@types/node@25.0.0)(esbuild@0.25.12)(jiti@2.6.1))
@@ -542,8 +542,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@lucide/svelte@0.559.0':
-    resolution: {integrity: sha512-ZIGuYvrayrbPR/GhNlhvFXesH45LyEz38WphtkIu6UEyKZsFnGHFQD7CAXDOoum6JiqN2PSIxilVRcHwWLBmoQ==}
+  '@lucide/svelte@0.561.0':
+    resolution: {integrity: sha512-vofKV2UFVrKE6I4ewKJ3dfCXSV6iP6nWVmiM83MLjsU91EeJcEg7LoWUABLp/aOTxj1HQNbJD1f3g3L0JQgH9A==}
     peerDependencies:
       svelte: ^5
 
@@ -2299,9 +2299,6 @@ packages:
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
 
-  tailwindcss@4.1.17:
-    resolution: {integrity: sha512-j9Ee2YjuQqYT9bbRTfTZht9W/ytp5H+jJpZKiYdP/bpnXARAuELt9ofP0lPnmHjbga7SNQIxdTAXCmtKVYjN+Q==}
-
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
 
@@ -3131,7 +3128,7 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lucide/svelte@0.559.0(svelte@5.45.10)':
+  '@lucide/svelte@0.561.0(svelte@5.45.10)':
     dependencies:
       svelte: 5.45.10
 
@@ -4908,8 +4905,6 @@ snapshots:
       zimmerframe: 1.1.4
 
   symbol-tree@3.2.4: {}
-
-  tailwindcss@4.1.17: {}
 
   tailwindcss@4.1.18: {}
 
