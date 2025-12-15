@@ -1,6 +1,6 @@
 <script lang="ts">
+	import InfoIcon from '@lucide/svelte/icons/info'
 	import TrophyIcon from '@lucide/svelte/icons/trophy'
-	import { onMount } from 'svelte'
 	import './app.css'
 	import Button from './components/Button.svelte'
 	import Grid from './components/Grid.svelte'
@@ -15,32 +15,33 @@
 		openPlayOverlay,
 	} from './stores/ui'
 
-	onMount(() => {
+	$effect.pre(() => {
 		openPlayOverlay()
 	})
 </script>
 
 <main
-	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-4"
+	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
 >
 	<div class="flex justify-between items-center mb-4">
 		<div class="flex items-center gap-2">
 			<Button
 				variant="ghost"
 				size="sm"
-				onClick={openLeaderboardModal}
-				ariaLabel="Leaderboard"
+				onClick={openHowToModal}
+				ariaLabel="How to Play"
 			>
-				<TrophyIcon class="size-5" />
-				<span class="sr-only">Leaderboard</span>
+				<InfoIcon class="size-6" />
+				<span class="sr-only">How to Play</span>
 			</Button>
 			<Button
 				variant="ghost"
 				size="sm"
-				onClick={openHowToModal}
-				ariaLabel="How to Play"
+				onClick={openLeaderboardModal}
+				ariaLabel="Leaderboard"
 			>
-				How to Play
+				<TrophyIcon class="size-6" />
+				<span class="sr-only">Leaderboard</span>
 			</Button>
 		</div>
 		<Timer />

@@ -17,8 +17,8 @@ const DECIMAL_RADIX = 10
 const GRID_SIZE_TYPE = 6
 const DEFAULT_DIFFICULTY: Difficulty = 'medium'
 const DIFFICULTY_VALUES = ['easy', 'medium', 'hard']
-const LEADERBOARD_DEFAULT_PAGE_SIZE = 10
-const LEADERBOARD_MAX_PAGE_SIZE = 50
+const LEADERBOARD_DEFAULT_PAGE_SIZE = 5
+const LEADERBOARD_MAX_PAGE_SIZE = 10
 const CACHE_TTL_ONE_DAY = 86400
 
 type StoredLeaderboardMeta = {

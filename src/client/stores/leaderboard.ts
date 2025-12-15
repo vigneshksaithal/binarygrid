@@ -19,7 +19,7 @@ type LeaderboardState = {
   error: string | null
 }
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 5
 
 const makeInitialState = (): LeaderboardState => ({
   status: 'idle',
