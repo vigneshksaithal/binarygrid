@@ -44,13 +44,6 @@
 		<h1 class="mb-12">Binary Grid</h1>
 		<!-- <p class="mb-8">Balance the grid. Beat the clock.</p> -->
 		<div class="flex flex-col gap-4 w-full max-w-3xs mb-8">
-			<!-- <Button
-				size="lg"
-				onClick={() => selectDifficulty('easy')}
-				ariaLabel="Easy difficulty"
-			>
-				PLAY
-			</Button> -->
 			<button
 				class="w-full inline-flex items-center justify-center whitespace-nowrap font-mono font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer disabled:cursor-not-allowed uppercase bg-green-500 text-white px-6 py-4 animate-bounce"
 				onclick={() => selectDifficulty('easy')}
