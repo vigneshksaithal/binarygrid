@@ -21,7 +21,7 @@
 
 
   h1 {
-    @apply text-4xl font-semibold font-mono tracking-wide text-green-700 dark:text-green-400 mb-4;
+    @apply text-4xl font-semibold font-mono tracking-wide text-green-700 dark:text-green-500 mb-4;
   }
 
   h2 {
