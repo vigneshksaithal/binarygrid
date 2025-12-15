@@ -46,7 +46,7 @@
 		<div class="flex flex-col gap-4 w-full max-w-3xs mb-8">
 			<button
 				class="w-full inline-flex items-center justify-center whitespace-nowrap font-mono font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer disabled:cursor-not-allowed uppercase bg-green-500 text-white px-6 py-4 animate-bounce"
-				onclick={() => selectDifficulty('easy')}
+				onclick={() => selectDifficulty('medium')}
 				aria-label="Play"
 			>
 				PLAY
