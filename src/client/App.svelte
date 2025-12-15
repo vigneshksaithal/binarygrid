@@ -1,4 +1,5 @@
 <script lang="ts">
+	import HelpCircleIcon from '@lucide/svelte/icons/help-circle'
 	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import { onMount } from 'svelte'
 	import './app.css'
@@ -40,7 +41,7 @@
 				onClick={openHowToModal}
 				ariaLabel="How to Play"
 			>
-				How to Play
+				<HelpCircleIcon class="size-5" />
 			</Button>
 		</div>
 		<Timer />
