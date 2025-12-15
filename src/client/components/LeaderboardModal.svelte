@@ -84,10 +84,30 @@
 				class="flex-1 overflow-y-auto space-y-3 pr-1 relative"
 				style="background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(74, 222, 128, 0.03) 1px, rgba(74, 222, 128, 0.03) 2px);"
 			>
+				{#if showPlayerSummary()}
+					<div
+						class="border border-green-400/50 bg-green-400/10 p-4 text-sm text-green-400"
+					>
+						<h3 class="text-green-400">Your ranking</h3>
+						<div class="flex items-center justify-center gap-3">
+							<span class="text-sm font-semibold">
+								{formatRankLabel(state.playerEntry?.rank ?? 0)}
+							</span>
+							<p class="text-sm">
+								{state.playerEntry?.username ?? 'You'}
+							</p>
+							<p class="text-xs">
+								{formatElapsedTime(
+									Math.round(state.playerEntry?.timeSeconds ?? 0),
+								)}
+							</p>
+						</div>
+					</div>
+				{/if}
 				{#if state.entries.length === 0}
 					<p class="text-sm text-green-400">No leaderboard entries yet.</p>
 				{:else}
-					<ol class="space-y-1">
+					<ol class="space-y-0.5">
 						{#each state.entries as entry (entry.userId)}
 							<li
 								class={`flex items-center gap-3 rounded-lg border border-transparent ${
@@ -106,30 +126,6 @@
 							</li>
 						{/each}
 					</ol>
-				{/if}
-
-				{#if showPlayerSummary()}
-					<div
-						class="rounded-lg border border-green-400/50 bg-green-400/10 p-4 text-sm text-green-400"
-					>
-						<h3 class="text-green-400">Your ranking</h3>
-						<div class="flex items-center gap-3">
-							<span class="text-sm font-semibold">
-								{formatRankLabel(state.playerEntry?.rank ?? 0)}
-							</span>
-							<div class="flex-1">
-								<p class="text-sm">
-									{state.playerEntry?.username ?? 'You'}
-								</p>
-								<p class="text-xs">
-									Time:
-									{formatElapsedTime(
-										Math.round(state.playerEntry?.timeSeconds ?? 0),
-									)}
-								</p>
-							</div>
-						</div>
-					</div>
 				{/if}
 			</div>
 
