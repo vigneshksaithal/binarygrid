@@ -14,7 +14,7 @@
 	const errorColSet = $derived(new Set($game.errorLocations?.columns ?? []))
 </script>
 
-<div class="w-full grid grid-cols-6 gap-1">
+<div class="w-full grid grid-cols-6 gap-0.5">
 	{#if $game.status === 'solved'}
 		<p class="col-span-6 text-center">Solved</p>
 	{/if}
