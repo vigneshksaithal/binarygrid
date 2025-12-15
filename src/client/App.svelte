@@ -21,7 +21,7 @@
 </script>
 
 <main
-	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-4"
+	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
 >
 	<div class="flex justify-between items-center mb-4">
 		<div class="flex items-center gap-2">
