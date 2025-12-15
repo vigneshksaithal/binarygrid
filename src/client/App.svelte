@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { InfoIcon } from '@lucide/svelte'
+	import InfoIcon from '@lucide/svelte/icons/info'
 	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import './app.css'
 	import Button from './components/Button.svelte'
