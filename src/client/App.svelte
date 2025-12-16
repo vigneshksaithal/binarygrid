@@ -37,75 +37,77 @@
 <main
 	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
 >
-	<div class="flex justify-between items-center mb-4">
-		<div class="flex items-center gap-4">
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={openHowToModal}
-				ariaLabel="How to Play"
-			>
-				<InfoIcon />
-				<span class="sr-only">How to Play</span>
-			</Button>
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={openLeaderboardModal}
-				ariaLabel="Leaderboard"
-			>
-				<TrophyIcon />
-				<span class="sr-only">Leaderboard</span>
-			</Button>
-			<div class="relative">
+	<div class="p-3 bg-zinc-200 dark:bg-zinc-700 rounded-2xl">
+		<div class="flex justify-between items-center mb-4">
+			<div class="flex items-center gap-4">
 				<Button
 					variant="ghost"
 					size="icon"
-					onClick={handleHint}
-					disabled={!$canUseHint || $game.status === 'solved'}
-					ariaLabel="Hint"
+					onClick={openHowToModal}
+					ariaLabel="How to Play"
 				>
-					<LightbulbIcon />
-					<span class="sr-only">Hint</span>
+					<InfoIcon />
+					<span class="sr-only">How to Play</span>
 				</Button>
-				{#if !$canUseHint}
-					<svg
-						class="absolute inset-0 pointer-events-none"
-						width="36"
-						height="36"
-						viewBox="0 0 36 36"
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={openLeaderboardModal}
+					ariaLabel="Leaderboard"
+				>
+					<TrophyIcon />
+					<span class="sr-only">Leaderboard</span>
+				</Button>
+				<div class="relative">
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={handleHint}
+						disabled={!$canUseHint || $game.status === 'solved'}
+						ariaLabel="Hint"
 					>
-						<circle
-							cx="18"
-							cy="18"
-							r={radius}
-							fill="none"
-							stroke="currentColor"
-							stroke-width="2"
-							stroke-linecap="round"
-							stroke-dasharray={circumference}
-							stroke-dashoffset={circumference -
-								(circumference * $cooldownProgress) / 100}
-							transform="rotate(-90 18 18)"
-							class="text-green-500 dark:text-green-400 transition-all duration-100"
-						/>
-					</svg>
-				{/if}
+						<LightbulbIcon />
+						<span class="sr-only">Hint</span>
+					</Button>
+					{#if !$canUseHint}
+						<svg
+							class="absolute inset-0 pointer-events-none"
+							width="36"
+							height="36"
+							viewBox="0 0 36 36"
+						>
+							<circle
+								cx="18"
+								cy="18"
+								r={radius}
+								fill="none"
+								stroke="currentColor"
+								stroke-width="2"
+								stroke-linecap="round"
+								stroke-dasharray={circumference}
+								stroke-dashoffset={circumference -
+									(circumference * $cooldownProgress) / 100}
+								transform="rotate(-90 18 18)"
+								class="text-green-500 dark:text-green-400 transition-all duration-100"
+							/>
+						</svg>
+					{/if}
+				</div>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={undo}
+					disabled={$game.history.length === 0 ||
+						($game.status !== 'in_progress' && $game.status !== 'invalid')}
+					ariaLabel="Undo"
+				>
+					<Undo2Icon />
+				</Button>
 			</div>
-			<Button
-				variant="ghost"
-				size="icon"
-				onClick={undo}
-				disabled={$game.history.length === 0 ||
-					($game.status !== 'in_progress' && $game.status !== 'invalid')}
-				ariaLabel="Undo"
-			>
-				<Undo2Icon />
-			</Button>
+			<Timer />
 		</div>
-		<Timer />
+		<Grid />
 	</div>
-	<Grid />
 </main>
 
 <PlayOverlay />
