@@ -54,17 +54,20 @@ app.post('/internal/schedule/daily', async (c) => {
   try {
     const post = await createPost()
 
-    // Crosspost to target subreddit (don't fail daily post if crosspost fails)
-    try {
-      await crosspostLatestPost(post.id, TARGET_CROSSPOST_SUBREDDIT)
-    } catch (crosspostError) {
-      // Log error but don't fail the daily post creation
-      const errorMessage =
-        crosspostError instanceof Error
-          ? crosspostError.message
-          : 'Unknown error'
-      // biome-ignore lint/suspicious/noConsole: we want to log crosspost errors
-      console.error(`Failed to crosspost daily post: ${errorMessage}`)
+    // Only crosspost to RedditGames if current subreddit is binarygrid
+    if (context.subredditName?.toLowerCase() === 'binarygrid') {
+      // Crosspost to target subreddit (don't fail daily post if crosspost fails)
+      try {
+        await crosspostLatestPost(post.id, TARGET_CROSSPOST_SUBREDDIT)
+      } catch (crosspostError) {
+        // Log error but don't fail the daily post creation
+        const errorMessage =
+          crosspostError instanceof Error
+            ? crosspostError.message
+            : 'Unknown error'
+        // biome-ignore lint/suspicious/noConsole: we want to log crosspost errors
+        console.error(`Failed to crosspost daily post: ${errorMessage}`)
+      }
     }
 
     return c.json({

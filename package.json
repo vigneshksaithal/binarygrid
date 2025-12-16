@@ -23,13 +23,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@devvit/web": "0.12.5",
+    "@devvit/web": "0.12.6",
     "@hono/node-server": "^1.19.7",
     "@lucide/svelte": "^0.561.0",
     "@tailwindcss/vite": "^4.1.18",
     "canvas-confetti": "^1.9.4",
-    "devvit": "0.12.5",
-    "hono": "^4.10.8",
+    "devvit": "0.12.6",
+    "hono": "^4.11.1",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
@@ -38,10 +38,10 @@
     "@types/node": "^25.0.2",
     "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
-    "svelte": "^5.45.10",
+    "svelte": "^5.46.0",
     "svelte-check": "^4.3.4",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.2",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.16"
   }
 }

@@ -69,10 +69,12 @@
 				aria-live="polite"
 			>
 				<div
-					class="size-4 md:size-6 rounded-full border-2 border-green-400 border-t-transparent animate-spin"
+					class="size-4 md:size-6 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin"
 					aria-hidden="true"
 				></div>
-				<p class="text-sm text-green-400">Loading leaderboard…</p>
+				<p class="text-sm text-zinc-600 dark:text-zinc-400">
+					Loading leaderboard…
+				</p>
 			</div>
 		{:else if $leaderboard.status === 'error'}
 			<p class="rounded-lg bg-error/10 p-4 text-sm text-error">
@@ -82,13 +84,13 @@
 			{@const state = $leaderboard}
 			<div
 				class="flex-1 overflow-y-auto space-y-3 pr-1 relative"
-				style="background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(74, 222, 128, 0.03) 1px, rgba(74, 222, 128, 0.03) 2px);"
+				style="background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(161, 161, 170, 0.03) 1px, rgba(161, 161, 170, 0.03) 2px);"
 			>
 				{#if showPlayerSummary()}
 					<div
-						class="border border-green-400/50 bg-green-400/10 p-4 text-sm text-green-400"
+						class="border border-zinc-400/50 bg-zinc-200/30 dark:bg-zinc-800/30 p-4 text-sm text-zinc-800 dark:text-zinc-300 rounded-lg"
 					>
-						<h3 class="text-green-400">Your ranking</h3>
+						<h3 class="text-zinc-800 dark:text-zinc-300">Your ranking</h3>
 						<div class="flex items-center justify-center gap-3">
 							<span class="text-sm font-semibold">
 								{formatRankLabel(state.playerEntry?.rank ?? 0)}
@@ -105,14 +107,16 @@
 					</div>
 				{/if}
 				{#if state.entries.length === 0}
-					<p class="text-sm text-green-400">No leaderboard entries yet.</p>
+					<p class="text-sm text-zinc-600 dark:text-zinc-400">
+						No leaderboard entries yet.
+					</p>
 				{:else}
 					<ol class="space-y-0.5">
 						{#each state.entries as entry (entry.userId)}
 							<li
 								class={`flex items-center gap-3 rounded-lg border border-transparent ${
 									entry.userId === state.playerEntry?.userId
-										? 'border-green-400/60 bg-green-400/10'
+										? 'border-zinc-400/60 bg-zinc-200/30 dark:bg-zinc-800/30'
 										: ''
 								}`}
 							>

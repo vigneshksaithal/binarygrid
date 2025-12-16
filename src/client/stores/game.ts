@@ -2,7 +2,9 @@ import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
-import { isComplete, validateGrid } from '../../shared/validator'
+import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
+import { resetHintCooldown, startCooldown } from './hint'
+import { fetchRank, resetRank, setRank } from './rank'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -29,8 +31,10 @@ export type GameState = {
     columns: number[]
   }
   | undefined
+  errorCells: Set<string>
   solution: Grid | null
   dateISO: string | null
+  history: Grid[]
 }
 
 const emptyGrid = (): Grid =>
@@ -69,8 +73,10 @@ const initial: GameState = {
   status: 'idle',
   errors: [],
   errorLocations: undefined,
+  errorCells: new Set(),
   solution: null,
-  dateISO: null
+  dateISO: null,
+  history: []
 }
 
 export const game = writable<GameState>(initial)
@@ -78,8 +84,16 @@ export const game = writable<GameState>(initial)
 export const loadPuzzle = async (difficulty: Difficulty) => {
   resetTimer()
   closeSuccessModal()
+  resetHintCooldown()
+  resetRank()
 
-  game.update((s) => ({ ...s, status: 'loading', errors: [] }))
+  game.update((s) => ({
+    ...s,
+    status: 'loading',
+    errors: [],
+    errorLocations: undefined,
+    errorCells: new Set()
+  }))
 
   const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
 
@@ -87,7 +101,9 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     game.update((s) => ({
       ...s,
       status: 'error',
-      errors: ['failed to load puzzle', `HTTP ${res.status}`]
+      errors: ['failed to load puzzle', `HTTP ${res.status}`],
+      errorLocations: undefined,
+      errorCells: new Set()
     }))
 
     return
@@ -112,8 +128,10 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     status: 'in_progress',
     errors: [],
     errorLocations: undefined,
+    errorCells: new Set(),
     solution,
-    dateISO: ''
+    dateISO: '',
+    history: []
   })
 
   resetTimer()
@@ -140,7 +158,7 @@ const determineStatus = (isValid: boolean, grid: Grid): Status => {
   return 'in_progress'
 }
 
-const ERROR_DISPLAY_DELAY = 3000
+const ERROR_DISPLAY_DELAY = 1000
 let errorTimer: ReturnType<typeof setTimeout> | undefined
 let lastSubmittedPuzzleId: string | null = null
 
@@ -158,6 +176,7 @@ export const cycleCell = (r: number, c: number) => {
     if (isCellFixed(s.fixedSet, r, c)) {
       return s
     }
+    const previousGrid = cloneGrid(s.grid)
     const nextGrid = s.grid.map((gridRow) => gridRow.slice())
     const targetRow = nextGrid[r]
     if (!targetRow) {
@@ -173,6 +192,7 @@ export const cycleCell = (r: number, c: number) => {
 
     const currentGridJSON = JSON.stringify(nextGrid)
     if (!result.ok) {
+      const cellsWithErrors = findErrorCells(nextGrid)
       errorTimer = setTimeout(() => {
         const currentGameState = get(game)
         if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
@@ -180,7 +200,8 @@ export const cycleCell = (r: number, c: number) => {
             ...gameState,
             status: 'invalid',
             errors: result.errors,
-            errorLocations: result.errorLocations
+            errorLocations: result.errorLocations,
+            errorCells: cellsWithErrors
           }))
         }
       }, ERROR_DISPLAY_DELAY)
@@ -193,13 +214,41 @@ export const cycleCell = (r: number, c: number) => {
       grid: nextGrid,
       status,
       errors,
-      errorLocations: undefined
+      errorLocations: undefined,
+      errorCells: new Set(),
+      history: [...s.history, previousGrid]
     }
   })
   if (solved) {
     stopTimer()
     openSuccessModal()
   }
+}
+
+export const undo = () => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+
+  resetHintCooldown()
+
+  game.update((s) => {
+    if (s.history.length === 0) {
+      return s
+    }
+    const previousGrid = s.history[s.history.length - 1]!
+    const newHistory = s.history.slice(0, -1)
+    return {
+      ...s,
+      grid: previousGrid,
+      history: newHistory,
+      status: 'in_progress',
+      errors: [],
+      errorLocations: undefined,
+      errorCells: new Set()
+    }
+  })
 }
 
 export const autosubmitIfSolved = async () => {
@@ -225,8 +274,133 @@ export const autosubmitIfSolved = async () => {
     })
     if (res.ok) {
       lastSubmittedPuzzleId = snapshot.puzzleId
+      // Get rank from submit response
+      const data = await res.json()
+      if (
+        data.rank !== null &&
+        data.rank !== undefined &&
+        typeof data.totalEntries === 'number'
+      ) {
+        setRank(data.rank, data.totalEntries)
+      } else {
+        // Fallback to fetching rank if not in response
+        await fetchRank(snapshot.puzzleId)
+      }
     }
   } catch {
     // ignore network errors - autosubmit best effort only
   }
+}
+
+export const useHint = (): boolean => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+
+  const snapshot = get(game)
+
+  // Can only use hint during active game with a solution
+  if (snapshot.status !== 'in_progress' || !snapshot.solution) {
+    return false
+  }
+
+  const solution = snapshot.solution
+
+  // Find all empty cells that are not fixed
+  const emptyCells: { r: number; c: number }[] = []
+  for (let r = 0; r < SIZE; r++) {
+    const row = snapshot.grid[r]
+    if (!row) continue
+    for (let c = 0; c < SIZE; c++) {
+      if (row[c] === null && !isCellFixed(snapshot.fixedSet, r, c)) {
+        emptyCells.push({ r, c })
+      }
+    }
+  }
+
+  // No empty cells to fill
+  if (emptyCells.length === 0) {
+    return false
+  }
+
+  // Pick a random empty cell
+  const randomIndex = Math.floor(Math.random() * emptyCells.length)
+  const cell = emptyCells[randomIndex]
+  if (!cell) {
+    return false
+  }
+  const { r, c } = cell
+
+  // Get the correct value from the solution
+  const solutionRow = solution[r]
+  if (!solutionRow) {
+    return false
+  }
+  const correctValue = solutionRow[c]
+  if (correctValue === null || correctValue === undefined) {
+    return false
+  }
+
+  // Update the game state
+  let solved = false
+  let hintApplied = false
+  game.update((s) => {
+    const previousGrid = cloneGrid(s.grid)
+    const nextGrid = s.grid.map((gridRow) => gridRow.slice())
+    const targetRow = nextGrid[r]
+    if (!targetRow) {
+      return s
+    }
+    targetRow[c] = correctValue
+    hintApplied = true
+
+    const result = validateGrid(nextGrid, s.fixed)
+    let status = determineStatus(result.ok, nextGrid)
+    let errors = result.ok ? [] : result.errors
+    solved = status === 'solved'
+
+    const currentGridJSON = JSON.stringify(nextGrid)
+    if (!result.ok) {
+      const cellsWithErrors = findErrorCells(nextGrid)
+      errorTimer = setTimeout(() => {
+        const currentGameState = get(game)
+        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
+          game.update((gameState) => ({
+            ...gameState,
+            status: 'invalid',
+            errors: result.errors,
+            errorLocations: result.errorLocations,
+            errorCells: cellsWithErrors
+          }))
+        }
+      }, ERROR_DISPLAY_DELAY)
+
+      status = 'in_progress'
+      errors = []
+    }
+
+    return {
+      ...s,
+      grid: nextGrid,
+      status,
+      errors,
+      errorLocations: undefined,
+      errorCells: new Set(),
+      history: [...s.history, previousGrid]
+    }
+  })
+
+  if (solved) {
+    stopTimer()
+    openSuccessModal()
+  }
+
+  // Start the cooldown timer only if hint was successfully applied
+  if (hintApplied) {
+    startCooldown()
+    return true
+  }
+
+  return false
 }

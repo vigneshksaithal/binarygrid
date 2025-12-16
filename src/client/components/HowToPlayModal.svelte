@@ -9,7 +9,7 @@
 	labelledby="how-to-modal-title"
 	describedby="how-to-modal-body"
 >
-	<h2 id="how-to-modal-title">HOW TO PLAY</h2>
+	<h2 id="how-to-modal-title">How to Play</h2>
 	<div id="how-to-modal-body">
 		<ol>
 			<li>Tap any cell to cycle through: empty → 0 → 1</li>

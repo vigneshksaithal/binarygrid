@@ -9,53 +9,92 @@
 		}
 	})
 
-	// Pre-compute error sets for O(1) lookups instead of O(n) .includes() calls
-	const errorRowSet = $derived(new Set($game.errorLocations?.rows ?? []))
-	const errorColSet = $derived(new Set($game.errorLocations?.columns ?? []))
+	// Check if grid should shake
+	const shouldShake = $derived($game.status === 'invalid')
+
+	// Generate skeleton cells with random animation delays for loading state
+	const skeletonCells = Array.from({ length: 36 }, (_, i) => ({
+		id: i,
+		row: Math.floor(i / 6),
+		col: i % 6,
+		delay: Math.random() * 1.5, // Random [0, 1.5) seconds delay for sparkle effect
+	}))
 </script>
 
-<div class="w-full grid grid-cols-6 gap-1">
+<div
+	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-xl overflow-hidden {shouldShake
+		? 'shake'
+		: ''}"
+>
 	{#if $game.status === 'solved'}
-		<p class="col-span-6 text-center">Solved</p>
-	{/if}
-	{#each Array.from({ length: SIZE }) as _, r}
-		{#each Array.from({ length: SIZE }) as __, c}
-			{#if $game.grid[r]}
-				<Cell
-					value={$game.grid[r][c] ?? null}
-					fixed={$game.fixedSet.has(`${r},${c}`)}
-					hasError={errorRowSet.has(r) || errorColSet.has(c)}
-					onClick={() => cycleCell(r, c)}
-				/>
-			{/if}
-		{/each}
-	{/each}
-	{#if $game.status === 'invalid'}
-		<div
-			class="col-span-6 text-sm text-error mt-2 space-y-1 bg-error/10 p-3 rounded-lg"
-		>
-			<div class="flex items-center gap-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-5 w-5"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 011-1h.008a1 1 0 110 2H10a1 1 0 01-1-1z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-				<div class="space-y-1">
-					{#each $game.errors as error}
-						<div>{error}</div>
-					{/each}
-				</div>
-			</div>
-		</div>
+		<p class="col-span-6 text-center py-2 bg-green-100 dark:bg-green-900">
+			Solved
+		</p>
 	{/if}
 	{#if $game.status === 'loading'}
-		<p class="col-span-6 text-center">Loading…</p>
+		{#each skeletonCells as cell (cell.id)}
+			<div
+				class="skeleton-cell aspect-square bg-zinc-300 dark:bg-zinc-700 {cell.col <
+				5
+					? 'border-r-2 border-r-zinc-400'
+					: ''} {cell.row < 5 ? 'border-b-2 border-b-zinc-400' : ''}"
+				style="animation-delay: {cell.delay}s"
+			></div>
+		{/each}
+	{:else}
+		{#each Array.from({ length: SIZE }) as _, r (r)}
+			{#each Array.from({ length: SIZE }) as __, c (c)}
+				{#if $game.grid[r]}
+					<Cell
+						value={$game.grid[r][c] ?? null}
+						fixed={$game.fixedSet.has(`${r},${c}`)}
+						hasError={$game.errorCells.has(`${r},${c}`)}
+						row={r}
+						col={c}
+						onClick={() => cycleCell(r, c)}
+					/>
+				{/if}
+			{/each}
+		{/each}
 	{/if}
 </div>
+
+<style>
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		10%,
+		30%,
+		50%,
+		70%,
+		90% {
+			transform: translateX(-4px);
+		}
+		20%,
+		40%,
+		60%,
+		80% {
+			transform: translateX(4px);
+		}
+	}
+
+	.shake {
+		animation: shake 0.4s ease-in-out;
+	}
+
+	@keyframes skeleton-pulse {
+		0%,
+		100% {
+			opacity: 0.3;
+		}
+		50% {
+			opacity: 1;
+		}
+	}
+
+	.skeleton-cell {
+		animation: skeleton-pulse 1.5s ease-in-out infinite;
+	}
+</style>

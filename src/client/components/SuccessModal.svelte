@@ -1,10 +1,13 @@
 <script lang="ts">
 	import confetti from 'canvas-confetti'
 	import { game } from '../stores/game'
+	import { calculatePercentile, rankStore } from '../stores/rank'
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 	import {
 		closeSuccessModal,
+		hasJoinedSubreddit,
 		openPlayOverlay,
+		setHasJoinedSubreddit,
 		showSuccessModal,
 	} from '../stores/ui'
 	import Button from './Button.svelte'
@@ -19,6 +22,19 @@
 		openPlayOverlay()
 	}
 
+	const fetchJoinedStatus = async () => {
+		try {
+			const res = await fetch('/api/check-joined-status')
+			if (res.ok) {
+				const data = await res.json()
+				setHasJoinedSubreddit(data.hasJoined)
+			}
+		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: we want to log the error
+			console.error('Failed to check joined status', error)
+		}
+	}
+
 	const joinSubreddit = async () => {
 		if (isJoining) {
 			return
@@ -26,8 +42,11 @@
 		isJoining = true
 
 		try {
-			const res = await fetch('/api/join-subreddit')
+			const res = await fetch('/api/join-subreddit', {
+				method: 'POST',
+			})
 			if (res.ok) {
+				setHasJoinedSubreddit(true)
 				closeSuccessModal()
 			} else {
 				// biome-ignore lint/suspicious/noConsole: we want to log the error
@@ -86,6 +105,7 @@
 		if ($showSuccessModal) {
 			showConfetti()
 			commentPosted = false
+			fetchJoinedStatus()
 		}
 	})
 </script>
@@ -98,12 +118,23 @@
 >
 	<h2 id="success-modal-title">CONGRATS!</h2>
 	<div id="success-modal-body" class="grid gap-2">
-		<p class="mb-4">
-			You solved it in {formatElapsedTime($elapsedSeconds)}.
-		</p>
+		<div class="mb-4 space-y-2">
+			<p>
+				<strong>Your time:</strong>
+				{formatElapsedTime($elapsedSeconds)}
+			</p>
+			{#if $rankStore.rank !== null && $rankStore.totalEntries !== null}
+				<p>
+					<strong>Your rank:</strong> #{$rankStore.rank} - Top {calculatePercentile(
+						$rankStore.rank,
+						$rankStore.totalEntries,
+					)}%
+				</p>
+			{/if}
+		</div>
 		<div class="flex flex-col gap-3 justify-center mb-6">
 			{#if commentPosted}
-				<p class="text-green-600 dark:text-green-400 font-semibold">
+				<p class="text-zinc-600 dark:text-zinc-400 font-semibold">
 					Comment posted successfully!
 				</p>
 			{:else}
@@ -117,17 +148,21 @@
 			{/if}
 		</div>
 	</div>
-	<hr class="border-b-2 border-green-400 dark:border-green-600 mb-4" />
-	<p class="mb-6">[Join r/binarygrid for daily challenges.]</p>
+	{#if !$hasJoinedSubreddit}
+		<hr class="border-b-2 border-green-400 dark:border-green-600 mb-4" />
+		<p class="mb-6">[Join r/binarygrid for daily challenges.]</p>
+	{/if}
 	<footer class="flex flex-col gap-4">
-		<Button onClick={joinSubreddit} disabled={isJoining}>
-			{#if isJoining}
-				Joining…
-			{:else}
-				Join Subreddit
-			{/if}
-		</Button>
-		<Button variant="default" onClick={playAnotherDifficulty}>
+		{#if !$hasJoinedSubreddit}
+			<Button onClick={joinSubreddit} disabled={isJoining}>
+				{#if isJoining}
+					Joining…
+				{:else}
+					Join Subreddit
+				{/if}
+			</Button>
+		{/if}
+		<Button variant="ghost" onClick={playAnotherDifficulty}>
 			Change Difficulty
 		</Button>
 	</footer>
