@@ -3,7 +3,7 @@ import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
-import { startCooldown } from './hint'
+import { resetHintCooldown, startCooldown } from './hint'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -81,6 +81,7 @@ export const game = writable<GameState>(initial)
 export const loadPuzzle = async (difficulty: Difficulty) => {
   resetTimer()
   closeSuccessModal()
+  resetHintCooldown()
 
   game.update((s) => ({ ...s, status: 'loading', errors: [] }))
 
