@@ -16,7 +16,7 @@
 
 @layer base {
   body {
-    @apply min-h-screen min-w-80 w-full bg-zinc-100 dark:bg-zinc-800;
+    @apply min-h-screen min-w-80 w-full bg-zinc-100 dark:bg-zinc-900;
   }
 
 
