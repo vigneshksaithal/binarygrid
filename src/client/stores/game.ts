@@ -85,7 +85,13 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   closeSuccessModal()
   resetHintCooldown()
 
-  game.update((s) => ({ ...s, status: 'loading', errors: [] }))
+  game.update((s) => ({
+    ...s,
+    status: 'loading',
+    errors: [],
+    errorLocations: undefined,
+    errorCells: new Set()
+  }))
 
   const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
 
@@ -93,7 +99,9 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     game.update((s) => ({
       ...s,
       status: 'error',
-      errors: ['failed to load puzzle', `HTTP ${res.status}`]
+      errors: ['failed to load puzzle', `HTTP ${res.status}`],
+      errorLocations: undefined,
+      errorCells: new Set()
     }))
 
     return
