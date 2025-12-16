@@ -17,7 +17,7 @@
 		id: i,
 		row: Math.floor(i / 6),
 		col: i % 6,
-		delay: Math.random() * 1.5, // Random 0-1.5s delay for sparkle effect
+		delay: Math.random() * 1.5, // Random [0, 1.5) seconds delay for sparkle effect
 	}))
 </script>
 
