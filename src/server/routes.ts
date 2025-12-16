@@ -84,10 +84,35 @@ const parseLeaderboardMeta = (
 
 app.get('/api/health', (c) => c.json({ ok: true }))
 
+// Check if user has joined subreddit
+app.get('/api/check-joined-status', async (c) => {
+  const { userId } = context
+  if (!userId) {
+    return c.json({ hasJoined: false })
+  }
+
+  try {
+    const hasJoined = await redis.get(`user:${userId}:joined_subreddit`)
+    return c.json({ hasJoined: hasJoined === '1' })
+  } catch {
+    return c.json({ hasJoined: false })
+  }
+})
+
 // Join subreddit
 app.post('/api/join-subreddit', async (c) => {
+  const { userId } = context
+  if (!userId) {
+    return c.json(
+      { status: 'error', message: 'Login required' },
+      HTTP_BAD_REQUEST
+    )
+  }
+
   try {
     await reddit.subscribeToCurrentSubreddit()
+    await redis.set(`user:${userId}:joined_subreddit`, '1')
+    return c.json({ ok: true })
   } catch (error) {
     return c.json(
       { status: 'error', message: `Failed to join subreddit. Error: ${error}` },

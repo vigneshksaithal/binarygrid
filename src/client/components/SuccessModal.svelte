@@ -5,7 +5,9 @@
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 	import {
 		closeSuccessModal,
+		hasJoinedSubreddit,
 		openPlayOverlay,
+		setHasJoinedSubreddit,
 		showSuccessModal,
 	} from '../stores/ui'
 	import Button from './Button.svelte'
@@ -20,6 +22,19 @@
 		openPlayOverlay()
 	}
 
+	const fetchJoinedStatus = async () => {
+		try {
+			const res = await fetch('/api/check-joined-status')
+			if (res.ok) {
+				const data = await res.json()
+				setHasJoinedSubreddit(data.hasJoined)
+			}
+		} catch (error) {
+			// biome-ignore lint/suspicious/noConsole: we want to log the error
+			console.error('Failed to check joined status', error)
+		}
+	}
+
 	const joinSubreddit = async () => {
 		if (isJoining) {
 			return
@@ -27,8 +42,11 @@
 		isJoining = true
 
 		try {
-			const res = await fetch('/api/join-subreddit')
+			const res = await fetch('/api/join-subreddit', {
+				method: 'POST',
+			})
 			if (res.ok) {
+				setHasJoinedSubreddit(true)
 				closeSuccessModal()
 			} else {
 				// biome-ignore lint/suspicious/noConsole: we want to log the error
@@ -87,6 +105,7 @@
 		if ($showSuccessModal) {
 			showConfetti()
 			commentPosted = false
+			fetchJoinedStatus()
 		}
 	})
 </script>
@@ -129,17 +148,21 @@
 			{/if}
 		</div>
 	</div>
-	<hr class="border-b-2 border-green-400 dark:border-green-600 mb-4" />
-	<p class="mb-6">[Join r/binarygrid for daily challenges.]</p>
+	{#if !$hasJoinedSubreddit}
+		<hr class="border-b-2 border-green-400 dark:border-green-600 mb-4" />
+		<p class="mb-6">[Join r/binarygrid for daily challenges.]</p>
+	{/if}
 	<footer class="flex flex-col gap-4">
-		<Button onClick={joinSubreddit} disabled={isJoining}>
-			{#if isJoining}
-				Joining…
-			{:else}
-				Join Subreddit
-			{/if}
-		</Button>
-		<Button variant="default" onClick={playAnotherDifficulty}>
+		{#if !$hasJoinedSubreddit}
+			<Button onClick={joinSubreddit} disabled={isJoining}>
+				{#if isJoining}
+					Joining…
+				{:else}
+					Join Subreddit
+				{/if}
+			</Button>
+		{/if}
+		<Button variant="ghost" onClick={playAnotherDifficulty}>
 			Change Difficulty
 		</Button>
 	</footer>
