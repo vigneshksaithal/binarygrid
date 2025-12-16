@@ -102,6 +102,16 @@
 		</div>
 		<Grid />
 	</div>
+	<div class="mt-4 flex justify-center">
+		<Button
+			variant="secondary"
+			size="sm"
+			onClick={openHowToModal}
+			ariaLabel="How to Play"
+		>
+			How to Play
+		</Button>
+	</div>
 </main>
 
 <PlayOverlay />
