@@ -37,7 +37,7 @@
 <main
 	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
 >
-	<div class="p-3 bg-zinc-200 dark:bg-zinc-700 rounded-2xl">
+	<div class="p-3 bg-zinc-200 dark:bg-zinc-800 rounded-2xl">
 		<div class="flex justify-between items-center mb-4">
 			<div class="flex items-center gap-4">
 				<Button
@@ -63,7 +63,7 @@
 						variant="ghost"
 						size="icon"
 						onClick={handleHint}
-						disabled={!$canUseHint || $game.status === 'solved'}
+						disabled={!$canUseHint || $game.status !== 'in_progress'}
 						ariaLabel="Hint"
 					>
 						<LightbulbIcon />
