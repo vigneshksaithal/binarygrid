@@ -262,6 +262,11 @@ export const autosubmitIfSolved = async () => {
 }
 
 export const useHint = (): boolean => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+
   const snapshot = get(game)
 
   // Can only use hint during active game with a solution
