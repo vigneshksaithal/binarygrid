@@ -332,15 +332,36 @@ export const useHint = (): boolean => {
     targetRow[c] = correctValue
 
     const result = validateGrid(nextGrid, s.fixed)
-    const status = determineStatus(result.ok, nextGrid)
+    let status = determineStatus(result.ok, nextGrid)
+    let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
+
+    const currentGridJSON = JSON.stringify(nextGrid)
+    if (!result.ok) {
+      const cellsWithErrors = findErrorCells(nextGrid)
+      errorTimer = setTimeout(() => {
+        const currentGameState = get(game)
+        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
+          game.update((gameState) => ({
+            ...gameState,
+            status: 'invalid',
+            errors: result.errors,
+            errorLocations: result.errorLocations,
+            errorCells: cellsWithErrors
+          }))
+        }
+      }, ERROR_DISPLAY_DELAY)
+
+      status = 'in_progress'
+      errors = []
+    }
 
     return {
       ...s,
       grid: nextGrid,
       status,
-      errors: result.ok ? [] : result.errors,
-      errorLocations: result.ok ? undefined : result.errorLocations,
+      errors,
+      errorLocations: undefined,
       errorCells: new Set(),
       history: [...s.history, previousGrid]
     }

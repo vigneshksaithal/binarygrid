@@ -6,6 +6,7 @@
 
 - **game.ts (client)**:
   - Fixed hint cooldown not resetting when undoing moves. The `undo()` function now calls `resetHintCooldown()` to clear the cooldown timer and re-enable the hint button, maintaining consistency with how other side effects (error timers) are reverted.
+  - Fixed `useHint` not populating `errorCells` when a hint creates a validation error. The function now uses the same delayed error display mechanism as `cycleCell`, calling `findErrorCells()` to identify problematic cells and displaying visual X highlighting after a 1-second delay. This ensures users receive consistent visual feedback when hints create invalid grid states (e.g., when combining a correct hint value with existing user-entered values creates three consecutive identical values or exceeds the count limit).
 
 ## 2025-11-25
 
