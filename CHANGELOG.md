@@ -2,6 +2,11 @@
 
 ## 2025-12-16
 
+### Changes
+
+- **index.ts (server)**:
+  - Added conditional check in the daily scheduler endpoint to only crosspost to RedditGames when the current subreddit is "binarygrid". This prevents unintended crossposts when the app is installed on other subreddits while still maintaining the crosspost functionality for the main binarygrid community.
+
 ### Bug Fixes
 
 - **game.ts (client)**:
