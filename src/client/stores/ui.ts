@@ -23,4 +23,4 @@ export const closePlayOverlay = () => showPlayOverlay.set(false)
 export const hasJoinedSubreddit = writable(false)
 
 export const setHasJoinedSubreddit = (joined: boolean) =>
-	hasJoinedSubreddit.set(joined)
+    hasJoinedSubreddit.set(joined)
