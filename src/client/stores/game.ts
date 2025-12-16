@@ -3,6 +3,7 @@ import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { isComplete, validateGrid } from '../../shared/validator'
+import { startCooldown } from './hint'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -257,4 +258,85 @@ export const autosubmitIfSolved = async () => {
   } catch {
     // ignore network errors - autosubmit best effort only
   }
+}
+
+export const useHint = (): boolean => {
+  const snapshot = get(game)
+
+  // Can only use hint during active game with a solution
+  if (snapshot.status !== 'in_progress' || !snapshot.solution) {
+    return false
+  }
+
+  const solution = snapshot.solution
+
+  // Find all empty cells that are not fixed
+  const emptyCells: { r: number; c: number }[] = []
+  for (let r = 0; r < SIZE; r++) {
+    const row = snapshot.grid[r]
+    if (!row) continue
+    for (let c = 0; c < SIZE; c++) {
+      if (row[c] === null && !isCellFixed(snapshot.fixedSet, r, c)) {
+        emptyCells.push({ r, c })
+      }
+    }
+  }
+
+  // No empty cells to fill
+  if (emptyCells.length === 0) {
+    return false
+  }
+
+  // Pick a random empty cell
+  const randomIndex = Math.floor(Math.random() * emptyCells.length)
+  const cell = emptyCells[randomIndex]
+  if (!cell) {
+    return false
+  }
+  const { r, c } = cell
+
+  // Get the correct value from the solution
+  const solutionRow = solution[r]
+  if (!solutionRow) {
+    return false
+  }
+  const correctValue = solutionRow[c]
+  if (correctValue === null || correctValue === undefined) {
+    return false
+  }
+
+  // Update the game state
+  let solved = false
+  game.update((s) => {
+    const previousGrid = cloneGrid(s.grid)
+    const nextGrid = s.grid.map((gridRow) => gridRow.slice())
+    const targetRow = nextGrid[r]
+    if (!targetRow) {
+      return s
+    }
+    targetRow[c] = correctValue
+
+    const result = validateGrid(nextGrid, s.fixed)
+    const status = determineStatus(result.ok, nextGrid)
+    solved = status === 'solved'
+
+    return {
+      ...s,
+      grid: nextGrid,
+      status,
+      errors: result.ok ? [] : result.errors,
+      errorLocations: result.ok ? undefined : result.errorLocations,
+      history: [...s.history, previousGrid]
+    }
+  })
+
+  if (solved) {
+    stopTimer()
+    openSuccessModal()
+  }
+
+  // Start the cooldown timer
+  startCooldown()
+
+  return true
 }
