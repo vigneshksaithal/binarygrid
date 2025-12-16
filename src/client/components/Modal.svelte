@@ -24,10 +24,10 @@
 
 {#if open}
 	<section
-		class="fixed inset-0 z-50 flex items-center justify-center bg-green-200 dark:bg-green-950 backdrop-blur-xs p-4 sm:p-6 overflow-y-auto"
+		class="fixed inset-0 z-50 flex items-center justify-center bg-zinc-200/80 dark:bg-zinc-900/75 backdrop-blur-xs p-6 overflow-y-auto"
 	>
 		<div
-			class="relative w-full max-w-sm bg-green-50 dark:bg-green-950 p-4 sm:p-4 border-2 border-green-800 dark:border-green-600 max-h-[min(90dvh,42rem)] overflow-y-auto"
+			class="relative w-full max-w-sm bg-zinc-50 dark:bg-zinc-800 p-6 rounded-xl max-h-[min(90dvh,42rem)] overflow-y-auto"
 			{role}
 			aria-modal={ariaModal}
 			aria-labelledby={labelledby}
