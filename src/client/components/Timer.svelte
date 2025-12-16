@@ -3,7 +3,7 @@
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 </script>
 
-<div class="text-md font-mono font-semibold text-green-800 dark:text-green-400">
+<div class="text-md font-mono font-semibold text-zinc-800 dark:text-zinc-300">
 	{#if $game.status === 'idle'}
 		--:--
 	{:else}
