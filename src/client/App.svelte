@@ -1,7 +1,6 @@
 <script lang="ts">
 	import InfoIcon from '@lucide/svelte/icons/info'
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
 	import './app.css'
 	import Button from './components/Button.svelte'
@@ -13,11 +12,7 @@
 	import Timer from './components/Timer.svelte'
 	import { game, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
-	import {
-		openHowToModal,
-		openLeaderboardModal,
-		openPlayOverlay,
-	} from './stores/ui'
+	import { openHowToModal, openPlayOverlay } from './stores/ui'
 
 	$effect.pre(() => {
 		openPlayOverlay()
@@ -37,7 +32,7 @@
 <main
 	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
 >
-	<div class="p-3 bg-zinc-200 dark:bg-zinc-800 rounded-2xl">
+	<div class="p-2 bg-zinc-200 dark:bg-zinc-800 rounded-2xl">
 		<div class="flex justify-between items-center mb-4">
 			<div class="flex items-center gap-4">
 				<Button
@@ -48,15 +43,6 @@
 				>
 					<InfoIcon />
 					<span class="sr-only">How to Play</span>
-				</Button>
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={openLeaderboardModal}
-					ariaLabel="Leaderboard"
-				>
-					<TrophyIcon />
-					<span class="sr-only">Leaderboard</span>
 				</Button>
 				<div class="relative">
 					<Button
