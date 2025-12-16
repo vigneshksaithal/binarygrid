@@ -15,7 +15,7 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-2xl overflow-hidden"
+	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-xl overflow-hidden"
 >
 	{#if $game.status === 'solved'}
 		<p class="col-span-6 text-center py-2 bg-green-100 dark:bg-green-900">

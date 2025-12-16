@@ -47,7 +47,7 @@
 <button
 	type="button"
 	class="aspect-square font-mono font-extrabold text-2xl text-green-600 dark:text-green-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-inset disabled:cursor-not-allowed transition-colors hover:bg-green-500/10 dark:hover:bg-green-600/10 {fixed
-		? 'bg-green-200 dark:bg-green-800'
+		? 'bg-zinc-200 dark:bg-zinc-700'
 		: ''} {borderClass}"
 	onclick={handleClick}
 	aria-label={label}
