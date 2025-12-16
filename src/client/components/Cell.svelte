@@ -1,4 +1,7 @@
 <script lang="ts">
+	import Circle from './Circle.svelte'
+	import Line from './Line.svelte'
+
 	const {
 		value = null,
 		fixed = false,
@@ -49,28 +52,9 @@
 	disabled={fixed}
 >
 	{#if value === 0}
-		<svg class="relative z-10 w-8 h-8" viewBox="0 0 100 100">
-			<circle
-				cx="50"
-				cy="50"
-				r="35"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="10"
-			/>
-		</svg>
+		<Circle />
 	{:else if value === 1}
-		<svg class="relative z-10 w-8 h-8" viewBox="0 0 100 100">
-			<line
-				x1="50"
-				y1="20"
-				x2="50"
-				y2="80"
-				stroke="currentColor"
-				stroke-width="12"
-				stroke-linecap="round"
-			/>
-		</svg>
+		<Line />
 	{/if}
 	{#if hasError}
 		<svg
