@@ -66,4 +66,4 @@
 	.shake {
 		animation: shake 0.4s ease-in-out;
 	}
-</div>
+</style>
