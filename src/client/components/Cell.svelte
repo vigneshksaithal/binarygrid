@@ -41,15 +41,37 @@
 
 <button
 	type="button"
-	class="relative aspect-square font-mono font-extrabold text-2xl text-black dark:text-white focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
+	class="relative aspect-square flex items-center justify-center text-black dark:text-white focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
 		? 'bg-zinc-300 dark:bg-zinc-700'
 		: ''} {borderClass}"
 	onclick={handleClick}
 	aria-label={label}
 	disabled={fixed}
 >
-	{#if value === 0}<span class="relative z-10">0</span
-		>{:else if value === 1}<span class="relative z-10">1</span>{/if}
+	{#if value === 0}
+		<svg class="relative z-10 w-8 h-8" viewBox="0 0 100 100">
+			<circle
+				cx="50"
+				cy="50"
+				r="35"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="10"
+			/>
+		</svg>
+	{:else if value === 1}
+		<svg class="relative z-10 w-8 h-8" viewBox="0 0 100 100">
+			<line
+				x1="50"
+				y1="20"
+				x2="50"
+				y2="80"
+				stroke="currentColor"
+				stroke-width="12"
+				stroke-linecap="round"
+			/>
+		</svg>
+	{/if}
 	{#if hasError}
 		<svg
 			class="absolute inset-0 w-full h-full pointer-events-none"
