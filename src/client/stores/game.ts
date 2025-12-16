@@ -215,11 +215,13 @@ export const undo = () => {
     errorTimer = undefined
   }
 
+  resetHintCooldown()
+
   game.update((s) => {
     if (s.history.length === 0) {
       return s
     }
-    const previousGrid = s.history[s.history.length - 1]
+    const previousGrid = s.history[s.history.length - 1]!
     const newHistory = s.history.slice(0, -1)
     return {
       ...s,

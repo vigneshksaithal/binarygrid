@@ -1,5 +1,12 @@
 # Changelog
 
+## 2025-12-16
+
+### Bug Fixes
+
+- **game.ts (client)**:
+  - Fixed hint cooldown not resetting when undoing moves. The `undo()` function now calls `resetHintCooldown()` to clear the cooldown timer and re-enable the hint button, maintaining consistency with how other side effects (error timers) are reverted.
+
 ## 2025-11-25
 
 ### Performance Optimizations
