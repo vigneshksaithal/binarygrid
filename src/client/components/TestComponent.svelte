@@ -58,11 +58,14 @@
 				grid: mockGrid,
 				initial: mockGrid,
 				fixed: mockFixed,
+				fixedSet: new Set(['0,0']),
 				status: 'loading',
 				errors: [],
 				errorLocations: undefined,
+				errorCells: new Set(),
 				solution: null,
 				dateISO: null,
+				history: [],
 			})
 		} else if (status === 'solved') {
 			const solvedGrid = createSolvedGrid()
@@ -72,11 +75,14 @@
 				grid: solvedGrid,
 				initial: mockGrid,
 				fixed: mockFixed,
+				fixedSet: new Set(['0,0']),
 				status: 'solved',
 				errors: [],
 				errorLocations: undefined,
+				errorCells: new Set(),
 				solution: solvedGrid,
 				dateISO: null,
+				history: [],
 			})
 		} else if (status === 'invalid') {
 			const invalidGrid = createMockGrid(1)
@@ -86,6 +92,7 @@
 				grid: invalidGrid,
 				initial: mockGrid,
 				fixed: mockFixed,
+				fixedSet: new Set(['0,0']),
 				status: 'invalid',
 				errors: [
 					'Row 0 has too many 1s',
@@ -96,8 +103,10 @@
 					rows: [0, 1],
 					columns: [0, 1],
 				},
+				errorCells: new Set(['0,0', '0,1', '0,2', '1,0', '2,0']),
 				solution: null,
 				dateISO: null,
+				history: [],
 			})
 		} else if (status === 'error') {
 			game.set({
@@ -106,11 +115,14 @@
 				grid: mockGrid,
 				initial: mockGrid,
 				fixed: [],
+				fixedSet: new Set(),
 				status: 'error',
 				errors: ['Failed to load puzzle', 'HTTP 500'],
 				errorLocations: undefined,
+				errorCells: new Set(),
 				solution: null,
 				dateISO: null,
+				history: [],
 			})
 		} else if (status === 'in_progress') {
 			const inProgressGrid = createMockGrid(null)
@@ -129,11 +141,14 @@
 				grid: inProgressGrid,
 				initial: mockGrid,
 				fixed: mockFixed,
+				fixedSet: new Set(['0,0']),
 				status: 'in_progress',
 				errors: [],
 				errorLocations: undefined,
+				errorCells: new Set(),
 				solution: null,
 				dateISO: null,
+				history: [],
 			})
 		} else {
 			game.set({
@@ -142,11 +157,14 @@
 				grid: mockGrid,
 				initial: mockGrid,
 				fixed: [],
+				fixedSet: new Set(),
 				status: 'idle',
 				errors: [],
 				errorLocations: undefined,
+				errorCells: new Set(),
 				solution: null,
 				dateISO: null,
+				history: [],
 			})
 		}
 	}
@@ -208,8 +226,6 @@
 				<span class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
 					>Destructive:</span
 				>
-				<Button variant="destructive">Destructive Button</Button>
-				<Button variant="destructive" disabled>Disabled Destructive</Button>
 			</div>
 			<div class="flex flex-wrap gap-2 items-center">
 				<span class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
@@ -330,9 +346,6 @@
 				>
 				<Button onClick={() => setGameState('invalid')} variant="secondary"
 					>Set Invalid</Button
-				>
-				<Button onClick={() => setGameState('error')} variant="destructive"
-					>Set Error</Button
 				>
 			</div>
 			<div class="p-4 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
