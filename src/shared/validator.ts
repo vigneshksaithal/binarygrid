@@ -16,6 +16,116 @@ function isValidCellValue(value: unknown): value is Cell {
 }
 
 /**
+ * Finds the indices of cells forming a triple run in a line.
+ * Returns array of indices where the run occurs.
+ */
+function findTripleRunIndices(line: Cell[]): number[] {
+  if (line.length < TRIPLE_RUN_LENGTH) {
+    return []
+  }
+
+  const indices: number[] = []
+  let runStart = 0
+  let runLength = 1
+  let lastValue: Cell = line[0] ?? null
+
+  for (let i = 1; i < line.length; i++) {
+    const current = line[i]
+    if (current !== null && lastValue !== null && current === lastValue) {
+      runLength++
+      if (runLength >= TRIPLE_RUN_LENGTH) {
+        // Add all cells in the run
+        for (let j = runStart; j <= i; j++) {
+          if (!indices.includes(j)) {
+            indices.push(j)
+          }
+        }
+      }
+    } else {
+      runStart = i
+      runLength = 1
+      lastValue = current ?? null
+    }
+  }
+  return indices
+}
+
+/**
+ * Finds indices of cells that violate count constraints.
+ * Returns indices of cells with the over-represented value.
+ */
+function findCountViolationIndices(line: Cell[]): number[] {
+  let zeros = 0
+  let ones = 0
+  for (const v of line) {
+    if (v === 0) zeros++
+    else if (v === 1) ones++
+  }
+
+  const indices: number[] = []
+
+  // Too many zeros
+  if (zeros > EXACT_ZEROS_PER_LINE) {
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === 0) indices.push(i)
+    }
+  }
+  // Too many ones
+  if (ones > EXACT_ONES_PER_LINE) {
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === 1) indices.push(i)
+    }
+  }
+
+  return indices
+}
+
+/**
+ * Finds all cells causing errors in the grid.
+ * Returns a Set of cell keys in "r,c" format.
+ */
+export function findErrorCells(grid: Grid): Set<string> {
+  const errorCells = new Set<string>()
+
+  // Check rows for triple runs and count violations
+  for (let r = 0; r < SIZE; r++) {
+    const row = grid[r]
+    if (!Array.isArray(row)) continue
+
+    const tripleIndices = findTripleRunIndices(row as Cell[])
+    for (const c of tripleIndices) {
+      errorCells.add(`${r},${c}`)
+    }
+
+    const countIndices = findCountViolationIndices(row as Cell[])
+    for (const c of countIndices) {
+      errorCells.add(`${r},${c}`)
+    }
+  }
+
+  // Check columns for triple runs and count violations
+  const col: Cell[] = new Array(SIZE)
+  for (let c = 0; c < SIZE; c++) {
+    for (let r = 0; r < SIZE; r++) {
+      const v = grid[r]?.[c]
+      col[r] = v === 0 || v === 1 ? v : null
+    }
+
+    const tripleIndices = findTripleRunIndices(col)
+    for (const r of tripleIndices) {
+      errorCells.add(`${r},${c}`)
+    }
+
+    const countIndices = findCountViolationIndices(col)
+    for (const r of countIndices) {
+      errorCells.add(`${r},${c}`)
+    }
+  }
+
+  return errorCells
+}
+
+/**
  * Ensures the grid has SIZE x SIZE dimensions and only valid values.
  */
 function validateShapeAndDomain(grid: Grid, errors: string[]): void {

@@ -2,7 +2,7 @@ import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
-import { isComplete, validateGrid } from '../../shared/validator'
+import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetHintCooldown, startCooldown } from './hint'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
@@ -30,6 +30,7 @@ export type GameState = {
     columns: number[]
   }
   | undefined
+  errorCells: Set<string>
   solution: Grid | null
   dateISO: string | null
   history: Grid[]
@@ -71,6 +72,7 @@ const initial: GameState = {
   status: 'idle',
   errors: [],
   errorLocations: undefined,
+  errorCells: new Set(),
   solution: null,
   dateISO: null,
   history: []
@@ -116,6 +118,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     status: 'in_progress',
     errors: [],
     errorLocations: undefined,
+    errorCells: new Set(),
     solution,
     dateISO: '',
     history: []
@@ -145,7 +148,7 @@ const determineStatus = (isValid: boolean, grid: Grid): Status => {
   return 'in_progress'
 }
 
-const ERROR_DISPLAY_DELAY = 3000
+const ERROR_DISPLAY_DELAY = 1000
 let errorTimer: ReturnType<typeof setTimeout> | undefined
 let lastSubmittedPuzzleId: string | null = null
 
@@ -179,6 +182,7 @@ export const cycleCell = (r: number, c: number) => {
 
     const currentGridJSON = JSON.stringify(nextGrid)
     if (!result.ok) {
+      const cellsWithErrors = findErrorCells(nextGrid)
       errorTimer = setTimeout(() => {
         const currentGameState = get(game)
         if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
@@ -186,7 +190,8 @@ export const cycleCell = (r: number, c: number) => {
             ...gameState,
             status: 'invalid',
             errors: result.errors,
-            errorLocations: result.errorLocations
+            errorLocations: result.errorLocations,
+            errorCells: cellsWithErrors
           }))
         }
       }, ERROR_DISPLAY_DELAY)
@@ -200,6 +205,7 @@ export const cycleCell = (r: number, c: number) => {
       status,
       errors,
       errorLocations: undefined,
+      errorCells: new Set(),
       history: [...s.history, previousGrid]
     }
   })
@@ -229,7 +235,8 @@ export const undo = () => {
       history: newHistory,
       status: 'in_progress',
       errors: [],
-      errorLocations: undefined
+      errorLocations: undefined,
+      errorCells: new Set()
     }
   })
 }
@@ -334,6 +341,7 @@ export const useHint = (): boolean => {
       status,
       errors: result.ok ? [] : result.errors,
       errorLocations: result.ok ? undefined : result.errorLocations,
+      errorCells: new Set(),
       history: [...s.history, previousGrid]
     }
   })

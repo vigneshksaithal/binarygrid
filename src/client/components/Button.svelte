@@ -2,7 +2,7 @@
 	import type { Snippet } from 'svelte'
 
 	type Variant = 'default' | 'secondary' | 'ghost'
-	type Size = 'sm' | 'default' | 'lg' | 'icon' | 'icon-sm' | 'icon-lg'
+	type Size = 'sm' | 'default' | 'icon' | 'icon-sm'
 
 	const {
 		onClick,
@@ -23,15 +23,13 @@
 	} = $props()
 
 	const baseClasses =
-		'inline-flex items-center justify-center whitespace-nowrap font-mono font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer border-2 disabled:cursor-not-allowed uppercase'
+		'inline-flex items-center justify-center whitespace-nowrap font-mono font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer border-2 disabled:cursor-not-allowed uppercase rounded-full'
 
 	const sizeClasses = {
 		sm: 'h-8 px-3 text-sm gap-1.5',
 		default: 'px-4 py-3 text-sm',
-		lg: 'h-10 px-6 text-base',
 		icon: 'size-9 p-0',
 		'icon-sm': 'size-8 p-0',
-		'icon-lg': 'size-10 p-0',
 	}
 
 	const variantClasses = {
@@ -40,7 +38,7 @@
 		secondary:
 			'text-neutral-900 dark:text-neutral-300 border-neutral-900 dark:border-neutral-300 hover:border-neutral-900/85 focus-visible:ring-neutral-400 disabled:opacity-90 disabled:text-neutral-500 dark:disabled:text-neutral-400 disabled:border-neutral-500 dark:disabled:border-neutral-400 disabled:hover:border-neutral-900',
 		ghost:
-			'bg-transparent text-green-800 dark:text-green-400 border-transparent hover:bg-green-200/50 dark:hover:bg-green-900/30 focus-visible:ring-green-500 disabled:opacity-50 disabled:text-green-600 dark:disabled:text-green-600 disabled:hover:bg-transparent',
+			'bg-transparent text-zinc-800 dark:text-zinc-300 border-transparent hover:bg-zinc-200/50 dark:hover:bg-zinc-900/30 focus-visible:ring-zinc-500 disabled:opacity-50 disabled:text-zinc-600 dark:disabled:text-zinc-600 disabled:hover:bg-transparent',
 	}
 </script>
 

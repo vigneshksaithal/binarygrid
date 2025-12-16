@@ -9,13 +9,14 @@
 		}
 	})
 
-	// Pre-compute error sets for O(1) lookups instead of O(n) .includes() calls
-	const errorRowSet = $derived(new Set($game.errorLocations?.rows ?? []))
-	const errorColSet = $derived(new Set($game.errorLocations?.columns ?? []))
+	// Check if grid should shake
+	const shouldShake = $derived($game.status === 'invalid')
 </script>
 
 <div
-	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-xl overflow-hidden"
+	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-xl overflow-hidden {shouldShake
+		? 'shake'
+		: ''}"
 >
 	{#if $game.status === 'solved'}
 		<p class="col-span-6 text-center py-2 bg-green-100 dark:bg-green-900">
@@ -28,7 +29,7 @@
 				<Cell
 					value={$game.grid[r][c] ?? null}
 					fixed={$game.fixedSet.has(`${r},${c}`)}
-					hasError={errorRowSet.has(r) || errorColSet.has(c)}
+					hasError={$game.errorCells.has(`${r},${c}`)}
 					row={r}
 					col={c}
 					onClick={() => cycleCell(r, c)}
@@ -36,32 +37,33 @@
 			{/if}
 		{/each}
 	{/each}
-	{#if $game.status === 'invalid'}
-		<div
-			class="col-span-6 text-sm text-error mt-2 space-y-1 bg-error/10 p-3 rounded-lg"
-		>
-			<div class="flex items-center gap-2">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					class="h-5 w-5"
-					viewBox="0 0 20 20"
-					fill="currentColor"
-				>
-					<path
-						fill-rule="evenodd"
-						d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 011-1h.008a1 1 0 110 2H10a1 1 0 01-1-1z"
-						clip-rule="evenodd"
-					/>
-				</svg>
-				<div class="space-y-1">
-					{#each $game.errors as error (error)}
-						<div>{error}</div>
-					{/each}
-				</div>
-			</div>
-		</div>
-	{/if}
 	{#if $game.status === 'loading'}
 		<p class="col-span-6 text-center">Loading…</p>
 	{/if}
+</div>
+
+<style>
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		10%,
+		30%,
+		50%,
+		70%,
+		90% {
+			transform: translateX(-4px);
+		}
+		20%,
+		40%,
+		60%,
+		80% {
+			transform: translateX(4px);
+		}
+	}
+
+	.shake {
+		animation: shake 0.4s ease-in-out;
+	}
 </div>
