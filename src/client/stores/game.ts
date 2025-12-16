@@ -330,6 +330,7 @@ export const useHint = (): boolean => {
 
   // Update the game state
   let solved = false
+  let hintApplied = false
   game.update((s) => {
     const previousGrid = cloneGrid(s.grid)
     const nextGrid = s.grid.map((gridRow) => gridRow.slice())
@@ -338,6 +339,7 @@ export const useHint = (): boolean => {
       return s
     }
     targetRow[c] = correctValue
+    hintApplied = true
 
     const result = validateGrid(nextGrid, s.fixed)
     let status = determineStatus(result.ok, nextGrid)
@@ -380,8 +382,11 @@ export const useHint = (): boolean => {
     openSuccessModal()
   }
 
-  // Start the cooldown timer
-  startCooldown()
+  // Start the cooldown timer only if hint was successfully applied
+  if (hintApplied) {
+    startCooldown()
+    return true
+  }
 
-  return true
+  return false
 }
