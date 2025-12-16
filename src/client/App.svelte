@@ -103,6 +103,14 @@
 				>
 					<Undo2Icon />
 				</Button>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={openPlayOverlay}
+					ariaLabel="Change Difficulty"
+				>
+					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
+				</Button>
 			</div>
 			<Timer />
 		</div>
