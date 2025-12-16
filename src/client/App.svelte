@@ -84,7 +84,8 @@
 							stroke-width="2"
 							stroke-linecap="round"
 							stroke-dasharray={circumference}
-							stroke-dashoffset={circumference - (circumference * $cooldownProgress) / 100}
+							stroke-dashoffset={circumference -
+								(circumference * $cooldownProgress) / 100}
 							transform="rotate(-90 18 18)"
 							class="text-green-500 dark:text-green-400 transition-all duration-100"
 						/>
@@ -95,7 +96,8 @@
 				variant="ghost"
 				size="icon"
 				onClick={undo}
-				disabled={$game.history.length === 0 || $game.status === 'solved'}
+				disabled={$game.history.length === 0 ||
+					($game.status !== 'in_progress' && $game.status !== 'invalid')}
 				ariaLabel="Undo"
 			>
 				<Undo2Icon />
