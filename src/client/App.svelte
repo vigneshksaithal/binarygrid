@@ -1,6 +1,7 @@
 <script lang="ts">
 	import InfoIcon from '@lucide/svelte/icons/info'
 	import TrophyIcon from '@lucide/svelte/icons/trophy'
+	import Undo2Icon from '@lucide/svelte/icons/undo-2'
 	import './app.css'
 	import Button from './components/Button.svelte'
 	import Grid from './components/Grid.svelte'
@@ -9,6 +10,7 @@
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
+	import { game, undo } from './stores/game'
 	import {
 		openHowToModal,
 		openLeaderboardModal,
@@ -27,21 +29,30 @@
 		<div class="flex items-center gap-2">
 			<Button
 				variant="ghost"
-				size="sm"
+				size="icon"
 				onClick={openHowToModal}
 				ariaLabel="How to Play"
 			>
-				<InfoIcon class="size-6" />
+				<InfoIcon />
 				<span class="sr-only">How to Play</span>
 			</Button>
 			<Button
 				variant="ghost"
-				size="sm"
+				size="icon"
 				onClick={openLeaderboardModal}
 				ariaLabel="Leaderboard"
 			>
-				<TrophyIcon class="size-6" />
+				<TrophyIcon />
 				<span class="sr-only">Leaderboard</span>
+			</Button>
+			<Button
+				variant="ghost"
+				size="icon"
+				onClick={undo}
+				disabled={$game.history.length === 0 || $game.status === 'solved'}
+				ariaLabel="Undo"
+			>
+				<Undo2Icon />
 			</Button>
 		</div>
 		<Timer />

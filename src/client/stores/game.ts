@@ -31,6 +31,7 @@ export type GameState = {
   | undefined
   solution: Grid | null
   dateISO: string | null
+  history: Grid[]
 }
 
 const emptyGrid = (): Grid =>
@@ -70,7 +71,8 @@ const initial: GameState = {
   errors: [],
   errorLocations: undefined,
   solution: null,
-  dateISO: null
+  dateISO: null,
+  history: []
 }
 
 export const game = writable<GameState>(initial)
@@ -113,7 +115,8 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     errors: [],
     errorLocations: undefined,
     solution,
-    dateISO: ''
+    dateISO: '',
+    history: []
   })
 
   resetTimer()
@@ -158,6 +161,7 @@ export const cycleCell = (r: number, c: number) => {
     if (isCellFixed(s.fixedSet, r, c)) {
       return s
     }
+    const previousGrid = cloneGrid(s.grid)
     const nextGrid = s.grid.map((gridRow) => gridRow.slice())
     const targetRow = nextGrid[r]
     if (!targetRow) {
@@ -193,13 +197,37 @@ export const cycleCell = (r: number, c: number) => {
       grid: nextGrid,
       status,
       errors,
-      errorLocations: undefined
+      errorLocations: undefined,
+      history: [...s.history, previousGrid]
     }
   })
   if (solved) {
     stopTimer()
     openSuccessModal()
   }
+}
+
+export const undo = () => {
+  if (errorTimer) {
+    clearTimeout(errorTimer)
+    errorTimer = undefined
+  }
+
+  game.update((s) => {
+    if (s.history.length === 0) {
+      return s
+    }
+    const previousGrid = s.history[s.history.length - 1]
+    const newHistory = s.history.slice(0, -1)
+    return {
+      ...s,
+      grid: previousGrid,
+      history: newHistory,
+      status: 'in_progress',
+      errors: [],
+      errorLocations: undefined
+    }
+  })
 }
 
 export const autosubmitIfSolved = async () => {
