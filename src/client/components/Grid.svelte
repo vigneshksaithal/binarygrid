@@ -14,17 +14,23 @@
 	const errorColSet = $derived(new Set($game.errorLocations?.columns ?? []))
 </script>
 
-<div class="w-full grid grid-cols-6 gap-1">
+<div
+	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-2xl overflow-hidden"
+>
 	{#if $game.status === 'solved'}
-		<p class="col-span-6 text-center">Solved</p>
+		<p class="col-span-6 text-center py-2 bg-green-100 dark:bg-green-900">
+			Solved
+		</p>
 	{/if}
-	{#each Array.from({ length: SIZE }) as _, r}
-		{#each Array.from({ length: SIZE }) as __, c}
+	{#each Array.from({ length: SIZE }) as _, r (r)}
+		{#each Array.from({ length: SIZE }) as __, c (c)}
 			{#if $game.grid[r]}
 				<Cell
 					value={$game.grid[r][c] ?? null}
 					fixed={$game.fixedSet.has(`${r},${c}`)}
 					hasError={errorRowSet.has(r) || errorColSet.has(c)}
+					row={r}
+					col={c}
 					onClick={() => cycleCell(r, c)}
 				/>
 			{/if}
@@ -48,7 +54,7 @@
 					/>
 				</svg>
 				<div class="space-y-1">
-					{#each $game.errors as error}
+					{#each $game.errors as error (error)}
 						<div>{error}</div>
 					{/each}
 				</div>
