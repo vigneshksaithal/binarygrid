@@ -13,14 +13,12 @@
 	const shouldShake = $derived($game.status === 'invalid')
 
 	// Generate skeleton cells with random animation delays for loading state
-	const skeletonCells = $derived(
-		Array.from({ length: 36 }, (_, i) => ({
-			id: i,
-			row: Math.floor(i / 6),
-			col: i % 6,
-			delay: Math.random() * 1.5, // Random 0-1.5s delay for sparkle effect
-		})),
-	)
+	const skeletonCells = Array.from({ length: 36 }, (_, i) => ({
+		id: i,
+		row: Math.floor(i / 6),
+		col: i % 6,
+		delay: Math.random() * 1.5, // Random 0-1.5s delay for sparkle effect
+	}))
 </script>
 
 <div
