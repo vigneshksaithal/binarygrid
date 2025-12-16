@@ -335,7 +335,17 @@ app.post('/api/submit', async (c) => {
       } satisfies StoredLeaderboardMeta)
     })
 
-    return c.json({ ok: true })
+    // Get rank and total entries for immediate response
+    const [userRank, totalEntries] = await Promise.all([
+      redis.zRank(leaderboardSetKey, userId),
+      redis.zCard(leaderboardSetKey)
+    ])
+
+    return c.json({
+      ok: true,
+      rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
+      totalEntries
+    })
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'

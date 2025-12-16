@@ -4,6 +4,7 @@ import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetHintCooldown, startCooldown } from './hint'
+import { fetchRank, resetRank, setRank } from './rank'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -84,6 +85,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   resetTimer()
   closeSuccessModal()
   resetHintCooldown()
+  resetRank()
 
   game.update((s) => ({
     ...s,
@@ -272,6 +274,18 @@ export const autosubmitIfSolved = async () => {
     })
     if (res.ok) {
       lastSubmittedPuzzleId = snapshot.puzzleId
+      // Get rank from submit response
+      const data = await res.json()
+      if (
+        data.rank !== null &&
+        data.rank !== undefined &&
+        typeof data.totalEntries === 'number'
+      ) {
+        setRank(data.rank, data.totalEntries)
+      } else {
+        // Fallback to fetching rank if not in response
+        await fetchRank(snapshot.puzzleId)
+      }
     }
   } catch {
     // ignore network errors - autosubmit best effort only

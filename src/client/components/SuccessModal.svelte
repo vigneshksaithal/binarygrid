@@ -1,6 +1,7 @@
 <script lang="ts">
 	import confetti from 'canvas-confetti'
 	import { game } from '../stores/game'
+	import { calculatePercentile, rankStore } from '../stores/rank'
 	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
 	import {
 		closeSuccessModal,
@@ -98,12 +99,23 @@
 >
 	<h2 id="success-modal-title">CONGRATS!</h2>
 	<div id="success-modal-body" class="grid gap-2">
-		<p class="mb-4">
-			You solved it in {formatElapsedTime($elapsedSeconds)}.
-		</p>
+		<div class="mb-4 space-y-2">
+			<p>
+				<strong>Your time:</strong>
+				{formatElapsedTime($elapsedSeconds)}
+			</p>
+			{#if $rankStore.rank !== null && $rankStore.totalEntries !== null}
+				<p>
+					<strong>Your rank:</strong> #{$rankStore.rank} - Top {calculatePercentile(
+						$rankStore.rank,
+						$rankStore.totalEntries,
+					)}%
+				</p>
+			{/if}
+		</div>
 		<div class="flex flex-col gap-3 justify-center mb-6">
 			{#if commentPosted}
-				<p class="text-green-600 dark:text-green-400 font-semibold">
+				<p class="text-zinc-600 dark:text-zinc-400 font-semibold">
 					Comment posted successfully!
 				</p>
 			{:else}
