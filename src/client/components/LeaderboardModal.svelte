@@ -1,56 +1,56 @@
 <script lang="ts">
-	import { game } from '../stores/game'
-	import {
-		goToLeaderboardPage,
-		leaderboard,
-		loadLeaderboard,
-	} from '../stores/leaderboard'
-	import { formatElapsedTime } from '../stores/timer'
-	import { closeLeaderboardModal, showLeaderboardModal } from '../stores/ui'
-	import Button from './Button.svelte'
-	import Modal from './Modal.svelte'
+import { game } from "../stores/game";
+import {
+	goToLeaderboardPage,
+	leaderboard,
+	loadLeaderboard,
+} from "../stores/leaderboard";
+import { formatElapsedTime } from "../stores/timer";
+import { closeLeaderboardModal, showLeaderboardModal } from "../stores/ui";
+import Button from "./Button.svelte";
+import Modal from "./Modal.svelte";
 
-	let lastLoadedPuzzleId = $state<string | null>(null)
+let lastLoadedPuzzleId = $state<string | null>(null);
 
-	const showPlayerSummary = () => {
-		const state = $leaderboard
-		if (!state.playerEntry) {
-			return false
-		}
-		return !state.entries.some(
-			(entry) => entry.userId === state.playerEntry?.userId,
-		)
+const showPlayerSummary = () => {
+	const state = $leaderboard;
+	if (!state.playerEntry) {
+		return false;
 	}
+	return !state.entries.some(
+		(entry) => entry.userId === state.playerEntry?.userId,
+	);
+};
 
-	const goToNextPage = () => {
-		if (!$leaderboard.hasNextPage) {
-			return
-		}
-		goToLeaderboardPage($leaderboard.page + 1)
+const goToNextPage = () => {
+	if (!$leaderboard.hasNextPage) {
+		return;
 	}
+	goToLeaderboardPage($leaderboard.page + 1);
+};
 
-	const goToPreviousPage = () => {
-		if (!$leaderboard.hasPreviousPage) {
-			return
-		}
-		goToLeaderboardPage(Math.max(0, $leaderboard.page - 1))
+const goToPreviousPage = () => {
+	if (!$leaderboard.hasPreviousPage) {
+		return;
 	}
+	goToLeaderboardPage(Math.max(0, $leaderboard.page - 1));
+};
 
-	const formatRankLabel = (rank: number) => `#${rank}`
+const formatRankLabel = (rank: number) => `#${rank}`;
 
-	$effect(() => {
-		if (!$showLeaderboardModal) {
-			return
-		}
-		const puzzleId = $game.puzzleId
-		if (!puzzleId) {
-			return
-		}
-		if ($leaderboard.status === 'idle' || lastLoadedPuzzleId !== puzzleId) {
-			lastLoadedPuzzleId = puzzleId
-			loadLeaderboard(puzzleId)
-		}
-	})
+$effect(() => {
+	if (!$showLeaderboardModal) {
+		return;
+	}
+	const puzzleId = $game.puzzleId;
+	if (!puzzleId) {
+		return;
+	}
+	if ($leaderboard.status === "idle" || lastLoadedPuzzleId !== puzzleId) {
+		lastLoadedPuzzleId = puzzleId;
+		loadLeaderboard(puzzleId);
+	}
+});
 </script>
 
 <Modal

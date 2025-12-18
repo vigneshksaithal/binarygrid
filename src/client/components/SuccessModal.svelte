@@ -1,113 +1,113 @@
 <script lang="ts">
-	import confetti from 'canvas-confetti'
-	import { game } from '../stores/game'
-	import { calculatePercentile, rankStore } from '../stores/rank'
-	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
-	import {
-		closeSuccessModal,
-		hasJoinedSubreddit,
-		openPlayOverlay,
-		setHasJoinedSubreddit,
-		showSuccessModal,
-	} from '../stores/ui'
-	import Button from './Button.svelte'
-	import Modal from './Modal.svelte'
+import confetti from "canvas-confetti";
+import { game } from "../stores/game";
+import { calculatePercentile, rankStore } from "../stores/rank";
+import { elapsedSeconds, formatElapsedTime } from "../stores/timer";
+import {
+	closeSuccessModal,
+	hasJoinedSubreddit,
+	openPlayOverlay,
+	setHasJoinedSubreddit,
+	showSuccessModal,
+} from "../stores/ui";
+import Button from "./Button.svelte";
+import Modal from "./Modal.svelte";
 
-	let isJoining = $state(false)
-	let isCommenting = $state(false)
-	let commentPosted = $state(false)
+let isJoining = $state(false);
+let isCommenting = $state(false);
+let commentPosted = $state(false);
 
-	const playAnotherDifficulty = () => {
-		closeSuccessModal()
-		openPlayOverlay()
+const playAnotherDifficulty = () => {
+	closeSuccessModal();
+	openPlayOverlay();
+};
+
+const fetchJoinedStatus = async () => {
+	try {
+		const res = await fetch("/api/check-joined-status");
+		if (res.ok) {
+			const data = await res.json();
+			setHasJoinedSubreddit(data.hasJoined);
+		}
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: we want to log the error
+		console.error("Failed to check joined status", error);
 	}
+};
 
-	const fetchJoinedStatus = async () => {
-		try {
-			const res = await fetch('/api/check-joined-status')
-			if (res.ok) {
-				const data = await res.json()
-				setHasJoinedSubreddit(data.hasJoined)
-			}
-		} catch (error) {
+const joinSubreddit = async () => {
+	if (isJoining) {
+		return;
+	}
+	isJoining = true;
+
+	try {
+		const res = await fetch("/api/join-subreddit", {
+			method: "POST",
+		});
+		if (res.ok) {
+			setHasJoinedSubreddit(true);
+			closeSuccessModal();
+		} else {
 			// biome-ignore lint/suspicious/noConsole: we want to log the error
-			console.error('Failed to check joined status', error)
+			console.error("Failed to join subreddit");
 		}
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: we want to log the error
+		console.error("Failed to join subreddit", error);
+	} finally {
+		isJoining = false;
 	}
+};
 
-	const joinSubreddit = async () => {
-		if (isJoining) {
-			return
-		}
-		isJoining = true
+const commentResult = async () => {
+	if (isCommenting) {
+		return;
+	}
+	isCommenting = true;
 
-		try {
-			const res = await fetch('/api/join-subreddit', {
-				method: 'POST',
-			})
-			if (res.ok) {
-				setHasJoinedSubreddit(true)
-				closeSuccessModal()
-			} else {
-				// biome-ignore lint/suspicious/noConsole: we want to log the error
-				console.error('Failed to join subreddit')
-			}
-		} catch (error) {
+	try {
+		const res = await fetch("/api/comment-score", {
+			method: "POST",
+			headers: { "content-type": "application/json" },
+			body: JSON.stringify({
+				solveTimeSeconds: $elapsedSeconds,
+				difficulty: $game.difficulty,
+			}),
+		});
+		if (res.ok) {
+			commentPosted = true;
+		} else {
 			// biome-ignore lint/suspicious/noConsole: we want to log the error
-			console.error('Failed to join subreddit', error)
-		} finally {
-			isJoining = false
+			console.error("Failed to comment result");
 		}
+	} catch (error) {
+		// biome-ignore lint/suspicious/noConsole: we want to log the error
+		console.error("Failed to comment result", error);
+	} finally {
+		isCommenting = false;
 	}
+};
 
-	const commentResult = async () => {
-		if (isCommenting) {
-			return
-		}
-		isCommenting = true
+const showConfetti = () => {
+	const CONFETTI_PARTICLE_COUNT = 100;
+	const CONFETTI_SPREAD = 70;
+	const CONFETTI_ORIGIN_Y = 0.6; // Vertical origin to start confetti lower on the screen
 
-		try {
-			const res = await fetch('/api/comment-score', {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					solveTimeSeconds: $elapsedSeconds,
-					difficulty: $game.difficulty,
-				}),
-			})
-			if (res.ok) {
-				commentPosted = true
-			} else {
-				// biome-ignore lint/suspicious/noConsole: we want to log the error
-				console.error('Failed to comment result')
-			}
-		} catch (error) {
-			// biome-ignore lint/suspicious/noConsole: we want to log the error
-			console.error('Failed to comment result', error)
-		} finally {
-			isCommenting = false
-		}
+	confetti({
+		particleCount: CONFETTI_PARTICLE_COUNT,
+		spread: CONFETTI_SPREAD,
+		origin: { y: CONFETTI_ORIGIN_Y },
+	});
+};
+
+$effect(() => {
+	if ($showSuccessModal) {
+		showConfetti();
+		commentPosted = false;
+		fetchJoinedStatus();
 	}
-
-	const showConfetti = () => {
-		const CONFETTI_PARTICLE_COUNT = 100
-		const CONFETTI_SPREAD = 70
-		const CONFETTI_ORIGIN_Y = 0.6 // Vertical origin to start confetti lower on the screen
-
-		confetti({
-			particleCount: CONFETTI_PARTICLE_COUNT,
-			spread: CONFETTI_SPREAD,
-			origin: { y: CONFETTI_ORIGIN_Y },
-		})
-	}
-
-	$effect(() => {
-		if ($showSuccessModal) {
-			showConfetti()
-			commentPosted = false
-			fetchJoinedStatus()
-		}
-	})
+});
 </script>
 
 <Modal

@@ -1,50 +1,50 @@
 <script lang="ts">
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
-	import ZapIcon from '@lucide/svelte/icons/zap'
-	import type { Difficulty } from '../../shared/types/puzzle'
-	import { loadPuzzle } from '../stores/game'
-	import { startTimer } from '../stores/timer'
-	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
-	import Button from './Button.svelte'
+import TrophyIcon from "@lucide/svelte/icons/trophy";
+import ZapIcon from "@lucide/svelte/icons/zap";
+import type { Difficulty } from "../../shared/types/puzzle";
+import { loadPuzzle } from "../stores/game";
+import { startTimer } from "../stores/timer";
+import { closePlayOverlay, showPlayOverlay } from "../stores/ui";
+import Button from "./Button.svelte";
 
-	let playCount = $state<number | null>(null)
-	let selectedDifficulty = $state<Difficulty>('easy')
+let playCount = $state<number | null>(null);
+const selectedDifficulty = $state<Difficulty>("easy");
 
-	const startGame = async () => {
-		closePlayOverlay()
-		await loadPuzzle(selectedDifficulty)
-		startTimer()
-	}
+const startGame = async () => {
+	closePlayOverlay();
+	await loadPuzzle(selectedDifficulty);
+	startTimer();
+};
 
-	const fetchPlayCount = async () => {
-		try {
-			const res = await fetch('/api/play-count')
-			if (res.ok) {
-				const data = await res.json()
-				playCount = data.count ?? 0
-			} else {
-				playCount = 0
-			}
-		} catch {
-			playCount = 0
+const fetchPlayCount = async () => {
+	try {
+		const res = await fetch("/api/play-count");
+		if (res.ok) {
+			const data = await res.json();
+			playCount = data.count ?? 0;
+		} else {
+			playCount = 0;
 		}
+	} catch {
+		playCount = 0;
 	}
+};
 
-	$effect.pre(() => {
-		if ($showPlayOverlay) {
-			fetchPlayCount()
-		}
-	})
-
-	const formatPlayCount = (count: number): string => {
-		return count.toLocaleString()
+$effect.pre(() => {
+	if ($showPlayOverlay) {
+		fetchPlayCount();
 	}
+});
 
-	const difficulties = [
-		{ id: 'easy' as Difficulty, label: 'Easy' },
-		{ id: 'medium' as Difficulty, label: 'Medium' },
-		{ id: 'hard' as Difficulty, label: 'Hard' },
-	]
+const formatPlayCount = (count: number): string => {
+	return count.toLocaleString();
+};
+
+const difficulties = [
+	{ id: "easy" as Difficulty, label: "Easy" },
+	{ id: "medium" as Difficulty, label: "Medium" },
+	{ id: "hard" as Difficulty, label: "Hard" },
+];
 </script>
 
 {#if $showPlayOverlay}

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { game } from '../stores/game'
-	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
+import { game } from "../stores/game";
+import { elapsedSeconds, formatElapsedTime } from "../stores/timer";
 </script>
 
 <div class="text-md font-mono font-semibold text-zinc-800 dark:text-zinc-300">

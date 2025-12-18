@@ -1,36 +1,36 @@
 <script lang="ts">
-	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
-	import Undo2Icon from '@lucide/svelte/icons/undo-2'
-	import './app.css'
-	import Button from './components/Button.svelte'
-	import Grid from './components/Grid.svelte'
-	import HowToPlayModal from './components/HowToPlayModal.svelte'
-	import LeaderboardModal from './components/LeaderboardModal.svelte'
-	import PlayOverlay from './components/PlayOverlay.svelte'
-	import SuccessModal from './components/SuccessModal.svelte'
-	import Timer from './components/Timer.svelte'
-	import { game, undo, useHint } from './stores/game'
-	import { canUseHint, cooldownProgress } from './stores/hint'
-	import {
-		openHowToModal,
-		openLeaderboardModal,
-		openPlayOverlay,
-	} from './stores/ui'
+import LightbulbIcon from "@lucide/svelte/icons/lightbulb";
+import TrophyIcon from "@lucide/svelte/icons/trophy";
+import Undo2Icon from "@lucide/svelte/icons/undo-2";
+import "./app.css";
+import Button from "./components/Button.svelte";
+import Grid from "./components/Grid.svelte";
+import HowToPlayModal from "./components/HowToPlayModal.svelte";
+import LeaderboardModal from "./components/LeaderboardModal.svelte";
+import PlayOverlay from "./components/PlayOverlay.svelte";
+import SuccessModal from "./components/SuccessModal.svelte";
+import Timer from "./components/Timer.svelte";
+import { game, undo, useHint } from "./stores/game";
+import { canUseHint, cooldownProgress } from "./stores/hint";
+import {
+	openHowToModal,
+	openLeaderboardModal,
+	openPlayOverlay,
+} from "./stores/ui";
 
-	$effect.pre(() => {
-		openPlayOverlay()
-	})
+$effect.pre(() => {
+	openPlayOverlay();
+});
 
-	const handleHint = () => {
-		if ($canUseHint) {
-			useHint()
-		}
+const handleHint = () => {
+	if ($canUseHint) {
+		useHint();
 	}
+};
 
-	// SVG circle parameters for progress ring
-	const radius = 16
-	const circumference = 2 * Math.PI * radius
+// SVG circle parameters for progress ring
+const radius = 16;
+const circumference = 2 * Math.PI * radius;
 </script>
 
 <main

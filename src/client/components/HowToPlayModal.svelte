@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { closeHowTo, showHowToModal } from '../stores/ui'
-	import Modal from './Modal.svelte'
+import { closeHowTo, showHowToModal } from "../stores/ui";
+import Modal from "./Modal.svelte";
 </script>
 
 <Modal
