@@ -7,6 +7,6 @@
 		r="35"
 		fill="none"
 		stroke="currentColor"
-		stroke-width="10"
+		stroke-width="16"
 	/>
 </svg>
