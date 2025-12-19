@@ -1,6 +1,5 @@
 <script lang="ts">
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
 	import './app.css'
 	import Button from './components/Button.svelte'
@@ -12,11 +11,7 @@
 	import Timer from './components/Timer.svelte'
 	import { game, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
-	import {
-		openHowToModal,
-		openLeaderboardModal,
-		openPlayOverlay,
-	} from './stores/ui'
+	import { openHowToModal, openPlayOverlay } from './stores/ui'
 
 	$effect.pre(() => {
 		openPlayOverlay()
@@ -41,12 +36,11 @@
 			<div class="flex items-center gap-4">
 				<Button
 					variant="ghost"
-					size="icon"
-					onClick={openLeaderboardModal}
-					ariaLabel="Leaderboard"
+					size="sm"
+					onClick={openPlayOverlay}
+					ariaLabel="Change Difficulty"
 				>
-					<TrophyIcon />
-					<span class="sr-only">Leaderboard</span>
+					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
 				</Button>
 				<div class="relative">
 					<Button
@@ -92,14 +86,6 @@
 					ariaLabel="Undo"
 				>
 					<Undo2Icon />
-				</Button>
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={openPlayOverlay}
-					ariaLabel="Change Difficulty"
-				>
-					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
 				</Button>
 			</div>
 			<Timer />
