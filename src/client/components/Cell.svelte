@@ -32,10 +32,10 @@
 
 		// Uniform borders (right + bottom), none at edges
 		if (col < 5) {
-			classes.push('border-r-2 border-r-zinc-400')
+			classes.push('border-r-2 border-r-zinc-300 dark:border-r-zinc-600')
 		}
 		if (row < 5) {
-			classes.push('border-b-2 border-b-zinc-400')
+			classes.push('border-b-2 border-b-zinc-300 dark:border-b-zinc-600')
 		}
 
 		return classes.join(' ')
@@ -44,8 +44,8 @@
 
 <button
 	type="button"
-	class="relative aspect-square flex items-center justify-center text-black dark:text-white focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
-		? 'bg-zinc-300 dark:bg-zinc-700'
+	class="relative aspect-square flex items-center justify-center text-black dark:text-zinc-200 focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
+		? 'bg-zinc-200 dark:bg-zinc-700'
 		: ''} {borderClass}"
 	onclick={handleClick}
 	aria-label={label}

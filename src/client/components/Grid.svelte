@@ -22,7 +22,7 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-xl overflow-hidden {shouldShake
+	class="w-full grid grid-cols-6 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden {shouldShake
 		? 'shake'
 		: ''}"
 >
@@ -31,7 +31,7 @@
 			Solved
 		</p>
 	{/if}
-	{#if $game.status === 'loading'}
+	<!-- {#if $game.status !== 'loading'}
 		{#each skeletonCells as cell (cell.id)}
 			<div
 				class="skeleton-cell aspect-square bg-zinc-300 dark:bg-zinc-700 {cell.col <
@@ -41,22 +41,22 @@
 				style="animation-delay: {cell.delay}s"
 			></div>
 		{/each}
-	{:else}
-		{#each Array.from({ length: SIZE }) as _, r (r)}
-			{#each Array.from({ length: SIZE }) as __, c (c)}
-				{#if $game.grid[r]}
-					<Cell
-						value={$game.grid[r][c] ?? null}
-						fixed={$game.fixedSet.has(`${r},${c}`)}
-						hasError={$game.errorCells.has(`${r},${c}`)}
-						row={r}
-						col={c}
-						onClick={() => cycleCell(r, c)}
-					/>
-				{/if}
-			{/each}
+	{:else} -->
+	{#each Array.from({ length: SIZE }) as _, r (r)}
+		{#each Array.from({ length: SIZE }) as __, c (c)}
+			{#if $game.grid[r]}
+				<Cell
+					value={$game.grid[r][c] ?? null}
+					fixed={$game.fixedSet.has(`${r},${c}`)}
+					hasError={$game.errorCells.has(`${r},${c}`)}
+					row={r}
+					col={c}
+					onClick={() => cycleCell(r, c)}
+				/>
+			{/if}
 		{/each}
-	{/if}
+	{/each}
+	<!-- {/if} -->
 </div>
 
 <style>
