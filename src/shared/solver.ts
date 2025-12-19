@@ -64,6 +64,43 @@ const wouldCreateTripleRun = (
 }
 
 /**
+ * Checks if placing a value at the given position would create a triple run vertically.
+ * Optimized: only checks around the affected position in the column.
+ */
+const wouldCreateVerticalTripleRun = (
+  grid: Grid,
+  r: number,
+  c: number,
+  val: 0 | 1
+): boolean => {
+  // Check window of 3 cells centered around r
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const rowA = grid[i]
+    const rowB = grid[i + 1]
+    const rowC = grid[i + 2]
+
+    // Safety check although solver guarantees grid structure mostly
+    if (!rowA || !rowB || !rowC) continue
+
+    const a = i === r ? val : rowA[c]
+    const b = i + 1 === r ? val : rowB[c]
+    const d = i + 2 === r ? val : rowC[c]
+
+    const cellA = a ?? null
+    const cellB = b ?? null
+    const cellC = d ?? null
+
+    if (cellA !== null && cellA === cellB && cellB === cellC) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
  * Validates if placing a value at (r, c) would violate constraints.
  * This is a lightweight check that avoids full grid validation.
  */
@@ -87,18 +124,17 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Check column constraints without allocating array
+  let colZeros = 0
+  let colOnes = 0
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+     const cell = grid[i]?.[c]
+     if (cell === 0) colZeros++
+     else if (cell === 1) colOnes++
   }
-  const colCounts = countLine(col)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
+
+  if (val === 0 && colZeros >= MAX_COUNT_PER_LINE) return false
+  if (val === 1 && colOnes >= MAX_COUNT_PER_LINE) return false
 
   // Check triple run in row
   if (wouldCreateTripleRun(row as Cell[], c, val)) {
@@ -106,7 +142,7 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateVerticalTripleRun(grid, r, c, val)) {
     return false
   }
 
