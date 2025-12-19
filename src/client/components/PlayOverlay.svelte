@@ -1,5 +1,4 @@
 <script lang="ts">
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import ZapIcon from '@lucide/svelte/icons/zap'
 	import type { Difficulty } from '../../shared/types/puzzle'
 	import { loadPuzzle } from '../stores/game'
@@ -54,7 +53,7 @@
 		<!-- Header Section with Social Proof -->
 		<div class="text-center mb-8 animate-fade-in">
 			<h1
-				class="text-5xl md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
+				class="text-5xl font-mon md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
 			>
 				Binary Grid
 			</h1>
@@ -63,19 +62,6 @@
 			>
 				Can you balance the grid???
 			</p>
-
-			<!-- Social Proof - Prominent Display -->
-			{#if playCount !== null && playCount > 0}
-				<div
-					class="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-950/30 border border-green-500/30 rounded-full animate-pulse-slow"
-				>
-					<TrophyIcon class="w-4 h-4 text-green-600 dark:text-green-400" />
-					<span class="text-sm font-bold text-green-700 dark:text-green-300">
-						{formatPlayCount(playCount)}
-						{playCount === 1 ? 'player' : 'players'} today!
-					</span>
-				</div>
-			{/if}
 		</div>
 
 		<!-- Difficulty Selector Cards -->
@@ -98,7 +84,7 @@
 		<!-- Call to Action - Large Play Button -->
 		<div class="w-full max-w-md mb-8">
 			<button
-				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow"
+				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow"
 				class:bg-linear-to-r={true}
 				class:from-green-500={selectedDifficulty === 'easy'}
 				class:to-emerald-600={selectedDifficulty === 'easy'}
@@ -117,9 +103,8 @@
 				<span
 					class="relative text-white drop-shadow-lg flex items-center justify-center gap-3"
 				>
-					<ZapIcon class="w-8 h-8 animate-bounce" />
-					START PLAYING
-					<ZapIcon class="w-8 h-8 animate-bounce" />
+					<ZapIcon class="size-8" />
+					PLAY
 				</span>
 			</button>
 		</div>
