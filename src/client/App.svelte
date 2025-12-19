@@ -41,6 +41,16 @@
 				>
 					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
 				</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={undo}
+					disabled={$game.history.length === 0 ||
+						($game.status !== 'in_progress' && $game.status !== 'invalid')}
+					ariaLabel="Undo"
+				>
+					<Undo2Icon />
+				</Button>
 				<div class="relative">
 					<Button
 						variant="ghost"
@@ -76,16 +86,6 @@
 						</svg>
 					{/if}
 				</div>
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={undo}
-					disabled={$game.history.length === 0 ||
-						($game.status !== 'in_progress' && $game.status !== 'invalid')}
-					ariaLabel="Undo"
-				>
-					<Undo2Icon />
-				</Button>
 			</div>
 			<Timer />
 		</div>
