@@ -7,6 +7,6 @@
 	{#if $game.status === 'idle'}
 		--:--
 	{:else}
-		~{formatElapsedTime($elapsedSeconds)}
+		{formatElapsedTime($elapsedSeconds)}
 	{/if}
 </div>
