@@ -5,7 +5,6 @@
 	import Button from './components/Button.svelte'
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
-	import LeaderboardModal from './components/LeaderboardModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
@@ -29,7 +28,7 @@
 </script>
 
 <main
-	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
+	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-1"
 >
 	<div class="p-2 bg-zinc-200 dark:bg-zinc-800 rounded-2xl">
 		<div class="flex justify-between items-center mb-4">
@@ -107,4 +106,3 @@
 <PlayOverlay />
 <HowToPlayModal />
 <SuccessModal />
-<LeaderboardModal />
