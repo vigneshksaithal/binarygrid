@@ -1,5 +1,7 @@
 <script lang="ts">
 	import ZapIcon from '@lucide/svelte/icons/zap'
+	import { cubicOut } from 'svelte/easing'
+	import { fly } from 'svelte/transition'
 	import type { Difficulty } from '../../shared/types/puzzle'
 	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
@@ -18,12 +20,8 @@
 	const fetchPlayCount = async () => {
 		try {
 			const res = await fetch('/api/play-count')
-			if (res.ok) {
-				const data = await res.json()
-				playCount = data.count ?? 0
-			} else {
-				playCount = 0
-			}
+			const data = res.ok ? await res.json() : { count: 0 }
+			playCount = data.count ?? 0
 		} catch {
 			playCount = 0
 		}
@@ -35,23 +33,52 @@
 		}
 	})
 
-	const formatPlayCount = (count: number): string => {
-		return count.toLocaleString()
-	}
+	const formatPlayCount = (count: number): string =>
+		new Intl.NumberFormat('en', { notation: 'compact' }).format(count)
 
 	const difficulties = [
-		{ id: 'easy' as Difficulty, label: 'Easy' },
-		{ id: 'medium' as Difficulty, label: 'Medium' },
-		{ id: 'hard' as Difficulty, label: 'Hard' },
+		{
+			id: 'easy' as Difficulty,
+			label: 'Easy',
+			gradient: 'from-green-500 to-emerald-600',
+		},
+		{
+			id: 'medium' as Difficulty,
+			label: 'Medium',
+			gradient: 'from-yellow-500 to-orange-500',
+		},
+		{
+			id: 'hard' as Difficulty,
+			label: 'Hard',
+			gradient: 'from-red-500 to-rose-600',
+		},
 	]
+
+	const selectedGradient = $derived(
+		difficulties.find((d) => d.id === selectedDifficulty)?.gradient ?? '',
+	)
 </script>
 
 {#if $showPlayOverlay}
 	<div
 		class="fixed inset-0 z-50 flex flex-col items-center justify-center px-6 bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800"
 	>
-		<!-- Header Section with Social Proof -->
-		<div class="text-center mb-8 animate-fade-in">
+		<!-- Play Count Ribbon -->
+		{#if playCount !== null && playCount > 0}
+			<div
+				class="absolute top-0 left-0 overflow-hidden w-48 h-52 pointer-events-none"
+				in:fly={{ x: -60, y: -60, duration: 500, easing: cubicOut }}
+			>
+				<div
+					class="absolute top-8 -left-16 w-60 -rotate-45 bg-linear-to-r from-indigo-500 to-purple-600 text-white text-lg font-bold py-2 text-center shadow-lg animate-ribbon-shimmer"
+				>
+					{formatPlayCount(playCount)} plays
+				</div>
+			</div>
+		{/if}
+
+		<!-- Header Section -->
+		<div class="text-center mb-8">
 			<h1
 				class="text-5xl font-mon md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
 			>
@@ -84,14 +111,7 @@
 		<!-- Call to Action - Large Play Button -->
 		<div class="w-full max-w-md mb-8">
 			<button
-				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow"
-				class:bg-linear-to-r={true}
-				class:from-green-500={selectedDifficulty === 'easy'}
-				class:to-emerald-600={selectedDifficulty === 'easy'}
-				class:from-yellow-500={selectedDifficulty === 'medium'}
-				class:to-orange-500={selectedDifficulty === 'medium'}
-				class:from-red-500={selectedDifficulty === 'hard'}
-				class:to-rose-600={selectedDifficulty === 'hard'}
+				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow bg-linear-to-r {selectedGradient}"
 				onclick={startGame}
 				aria-label="Start game"
 			>
@@ -111,17 +131,6 @@
 	</div>
 
 	<style>
-		@keyframes fade-in {
-			from {
-				opacity: 0;
-				transform: translateY(-10px);
-			}
-			to {
-				opacity: 1;
-				transform: translateY(0);
-			}
-		}
-
 		@keyframes pulse-slow {
 			0%,
 			100% {
@@ -132,12 +141,23 @@
 			}
 		}
 
-		.animate-fade-in {
-			animation: fade-in 0.6s ease-out;
-		}
-
 		.animate-pulse-slow {
 			animation: pulse-slow 3s ease-in-out infinite;
+		}
+
+		@keyframes ribbon-shimmer {
+			0%,
+			100% {
+				opacity: 0.9;
+			}
+			50% {
+				opacity: 1;
+				box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+			}
+		}
+
+		.animate-ribbon-shimmer {
+			animation: ribbon-shimmer 2s ease-in-out infinite;
 		}
 	</style>
 {/if}
