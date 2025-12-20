@@ -4,13 +4,16 @@
 	import './app.css'
 	import Button from './components/Button.svelte'
 	import Grid from './components/Grid.svelte'
-	import HowToPlayModal from './components/HowToPlayModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
-	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { game, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
-	import { openHowToModal, openPlayOverlay } from './stores/ui'
+	import {
+		openHowToModal,
+		openPlayOverlay,
+		showHowToModal,
+		showSuccessModal,
+	} from './stores/ui'
 
 	$effect.pre(() => {
 		openPlayOverlay()
@@ -104,5 +107,15 @@
 </main>
 
 <PlayOverlay />
-<HowToPlayModal />
-<SuccessModal />
+
+{#if $showHowToModal}
+	{#await import('./components/HowToPlayModal.svelte') then { default: HowToPlayModal }}
+		<HowToPlayModal />
+	{/await}
+{/if}
+
+{#if $showSuccessModal}
+	{#await import('./components/SuccessModal.svelte') then { default: SuccessModal }}
+		<SuccessModal />
+	{/await}
+{/if}
