@@ -19,8 +19,8 @@
 	}
 
 	// SVG circle parameters for progress ring
-	const radius = 16
-	const circumference = 2 * Math.PI * radius
+	const RADIUS = 16
+	const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 </script>
 
 <main
@@ -68,16 +68,16 @@
 							<circle
 								cx="18"
 								cy="18"
-								r={radius}
+								r={RADIUS}
 								fill="none"
 								stroke="currentColor"
-								stroke-width="2"
+								stroke-width="4"
 								stroke-linecap="round"
-								stroke-dasharray={circumference}
-								stroke-dashoffset={circumference -
-									(circumference * $cooldownProgress) / 100}
+								stroke-dasharray={CIRCUMFERENCE}
+								stroke-dashoffset={CIRCUMFERENCE -
+									(CIRCUMFERENCE * $cooldownProgress) / 100}
 								transform="rotate(-90 18 18)"
-								class="text-green-500 dark:text-green-400 transition-all duration-100"
+								class="stroke-zinc-400 dark:stroke-zinc-400 transition-all duration-100"
 							/>
 						</svg>
 					{/if}
