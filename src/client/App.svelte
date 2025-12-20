@@ -15,10 +15,6 @@
 		showSuccessModal,
 	} from './stores/ui'
 
-	$effect.pre(() => {
-		openPlayOverlay()
-	})
-
 	const handleHint = () => {
 		if ($canUseHint) {
 			useHint()
