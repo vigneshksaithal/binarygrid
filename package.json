@@ -20,7 +20,8 @@
     "check": "svelte-check --tsconfig ./src/client/tsconfig.json",
     "launch": "npm run build && npm run deploy && devvit publish",
     "type-check": "tsc --build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "local": "cd src/client && vite dev"
   },
   "dependencies": {
     "@devvit/web": "0.12.6",
