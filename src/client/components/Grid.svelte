@@ -26,11 +26,6 @@
 		? 'shake'
 		: ''}"
 >
-	{#if $game.status === 'solved'}
-		<p class="col-span-6 text-center py-2 bg-green-100 dark:bg-green-900">
-			Solved
-		</p>
-	{/if}
 	{#if $game.status === 'loading'}
 		{#each skeletonCells as cell (cell.id)}
 			<div
