@@ -24,12 +24,34 @@ const MAX_COUNT_PER_LINE = 3
 const TRIPLE_RUN_LENGTH = 3
 
 /**
- * Counts zeros and ones in a line.
+ * Counts zeros and ones in a line (row).
  */
 const countLine = (line: Cell[]): { zeros: number; ones: number } => {
   let zeros = 0
   let ones = 0
   for (const v of line) {
+    if (v === 0) {
+      zeros++
+    } else if (v === 1) {
+      ones++
+    }
+  }
+  return { zeros, ones }
+}
+
+/**
+ * Counts zeros and ones in a column directly from the grid.
+ */
+const countColumn = (
+  grid: Grid,
+  c: number
+): { zeros: number; ones: number } => {
+  let zeros = 0
+  let ones = 0
+  for (let r = 0; r < SIZE; r++) {
+    // grid[r] is safe because r < SIZE
+    const row = grid[r] as Cell[]
+    const v = row[c]
     if (v === 0) {
       zeros++
     } else if (v === 1) {
@@ -64,6 +86,31 @@ const wouldCreateTripleRun = (
 }
 
 /**
+ * Checks if placing a value at the given position would create a triple run in a column.
+ */
+const wouldCreateTripleRunCol = (
+  grid: Grid,
+  cIdx: number,
+  rIdx: number,
+  val: 0 | 1
+): boolean => {
+  const start = Math.max(0, rIdx - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, rIdx)
+
+  for (let i = start; i <= end; i++) {
+    // We are checking the column 'cIdx', iterating over rows 'i'.
+    // Bounds check: max i = SIZE - 3, so i+2 = SIZE - 1, which is safe.
+    const a = i === rIdx ? val : (grid[i] as Cell[])[cIdx]
+    const b = i + 1 === rIdx ? val : (grid[i + 1] as Cell[])[cIdx]
+    const c = i + 2 === rIdx ? val : (grid[i + 2] as Cell[])[cIdx]
+    if (a != null && a === b && b === c) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
  * Validates if placing a value at (r, c) would violate constraints.
  * This is a lightweight check that avoids full grid validation.
  */
@@ -87,12 +134,8 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
-  for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
-  }
-  const colCounts = countLine(col)
+  // Check column constraints directly on grid
+  const colCounts = countColumn(grid, c)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -106,7 +149,7 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRunCol(grid, c, r, val)) {
     return false
   }
 
