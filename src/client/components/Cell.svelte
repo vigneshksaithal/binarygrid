@@ -58,7 +58,7 @@
 	{/if}
 	{#if hasError}
 		<svg
-			class="absolute inset-0 w-full h-full pointer-events-none"
+			class="absolute inset-0 w-full h-full pointer-events-none stroke-red-400"
 			viewBox="0 0 100 100"
 			preserveAspectRatio="none"
 		>
@@ -67,7 +67,6 @@
 				y1="20"
 				x2="80"
 				y2="80"
-				stroke="rgb(220 38 38 / 0.6)"
 				stroke-width="6"
 				stroke-linecap="round"
 			/>
@@ -76,7 +75,6 @@
 				y1="20"
 				x2="20"
 				y2="80"
-				stroke="rgb(220 38 38 / 0.6)"
 				stroke-width="6"
 				stroke-linecap="round"
 			/>
