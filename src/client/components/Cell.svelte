@@ -44,7 +44,7 @@
 
 <button
 	type="button"
-	class="relative aspect-square flex items-center justify-center text-green-600 focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
+	class="relative aspect-square flex items-center justify-center text-green-600 dark:text-green-400 focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
 		? 'bg-zinc-200 dark:bg-zinc-700'
 		: ''} {borderClass}"
 	onclick={handleClick}
