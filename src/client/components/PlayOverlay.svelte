@@ -80,7 +80,7 @@
 		<!-- Header Section -->
 		<div class="text-center mb-8">
 			<h1
-				class="text-5xl font-mon md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
+				class="text-5xl md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
 			>
 				Binary Grid
 			</h1>
