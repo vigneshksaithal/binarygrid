@@ -111,7 +111,7 @@
 		<!-- Call to Action - Large Play Button -->
 		<div class="w-full max-w-md mb-8">
 			<button
-				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow bg-linear-to-r {selectedGradient}"
+				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow bg-linear-to-r {selectedGradient}"
 				onclick={startGame}
 				aria-label="Start game"
 			>
