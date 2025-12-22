@@ -6,7 +6,6 @@
 	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
 	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
-	import Button from './Button.svelte'
 
 	let playCount = $state<number | null>(null)
 	let selectedDifficulty = $state<Difficulty>('easy')
@@ -35,28 +34,6 @@
 
 	const formatPlayCount = (count: number): string =>
 		new Intl.NumberFormat('en', { notation: 'compact' }).format(count)
-
-	const difficulties = [
-		{
-			id: 'easy' as Difficulty,
-			label: 'Easy',
-			gradient: 'from-green-500 to-emerald-600',
-		},
-		{
-			id: 'medium' as Difficulty,
-			label: 'Medium',
-			gradient: 'from-yellow-500 to-orange-500',
-		},
-		{
-			id: 'hard' as Difficulty,
-			label: 'Hard',
-			gradient: 'from-red-500 to-rose-600',
-		},
-	]
-
-	const selectedGradient = $derived(
-		difficulties.find((d) => d.id === selectedDifficulty)?.gradient ?? '',
-	)
 </script>
 
 {#if $showPlayOverlay}
@@ -78,40 +55,16 @@
 		{/if}
 
 		<!-- Header Section -->
-		<div class="text-center mb-8">
-			<h1
-				class="text-5xl md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
-			>
-				Binary Grid
-			</h1>
-			<p
-				class="text-lg md:text-xl text-zinc-600 dark:text-zinc-300 font-medium mb-4"
-			>
-				Can you balance the grid???
-			</p>
-		</div>
-
-		<!-- Difficulty Selector Cards -->
-		<div class="w-full max-w-md mb-6">
-			<div class="grid grid-cols-3 gap-3">
-				{#each difficulties as difficulty (difficulty.id)}
-					<Button
-						variant={selectedDifficulty === difficulty.id
-							? 'default'
-							: 'secondary'}
-						onClick={() => (selectedDifficulty = difficulty.id)}
-						ariaLabel={`Select ${difficulty.label} difficulty`}
-					>
-						{difficulty.label}
-					</Button>
-				{/each}
-			</div>
-		</div>
+		<h1
+			class="max-w-xs mx-auto text-5xl md:text-6xl text-center font-black bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent mb-8"
+		>
+			Binary Grid
+		</h1>
 
 		<!-- Call to Action - Large Play Button -->
-		<div class="w-full max-w-md mb-8">
+		<div class="w-full max-w-sm">
 			<button
-				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow bg-linear-to-r {selectedGradient}"
+				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow bg-linear-to-r from-green-500 to-emerald-600"
 				onclick={startGame}
 				aria-label="Start game"
 			>
