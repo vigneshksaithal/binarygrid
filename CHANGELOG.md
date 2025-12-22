@@ -1,5 +1,16 @@
 # Changelog
 
+## 2025-12-20
+
+### Performance Optimizations
+
+- **App.svelte (client)**:
+  - Implemented lazy loading for `SuccessModal` and `HowToPlayModal` components using Svelte 5's native `{#await}` blocks with dynamic imports.
+  - Reduced initial JavaScript bundle size by approximately 16 kB (modals are now loaded on-demand as separate chunks: `SuccessModal.js` at 13.60 kB and `HowToPlayModal.js` at 1.36 kB).
+  - The canvas-confetti library (~50 KB unminified) is now only loaded when users complete a puzzle, significantly improving initial page load performance.
+  - Modals are cached by the browser after first load, ensuring instant subsequent opens with no additional network requests.
+  - Used Svelte 5 runes-compatible syntax with destructured imports (`{#await import() then { default: Component }}`) to avoid deprecated `<svelte:component>` warnings.
+
 ## 2025-12-16
 
 ### Changes

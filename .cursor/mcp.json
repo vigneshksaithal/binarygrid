@@ -5,7 +5,10 @@
     },
     "devvit": {
       "command": "npx",
-      "args": ["-y", "@devvit/mcp"]
+      "args": [
+        "-y",
+        "@devvit/mcp"
+      ]
     }
   }
 }

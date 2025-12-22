@@ -16,7 +16,8 @@
 
 @layer base {
   body {
-    @apply min-h-screen min-w-80 w-full bg-zinc-100 dark:bg-zinc-900;
+    font-family: "Montserrat", sans-serif;
+    @apply min-h-screen min-w-80 w-full bg-zinc-50 dark:bg-zinc-900;
   }
 
 
@@ -40,14 +41,11 @@
     @apply text-base list-disc list-inside text-zinc-900 dark:text-zinc-100 mb-2;
   }
 
-  ul li {
-    @apply mb-4;
-  }
-
   ol {
     @apply text-base list-decimal list-inside text-zinc-900 dark:text-zinc-100 mb-2;
   }
 
+  ul li,
   ol li {
     @apply mb-4;
   }

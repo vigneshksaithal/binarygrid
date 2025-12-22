@@ -22,19 +22,14 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 border-2 border-zinc-400 rounded-xl overflow-hidden {shouldShake
+	class="w-full grid grid-cols-6 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden {shouldShake
 		? 'shake'
 		: ''}"
 >
-	{#if $game.status === 'solved'}
-		<p class="col-span-6 text-center py-2 bg-green-100 dark:bg-green-900">
-			Solved
-		</p>
-	{/if}
 	{#if $game.status === 'loading'}
 		{#each skeletonCells as cell (cell.id)}
 			<div
-				class="skeleton-cell aspect-square bg-zinc-300 dark:bg-zinc-700 {cell.col <
+				class="skeleton-cell aspect-square bg-zinc-200 dark:bg-zinc-700 {cell.col <
 				5
 					? 'border-r-2 border-r-zinc-400'
 					: ''} {cell.row < 5 ? 'border-b-2 border-b-zinc-400' : ''}"

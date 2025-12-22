@@ -1,26 +1,16 @@
 <script lang="ts">
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
 	import './app.css'
 	import Button from './components/Button.svelte'
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
-	import LeaderboardModal from './components/LeaderboardModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { game, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
-	import {
-		openHowToModal,
-		openLeaderboardModal,
-		openPlayOverlay,
-	} from './stores/ui'
-
-	$effect.pre(() => {
-		openPlayOverlay()
-	})
+	import { openHowToModal, openPlayOverlay } from './stores/ui'
 
 	const handleHint = () => {
 		if ($canUseHint) {
@@ -29,24 +19,33 @@
 	}
 
 	// SVG circle parameters for progress ring
-	const radius = 16
-	const circumference = 2 * Math.PI * radius
+	const RADIUS = 16
+	const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 </script>
 
 <main
-	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-2"
+	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-1"
 >
-	<div class="p-2 bg-zinc-200 dark:bg-zinc-800 rounded-2xl">
+	<div class="p-2 bg-zinc-200/50 dark:bg-zinc-800 rounded-2xl">
 		<div class="flex justify-between items-center mb-4">
 			<div class="flex items-center gap-4">
 				<Button
 					variant="ghost"
-					size="icon"
-					onClick={openLeaderboardModal}
-					ariaLabel="Leaderboard"
+					size="sm"
+					onClick={openPlayOverlay}
+					ariaLabel="Change Difficulty"
 				>
-					<TrophyIcon />
-					<span class="sr-only">Leaderboard</span>
+					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={undo}
+					disabled={$game.history.length === 0 ||
+						($game.status !== 'in_progress' && $game.status !== 'invalid')}
+					ariaLabel="Undo"
+				>
+					<Undo2Icon />
 				</Button>
 				<div class="relative">
 					<Button
@@ -69,38 +68,20 @@
 							<circle
 								cx="18"
 								cy="18"
-								r={radius}
+								r={RADIUS}
 								fill="none"
 								stroke="currentColor"
-								stroke-width="2"
+								stroke-width="4"
 								stroke-linecap="round"
-								stroke-dasharray={circumference}
-								stroke-dashoffset={circumference -
-									(circumference * $cooldownProgress) / 100}
+								stroke-dasharray={CIRCUMFERENCE}
+								stroke-dashoffset={CIRCUMFERENCE -
+									(CIRCUMFERENCE * $cooldownProgress) / 100}
 								transform="rotate(-90 18 18)"
-								class="text-green-500 dark:text-green-400 transition-all duration-100"
+								class="stroke-zinc-400 dark:stroke-zinc-400 transition-all duration-100"
 							/>
 						</svg>
 					{/if}
 				</div>
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={undo}
-					disabled={$game.history.length === 0 ||
-						($game.status !== 'in_progress' && $game.status !== 'invalid')}
-					ariaLabel="Undo"
-				>
-					<Undo2Icon />
-				</Button>
-				<Button
-					variant="ghost"
-					size="sm"
-					onClick={openPlayOverlay}
-					ariaLabel="Change Difficulty"
-				>
-					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
-				</Button>
 			</div>
 			<Timer />
 		</div>
@@ -119,6 +100,6 @@
 </main>
 
 <PlayOverlay />
+
 <HowToPlayModal />
 <SuccessModal />
-<LeaderboardModal />

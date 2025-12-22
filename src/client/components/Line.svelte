@@ -7,7 +7,7 @@
 		x2="50"
 		y2="80"
 		stroke="currentColor"
-		stroke-width="12"
+		stroke-width="16"
 		stroke-linecap="round"
 	/>
 </svg>
