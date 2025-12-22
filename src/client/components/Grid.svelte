@@ -29,7 +29,7 @@
 	{#if $game.status === 'loading'}
 		{#each skeletonCells as cell (cell.id)}
 			<div
-				class="skeleton-cell aspect-square bg-zinc-300 dark:bg-zinc-700 {cell.col <
+				class="skeleton-cell aspect-square bg-zinc-200 dark:bg-zinc-700 {cell.col <
 				5
 					? 'border-r-2 border-r-zinc-400'
 					: ''} {cell.row < 5 ? 'border-b-2 border-b-zinc-400' : ''}"
