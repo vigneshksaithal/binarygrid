@@ -1,26 +1,26 @@
 <script lang="ts">
-	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import Undo2Icon from '@lucide/svelte/icons/undo-2'
-	import './app.css'
-	import Button from './components/Button.svelte'
-	import Grid from './components/Grid.svelte'
-	import HowToPlayModal from './components/HowToPlayModal.svelte'
-	import PlayOverlay from './components/PlayOverlay.svelte'
-	import SuccessModal from './components/SuccessModal.svelte'
-	import Timer from './components/Timer.svelte'
-	import { game, undo, useHint } from './stores/game'
-	import { canUseHint, cooldownProgress } from './stores/hint'
-	import { openHowToModal, openPlayOverlay } from './stores/ui'
+import LightbulbIcon from "@lucide/svelte/icons/lightbulb";
+import Undo2Icon from "@lucide/svelte/icons/undo-2";
+import "./app.css";
+import Button from "./components/Button.svelte";
+import Grid from "./components/Grid.svelte";
+import HowToPlayModal from "./components/HowToPlayModal.svelte";
+import PlayOverlay from "./components/PlayOverlay.svelte";
+import SuccessModal from "./components/SuccessModal.svelte";
+import Timer from "./components/Timer.svelte";
+import { game, undo, useHint } from "./stores/game";
+import { canUseHint, cooldownProgress } from "./stores/hint";
+import { openHowToModal, openPlayOverlay } from "./stores/ui";
 
-	const handleHint = () => {
-		if ($canUseHint) {
-			useHint()
-		}
+const handleHint = () => {
+	if ($canUseHint) {
+		useHint();
 	}
+};
 
-	// SVG circle parameters for progress ring
-	const RADIUS = 16
-	const CIRCUMFERENCE = 2 * Math.PI * RADIUS
+// SVG circle parameters for progress ring
+const RADIUS = 16;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 </script>
 
 <main

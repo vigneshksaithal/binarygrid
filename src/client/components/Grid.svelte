@@ -1,24 +1,24 @@
 <script lang="ts">
-	import { SIZE } from '../../shared/rules'
-	import { autosubmitIfSolved, cycleCell, game } from '../stores/game'
-	import Cell from './Cell.svelte'
+import { SIZE } from "../../shared/rules";
+import { autosubmitIfSolved, cycleCell, game } from "../stores/game";
+import Cell from "./Cell.svelte";
 
-	$effect(() => {
-		if ($game.status === 'solved') {
-			autosubmitIfSolved()
-		}
-	})
+$effect(() => {
+	if ($game.status === "solved") {
+		autosubmitIfSolved();
+	}
+});
 
-	// Check if grid should shake
-	const shouldShake = $derived($game.status === 'invalid')
+// Check if grid should shake
+const shouldShake = $derived($game.status === "invalid");
 
-	// Generate skeleton cells with random animation delays for loading state
-	const skeletonCells = Array.from({ length: 36 }, (_, i) => ({
-		id: i,
-		row: Math.floor(i / 6),
-		col: i % 6,
-		delay: Math.random() * 1.5, // Random [0, 1.5) seconds delay for sparkle effect
-	}))
+// Generate skeleton cells with random animation delays for loading state
+const skeletonCells = Array.from({ length: 36 }, (_, i) => ({
+	id: i,
+	row: Math.floor(i / 6),
+	col: i % 6,
+	delay: Math.random() * 1.5, // Random [0, 1.5) seconds delay for sparkle effect
+}));
 </script>
 
 <div

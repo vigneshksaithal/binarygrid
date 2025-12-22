@@ -1,18 +1,18 @@
 import {
-  EXACT_ONES_PER_LINE,
-  EXACT_ZEROS_PER_LINE,
-  MAX_CONSECUTIVE_RUN,
-  SIZE
-} from './rules'
-import type { Cell, FixedCell, Grid, ValidationResult } from './types/puzzle'
+	EXACT_ONES_PER_LINE,
+	EXACT_ZEROS_PER_LINE,
+	MAX_CONSECUTIVE_RUN,
+	SIZE,
+} from "./rules";
+import type { Cell, FixedCell, Grid, ValidationResult } from "./types/puzzle";
 
-const TRIPLE_RUN_LENGTH = 3
+const TRIPLE_RUN_LENGTH = 3;
 
 /**
  * Returns true if the provided value is a valid Cell.
  */
 function isValidCellValue(value: unknown): value is Cell {
-  return value === 0 || value === 1 || value === null
+	return value === 0 || value === 1 || value === null;
 }
 
 /**
@@ -20,34 +20,34 @@ function isValidCellValue(value: unknown): value is Cell {
  * Returns array of indices where the run occurs.
  */
 function findTripleRunIndices(line: Cell[]): number[] {
-  if (line.length < TRIPLE_RUN_LENGTH) {
-    return []
-  }
+	if (line.length < TRIPLE_RUN_LENGTH) {
+		return [];
+	}
 
-  const indices: number[] = []
-  let runStart = 0
-  let runLength = 1
-  let lastValue: Cell = line[0] ?? null
+	const indices: number[] = [];
+	let runStart = 0;
+	let runLength = 1;
+	let lastValue: Cell = line[0] ?? null;
 
-  for (let i = 1; i < line.length; i++) {
-    const current = line[i]
-    if (current !== null && lastValue !== null && current === lastValue) {
-      runLength++
-      if (runLength >= TRIPLE_RUN_LENGTH) {
-        // Add all cells in the run
-        for (let j = runStart; j <= i; j++) {
-          if (!indices.includes(j)) {
-            indices.push(j)
-          }
-        }
-      }
-    } else {
-      runStart = i
-      runLength = 1
-      lastValue = current ?? null
-    }
-  }
-  return indices
+	for (let i = 1; i < line.length; i++) {
+		const current = line[i];
+		if (current !== null && lastValue !== null && current === lastValue) {
+			runLength++;
+			if (runLength >= TRIPLE_RUN_LENGTH) {
+				// Add all cells in the run
+				for (let j = runStart; j <= i; j++) {
+					if (!indices.includes(j)) {
+						indices.push(j);
+					}
+				}
+			}
+		} else {
+			runStart = i;
+			runLength = 1;
+			lastValue = current ?? null;
+		}
+	}
+	return indices;
 }
 
 /**
@@ -55,29 +55,29 @@ function findTripleRunIndices(line: Cell[]): number[] {
  * Returns indices of cells with the over-represented value.
  */
 function findCountViolationIndices(line: Cell[]): number[] {
-  let zeros = 0
-  let ones = 0
-  for (const v of line) {
-    if (v === 0) zeros++
-    else if (v === 1) ones++
-  }
+	let zeros = 0;
+	let ones = 0;
+	for (const v of line) {
+		if (v === 0) zeros++;
+		else if (v === 1) ones++;
+	}
 
-  const indices: number[] = []
+	const indices: number[] = [];
 
-  // Too many zeros
-  if (zeros > EXACT_ZEROS_PER_LINE) {
-    for (let i = 0; i < line.length; i++) {
-      if (line[i] === 0) indices.push(i)
-    }
-  }
-  // Too many ones
-  if (ones > EXACT_ONES_PER_LINE) {
-    for (let i = 0; i < line.length; i++) {
-      if (line[i] === 1) indices.push(i)
-    }
-  }
+	// Too many zeros
+	if (zeros > EXACT_ZEROS_PER_LINE) {
+		for (let i = 0; i < line.length; i++) {
+			if (line[i] === 0) indices.push(i);
+		}
+	}
+	// Too many ones
+	if (ones > EXACT_ONES_PER_LINE) {
+		for (let i = 0; i < line.length; i++) {
+			if (line[i] === 1) indices.push(i);
+		}
+	}
 
-  return indices
+	return indices;
 }
 
 /**
@@ -85,92 +85,92 @@ function findCountViolationIndices(line: Cell[]): number[] {
  * Returns a Set of cell keys in "r,c" format.
  */
 export function findErrorCells(grid: Grid): Set<string> {
-  const errorCells = new Set<string>()
+	const errorCells = new Set<string>();
 
-  // Check rows for triple runs and count violations
-  for (let r = 0; r < SIZE; r++) {
-    const row = grid[r]
-    if (!Array.isArray(row)) continue
+	// Check rows for triple runs and count violations
+	for (let r = 0; r < SIZE; r++) {
+		const row = grid[r];
+		if (!Array.isArray(row)) continue;
 
-    const tripleIndices = findTripleRunIndices(row as Cell[])
-    for (const c of tripleIndices) {
-      errorCells.add(`${r},${c}`)
-    }
+		const tripleIndices = findTripleRunIndices(row as Cell[]);
+		for (const c of tripleIndices) {
+			errorCells.add(`${r},${c}`);
+		}
 
-    const countIndices = findCountViolationIndices(row as Cell[])
-    for (const c of countIndices) {
-      errorCells.add(`${r},${c}`)
-    }
-  }
+		const countIndices = findCountViolationIndices(row as Cell[]);
+		for (const c of countIndices) {
+			errorCells.add(`${r},${c}`);
+		}
+	}
 
-  // Check columns for triple runs and count violations
-  const col: Cell[] = new Array(SIZE)
-  for (let c = 0; c < SIZE; c++) {
-    for (let r = 0; r < SIZE; r++) {
-      const v = grid[r]?.[c]
-      col[r] = v === 0 || v === 1 ? v : null
-    }
+	// Check columns for triple runs and count violations
+	const col: Cell[] = new Array(SIZE);
+	for (let c = 0; c < SIZE; c++) {
+		for (let r = 0; r < SIZE; r++) {
+			const v = grid[r]?.[c];
+			col[r] = v === 0 || v === 1 ? v : null;
+		}
 
-    const tripleIndices = findTripleRunIndices(col)
-    for (const r of tripleIndices) {
-      errorCells.add(`${r},${c}`)
-    }
+		const tripleIndices = findTripleRunIndices(col);
+		for (const r of tripleIndices) {
+			errorCells.add(`${r},${c}`);
+		}
 
-    const countIndices = findCountViolationIndices(col)
-    for (const r of countIndices) {
-      errorCells.add(`${r},${c}`)
-    }
-  }
+		const countIndices = findCountViolationIndices(col);
+		for (const r of countIndices) {
+			errorCells.add(`${r},${c}`);
+		}
+	}
 
-  return errorCells
+	return errorCells;
 }
 
 /**
  * Ensures the grid has SIZE x SIZE dimensions and only valid values.
  */
 function validateShapeAndDomain(grid: Grid, errors: string[]): void {
-  if (!Array.isArray(grid) || grid.length !== SIZE) {
-    errors.push(`Grid must have ${SIZE} rows.`)
-    return
-  }
-  for (let r = 0; r < SIZE; r++) {
-    const row = grid[r]
-    if (!Array.isArray(row) || row.length !== SIZE) {
-      errors.push(`Row ${r} must have ${SIZE} columns.`)
-      continue
-    }
-    for (let c = 0; c < SIZE; c++) {
-      const value = row[c]
-      if (!isValidCellValue(value)) {
-        errors.push(`Cell (${r},${c}) has invalid value.`)
-      }
-    }
-  }
+	if (!Array.isArray(grid) || grid.length !== SIZE) {
+		errors.push(`Grid must have ${SIZE} rows.`);
+		return;
+	}
+	for (let r = 0; r < SIZE; r++) {
+		const row = grid[r];
+		if (!Array.isArray(row) || row.length !== SIZE) {
+			errors.push(`Row ${r} must have ${SIZE} columns.`);
+			continue;
+		}
+		for (let c = 0; c < SIZE; c++) {
+			const value = row[c];
+			if (!isValidCellValue(value)) {
+				errors.push(`Cell (${r},${c}) has invalid value.`);
+			}
+		}
+	}
 }
 
 // Safe access helpers to satisfy strict typing when callers may not guarantee shape
 const getRow = (grid: Grid, r: number): Cell[] => {
-  const row = grid[r]
-  // Fast path: return directly if row is valid (most common case)
-  if (Array.isArray(row) && row.length === SIZE) {
-    return row as Cell[]
-  }
-  // Slow path: create fallback only when needed
-  return createFallbackRow(row)
-}
+	const row = grid[r];
+	// Fast path: return directly if row is valid (most common case)
+	if (Array.isArray(row) && row.length === SIZE) {
+		return row as Cell[];
+	}
+	// Slow path: create fallback only when needed
+	return createFallbackRow(row);
+};
 
 const createFallbackRow = (row: Cell[] | undefined): Cell[] => {
-  const fallback: Cell[] = new Array(SIZE)
-  for (let c = 0; c < SIZE; c++) {
-    fallback[c] = (row?.[c] ?? null) as Cell
-  }
-  return fallback
-}
+	const fallback: Cell[] = new Array(SIZE);
+	for (let c = 0; c < SIZE; c++) {
+		fallback[c] = (row?.[c] ?? null) as Cell;
+	}
+	return fallback;
+};
 
 const getCell = (grid: Grid, r: number, c: number): Cell => {
-  const v = grid[r]?.[c]
-  return v === 0 || v === 1 ? v : null
-}
+	const v = grid[r]?.[c];
+	return v === 0 || v === 1 ? v : null;
+};
 
 /**
  * Returns true if the line contains a forbidden triple run (e.g., 000 or 111).
@@ -178,176 +178,176 @@ const getCell = (grid: Grid, r: number, c: number): Cell => {
  * Optimized to track run length incrementally instead of checking windows.
  */
 export function hasTripleRun(line: Cell[]): boolean {
-  if (line.length < TRIPLE_RUN_LENGTH) {
-    return false
-  }
+	if (line.length < TRIPLE_RUN_LENGTH) {
+		return false;
+	}
 
-  let runLength = 1
-  let lastValue: Cell = line[0] ?? null
+	let runLength = 1;
+	let lastValue: Cell = line[0] ?? null;
 
-  for (let i = 1; i < line.length; i++) {
-    const current = line[i]
-    // Only continue run if both current and lastValue are non-null and equal
-    if (current !== null && lastValue !== null && current === lastValue) {
-      runLength++
-      if (runLength >= TRIPLE_RUN_LENGTH) {
-        return true
-      }
-    } else {
-      runLength = 1
-      lastValue = current ?? null
-    }
-  }
-  return false
+	for (let i = 1; i < line.length; i++) {
+		const current = line[i];
+		// Only continue run if both current and lastValue are non-null and equal
+		if (current !== null && lastValue !== null && current === lastValue) {
+			runLength++;
+			if (runLength >= TRIPLE_RUN_LENGTH) {
+				return true;
+			}
+		} else {
+			runLength = 1;
+			lastValue = current ?? null;
+		}
+	}
+	return false;
 }
 
 /**
  * Returns true if the grid is fully filled (no nulls).
  */
 export function isComplete(grid: Grid): boolean {
-  for (let r = 0; r < SIZE; r++) {
-    for (let c = 0; c < SIZE; c++) {
-      if (getCell(grid, r, c) === null) {
-        return false
-      }
-    }
-  }
-  return true
+	for (let r = 0; r < SIZE; r++) {
+		for (let c = 0; c < SIZE; c++) {
+			if (getCell(grid, r, c) === null) {
+				return false;
+			}
+		}
+	}
+	return true;
 }
 
 /**
  * Validates count constraints for a line.
  */
 function validateLineCounts(
-  line: Cell[],
-  label: string,
-  errors: string[]
+	line: Cell[],
+	label: string,
+	errors: string[],
 ): boolean {
-  let zeros = 0
-  let ones = 0
-  let nulls = 0
-  for (const v of line) {
-    if (v === 0) {
-      zeros++
-    } else if (v === 1) {
-      ones++
-    } else {
-      nulls++
-    }
-  }
+	let zeros = 0;
+	let ones = 0;
+	let nulls = 0;
+	for (const v of line) {
+		if (v === 0) {
+			zeros++;
+		} else if (v === 1) {
+			ones++;
+		} else {
+			nulls++;
+		}
+	}
 
-  if (nulls === 0) {
-    if (zeros !== EXACT_ZEROS_PER_LINE || ones !== EXACT_ONES_PER_LINE) {
-      errors.push(`${label} must have an equal number of 0s and 1s.`)
-      return true
-    }
-  } else {
-    if (zeros > EXACT_ZEROS_PER_LINE) {
-      errors.push(`${label} has too many zeros.`)
-      return true
-    }
-    if (ones > EXACT_ONES_PER_LINE) {
-      errors.push(`${label} has too many ones.`)
-      return true
-    }
-  }
+	if (nulls === 0) {
+		if (zeros !== EXACT_ZEROS_PER_LINE || ones !== EXACT_ONES_PER_LINE) {
+			errors.push(`${label} must have an equal number of 0s and 1s.`);
+			return true;
+		}
+	} else {
+		if (zeros > EXACT_ZEROS_PER_LINE) {
+			errors.push(`${label} has too many zeros.`);
+			return true;
+		}
+		if (ones > EXACT_ONES_PER_LINE) {
+			errors.push(`${label} has too many ones.`);
+			return true;
+		}
+	}
 
-  return false
+	return false;
 }
 
 /**
  * Validates a single line (row or column) for count and triple-run constraints.
  */
 function validateLine(line: Cell[], label: string, errors: string[]): boolean {
-  let hasError = false
+	let hasError = false;
 
-  // Triple run check
-  if (hasTripleRun(line)) {
-    errors.push(`${label} can't have three identical numbers in a row.`)
-    hasError = true
-  }
+	// Triple run check
+	if (hasTripleRun(line)) {
+		errors.push(`${label} can't have three identical numbers in a row.`);
+		hasError = true;
+	}
 
-  // Count constraints
-  if (validateLineCounts(line, label, errors)) {
-    hasError = true
-  }
+	// Count constraints
+	if (validateLineCounts(line, label, errors)) {
+		hasError = true;
+	}
 
-  return hasError
+	return hasError;
 }
 
 /**
  * Validates that fixed cells are respected by the current grid.
  */
 function validateFixedCells(
-  grid: Grid,
-  fixed: FixedCell[],
-  errors: string[]
+	grid: Grid,
+	fixed: FixedCell[],
+	errors: string[],
 ): void {
-  for (const f of fixed) {
-    const { r, c, v } = f
-    const cell = grid[r]?.[c]
-    if (cell === undefined) {
-      errors.push(`Fixed cell (${r},${c}) is out of bounds.`)
-      continue
-    }
-    if (cell !== null && cell !== v) {
-      errors.push(`Cell (${r},${c}) must equal fixed value ${v}.`)
-    }
-  }
+	for (const f of fixed) {
+		const { r, c, v } = f;
+		const cell = grid[r]?.[c];
+		if (cell === undefined) {
+			errors.push(`Fixed cell (${r},${c}) is out of bounds.`);
+			continue;
+		}
+		if (cell !== null && cell !== v) {
+			errors.push(`Cell (${r},${c}) must equal fixed value ${v}.`);
+		}
+	}
 }
 
 /**
  * Validates the entire grid against all rules and fixed clues.
  */
 export function validateGrid(
-  grid: Grid,
-  fixed: FixedCell[] = []
+	grid: Grid,
+	fixed: FixedCell[] = [],
 ): ValidationResult {
-  const errors: string[] = []
-  const errorRows: number[] = []
-  const errorColumns: number[] = []
+	const errors: string[] = [];
+	const errorRows: number[] = [];
+	const errorColumns: number[] = [];
 
-  // Shape and domain checks
-  validateShapeAndDomain(grid, errors)
-  if (errors.length > 0) {
-    return { ok: false, errors }
-  }
+	// Shape and domain checks
+	validateShapeAndDomain(grid, errors);
+	if (errors.length > 0) {
+		return { ok: false, errors };
+	}
 
-  // Fixed cells respected
-  validateFixedCells(grid, fixed, errors)
+	// Fixed cells respected
+	validateFixedCells(grid, fixed, errors);
 
-  // Rows
-  for (let r = 0; r < SIZE; r++) {
-    const hasError = validateLine(getRow(grid, r), `Row ${r}`, errors)
-    if (hasError) {
-      errorRows.push(r)
-    }
-  }
+	// Rows
+	for (let r = 0; r < SIZE; r++) {
+		const hasError = validateLine(getRow(grid, r), `Row ${r}`, errors);
+		if (hasError) {
+			errorRows.push(r);
+		}
+	}
 
-  // Columns - reuse single array to reduce allocations
-  const col: Cell[] = new Array(SIZE)
-  for (let c = 0; c < SIZE; c++) {
-    for (let r = 0; r < SIZE; r++) {
-      col[r] = getCell(grid, r, c)
-    }
-    const hasError = validateLine(col, `Column ${c}`, errors)
-    if (hasError) {
-      errorColumns.push(c)
-    }
-  }
+	// Columns - reuse single array to reduce allocations
+	const col: Cell[] = new Array(SIZE);
+	for (let c = 0; c < SIZE; c++) {
+		for (let r = 0; r < SIZE; r++) {
+			col[r] = getCell(grid, r, c);
+		}
+		const hasError = validateLine(col, `Column ${c}`, errors);
+		if (hasError) {
+			errorColumns.push(c);
+		}
+	}
 
-  // Final runs sanity (MAX_CONSECUTIVE_RUN used for clarity if we extend logic)
-  if (MAX_CONSECUTIVE_RUN !== 2) {
-    // This code path is not expected for SIZE=6 puzzle with standard rules.
-  }
+	// Final runs sanity (MAX_CONSECUTIVE_RUN used for clarity if we extend logic)
+	if (MAX_CONSECUTIVE_RUN !== 2) {
+		// This code path is not expected for SIZE=6 puzzle with standard rules.
+	}
 
-  const hasErrors = errors.length > 0
-  const result: ValidationResult = {
-    ok: !hasErrors,
-    errors
-  }
-  if (hasErrors) {
-    result.errorLocations = { rows: errorRows, columns: errorColumns }
-  }
-  return result
+	const hasErrors = errors.length > 0;
+	const result: ValidationResult = {
+		ok: !hasErrors,
+		errors,
+	};
+	if (hasErrors) {
+		result.errorLocations = { rows: errorRows, columns: errorColumns };
+	}
+	return result;
 }

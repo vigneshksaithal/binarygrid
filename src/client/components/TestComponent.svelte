@@ -1,177 +1,177 @@
 <script lang="ts">
-	import TimerIcon from '@lucide/svelte/icons/timer'
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
-	import { SIZE } from '../../shared/rules'
-	import type { Grid } from '../../shared/types/puzzle'
-	import { game } from '../stores/game'
-	import { elapsedSeconds } from '../stores/timer'
-	import {
-		openHowToModal,
-		openLeaderboardModal,
-		openPlayOverlay,
-		showSuccessModal,
-	} from '../stores/ui'
-	import Button from './Button.svelte'
-	import Cell from './Cell.svelte'
-	import GridComponent from './Grid.svelte'
-	import HowToPlayModal from './HowToPlayModal.svelte'
-	import LeaderboardModal from './LeaderboardModal.svelte'
-	import Modal from './Modal.svelte'
-	import PlayOverlay from './PlayOverlay.svelte'
-	import SuccessModal from './SuccessModal.svelte'
-	import Timer from './Timer.svelte'
+import TimerIcon from "@lucide/svelte/icons/timer";
+import TrophyIcon from "@lucide/svelte/icons/trophy";
+import { SIZE } from "../../shared/rules";
+import type { Grid } from "../../shared/types/puzzle";
+import { game } from "../stores/game";
+import { elapsedSeconds } from "../stores/timer";
+import {
+	openHowToModal,
+	openLeaderboardModal,
+	openPlayOverlay,
+	showSuccessModal,
+} from "../stores/ui";
+import Button from "./Button.svelte";
+import Cell from "./Cell.svelte";
+import GridComponent from "./Grid.svelte";
+import HowToPlayModal from "./HowToPlayModal.svelte";
+import LeaderboardModal from "./LeaderboardModal.svelte";
+import Modal from "./Modal.svelte";
+import PlayOverlay from "./PlayOverlay.svelte";
+import SuccessModal from "./SuccessModal.svelte";
+import Timer from "./Timer.svelte";
 
-	let testModalOpen = $state(false)
-	let testAlertModalOpen = $state(false)
+const testModalOpen = $state(false);
+const testAlertModalOpen = $state(false);
 
-	const createMockGrid = (fillValue: 0 | 1 | null = null): Grid => {
-		return Array.from({ length: SIZE }, () =>
-			Array.from({ length: SIZE }, () => fillValue),
-		)
-	}
+const createMockGrid = (fillValue: 0 | 1 | null = null): Grid => {
+	return Array.from({ length: SIZE }, () =>
+		Array.from({ length: SIZE }, () => fillValue),
+	);
+};
 
-	const createSolvedGrid = (): Grid => {
-		const grid: Grid = createMockGrid(null)
-		for (let r = 0; r < SIZE; r++) {
-			const row = grid[r]
-			if (!row) {
-				continue
-			}
-			for (let c = 0; c < SIZE; c++) {
-				const shouldBeOne = (r + c) % 2 === 0
-				row[c] = shouldBeOne ? 1 : 0
-			}
+const createSolvedGrid = (): Grid => {
+	const grid: Grid = createMockGrid(null);
+	for (let r = 0; r < SIZE; r++) {
+		const row = grid[r];
+		if (!row) {
+			continue;
 		}
-		return grid
-	}
-
-	const setGameState = (
-		status: 'idle' | 'loading' | 'in_progress' | 'solved' | 'invalid' | 'error',
-	) => {
-		const mockGrid = createMockGrid(null)
-		const mockFixed = [{ r: 0, c: 0, v: 1 as const }]
-
-		if (status === 'loading') {
-			game.set({
-				puzzleId: 'test-123',
-				difficulty: 'medium',
-				grid: mockGrid,
-				initial: mockGrid,
-				fixed: mockFixed,
-				fixedSet: new Set(['0,0']),
-				status: 'loading',
-				errors: [],
-				errorLocations: undefined,
-				errorCells: new Set(),
-				solution: null,
-				dateISO: null,
-				history: [],
-			})
-		} else if (status === 'solved') {
-			const solvedGrid = createSolvedGrid()
-			game.set({
-				puzzleId: 'test-123',
-				difficulty: 'medium',
-				grid: solvedGrid,
-				initial: mockGrid,
-				fixed: mockFixed,
-				fixedSet: new Set(['0,0']),
-				status: 'solved',
-				errors: [],
-				errorLocations: undefined,
-				errorCells: new Set(),
-				solution: solvedGrid,
-				dateISO: null,
-				history: [],
-			})
-		} else if (status === 'invalid') {
-			const invalidGrid = createMockGrid(1)
-			game.set({
-				puzzleId: 'test-123',
-				difficulty: 'medium',
-				grid: invalidGrid,
-				initial: mockGrid,
-				fixed: mockFixed,
-				fixedSet: new Set(['0,0']),
-				status: 'invalid',
-				errors: [
-					'Row 0 has too many 1s',
-					'Column 0 has too many 1s',
-					'Row 0 has three consecutive 1s',
-				],
-				errorLocations: {
-					rows: [0, 1],
-					columns: [0, 1],
-				},
-				errorCells: new Set(['0,0', '0,1', '0,2', '1,0', '2,0']),
-				solution: null,
-				dateISO: null,
-				history: [],
-			})
-		} else if (status === 'error') {
-			game.set({
-				puzzleId: null,
-				difficulty: 'medium',
-				grid: mockGrid,
-				initial: mockGrid,
-				fixed: [],
-				fixedSet: new Set(),
-				status: 'error',
-				errors: ['Failed to load puzzle', 'HTTP 500'],
-				errorLocations: undefined,
-				errorCells: new Set(),
-				solution: null,
-				dateISO: null,
-				history: [],
-			})
-		} else if (status === 'in_progress') {
-			const inProgressGrid = createMockGrid(null)
-			const row0 = inProgressGrid[0]
-			const row1 = inProgressGrid[1]
-			if (row0) {
-				row0[0] = 1
-				row0[1] = 0
-			}
-			if (row1) {
-				row1[0] = 0
-			}
-			game.set({
-				puzzleId: 'test-123',
-				difficulty: 'medium',
-				grid: inProgressGrid,
-				initial: mockGrid,
-				fixed: mockFixed,
-				fixedSet: new Set(['0,0']),
-				status: 'in_progress',
-				errors: [],
-				errorLocations: undefined,
-				errorCells: new Set(),
-				solution: null,
-				dateISO: null,
-				history: [],
-			})
-		} else {
-			game.set({
-				puzzleId: null,
-				difficulty: 'medium',
-				grid: mockGrid,
-				initial: mockGrid,
-				fixed: [],
-				fixedSet: new Set(),
-				status: 'idle',
-				errors: [],
-				errorLocations: undefined,
-				errorCells: new Set(),
-				solution: null,
-				dateISO: null,
-				history: [],
-			})
+		for (let c = 0; c < SIZE; c++) {
+			const shouldBeOne = (r + c) % 2 === 0;
+			row[c] = shouldBeOne ? 1 : 0;
 		}
 	}
+	return grid;
+};
 
-	const setMockTimer = (seconds: number) => {
-		elapsedSeconds.set(seconds)
+const setGameState = (
+	status: "idle" | "loading" | "in_progress" | "solved" | "invalid" | "error",
+) => {
+	const mockGrid = createMockGrid(null);
+	const mockFixed = [{ r: 0, c: 0, v: 1 as const }];
+
+	if (status === "loading") {
+		game.set({
+			puzzleId: "test-123",
+			difficulty: "medium",
+			grid: mockGrid,
+			initial: mockGrid,
+			fixed: mockFixed,
+			fixedSet: new Set(["0,0"]),
+			status: "loading",
+			errors: [],
+			errorLocations: undefined,
+			errorCells: new Set(),
+			solution: null,
+			dateISO: null,
+			history: [],
+		});
+	} else if (status === "solved") {
+		const solvedGrid = createSolvedGrid();
+		game.set({
+			puzzleId: "test-123",
+			difficulty: "medium",
+			grid: solvedGrid,
+			initial: mockGrid,
+			fixed: mockFixed,
+			fixedSet: new Set(["0,0"]),
+			status: "solved",
+			errors: [],
+			errorLocations: undefined,
+			errorCells: new Set(),
+			solution: solvedGrid,
+			dateISO: null,
+			history: [],
+		});
+	} else if (status === "invalid") {
+		const invalidGrid = createMockGrid(1);
+		game.set({
+			puzzleId: "test-123",
+			difficulty: "medium",
+			grid: invalidGrid,
+			initial: mockGrid,
+			fixed: mockFixed,
+			fixedSet: new Set(["0,0"]),
+			status: "invalid",
+			errors: [
+				"Row 0 has too many 1s",
+				"Column 0 has too many 1s",
+				"Row 0 has three consecutive 1s",
+			],
+			errorLocations: {
+				rows: [0, 1],
+				columns: [0, 1],
+			},
+			errorCells: new Set(["0,0", "0,1", "0,2", "1,0", "2,0"]),
+			solution: null,
+			dateISO: null,
+			history: [],
+		});
+	} else if (status === "error") {
+		game.set({
+			puzzleId: null,
+			difficulty: "medium",
+			grid: mockGrid,
+			initial: mockGrid,
+			fixed: [],
+			fixedSet: new Set(),
+			status: "error",
+			errors: ["Failed to load puzzle", "HTTP 500"],
+			errorLocations: undefined,
+			errorCells: new Set(),
+			solution: null,
+			dateISO: null,
+			history: [],
+		});
+	} else if (status === "in_progress") {
+		const inProgressGrid = createMockGrid(null);
+		const row0 = inProgressGrid[0];
+		const row1 = inProgressGrid[1];
+		if (row0) {
+			row0[0] = 1;
+			row0[1] = 0;
+		}
+		if (row1) {
+			row1[0] = 0;
+		}
+		game.set({
+			puzzleId: "test-123",
+			difficulty: "medium",
+			grid: inProgressGrid,
+			initial: mockGrid,
+			fixed: mockFixed,
+			fixedSet: new Set(["0,0"]),
+			status: "in_progress",
+			errors: [],
+			errorLocations: undefined,
+			errorCells: new Set(),
+			solution: null,
+			dateISO: null,
+			history: [],
+		});
+	} else {
+		game.set({
+			puzzleId: null,
+			difficulty: "medium",
+			grid: mockGrid,
+			initial: mockGrid,
+			fixed: [],
+			fixedSet: new Set(),
+			status: "idle",
+			errors: [],
+			errorLocations: undefined,
+			errorCells: new Set(),
+			solution: null,
+			dateISO: null,
+			history: [],
+		});
 	}
+};
+
+const setMockTimer = (seconds: number) => {
+	elapsedSeconds.set(seconds);
+};
 </script>
 
 <div class="w-full max-w-4xl mx-auto p-6 space-y-8">

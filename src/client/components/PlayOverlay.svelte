@@ -1,62 +1,62 @@
 <script lang="ts">
-	import ZapIcon from '@lucide/svelte/icons/zap'
-	import { cubicOut } from 'svelte/easing'
-	import { fly } from 'svelte/transition'
-	import type { Difficulty } from '../../shared/types/puzzle'
-	import { loadPuzzle } from '../stores/game'
-	import { startTimer } from '../stores/timer'
-	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
-	import Button from './Button.svelte'
+import ZapIcon from "@lucide/svelte/icons/zap";
+import { cubicOut } from "svelte/easing";
+import { fly } from "svelte/transition";
+import type { Difficulty } from "../../shared/types/puzzle";
+import { loadPuzzle } from "../stores/game";
+import { startTimer } from "../stores/timer";
+import { closePlayOverlay, showPlayOverlay } from "../stores/ui";
+import Button from "./Button.svelte";
 
-	let playCount = $state<number | null>(null)
-	let selectedDifficulty = $state<Difficulty>('easy')
+let playCount = $state<number | null>(null);
+const selectedDifficulty = $state<Difficulty>("easy");
 
-	const startGame = async () => {
-		closePlayOverlay()
-		await loadPuzzle(selectedDifficulty)
-		startTimer()
+const startGame = async () => {
+	closePlayOverlay();
+	await loadPuzzle(selectedDifficulty);
+	startTimer();
+};
+
+const fetchPlayCount = async () => {
+	try {
+		const res = await fetch("/api/play-count");
+		const data = res.ok ? await res.json() : { count: 0 };
+		playCount = data.count ?? 0;
+	} catch {
+		playCount = 0;
 	}
+};
 
-	const fetchPlayCount = async () => {
-		try {
-			const res = await fetch('/api/play-count')
-			const data = res.ok ? await res.json() : { count: 0 }
-			playCount = data.count ?? 0
-		} catch {
-			playCount = 0
-		}
+$effect.pre(() => {
+	if ($showPlayOverlay) {
+		fetchPlayCount();
 	}
+});
 
-	$effect.pre(() => {
-		if ($showPlayOverlay) {
-			fetchPlayCount()
-		}
-	})
+const formatPlayCount = (count: number): string =>
+	new Intl.NumberFormat("en", { notation: "compact" }).format(count);
 
-	const formatPlayCount = (count: number): string =>
-		new Intl.NumberFormat('en', { notation: 'compact' }).format(count)
+const difficulties = [
+	{
+		id: "easy" as Difficulty,
+		label: "Easy",
+		gradient: "from-green-500 to-emerald-600",
+	},
+	{
+		id: "medium" as Difficulty,
+		label: "Medium",
+		gradient: "from-yellow-500 to-orange-500",
+	},
+	{
+		id: "hard" as Difficulty,
+		label: "Hard",
+		gradient: "from-red-500 to-rose-600",
+	},
+];
 
-	const difficulties = [
-		{
-			id: 'easy' as Difficulty,
-			label: 'Easy',
-			gradient: 'from-green-500 to-emerald-600',
-		},
-		{
-			id: 'medium' as Difficulty,
-			label: 'Medium',
-			gradient: 'from-yellow-500 to-orange-500',
-		},
-		{
-			id: 'hard' as Difficulty,
-			label: 'Hard',
-			gradient: 'from-red-500 to-rose-600',
-		},
-	]
-
-	const selectedGradient = $derived(
-		difficulties.find((d) => d.id === selectedDifficulty)?.gradient ?? '',
-	)
+const selectedGradient = $derived(
+	difficulties.find((d) => d.id === selectedDifficulty)?.gradient ?? "",
+);
 </script>
 
 {#if $showPlayOverlay}

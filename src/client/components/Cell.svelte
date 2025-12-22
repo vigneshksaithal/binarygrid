@@ -1,45 +1,45 @@
 <script lang="ts">
-	import Circle from './Circle.svelte'
-	import Line from './Line.svelte'
+import Circle from "./Circle.svelte";
+import Line from "./Line.svelte";
 
-	const {
-		value = null,
-		fixed = false,
-		hasError = false,
-		row = 0,
-		col = 0,
-		onClick,
-	}: {
-		value?: 0 | 1 | null
-		fixed?: boolean
-		hasError?: boolean
-		row?: number
-		col?: number
-		onClick?: () => void
-	} = $props()
+const {
+	value = null,
+	fixed = false,
+	hasError = false,
+	row = 0,
+	col = 0,
+	onClick,
+}: {
+	value?: 0 | 1 | null;
+	fixed?: boolean;
+	hasError?: boolean;
+	row?: number;
+	col?: number;
+	onClick?: () => void;
+} = $props();
 
-	const handleClick = () => {
-		if (onClick) {
-			onClick()
-		}
+const handleClick = () => {
+	if (onClick) {
+		onClick();
+	}
+};
+
+const label = $derived(fixed ? "Fixed cell" : "Editable cell");
+
+// Build border classes for clean matrix grid
+const borderClass = $derived.by(() => {
+	const classes: string[] = [];
+
+	// Uniform borders (right + bottom), none at edges
+	if (col < 5) {
+		classes.push("border-r-2 border-r-zinc-300 dark:border-r-zinc-600");
+	}
+	if (row < 5) {
+		classes.push("border-b-2 border-b-zinc-300 dark:border-b-zinc-600");
 	}
 
-	const label = $derived(fixed ? 'Fixed cell' : 'Editable cell')
-
-	// Build border classes for clean matrix grid
-	const borderClass = $derived.by(() => {
-		const classes: string[] = []
-
-		// Uniform borders (right + bottom), none at edges
-		if (col < 5) {
-			classes.push('border-r-2 border-r-zinc-300 dark:border-r-zinc-600')
-		}
-		if (row < 5) {
-			classes.push('border-b-2 border-b-zinc-300 dark:border-b-zinc-600')
-		}
-
-		return classes.join(' ')
-	})
+	return classes.join(" ");
+});
 </script>
 
 <button
