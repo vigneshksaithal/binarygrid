@@ -86,7 +86,7 @@
 							? 'border-b-2 border-b-zinc-300 dark:border-b-zinc-600'
 							: ''}"
 					>
-						<div class="scale-[0.4]">
+						<div class="scale-[0.5]">
 							{#if cell === 1}
 								<Line />
 							{:else}
