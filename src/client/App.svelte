@@ -26,7 +26,7 @@
 <main
 	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-1"
 >
-	<div class="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-2xl">
+	<div class="p-2 bg-zinc-200/50 dark:bg-zinc-800 rounded-2xl">
 		<div class="flex justify-between items-center mb-4">
 			<div class="flex items-center gap-4">
 				<Button
