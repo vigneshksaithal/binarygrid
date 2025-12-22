@@ -23,7 +23,7 @@
 	} = $props()
 
 	const baseClasses =
-		'inline-flex items-center justify-center whitespace-nowrap font-semibold font-mono tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer border-2 disabled:cursor-not-allowed rounded-full hover:scale-110 transition-transform duration-200'
+		'inline-flex items-center justify-center whitespace-nowrap font-semibold tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 cursor-pointer border-2 disabled:cursor-not-allowed rounded-full hover:scale-110 transition-transform duration-200'
 
 	const sizeClasses = {
 		sm: 'h-8 px-3 text-sm gap-1.5',
