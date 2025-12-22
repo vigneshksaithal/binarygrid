@@ -1,7 +1,7 @@
 <script lang="ts">
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
-	import type { Difficulty } from '../../shared/types/puzzle'
+	import type { Difficulty } from '../shared/types/puzzle'
 	import './app.css'
 	import Button from './components/Button.svelte'
 	import Dropdown from './components/Dropdown.svelte'
