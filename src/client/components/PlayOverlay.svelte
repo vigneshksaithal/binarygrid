@@ -108,7 +108,7 @@
 		<!-- Call to Action - Large Play Button -->
 		<div class="w-full max-w-sm">
 			<button
-				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slo bg-linear-to-r from-green-500 to-emerald-600 animate-bounce duration-500"
+				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 bg-linear-to-r from-green-500 to-emerald-600 animate-bounce duration-500"
 				onclick={startGame}
 				aria-label="Start game"
 			>
@@ -128,20 +128,6 @@
 	</div>
 
 	<style>
-		@keyframes pulse-slow {
-			0%,
-			100% {
-				opacity: 1;
-			}
-			50% {
-				opacity: 0.85;
-			}
-		}
-
-		.animate-pulse-slow {
-			animation: pulse-slow 3s ease-in-out infinite;
-		}
-
 		@keyframes ribbon-shimmer {
 			0%,
 			100% {
