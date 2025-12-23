@@ -1,15 +1,28 @@
 <script lang="ts">
 	import ZapIcon from '@lucide/svelte/icons/zap'
 	import { cubicOut } from 'svelte/easing'
-	import { fly } from 'svelte/transition'
+	import { fade, fly } from 'svelte/transition'
 	import type { Difficulty } from '../../shared/types/puzzle'
 	import { loadPuzzle } from '../stores/game'
 	import { startTimer } from '../stores/timer'
 	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
-	import Button from './Button.svelte'
+	import Circle from './Circle.svelte'
+	import Line from './Line.svelte'
 
 	let playCount = $state<number | null>(null)
 	let selectedDifficulty = $state<Difficulty>('easy')
+
+	const binaryGrid = [
+		[1, 1, 0],
+		[0, 1, 1],
+		[1, 0, 0],
+	]
+
+	const fixedCells = [
+		[true, false, true],
+		[false, true, false],
+		[true, false, true],
+	]
 
 	const startGame = async () => {
 		closePlayOverlay()
@@ -35,28 +48,6 @@
 
 	const formatPlayCount = (count: number): string =>
 		new Intl.NumberFormat('en', { notation: 'compact' }).format(count)
-
-	const difficulties = [
-		{
-			id: 'easy' as Difficulty,
-			label: 'Easy',
-			gradient: 'from-green-500 to-emerald-600',
-		},
-		{
-			id: 'medium' as Difficulty,
-			label: 'Medium',
-			gradient: 'from-yellow-500 to-orange-500',
-		},
-		{
-			id: 'hard' as Difficulty,
-			label: 'Hard',
-			gradient: 'from-red-500 to-rose-600',
-		},
-	]
-
-	const selectedGradient = $derived(
-		difficulties.find((d) => d.id === selectedDifficulty)?.gradient ?? '',
-	)
 </script>
 
 {#if $showPlayOverlay}
@@ -77,41 +68,47 @@
 			</div>
 		{/if}
 
-		<!-- Header Section -->
-		<div class="text-center mb-8">
-			<h1
-				class="text-5xl md:text-6xl font-black mb-3 bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent"
-			>
-				Binary Grid
-			</h1>
-			<p
-				class="text-lg md:text-xl text-zinc-600 dark:text-zinc-300 font-medium mb-4"
-			>
-				Can you balance the grid???
-			</p>
+		<!-- Decorative Binary Grid -->
+		<div
+			class="grid grid-cols-3 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden mb-6 max-w-2xs mx-auto"
+			in:fade={{ duration: 600, delay: 200 }}
+		>
+			{#each binaryGrid as row, rowIndex (rowIndex)}
+				{#each row as cell, cellIndex (`${rowIndex}-${cellIndex}`)}
+					<div
+						class="aspect-square flex items-center justify-center text-zinc-800 dark:text-zinc-200 {fixedCells[
+							rowIndex
+						]?.[cellIndex]
+							? 'bg-zinc-200 dark:bg-zinc-700'
+							: ''} {cellIndex < 2
+							? 'border-r-2 border-r-zinc-300 dark:border-r-zinc-600'
+							: ''} {rowIndex < 2
+							? 'border-b-2 border-b-zinc-300 dark:border-b-zinc-600'
+							: ''}"
+					>
+						<div class="scale-[0.5]">
+							{#if cell === 1}
+								<Line />
+							{:else}
+								<Circle />
+							{/if}
+						</div>
+					</div>
+				{/each}
+			{/each}
 		</div>
 
-		<!-- Difficulty Selector Cards -->
-		<div class="w-full max-w-md mb-6">
-			<div class="grid grid-cols-3 gap-3">
-				{#each difficulties as difficulty (difficulty.id)}
-					<Button
-						variant={selectedDifficulty === difficulty.id
-							? 'default'
-							: 'secondary'}
-						onClick={() => (selectedDifficulty = difficulty.id)}
-						ariaLabel={`Select ${difficulty.label} difficulty`}
-					>
-						{difficulty.label}
-					</Button>
-				{/each}
-			</div>
-		</div>
+		<!-- Header Section -->
+		<h1
+			class="max-w-xs mx-auto text-5xl md:text-6xl text-center font-black bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent mb-12"
+		>
+			Binary Grid
+		</h1>
 
 		<!-- Call to Action - Large Play Button -->
-		<div class="w-full max-w-md mb-8">
+		<div class="w-full max-w-sm">
 			<button
-				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 animate-pulse-slow bg-linear-to-r {selectedGradient}"
+				class="w-full relative overflow-hidden group py-6 px-8 rounded-2xl font-black text-2xl uppercase tracking-wider transition-all transform hover:scale-105 active:scale-95 shadow-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-green-500 bg-linear-to-r from-green-500 to-emerald-600 animate-bounce duration-500"
 				onclick={startGame}
 				aria-label="Start game"
 			>
@@ -131,20 +128,6 @@
 	</div>
 
 	<style>
-		@keyframes pulse-slow {
-			0%,
-			100% {
-				opacity: 1;
-			}
-			50% {
-				opacity: 0.85;
-			}
-		}
-
-		.animate-pulse-slow {
-			animation: pulse-slow 3s ease-in-out infinite;
-		}
-
 		@keyframes ribbon-shimmer {
 			0%,
 			100% {

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import confetti from 'canvas-confetti'
-	import { game } from '../stores/game'
+	import type { Difficulty } from '../../shared/types/puzzle'
+	import { game, loadPuzzle } from '../stores/game'
 	import { calculatePercentile, rankStore } from '../stores/rank'
-	import { elapsedSeconds, formatElapsedTime } from '../stores/timer'
+	import { elapsedSeconds, formatElapsedTime, startTimer } from '../stores/timer'
 	import {
 		closeSuccessModal,
 		hasJoinedSubreddit,
-		openPlayOverlay,
 		setHasJoinedSubreddit,
 		showSuccessModal,
 	} from '../stores/ui'
@@ -17,9 +17,17 @@
 	let isCommenting = $state(false)
 	let commentPosted = $state(false)
 
-	const playAnotherDifficulty = () => {
-		closeSuccessModal()
-		openPlayOverlay()
+	const getNextDifficulty = (current: Difficulty): Difficulty => {
+		if (current === 'easy') return 'medium'
+		if (current === 'medium') return 'hard'
+		return 'easy'
+	}
+
+	const playAnotherDifficulty = async () => {
+		const currentDifficulty = $game.difficulty
+		const nextDifficulty = getNextDifficulty(currentDifficulty)
+		await loadPuzzle(nextDifficulty)
+		startTimer()
 	}
 
 	const fetchJoinedStatus = async () => {

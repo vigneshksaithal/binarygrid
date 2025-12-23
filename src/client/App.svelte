@@ -1,16 +1,30 @@
 <script lang="ts">
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
+	import type { Difficulty } from '../shared/types/puzzle'
 	import './app.css'
 	import Button from './components/Button.svelte'
+	import Dropdown from './components/Dropdown.svelte'
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
-	import { game, undo, useHint } from './stores/game'
+	import { game, loadPuzzle, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
-	import { openHowToModal, openPlayOverlay } from './stores/ui'
+	import { startTimer } from './stores/timer'
+	import { openHowToModal } from './stores/ui'
+
+	const difficultyOptions = [
+		{ value: 'easy', label: 'Easy' },
+		{ value: 'medium', label: 'Medium' },
+		{ value: 'hard', label: 'Hard' },
+	]
+
+	const handleDifficultyChange = async (difficulty: string) => {
+		await loadPuzzle(difficulty as Difficulty)
+		startTimer()
+	}
 
 	const handleHint = () => {
 		if ($canUseHint) {
@@ -29,14 +43,13 @@
 	<div class="p-2 bg-zinc-200/50 dark:bg-zinc-800 rounded-2xl">
 		<div class="flex justify-between items-center mb-4">
 			<div class="flex items-center gap-4">
-				<Button
-					variant="ghost"
+				<Dropdown
+					value={$game.difficulty}
+					options={difficultyOptions}
+					onChange={handleDifficultyChange}
 					size="sm"
-					onClick={openPlayOverlay}
-					ariaLabel="Change Difficulty"
-				>
-					{$game.difficulty.charAt(0).toUpperCase() + $game.difficulty.slice(1)}
-				</Button>
+					ariaLabel="Select difficulty"
+				/>
 				<Button
 					variant="ghost"
 					size="icon"

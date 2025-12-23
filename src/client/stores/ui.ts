@@ -20,7 +20,7 @@ export const showPlayOverlay = writable(true)
 export const openPlayOverlay = () => showPlayOverlay.set(true)
 export const closePlayOverlay = () => showPlayOverlay.set(false)
 
-export const hasJoinedSubreddit = writable(false)
+export const hasJoinedSubreddit = writable(true)
 
 export const setHasJoinedSubreddit = (joined: boolean) =>
     hasJoinedSubreddit.set(joined)
