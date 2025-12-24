@@ -63,57 +63,35 @@ const wouldCreateTripleRun = (
   return false
 }
 
-/**
- * Validates if placing a value at (r, c) would violate constraints.
- * This is a lightweight check that avoids full grid validation.
- */
-const canPlaceValue = (
+const checkTripleRunInColumn = (
   grid: Grid,
-  r: number,
   c: number,
+  r: number,
   val: 0 | 1
 ): boolean => {
-  const row = grid[r]
-  if (!Array.isArray(row) || row.length !== SIZE) {
-    return false
-  }
+  // Check window of 3 cells centered around r
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
 
-  // Check row constraints
-  const rowCounts = countLine(row as Cell[])
-  if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
+  for (let i = start; i <= end; i++) {
+    const a = i === r ? val : grid[i]?.[c]
+    const b = i + 1 === r ? val : grid[i + 1]?.[c]
+    const cv = i + 2 === r ? val : grid[i + 2]?.[c]
+    if (a !== null && a !== undefined && a === b && b === cv) {
+      return true
+    }
   }
-  if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
-  for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
-  }
-  const colCounts = countLine(col)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-
-  // Check triple run in row
-  if (wouldCreateTripleRun(row as Cell[], c, val)) {
-    return false
-  }
-
-  // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
-    return false
-  }
-
-  return true
+  return false
 }
 
-const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
+const solveFrom = (
+  grid: Grid,
+  fixed: FixedCell[],
+  rowZeros: Int8Array,
+  rowOnes: Int8Array,
+  colZeros: Int8Array,
+  colOnes: Int8Array
+): boolean => {
   const spot = findNextEmpty(grid)
   if (!spot) {
     // All cells filled - do a final validation
@@ -124,16 +102,47 @@ const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
   if (!Array.isArray(row) || c < 0 || c >= row.length) {
     return false
   }
+
   for (const value of [0, 1] as const) {
-    // Use lightweight constraint check instead of full validation
-    if (!canPlaceValue(grid, r, c, value)) {
-      continue
-    }
+    // Check constraints incrementally
+
+    // 1. Row counts
+    if (value === 0 && rowZeros[r] >= MAX_COUNT_PER_LINE) continue
+    if (value === 1 && rowOnes[r] >= MAX_COUNT_PER_LINE) continue
+
+    // 2. Col counts
+    if (value === 0 && colZeros[c] >= MAX_COUNT_PER_LINE) continue
+    if (value === 1 && colOnes[c] >= MAX_COUNT_PER_LINE) continue
+
+    // 3. Row triple run
+    if (wouldCreateTripleRun(row as Cell[], c, value)) continue
+
+    // 4. Col triple run
+    if (checkTripleRunInColumn(grid, c, r, value)) continue
+
+    // Place value
     row[c] = value
-    if (solveFrom(grid, fixed)) {
+    if (value === 0) {
+      rowZeros[r]++
+      colZeros[c]++
+    } else {
+      rowOnes[r]++
+      colOnes[c]++
+    }
+
+    if (solveFrom(grid, fixed, rowZeros, rowOnes, colZeros, colOnes)) {
       return true
     }
+
+    // Backtrack
     row[c] = null
+    if (value === 0) {
+      rowZeros[r]--
+      colZeros[c]--
+    } else {
+      rowOnes[r]--
+      colOnes[c]--
+    }
   }
   return false
 }
@@ -143,7 +152,29 @@ export const solvePuzzle = (initial: Grid, fixed: FixedCell[]): Grid | null => {
   if (!validateGrid(grid, fixed).ok) {
     return null
   }
-  if (!solveFrom(grid, fixed)) {
+
+  // Initialize counts
+  const rowZeros = new Int8Array(SIZE)
+  const rowOnes = new Int8Array(SIZE)
+  const colZeros = new Int8Array(SIZE)
+  const colOnes = new Int8Array(SIZE)
+
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = grid[r]?.[c]
+      if (cell === 0) {
+        rowZeros[r]++
+        colZeros[c]++
+      } else if (cell === 1) {
+        rowOnes[r]++
+        colOnes[c]++
+      }
+    }
+  }
+
+  if (
+    !solveFrom(grid, fixed, rowZeros, rowOnes, colZeros, colOnes)
+  ) {
     return null
   }
   return cloneGrid(grid)
