@@ -40,6 +40,23 @@ const countLine = (line: Cell[]): { zeros: number; ones: number } => {
 }
 
 /**
+ * Counts zeros and ones in a column directly from the grid.
+ */
+const countCol = (grid: Grid, colIdx: number): { zeros: number; ones: number } => {
+  let zeros = 0
+  let ones = 0
+  for (let r = 0; r < SIZE; r++) {
+    const v = grid[r]?.[colIdx] ?? null
+    if (v === 0) {
+      zeros++
+    } else if (v === 1) {
+      ones++
+    }
+  }
+  return { zeros, ones }
+}
+
+/**
  * Checks if placing a value at the given position would create a triple run.
  * Optimized: only checks around the affected position.
  */
@@ -57,6 +74,31 @@ const wouldCreateTripleRun = (
     const b = i + 1 === idx ? val : line[i + 1]
     const c = i + 2 === idx ? val : line[i + 2]
     if (a !== null && a === b && b === c) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Checks if placing a value at the given position would create a triple run in a column.
+ * Optimized: only checks around the affected position.
+ */
+const wouldCreateTripleRunCol = (
+  grid: Grid,
+  r: number,
+  c: number,
+  val: 0 | 1
+): boolean => {
+  // Check window of 3 cells centered around r
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const a = i === r ? val : (grid[i]?.[c] ?? null)
+    const b = i + 1 === r ? val : (grid[i + 1]?.[c] ?? null)
+    const cVal = i + 2 === r ? val : (grid[i + 2]?.[c] ?? null)
+    if (a !== null && a === b && b === cVal) {
       return true
     }
   }
@@ -87,12 +129,8 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
-  for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
-  }
-  const colCounts = countLine(col)
+  // Check column constraints
+  const colCounts = countCol(grid, c)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -106,7 +144,7 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRunCol(grid, r, c, val)) {
     return false
   }
 
