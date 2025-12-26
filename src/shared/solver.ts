@@ -24,12 +24,30 @@ const MAX_COUNT_PER_LINE = 3
 const TRIPLE_RUN_LENGTH = 3
 
 /**
- * Counts zeros and ones in a line.
+ * Counts zeros and ones in a line (row).
  */
 const countLine = (line: Cell[]): { zeros: number; ones: number } => {
   let zeros = 0
   let ones = 0
   for (const v of line) {
+    if (v === 0) {
+      zeros++
+    } else if (v === 1) {
+      ones++
+    }
+  }
+  return { zeros, ones }
+}
+
+/**
+ * Counts zeros and ones in a column directly from the grid.
+ * Avoids creating a temporary array.
+ */
+const countCol = (grid: Grid, c: number): { zeros: number; ones: number } => {
+  let zeros = 0
+  let ones = 0
+  for (let r = 0; r < SIZE; r++) {
+    const v = grid[r]?.[c] ?? null
     if (v === 0) {
       zeros++
     } else if (v === 1) {
@@ -64,6 +82,33 @@ const wouldCreateTripleRun = (
 }
 
 /**
+ * Checks if placing a value at the given position would create a triple run in a column.
+ * Optimized: only checks around the affected position.
+ * Avoids creating a temporary array.
+ */
+const wouldCreateTripleRunCol = (
+  grid: Grid,
+  r: number,
+  c: number,
+  val: 0 | 1
+): boolean => {
+  // Check window of 3 cells centered around r
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const cell0 = i === r ? val : grid[i]?.[c] ?? null
+    const cell1 = i + 1 === r ? val : grid[i + 1]?.[c] ?? null
+    const cell2 = i + 2 === r ? val : grid[i + 2]?.[c] ?? null
+
+    if (cell0 !== null && cell0 === cell1 && cell1 === cell2) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
  * Validates if placing a value at (r, c) would violate constraints.
  * This is a lightweight check that avoids full grid validation.
  */
@@ -87,12 +132,8 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
-  for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
-  }
-  const colCounts = countLine(col)
+  // Check column constraints without allocation
+  const colCounts = countCol(grid, c)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -105,8 +146,8 @@ const canPlaceValue = (
     return false
   }
 
-  // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  // Check triple run in column without allocation
+  if (wouldCreateTripleRunCol(grid, r, c, val)) {
     return false
   }
 
