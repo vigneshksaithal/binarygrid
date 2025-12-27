@@ -1,0 +1,3 @@
+## 2024-12-27 - [Allocation Removal in Tight Loops]
+**Learning:** Removing small array allocations (like `new Array(6)`) in tight loops (e.g., recursive solvers) may not yield performance gains if it trades cheap allocations for more expensive property access patterns (e.g., `grid[r]?.[c]` vs `col[i]`). Modern JS engines optimize small, short-lived arrays very well.
+**Action:** When optimizing hot paths, always verify if "zero-allocation" approaches actually reduce CPU time. Sometimes the overhead of repeated property lookups or function calls outweighs the GC savings. In this specific case, inlining the logic and using direct (asserted) access `grid[i]![c]` was required to see a benefit.
