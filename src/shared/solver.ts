@@ -24,12 +24,30 @@ const MAX_COUNT_PER_LINE = 3
 const TRIPLE_RUN_LENGTH = 3
 
 /**
- * Counts zeros and ones in a line.
+ * Counts zeros and ones in a row.
  */
-const countLine = (line: Cell[]): { zeros: number; ones: number } => {
+const countRow = (row: Cell[]): { zeros: number; ones: number } => {
   let zeros = 0
   let ones = 0
-  for (const v of line) {
+  for (const v of row) {
+    if (v === 0) {
+      zeros++
+    } else if (v === 1) {
+      ones++
+    }
+  }
+  return { zeros, ones }
+}
+
+/**
+ * Counts zeros and ones in a column by accessing the grid directly.
+ * Optimized to avoid allocating a column array.
+ */
+const countCol = (grid: Grid, colIdx: number): { zeros: number; ones: number } => {
+  let zeros = 0
+  let ones = 0
+  for (let r = 0; r < SIZE; r++) {
+    const v = grid[r]?.[colIdx] ?? null
     if (v === 0) {
       zeros++
     } else if (v === 1) {
@@ -43,20 +61,43 @@ const countLine = (line: Cell[]): { zeros: number; ones: number } => {
  * Checks if placing a value at the given position would create a triple run.
  * Optimized: only checks around the affected position.
  */
-const wouldCreateTripleRun = (
-  line: Cell[],
-  idx: number,
+const wouldCreateTripleRunRow = (
+  row: Cell[],
+  c: number,
   val: 0 | 1
 ): boolean => {
-  // Check window of 3 cells centered around idx
-  const start = Math.max(0, idx - 2)
-  const end = Math.min(line.length - TRIPLE_RUN_LENGTH, idx)
+  const start = Math.max(0, c - 2)
+  const end = Math.min(row.length - TRIPLE_RUN_LENGTH, c)
 
   for (let i = start; i <= end; i++) {
-    const a = i === idx ? val : line[i]
-    const b = i + 1 === idx ? val : line[i + 1]
-    const c = i + 2 === idx ? val : line[i + 2]
-    if (a !== null && a === b && b === c) {
+    const v1 = i === c ? val : row[i]
+    const v2 = i + 1 === c ? val : row[i + 1]
+    const v3 = i + 2 === c ? val : row[i + 2]
+    if (v1 !== null && v1 === v2 && v2 === v3) {
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Checks if placing a value at the given position would create a triple run in the column.
+ * Optimized: accesses grid directly to avoid array allocation.
+ */
+const wouldCreateTripleRunCol = (
+  grid: Grid,
+  r: number,
+  c: number,
+  val: 0 | 1
+): boolean => {
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const v1 = i === r ? val : (grid[i]?.[c] ?? null)
+    const v2 = i + 1 === r ? val : (grid[i + 1]?.[c] ?? null)
+    const v3 = i + 2 === r ? val : (grid[i + 2]?.[c] ?? null)
+    if (v1 !== null && v1 === v2 && v2 === v3) {
       return true
     }
   }
@@ -79,7 +120,7 @@ const canPlaceValue = (
   }
 
   // Check row constraints
-  const rowCounts = countLine(row as Cell[])
+  const rowCounts = countRow(row as Cell[])
   if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -87,12 +128,9 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
-  for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
-  }
-  const colCounts = countLine(col)
+  // Check column constraints without allocating array
+  // We can fail fast if we count more than MAX
+  const colCounts = countCol(grid, c)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -101,12 +139,12 @@ const canPlaceValue = (
   }
 
   // Check triple run in row
-  if (wouldCreateTripleRun(row as Cell[], c, val)) {
+  if (wouldCreateTripleRunRow(row as Cell[], c, val)) {
     return false
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRunCol(grid, r, c, val)) {
     return false
   }
 
