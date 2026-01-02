@@ -190,9 +190,6 @@ const wouldCreateTripleRunAt = (
 
 const MAX_COUNT_PER_LINE = 3
 
-// Reusable column array to reduce allocations in hot path
-const reusableCol: (0 | 1 | null)[] = new Array(SIZE)
-
 const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
   const row = grid[r] as Cell[]
   if (row[c] !== null) {
@@ -206,23 +203,43 @@ const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
     return false
   }
 
-  // Build column using reusable array
+  // Check column counts
+  let colZeros = 0
+  let colOnes = 0
   for (let i = 0; i < SIZE; i++) {
-    reusableCol[i] = (grid[i] as Cell[])[c] as Cell
+    const v = (grid[i] as Cell[])[c]
+    if (v === 0) {
+      colZeros++
+    } else if (v === 1) {
+      colOnes++
+    }
   }
-  const colCounts = countLine(reusableCol)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
+
+  if (val === 0 && colZeros >= MAX_COUNT_PER_LINE) {
     return false
   }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
+  if (val === 1 && colOnes >= MAX_COUNT_PER_LINE) {
     return false
   }
+
   if (wouldCreateTripleRunAt(row, c, val)) {
     return false
   }
-  if (wouldCreateTripleRunAt(reusableCol, r, val)) {
-    return false
+
+  // Check triple run in column
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const v0 = i === r ? val : ((grid[i] as Cell[])[c] as Cell)
+    const v1 = i + 1 === r ? val : ((grid[i + 1] as Cell[])[c] as Cell)
+    const v2 = i + 2 === r ? val : ((grid[i + 2] as Cell[])[c] as Cell)
+
+    if (v0 !== null && v0 === v1 && v1 === v2) {
+      return false
+    }
   }
+
   return true
 }
 
