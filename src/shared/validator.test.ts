@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { SIZE } from './rules'
 import type { Cell, FixedCell, Grid } from './types/puzzle'
-import { hasTripleRun, isComplete, validateGrid } from './validator'
+import { findErrorCells, hasTripleRun, isComplete, validateGrid } from './validator'
 
 const empty = (): Grid =>
   Array.from({ length: SIZE }, () =>
@@ -28,6 +28,7 @@ describe('validator', () => {
     const res = validateGrid(g, [])
     expect(res.ok).toBe(true)
     expect(isComplete(g)).toBe(true)
+    expect(findErrorCells(g).size).toBe(0)
   })
 
   it('rejects triple run in row', () => {
@@ -89,6 +90,46 @@ describe('validator', () => {
     const res = validateGrid(g, [])
     expect(res.ok).toBe(true)
     expect(res.errorLocations).toBeUndefined()
+  })
+})
+
+describe('findErrorCells', () => {
+  it('identifies cells in triple runs', () => {
+    const g = empty()
+    // 0, 0, 0 at the start of row 0
+    g[0] = [0, 0, 0, null, null, null]
+    const errors = findErrorCells(g)
+    expect(errors.has('0,0')).toBe(true)
+    expect(errors.has('0,1')).toBe(true)
+    expect(errors.has('0,2')).toBe(true)
+    expect(errors.has('0,3')).toBe(false)
+  })
+
+  it('identifies cells in count violations', () => {
+    const g = empty()
+    // Four 0s in row 1
+    g[1] = [0, 0, 0, 0, null, null]
+    const errors = findErrorCells(g)
+    expect(errors.has('1,0')).toBe(true)
+    expect(errors.has('1,1')).toBe(true)
+    expect(errors.has('1,2')).toBe(true)
+    expect(errors.has('1,3')).toBe(true)
+  })
+
+  it('identifies overlapping errors', () => {
+    const g = empty()
+    // Row 0 has 0,0,0 (triple run)
+    g[0] = [0, 0, 0, null, null, null]
+    // Col 0 has 0,0,0 (triple run)
+    g[1][0] = 0
+    g[2][0] = 0
+
+    const errors = findErrorCells(g)
+    expect(errors.has('0,0')).toBe(true)
+    expect(errors.has('0,1')).toBe(true)
+    expect(errors.has('0,2')).toBe(true)
+    expect(errors.has('1,0')).toBe(true)
+    expect(errors.has('2,0')).toBe(true)
   })
 })
 

@@ -17,14 +17,16 @@ function isValidCellValue(value: unknown): value is Cell {
 
 /**
  * Finds the indices of cells forming a triple run in a line.
- * Returns array of indices where the run occurs.
+ * Calls onFound for each index involved in a run.
  */
-function findTripleRunIndices(line: Cell[]): number[] {
+function findTripleRunIndices(
+  line: Cell[],
+  onFound: (index: number) => void
+): void {
   if (line.length < TRIPLE_RUN_LENGTH) {
-    return []
+    return
   }
 
-  const indices: number[] = []
   let runStart = 0
   let runLength = 1
   let lastValue: Cell = line[0] ?? null
@@ -34,11 +36,12 @@ function findTripleRunIndices(line: Cell[]): number[] {
     if (current !== null && lastValue !== null && current === lastValue) {
       runLength++
       if (runLength >= TRIPLE_RUN_LENGTH) {
-        // Add all cells in the run
-        for (let j = runStart; j <= i; j++) {
-          if (!indices.includes(j)) {
-            indices.push(j)
-          }
+        // If exact match, add the previous cells in the run
+        if (runLength === TRIPLE_RUN_LENGTH) {
+          for (let j = runStart; j <= i; j++) onFound(j)
+        } else {
+          // Otherwise just add the new one
+          onFound(i)
         }
       }
     } else {
@@ -47,14 +50,16 @@ function findTripleRunIndices(line: Cell[]): number[] {
       lastValue = current ?? null
     }
   }
-  return indices
 }
 
 /**
  * Finds indices of cells that violate count constraints.
- * Returns indices of cells with the over-represented value.
+ * Calls onFound for each index involved in a violation.
  */
-function findCountViolationIndices(line: Cell[]): number[] {
+function findCountViolationIndices(
+  line: Cell[],
+  onFound: (index: number) => void
+): void {
   let zeros = 0
   let ones = 0
   for (const v of line) {
@@ -62,22 +67,18 @@ function findCountViolationIndices(line: Cell[]): number[] {
     else if (v === 1) ones++
   }
 
-  const indices: number[] = []
-
   // Too many zeros
   if (zeros > EXACT_ZEROS_PER_LINE) {
     for (let i = 0; i < line.length; i++) {
-      if (line[i] === 0) indices.push(i)
+      if (line[i] === 0) onFound(i)
     }
   }
   // Too many ones
   if (ones > EXACT_ONES_PER_LINE) {
     for (let i = 0; i < line.length; i++) {
-      if (line[i] === 1) indices.push(i)
+      if (line[i] === 1) onFound(i)
     }
   }
-
-  return indices
 }
 
 /**
@@ -92,15 +93,8 @@ export function findErrorCells(grid: Grid): Set<string> {
     const row = grid[r]
     if (!Array.isArray(row)) continue
 
-    const tripleIndices = findTripleRunIndices(row as Cell[])
-    for (const c of tripleIndices) {
-      errorCells.add(`${r},${c}`)
-    }
-
-    const countIndices = findCountViolationIndices(row as Cell[])
-    for (const c of countIndices) {
-      errorCells.add(`${r},${c}`)
-    }
+    findTripleRunIndices(row as Cell[], (c) => errorCells.add(`${r},${c}`))
+    findCountViolationIndices(row as Cell[], (c) => errorCells.add(`${r},${c}`))
   }
 
   // Check columns for triple runs and count violations
@@ -111,15 +105,8 @@ export function findErrorCells(grid: Grid): Set<string> {
       col[r] = v === 0 || v === 1 ? v : null
     }
 
-    const tripleIndices = findTripleRunIndices(col)
-    for (const r of tripleIndices) {
-      errorCells.add(`${r},${c}`)
-    }
-
-    const countIndices = findCountViolationIndices(col)
-    for (const r of countIndices) {
-      errorCells.add(`${r},${c}`)
-    }
+    findTripleRunIndices(col, (r) => errorCells.add(`${r},${c}`))
+    findCountViolationIndices(col, (r) => errorCells.add(`${r},${c}`))
   }
 
   return errorCells
