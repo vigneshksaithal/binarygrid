@@ -23,6 +23,10 @@ const findNextEmpty = (grid: Grid): { r: number; c: number } | null => {
 const MAX_COUNT_PER_LINE = 3
 const TRIPLE_RUN_LENGTH = 3
 
+// Optimization: Reusable array to avoid allocation in hot path.
+// This is safe because solvePuzzle is synchronous and single-threaded.
+const reusableCol: Cell[] = new Array(SIZE)
+
 /**
  * Counts zeros and ones in a line.
  */
@@ -74,9 +78,6 @@ const canPlaceValue = (
   val: 0 | 1
 ): boolean => {
   const row = grid[r]
-  if (!Array.isArray(row) || row.length !== SIZE) {
-    return false
-  }
 
   // Check row constraints
   const rowCounts = countLine(row as Cell[])
@@ -88,11 +89,11 @@ const canPlaceValue = (
   }
 
   // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Use reusableCol instead of new Array(SIZE)
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    reusableCol[i] = grid[i][c]
   }
-  const colCounts = countLine(col)
+  const colCounts = countLine(reusableCol)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -106,7 +107,7 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRun(reusableCol, r, val)) {
     return false
   }
 
@@ -121,9 +122,7 @@ const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
   }
   const { r, c } = spot
   const row = grid[r]
-  if (!Array.isArray(row) || c < 0 || c >= row.length) {
-    return false
-  }
+
   for (const value of [0, 1] as const) {
     // Use lightweight constraint check instead of full validation
     if (!canPlaceValue(grid, r, c, value)) {
