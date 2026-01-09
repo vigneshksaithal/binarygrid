@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@devvit/web": "0.12.7",
-    "@hono/node-server": "^1.19.7",
+    "@hono/node-server": "^1.19.8",
     "@lucide/svelte": "^0.562.0",
     "@tailwindcss/vite": "^4.1.18",
     "canvas-confetti": "^1.9.4",
