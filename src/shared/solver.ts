@@ -87,16 +87,23 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Check column constraints without allocating new array
+  let colZeros = 0
+  let colOnes = 0
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    // Current cell is (r, c) - use val. Others: grid[i][c]
+    const v = i === r ? val : (grid[i]?.[c] ?? null)
+    if (v === 0) {
+      colZeros++
+    } else if (v === 1) {
+      colOnes++
+    }
   }
-  const colCounts = countLine(col)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
+
+  if (val === 0 && colZeros > MAX_COUNT_PER_LINE) {
     return false
   }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
+  if (val === 1 && colOnes > MAX_COUNT_PER_LINE) {
     return false
   }
 
@@ -105,9 +112,18 @@ const canPlaceValue = (
     return false
   }
 
-  // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
-    return false
+  // Check triple run in column - inline check to avoid array allocation
+  // Check window of 3 cells centered around r in column c
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const a = i === r ? val : (grid[i]?.[c] ?? null)
+    const b = i + 1 === r ? val : (grid[i + 1]?.[c] ?? null)
+    const cVal = i + 2 === r ? val : (grid[i + 2]?.[c] ?? null)
+    if (a !== null && a === b && b === cVal) {
+      return false
+    }
   }
 
   return true
