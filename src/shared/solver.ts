@@ -71,7 +71,8 @@ const canPlaceValue = (
   grid: Grid,
   r: number,
   c: number,
-  val: 0 | 1
+  val: 0 | 1,
+  colBuffer: Cell[]
 ): boolean => {
   const row = grid[r]
   if (!Array.isArray(row) || row.length !== SIZE) {
@@ -88,11 +89,11 @@ const canPlaceValue = (
   }
 
   // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Use reusable buffer to avoid garbage collection
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    colBuffer[i] = (grid[i]?.[c] ?? null) as Cell
   }
-  const colCounts = countLine(col)
+  const colCounts = countLine(colBuffer)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -106,14 +107,18 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRun(colBuffer, r, val)) {
     return false
   }
 
   return true
 }
 
-const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
+const solveFrom = (
+  grid: Grid,
+  fixed: FixedCell[],
+  colBuffer: Cell[]
+): boolean => {
   const spot = findNextEmpty(grid)
   if (!spot) {
     // All cells filled - do a final validation
@@ -126,11 +131,11 @@ const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
   }
   for (const value of [0, 1] as const) {
     // Use lightweight constraint check instead of full validation
-    if (!canPlaceValue(grid, r, c, value)) {
+    if (!canPlaceValue(grid, r, c, value, colBuffer)) {
       continue
     }
     row[c] = value
-    if (solveFrom(grid, fixed)) {
+    if (solveFrom(grid, fixed, colBuffer)) {
       return true
     }
     row[c] = null
@@ -143,7 +148,8 @@ export const solvePuzzle = (initial: Grid, fixed: FixedCell[]): Grid | null => {
   if (!validateGrid(grid, fixed).ok) {
     return null
   }
-  if (!solveFrom(grid, fixed)) {
+  const colBuffer: Cell[] = new Array(SIZE)
+  if (!solveFrom(grid, fixed, colBuffer)) {
     return null
   }
   return cloneGrid(grid)
