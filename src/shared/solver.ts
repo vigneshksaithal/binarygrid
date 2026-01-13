@@ -24,22 +24,6 @@ const MAX_COUNT_PER_LINE = 3
 const TRIPLE_RUN_LENGTH = 3
 
 /**
- * Counts zeros and ones in a line.
- */
-const countLine = (line: Cell[]): { zeros: number; ones: number } => {
-  let zeros = 0
-  let ones = 0
-  for (const v of line) {
-    if (v === 0) {
-      zeros++
-    } else if (v === 1) {
-      ones++
-    }
-  }
-  return { zeros, ones }
-}
-
-/**
  * Checks if placing a value at the given position would create a triple run.
  * Optimized: only checks around the affected position.
  */
@@ -71,7 +55,8 @@ const canPlaceValue = (
   grid: Grid,
   r: number,
   c: number,
-  val: 0 | 1
+  val: 0 | 1,
+  colBuffer: Cell[]
 ): boolean => {
   const row = grid[r]
   if (!Array.isArray(row) || row.length !== SIZE) {
@@ -79,24 +64,36 @@ const canPlaceValue = (
   }
 
   // Check row constraints
-  const rowCounts = countLine(row as Cell[])
-  if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
+  let rowZeros = 0
+  let rowOnes = 0
+  const rowLen = row.length
+  for (let i = 0; i < rowLen; i++) {
+    const v = row[i]
+    if (v === 0) rowZeros++
+    else if (v === 1) rowOnes++
+  }
+
+  if (val === 0 && rowZeros >= MAX_COUNT_PER_LINE) {
     return false
   }
-  if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
+  if (val === 1 && rowOnes >= MAX_COUNT_PER_LINE) {
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Populate column buffer and count constraints in one pass
+  let colZeros = 0
+  let colOnes = 0
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    const v = (grid[i]?.[c] ?? null) as Cell
+    colBuffer[i] = v
+    if (v === 0) colZeros++
+    else if (v === 1) colOnes++
   }
-  const colCounts = countLine(col)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
+
+  if (val === 0 && colZeros >= MAX_COUNT_PER_LINE) {
     return false
   }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
+  if (val === 1 && colOnes >= MAX_COUNT_PER_LINE) {
     return false
   }
 
@@ -106,14 +103,18 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
+  if (wouldCreateTripleRun(colBuffer, r, val)) {
     return false
   }
 
   return true
 }
 
-const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
+const solveFrom = (
+  grid: Grid,
+  fixed: FixedCell[],
+  colBuffer: Cell[]
+): boolean => {
   const spot = findNextEmpty(grid)
   if (!spot) {
     // All cells filled - do a final validation
@@ -126,11 +127,11 @@ const solveFrom = (grid: Grid, fixed: FixedCell[]): boolean => {
   }
   for (const value of [0, 1] as const) {
     // Use lightweight constraint check instead of full validation
-    if (!canPlaceValue(grid, r, c, value)) {
+    if (!canPlaceValue(grid, r, c, value, colBuffer)) {
       continue
     }
     row[c] = value
-    if (solveFrom(grid, fixed)) {
+    if (solveFrom(grid, fixed, colBuffer)) {
       return true
     }
     row[c] = null
@@ -143,7 +144,9 @@ export const solvePuzzle = (initial: Grid, fixed: FixedCell[]): Grid | null => {
   if (!validateGrid(grid, fixed).ok) {
     return null
   }
-  if (!solveFrom(grid, fixed)) {
+  // Allocate buffer once and reuse
+  const colBuffer = new Array(SIZE)
+  if (!solveFrom(grid, fixed, colBuffer)) {
     return null
   }
   return cloneGrid(grid)
