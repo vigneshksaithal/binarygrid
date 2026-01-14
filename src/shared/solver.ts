@@ -1,5 +1,5 @@
 import { SIZE } from './rules'
-import type { Cell, FixedCell, Grid } from './types/puzzle'
+import type { FixedCell, Grid } from './types/puzzle'
 import { validateGrid } from './validator'
 
 const cloneGrid = (grid: Grid): Grid => grid.map((row) => row.slice())
@@ -24,48 +24,9 @@ const MAX_COUNT_PER_LINE = 3
 const TRIPLE_RUN_LENGTH = 3
 
 /**
- * Counts zeros and ones in a line.
- */
-const countLine = (line: Cell[]): { zeros: number; ones: number } => {
-  let zeros = 0
-  let ones = 0
-  for (const v of line) {
-    if (v === 0) {
-      zeros++
-    } else if (v === 1) {
-      ones++
-    }
-  }
-  return { zeros, ones }
-}
-
-/**
- * Checks if placing a value at the given position would create a triple run.
- * Optimized: only checks around the affected position.
- */
-const wouldCreateTripleRun = (
-  line: Cell[],
-  idx: number,
-  val: 0 | 1
-): boolean => {
-  // Check window of 3 cells centered around idx
-  const start = Math.max(0, idx - 2)
-  const end = Math.min(line.length - TRIPLE_RUN_LENGTH, idx)
-
-  for (let i = start; i <= end; i++) {
-    const a = i === idx ? val : line[i]
-    const b = i + 1 === idx ? val : line[i + 1]
-    const c = i + 2 === idx ? val : line[i + 2]
-    if (a !== null && a === b && b === c) {
-      return true
-    }
-  }
-  return false
-}
-
-/**
  * Validates if placing a value at (r, c) would violate constraints.
  * This is a lightweight check that avoids full grid validation.
+ * Optimized to avoid allocations in the hot path.
  */
 const canPlaceValue = (
   grid: Grid,
@@ -74,40 +35,76 @@ const canPlaceValue = (
   val: 0 | 1
 ): boolean => {
   const row = grid[r]
-  if (!Array.isArray(row) || row.length !== SIZE) {
-    return false
+  // We assume grid is well-formed inside solver for perf
+  // if (!Array.isArray(row) || row.length !== SIZE) return false
+
+  // --- Row Checks ---
+  // Count: iterate row once
+  let r0 = 0
+  let r1 = 0
+  // Inlining iteration for row counts
+  // We use non-null assertion or optional chaining if TS complains,
+  // but logically row exists if we passed bounds check (implied).
+  if (row) {
+    for (const v of row) {
+      if (v === 0) r0++
+      else if (v === 1) r1++
+    }
+  }
+  if (val === 0) {
+    if (r0 >= MAX_COUNT_PER_LINE) return false
+  } else {
+    if (r1 >= MAX_COUNT_PER_LINE) return false
   }
 
-  // Check row constraints
-  const rowCounts = countLine(row as Cell[])
-  if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
+  // Triple Run: check window around c
+  const rStart = Math.max(0, c - 2)
+  const rEnd = Math.min(SIZE - TRIPLE_RUN_LENGTH, c)
+
+  if (row) {
+    for (let k = rStart; k <= rEnd; k++) {
+      // Manually get values for k, k+1, k+2, replacing index c with val
+      const v1 = k === c ? val : row[k]
+      const v2 = k + 1 === c ? val : row[k + 1]
+      const v3 = k + 2 === c ? val : row[k + 2]
+
+      // We only care if they are all equal. v1, v2, v3 are Cell (0|1|null).
+      // The strict equality a===b===c checks values.
+      // If any is null, it's not a run.
+      if (v1 !== null && v1 === v2 && v2 === v3) {
+        return false
+      }
+    }
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // --- Column Checks ---
+  // Count: iterate column once, accessing grid directly to avoid allocating col array
+  let c0 = 0
+  let c1 = 0
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    // grid[i] is row i. grid[i][c] is cell.
+    const v = grid[i]?.[c]
+    if (v === 0) c0++
+    else if (v === 1) c1++
   }
-  const colCounts = countLine(col)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-
-  // Check triple run in row
-  if (wouldCreateTripleRun(row as Cell[], c, val)) {
-    return false
+  if (val === 0) {
+    if (c0 >= MAX_COUNT_PER_LINE) return false
+  } else {
+    if (c1 >= MAX_COUNT_PER_LINE) return false
   }
 
-  // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
-    return false
+  // Triple Run: check window around r
+  const cStart = Math.max(0, r - 2)
+  const cEnd = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let k = cStart; k <= cEnd; k++) {
+    const v1 = k === r ? val : grid[k]?.[c]
+    const v2 = k + 1 === r ? val : grid[k + 1]?.[c]
+    const v3 = k + 2 === r ? val : grid[k + 2]?.[c]
+
+    if (v1 !== null && v1 === v2 && v2 === v3) {
+      return false
+    }
   }
 
   return true
