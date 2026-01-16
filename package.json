@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@devvit/web": "0.12.8",
-    "@hono/node-server": "^1.19.8",
+    "@hono/node-server": "^1.19.9",
     "@lucide/svelte": "^0.562.0",
     "@tailwindcss/vite": "^4.1.18",
     "canvas-confetti": "^1.9.4",
@@ -36,10 +36,10 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.2.4",
     "@types/canvas-confetti": "^1.9.0",
-    "@types/node": "^25.0.7",
+    "@types/node": "^25.0.9",
     "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
-    "svelte": "^5.46.3",
+    "svelte": "^5.46.4",
     "svelte-check": "^4.3.5",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.7",
