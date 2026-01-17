@@ -12,14 +12,14 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 
 ### Frontend
 
-- Devvit (v0.12.3) — Reddit App Platform
+- Devvit (v0.12.8) — Reddit App Platform
 - Svelte (v5, runes) — UI framework
 - TypeScript (v5) — Programming language
 - Tailwind CSS (v4) — CSS framework
 - Lucide Svelte — Icon library
 
 > **IMPORTANT NOTE:**
-> - For Lucide Icons use `@lucide/svelte/icons/{icon-name}` imports to enable tree-shaking.
+> - For Lucide Icons use `import iconName from @lucide/svelte/icons/{icon-name}` imports to enable tree-shaking and faster bundling.
 > - Use Svelte v5 runes syntax ONLY.
 > - Use Tailwind CSS v4 syntax ONLY.
 
@@ -248,15 +248,7 @@ Follow the following workflow:
 3. Apply all rules strictly
 4. Validate accessibility
 
-This project uses **Ultracite**, a zero-config Biome preset that enforces strict code quality standards through automated formatting and linting.
-
 ### Quick Reference
-
-- **Format code**: `npx ultracite fix`
-- **Check for issues**: `npx ultracite check`
-- **Diagnose setup**: `npx ultracite doctor`
-
-Biome (the underlying engine) provides extremely fast Rust-based linting and formatting. Most issues are automatically fixable.
 
 ### Core Principles
 
