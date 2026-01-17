@@ -3,7 +3,11 @@
 	import type { Difficulty } from '../../shared/types/puzzle'
 	import { game, loadPuzzle } from '../stores/game'
 	import { calculatePercentile, rankStore } from '../stores/rank'
-	import { elapsedSeconds, formatElapsedTime, startTimer } from '../stores/timer'
+	import {
+		elapsedSeconds,
+		formatElapsedTime,
+		startTimer,
+	} from '../stores/timer'
 	import {
 		closeSuccessModal,
 		hasJoinedSubreddit,
