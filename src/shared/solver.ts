@@ -87,16 +87,19 @@ const canPlaceValue = (
     return false
   }
 
-  // Build column and check constraints
-  const col: Cell[] = new Array(SIZE)
+  // Check column constraints
+  let colZeros = 0
+  let colOnes = 0
   for (let i = 0; i < SIZE; i++) {
-    col[i] = (grid[i]?.[c] ?? null) as Cell
+    const v = grid[i]![c]
+    if (v === 0) colZeros++
+    else if (v === 1) colOnes++
   }
-  const colCounts = countLine(col)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
+
+  if (val === 0 && colZeros >= MAX_COUNT_PER_LINE) {
     return false
   }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
+  if (val === 1 && colOnes >= MAX_COUNT_PER_LINE) {
     return false
   }
 
@@ -106,8 +109,16 @@ const canPlaceValue = (
   }
 
   // Check triple run in column
-  if (wouldCreateTripleRun(col, r, val)) {
-    return false
+  const colStart = Math.max(0, r - 2)
+  const colEnd = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = colStart; i <= colEnd; i++) {
+    const v1 = i === r ? val : grid[i]![c]
+    const v2 = i + 1 === r ? val : grid[i + 1]![c]
+    const v3 = i + 2 === r ? val : grid[i + 2]![c]
+    if (v1 !== null && v1 === v2 && v2 === v3) {
+      return false
+    }
   }
 
   return true
