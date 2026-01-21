@@ -149,20 +149,8 @@ const shuffleInPlace = <T>(arr: T[], rnd: Rng): void => {
 
 // -------------- Constraints --------------
 
-const countLine = (line: (0 | 1 | null)[]) => {
-  let zeros = 0
-  let ones = 0
-  for (const v of line) {
-    if (v === 0) {
-      zeros++
-    } else if (v === 1) {
-      ones++
-    }
-  }
-  return { zeros, ones }
-}
-
 const TRIPLE_RUN_LENGTH = 3
+const MAX_COUNT_PER_LINE = 3
 
 /**
  * Checks if placing a value at idx would create a triple run.
@@ -188,39 +176,73 @@ const wouldCreateTripleRunAt = (
   return false
 }
 
-const MAX_COUNT_PER_LINE = 3
+/**
+ * Checks if placing a value at (r, c) would create a triple run in the column.
+ * Direct access to grid to avoid array allocation.
+ */
+const wouldCreateTripleRunInCol = (
+  grid: Grid,
+  r: number,
+  c: number,
+  val: 0 | 1
+): boolean => {
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
 
-// Reusable column array to reduce allocations in hot path
-const reusableCol: (0 | 1 | null)[] = new Array(SIZE)
+  for (let i = start; i <= end; i++) {
+    const v1 = i === r ? val : (grid[i] as Cell[])[c]
+    const v2 = i + 1 === r ? val : (grid[i + 1] as Cell[])[c]
+    const v3 = i + 2 === r ? val : (grid[i + 2] as Cell[])[c]
+
+    if (v1 !== null && v1 === v2 && v2 === v3) {
+      return true
+    }
+  }
+  return false
+}
 
 const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
   const row = grid[r] as Cell[]
   if (row[c] !== null) {
     return false
   }
-  const rowCounts = countLine(row)
-  if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
+
+  // Check row counts
+  let rowZeros = 0
+  let rowOnes = 0
+  for (const v of row) {
+    if (v === 0) rowZeros++
+    else if (v === 1) rowOnes++
+  }
+  if (val === 0 && rowZeros >= MAX_COUNT_PER_LINE) {
     return false
   }
-  if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
+  if (val === 1 && rowOnes >= MAX_COUNT_PER_LINE) {
     return false
   }
 
-  // Build column using reusable array
-  for (let i = 0; i < SIZE; i++) {
-    reusableCol[i] = (grid[i] as Cell[])[c] as Cell
-  }
-  const colCounts = countLine(reusableCol)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
+  // Check triple run in row
   if (wouldCreateTripleRunAt(row, c, val)) {
     return false
   }
-  if (wouldCreateTripleRunAt(reusableCol, r, val)) {
+
+  // Check column counts - direct iteration
+  let colZeros = 0
+  let colOnes = 0
+  for (let i = 0; i < SIZE; i++) {
+    const v = (grid[i] as Cell[])[c]
+    if (v === 0) colZeros++
+    else if (v === 1) colOnes++
+  }
+  if (val === 0 && colZeros >= MAX_COUNT_PER_LINE) {
+    return false
+  }
+  if (val === 1 && colOnes >= MAX_COUNT_PER_LINE) {
+    return false
+  }
+
+  // Check triple run in column
+  if (wouldCreateTripleRunInCol(grid, r, c, val)) {
     return false
   }
   return true
