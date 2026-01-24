@@ -190,8 +190,48 @@ const wouldCreateTripleRunAt = (
 
 const MAX_COUNT_PER_LINE = 3
 
-// Reusable column array to reduce allocations in hot path
-const reusableCol: (0 | 1 | null)[] = new Array(SIZE)
+/**
+ * Counts zeros and ones in a column directly from the grid.
+ */
+const countColumn = (grid: Grid, c: number) => {
+  let zeros = 0
+  let ones = 0
+  for (let r = 0; r < SIZE; r++) {
+    const v = (grid[r] as Cell[])[c]
+    if (v === 0) {
+      zeros++
+    } else if (v === 1) {
+      ones++
+    }
+  }
+  return { zeros, ones }
+}
+
+/**
+ * Checks if placing a value at (r, c) would create a triple run in the column.
+ * Optimized: only checks the windows that could be affected by the placement.
+ */
+const wouldCreateTripleRunInCol = (
+  grid: Grid,
+  r: number,
+  c: number,
+  val: 0 | 1
+): boolean => {
+  // Check window of 3 cells that could include r
+  const start = Math.max(0, r - 2)
+  const end = Math.min(SIZE - TRIPLE_RUN_LENGTH, r)
+
+  for (let i = start; i <= end; i++) {
+    const v0 = i === r ? val : (grid[i] as Cell[])[c]
+    const v1 = i + 1 === r ? val : (grid[i + 1] as Cell[])[c]
+    const v2 = i + 2 === r ? val : (grid[i + 2] as Cell[])[c]
+
+    if (v0 !== null && v0 === v1 && v1 === v2) {
+      return true
+    }
+  }
+  return false
+}
 
 const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
   const row = grid[r] as Cell[]
@@ -206,11 +246,7 @@ const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
     return false
   }
 
-  // Build column using reusable array
-  for (let i = 0; i < SIZE; i++) {
-    reusableCol[i] = (grid[i] as Cell[])[c] as Cell
-  }
-  const colCounts = countLine(reusableCol)
+  const colCounts = countColumn(grid, c)
   if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
     return false
   }
@@ -220,7 +256,7 @@ const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
   if (wouldCreateTripleRunAt(row, c, val)) {
     return false
   }
-  if (wouldCreateTripleRunAt(reusableCol, r, val)) {
+  if (wouldCreateTripleRunInCol(grid, r, c, val)) {
     return false
   }
   return true
