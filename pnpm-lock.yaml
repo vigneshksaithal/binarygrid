@@ -9,14 +9,14 @@ importers:
   .:
     dependencies:
       '@devvit/web':
-        specifier: 0.12.9
-        version: 0.12.9(twirp-ts@2.5.0)
+        specifier: 0.12.10
+        version: 0.12.10(twirp-ts@2.5.0)
       '@hono/node-server':
         specifier: ^1.19.9
-        version: 1.19.9(hono@4.11.5)
+        version: 1.19.9(hono@4.11.7)
       '@lucide/svelte':
-        specifier: ^0.563.0
-        version: 0.563.0(svelte@5.48.0)
+        specifier: ^0.563.1
+        version: 0.563.1(svelte@5.48.5)
       '@tailwindcss/vite':
         specifier: ^4.1.18
         version: 4.1.18(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
@@ -24,18 +24,18 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       devvit:
-        specifier: 0.12.9
-        version: 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(@devvit/shared@0.12.9(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3)
+        specifier: 0.12.10
+        version: 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(@devvit/shared@0.12.10(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3)
       hono:
-        specifier: ^4.11.5
-        version: 4.11.5
+        specifier: ^4.11.7
+        version: 4.11.7
       tailwindcss:
         specifier: ^4.1.18
         version: 4.1.18
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.4
-        version: 6.2.4(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
+        version: 6.2.4(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
@@ -49,11 +49,11 @@ importers:
         specifier: ^11.0.0
         version: 11.0.0
       svelte:
-        specifier: ^5.48.0
-        version: 5.48.0
+        specifier: ^5.48.5
+        version: 5.48.5
       svelte-check:
         specifier: ^4.3.5
-        version: 4.3.5(picomatch@4.0.3)(svelte@5.48.0)(typescript@5.9.3)
+        version: 4.3.5(picomatch@4.0.3)(svelte@5.48.5)(typescript@5.9.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -101,90 +101,90 @@ packages:
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
 
-  '@devvit/build-pack@0.12.9':
-    resolution: {integrity: sha512-iboyQYrdL3wIRtdUpIjPywkzodCW2dSNBmBVqQXuS1ZNEpy6kjvwA2HoQ2SXlOmPi2UoMqxPcNkMfYvvKIEYNQ==}
+  '@devvit/build-pack@0.12.10':
+    resolution: {integrity: sha512-WMMMqPI3ynGkuZBnHdtYba2tAh4xrui9XXrrJvTPeSYNw7OH51I4t6HureBh6cX+NTH9XqIocLfDuduYtdN9pw==}
     peerDependencies:
       '@devvit/server': '*'
       '@devvit/shared': '*'
 
-  '@devvit/cache@0.12.9':
-    resolution: {integrity: sha512-U/aImrqPr6uXJTJwbraD4jRt2RbFNU6QG30/THb5FZ6aUEoKYDY0E2/qxtWmHeaqnn0zoButfA6NyBCCYyJCEw==}
+  '@devvit/cache@0.12.10':
+    resolution: {integrity: sha512-6rhwbn6k620781JyHXgCbSbZ66WRlTPdnfCi3uzfpb1JT+SnGniCWqCK8MVGRIbE4TRZb+KkVywfA0YDEvsXBg==}
 
-  '@devvit/cli@0.12.9':
-    resolution: {integrity: sha512-pjKKOfH7z0cOWFLADQgE6+rgm05wkmxFzuEL7Q3DjVsEi4Uei6NSCLxzsgrZN3DyilDHPvo9lNO/7ouOeD37+A==}
+  '@devvit/cli@0.12.10':
+    resolution: {integrity: sha512-9zFuUJAMCjI7VNWEXV2Djx+GDiXSW58zAJyurTd9rjOT6hkSTGScu/DCvHZzroRWpinaccHvb8XPiVf0dYdceQ==}
     engines: {node: '>=20'}
     hasBin: true
 
-  '@devvit/client@0.12.9':
-    resolution: {integrity: sha512-Jx8wq41xYRMu3U5I2EJOwNiJykmS5fWsZYNk/jOqWg8uIMAu7SOhKTsnuQQOkMR3ZIAmdrmNOXhLKA2ywPsfSA==}
+  '@devvit/client@0.12.10':
+    resolution: {integrity: sha512-/7GHkGjt7+md+vmKFyPHFNktxewUqcLq/CWNu8p9VQT35Q/aV2o3p56eu7O7HeyTOk0ScaaJLChZFvUr+paxUw==}
 
-  '@devvit/media@0.12.9':
-    resolution: {integrity: sha512-CdJcieQ+RETIRnlNTWtX2/Xrcwo6AzkNqWg9UtwJpFArJnmiLvjTl1ugV+5Kq/QwP0kOY/J+OwEFAmiNxJXoaQ==}
+  '@devvit/media@0.12.10':
+    resolution: {integrity: sha512-tFX9X5OVWWclivPjr+ixvttvgQgAaHb+Ne9XgqUu0M+dhhpW0DuTS0z9f5es1S0UBYmz0o5BQ73pkGiTED2dFQ==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/metrics@0.12.9':
-    resolution: {integrity: sha512-uKKZNN+BdzG/tOONk278ISZXTZ79WiQysrx8m8gJEnZdP6f+efkkkyOeM707iehc6QWwWN1wqrqfOtWae33hBw==}
+  '@devvit/metrics@0.12.10':
+    resolution: {integrity: sha512-bCs2g5iY4unlszhrxG9ScFlP9asN7P1fpbjtHNPizOQE0UP65nwNx3boHd4LAjPlRxEF3jSB/fbaU9RpJpqe3w==}
 
-  '@devvit/notifications@0.12.9':
-    resolution: {integrity: sha512-8PsUfEuMQiH6fHVEYydejWxn2PXNZiRMXbPayqqoNB8TA/HgBi14t8FJ0oGFvoccds6SYG8uVRAd5Lk9VyFf3w==}
+  '@devvit/notifications@0.12.10':
+    resolution: {integrity: sha512-3iJhp1FC+gUMZgEbPkwRPQ1PwkXrlp5N03kL4TQp7Q+XmUpOtI8EJpvbCw68kMXwrfB5mOohtZRa0E00q7Fk6A==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/payments@0.12.9':
-    resolution: {integrity: sha512-ecz2UdcJdsV5mTEcU+Pm649XS6qb1FFNS+SxaeTzQKq1OsRujWheBLGPP50PgYrTI1EBZVTFmfuvvVlZYFw8kw==}
+  '@devvit/payments@0.12.10':
+    resolution: {integrity: sha512-V7zW9WwOE6luIhPzLRI/V8QfxhpEXPCmkBhi57c1L6wtFjgY5fV//rM4WJAM7UPTpnRnCRRGLxNg3n+XHsXPfQ==}
 
-  '@devvit/protos@0.12.9':
-    resolution: {integrity: sha512-hzN4gkuxHoiSzb+74Eh8jFz/iQ/dy1fPP8DgK+rOgJcVHES9xmOPyFmnswGuHwD20OwcscWXkjAr1mhooPxhBg==}
+  '@devvit/protos@0.12.10':
+    resolution: {integrity: sha512-Xd/hyJdDRfSjLGeGZmtKYQrYHq/3RzSqTKm6luavt8K5DXfJLHU4NOHONQP9xQXgMFDurIspP4FXsP8UclwYxQ==}
     peerDependencies:
       twirp-ts: ^2.5.0
     peerDependenciesMeta:
       twirp-ts:
         optional: true
 
-  '@devvit/public-api@0.12.9':
-    resolution: {integrity: sha512-UQHJnYxU3WRmRTNAqKrtD1EHIGTgoMbOmiQRCj4INk5+rJuq1bF0xWfa/pQll+vCg42bg8NZHlfk6vMM4t6Esg==}
+  '@devvit/public-api@0.12.10':
+    resolution: {integrity: sha512-87L5/mzMfsPlAKH3UfbqyWSfJiuRm1JRiDmuVOFYZt1mE6kMMLUcRRh+OHM615ECGt6LWM0zZd071xwsJ2nhGw==}
 
-  '@devvit/realtime@0.12.9':
-    resolution: {integrity: sha512-FDlSGhdIpVw8GhQD0VYEDnlgZa1h8iFSUksyUK59nY/qqGYCdYFFD+Qj/e+CYHHnTrl4PCDuYczeq2aQ2o6YIQ==}
+  '@devvit/realtime@0.12.10':
+    resolution: {integrity: sha512-g9AQ5tewlC2vw+wABIusLI1PojktyGKiLuQzsxLQuvXcymKiwjc7gKaqVEqo77kss/8YAmeavk1DWrN2urb6Sg==}
     peerDependencies:
       '@devvit/client': '*'
       '@devvit/server': '*'
 
-  '@devvit/reddit@0.12.9':
-    resolution: {integrity: sha512-iu0Nbcj0+Ohr0jvlV2qR4vVTC4khUz8dlaXFq3Ban1X0by498C6DfzaRFrY6H6Di1VcIoL1bYeUXnow9gJF+2w==}
+  '@devvit/reddit@0.12.10':
+    resolution: {integrity: sha512-eXPBnBuD/zXErbiuuJKoyRw38m+xu6SnJRdBmdqnBUzHCTbuJu51FNM7Hwwn4ZBq+RiJKLh1U96636mc4If1Ww==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/redis@0.12.9':
-    resolution: {integrity: sha512-FPaeZ3ea/VPZ7m/0qtHyBj0BCu/io8fppYtckV04cSe2/nSxRiOsz7wTR2mnxYSi015THy2DnMpJusENCACbRw==}
+  '@devvit/redis@0.12.10':
+    resolution: {integrity: sha512-/dxGTBHB45+KXAa+5rORbU28ezsLH8Ft6pP9cUelGOYXjkh2Zu6JTDqp33uxvLt7LOGn3ffSb05R+rXPew5kNQ==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/scheduler@0.12.9':
-    resolution: {integrity: sha512-Gj2+IpTQg3CE2kyajoFYUAfgmw3KUlYOYmIxfsR33EEP2k3vS/RKnswOh+6tFOUehGdtLqNmISdVdb2W857ZdQ==}
+  '@devvit/scheduler@0.12.10':
+    resolution: {integrity: sha512-P4VtcZzAojL9uRtlRpuAhS6vwoYUIUYxK6EMCMVC13CAqqvECwfQ57Beui9ArhYC/PEiWjG4fFulnxtVZhCa0w==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/server@0.12.9':
-    resolution: {integrity: sha512-dnhbTgHUcz6Ot2vju2Zwn2H88LY2fXYOm+b0j8R9BtJoOMFA0miCOq9+ULasG39tVxMs4n9/x5FxNlgzguN/ZQ==}
+  '@devvit/server@0.12.10':
+    resolution: {integrity: sha512-X+MiC25sniV2BybeaIdsQe5CVhJZ5gmwLRe6/9aEFUMYgM5oTHbmFQ/RYxJ6V5nP31A6lvMis5M+YC81/WBcqQ==}
 
-  '@devvit/settings@0.12.9':
-    resolution: {integrity: sha512-03pVtfprBW8ZSfp390q90zMf2xq159PYjthLeRZSboC9/Z8e2s6jR59151y1R/BRgnhsdVkSeOBVVUCLXUkbCQ==}
+  '@devvit/settings@0.12.10':
+    resolution: {integrity: sha512-wkfnsd+0xo7TPtqiMqVQLKKokYbFz5hG7RsX7Fpxjmb7nsox8ZKLs4GIvYzW+NUdjMLVsH3h/oX45O5C/sYCYQ==}
     peerDependencies:
       '@devvit/server': '*'
 
-  '@devvit/shared-types@0.12.9':
-    resolution: {integrity: sha512-7VKv0ZauXV/7rnECyLYagJMgbOSAy3S4QjYr/i4QdNQz8vXvrtvAulpVI0RK+FdNpz2IsXWX4sRPOVfylND9Gg==}
+  '@devvit/shared-types@0.12.10':
+    resolution: {integrity: sha512-DfeWG/N4tIG8zzffFJh0Do98o1t5fmTrxeSJvugICNbe+KmrJXmFpEZzn68wjXH3yFj5oG/lpHwB7nb0pIljzg==}
 
-  '@devvit/shared@0.12.9':
-    resolution: {integrity: sha512-W/2iaJ7Biap7C9BmsNBMIu4jaz59W3za3nNRdx2Sy7SKoZKjy1wv4VP5RwvnjQP5soal51XzDKUveBn22fwwmQ==}
+  '@devvit/shared@0.12.10':
+    resolution: {integrity: sha512-O+jUVdsgbm5/n9mnxqrdzBT4DfwBB5uU0cTk6g/sN1trvC05Won1r4xBYmJ/yWjbKm4oIGjmwdi6aCzKsJY2MQ==}
 
-  '@devvit/splash@0.12.9':
-    resolution: {integrity: sha512-1KQoZujWHEHM8JOZ5gPxDParMSpgfooSbOFKdbKql0cTS/hE08/4H3pHpRj0zzkabk6U1MEs+9yQ3hWWDAlPxA==}
+  '@devvit/splash@0.12.10':
+    resolution: {integrity: sha512-WpFg+siTlQPVNln15yZScSiwfQrwcjdoKcVyFruOoruJZTAFgx/SOvZ7NnYL87Ef6v8ph+AGyaPXDTGC+pM1XA==}
 
-  '@devvit/web@0.12.9':
-    resolution: {integrity: sha512-1AFQfkZSBqY4g+RAo/ytAGLv+Ofs+PewjSuaVNNLD+yP/7hHCR9BoeyWoOPQEDYcIxt5LxF6iDJhUTcy2jFO2Q==}
+  '@devvit/web@0.12.10':
+    resolution: {integrity: sha512-raQBoS1iJktnkTcRWZIDvfBwLuuhnVk0mCCpRbxZ0AIShHz6eapNyaeVO80N6kQwLSoRLHtSLae9APzuVPNnPw==}
 
   '@emnapi/core@1.8.1':
     resolution: {integrity: sha512-AvT9QFpxK0Zd8J0jopedNm+w/2fIzvtPKPjqyw9jwvBaReTTqPBk9Hixaz7KbjimP+QNz605/XnjFcDAL2pqBg==}
@@ -542,8 +542,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
-  '@lucide/svelte@0.563.0':
-    resolution: {integrity: sha512-IvdKZPzfqkcmS/pJ8dzoXWguNTQl76UqiS7eTAwL6cAvTvqkdU204gFFhAa2oSqCo3KovYmj8SCit/E7FgqyCg==}
+  '@lucide/svelte@0.563.1':
+    resolution: {integrity: sha512-Kt+MbnE5D9RsuI/csmf7M+HWxALe57x3A0DhQ8pPnnUpneh7zuldrYjlT+veWtk+tVnp5doQtaAAxLujzIlhBw==}
     peerDependencies:
       svelte: ^5
 
@@ -664,24 +664,28 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rolldown/binding-linux-arm64-musl@1.0.0-rc.1':
     resolution: {integrity: sha512-UvApLEGholmxw/HIwmUnLq3CwdydbhaHHllvWiCTNbyGom7wTwOtz5OAQbAKZYyiEOeIXZNPkM7nA4Dtng7CLw==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rolldown/binding-linux-x64-gnu@1.0.0-rc.1':
     resolution: {integrity: sha512-uVctNgZHiGnJx5Fij7wHLhgw4uyZBVi6mykeWKOqE7bVy9Hcxn0fM/IuqdMwk6hXlaf9fFShDTFz2+YejP+x0A==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rolldown/binding-linux-x64-musl@1.0.0-rc.1':
     resolution: {integrity: sha512-T6Eg0xWwcxd/MzBcuv4Z37YVbUbJxy5cMNnbIt/Yr99wFwli30O4BPlY8hKeGyn6lWNtU0QioBS46lVzDN38bg==}
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rolldown/binding-openharmony-arm64@1.0.0-rc.1':
     resolution: {integrity: sha512-PuGZVS2xNJyLADeh2F04b+Cz4NwvpglbtWACgrDOa5YDTEHKwmiTDjoD5eZ9/ptXtcpeFrMqD2H4Zn33KAh1Eg==}
@@ -709,128 +713,141 @@ packages:
   '@rolldown/pluginutils@1.0.0-rc.1':
     resolution: {integrity: sha512-UTBjtTxVOhodhzFVp/ayITaTETRHPUPYZPXQe0WU0wOgxghMojXxYjOiPOauKIYNWJAWS2fd7gJgGQK8GU8vDA==}
 
-  '@rollup/rollup-android-arm-eabi@4.56.0':
-    resolution: {integrity: sha512-LNKIPA5k8PF1+jAFomGe3qN3bbIgJe/IlpDBwuVjrDKrJhVWywgnJvflMt/zkbVNLFtF1+94SljYQS6e99klnw==}
+  '@rollup/rollup-android-arm-eabi@4.57.0':
+    resolution: {integrity: sha512-tPgXB6cDTndIe1ah7u6amCI1T0SsnlOuKgg10Xh3uizJk4e5M1JGaUMk7J4ciuAUcFpbOiNhm2XIjP9ON0dUqA==}
     cpu: [arm]
     os: [android]
 
-  '@rollup/rollup-android-arm64@4.56.0':
-    resolution: {integrity: sha512-lfbVUbelYqXlYiU/HApNMJzT1E87UPGvzveGg2h0ktUNlOCxKlWuJ9jtfvs1sKHdwU4fzY7Pl8sAl49/XaEk6Q==}
+  '@rollup/rollup-android-arm64@4.57.0':
+    resolution: {integrity: sha512-sa4LyseLLXr1onr97StkU1Nb7fWcg6niokTwEVNOO7awaKaoRObQ54+V/hrF/BP1noMEaaAW6Fg2d/CfLiq3Mg==}
     cpu: [arm64]
     os: [android]
 
-  '@rollup/rollup-darwin-arm64@4.56.0':
-    resolution: {integrity: sha512-EgxD1ocWfhoD6xSOeEEwyE7tDvwTgZc8Bss7wCWe+uc7wO8G34HHCUH+Q6cHqJubxIAnQzAsyUsClt0yFLu06w==}
+  '@rollup/rollup-darwin-arm64@4.57.0':
+    resolution: {integrity: sha512-/NNIj9A7yLjKdmkx5dC2XQ9DmjIECpGpwHoGmA5E1AhU0fuICSqSWScPhN1yLCkEdkCwJIDu2xIeLPs60MNIVg==}
     cpu: [arm64]
     os: [darwin]
 
-  '@rollup/rollup-darwin-x64@4.56.0':
-    resolution: {integrity: sha512-1vXe1vcMOssb/hOF8iv52A7feWW2xnu+c8BV4t1F//m9QVLTfNVpEdja5ia762j/UEJe2Z1jAmEqZAK42tVW3g==}
+  '@rollup/rollup-darwin-x64@4.57.0':
+    resolution: {integrity: sha512-xoh8abqgPrPYPr7pTYipqnUi1V3em56JzE/HgDgitTqZBZ3yKCWI+7KUkceM6tNweyUKYru1UMi7FC060RyKwA==}
     cpu: [x64]
     os: [darwin]
 
-  '@rollup/rollup-freebsd-arm64@4.56.0':
-    resolution: {integrity: sha512-bof7fbIlvqsyv/DtaXSck4VYQ9lPtoWNFCB/JY4snlFuJREXfZnm+Ej6yaCHfQvofJDXLDMTVxWscVSuQvVWUQ==}
+  '@rollup/rollup-freebsd-arm64@4.57.0':
+    resolution: {integrity: sha512-PCkMh7fNahWSbA0OTUQ2OpYHpjZZr0hPr8lId8twD7a7SeWrvT3xJVyza+dQwXSSq4yEQTMoXgNOfMCsn8584g==}
     cpu: [arm64]
     os: [freebsd]
 
-  '@rollup/rollup-freebsd-x64@4.56.0':
-    resolution: {integrity: sha512-KNa6lYHloW+7lTEkYGa37fpvPq+NKG/EHKM8+G/g9WDU7ls4sMqbVRV78J6LdNuVaeeK5WB9/9VAFbKxcbXKYg==}
+  '@rollup/rollup-freebsd-x64@4.57.0':
+    resolution: {integrity: sha512-1j3stGx+qbhXql4OCDZhnK7b01s6rBKNybfsX+TNrEe9JNq4DLi1yGiR1xW+nL+FNVvI4D02PUnl6gJ/2y6WJA==}
     cpu: [x64]
     os: [freebsd]
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.56.0':
-    resolution: {integrity: sha512-E8jKK87uOvLrrLN28jnAAAChNq5LeCd2mGgZF+fGF5D507WlG/Noct3lP/QzQ6MrqJ5BCKNwI9ipADB6jyiq2A==}
+  '@rollup/rollup-linux-arm-gnueabihf@4.57.0':
+    resolution: {integrity: sha512-eyrr5W08Ms9uM0mLcKfM/Uzx7hjhz2bcjv8P2uynfj0yU8GGPdz8iYrBPhiLOZqahoAMB8ZiolRZPbbU2MAi6Q==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-arm-musleabihf@4.56.0':
-    resolution: {integrity: sha512-jQosa5FMYF5Z6prEpTCCmzCXz6eKr/tCBssSmQGEeozA9tkRUty/5Vx06ibaOP9RCrW1Pvb8yp3gvZhHwTDsJw==}
+  '@rollup/rollup-linux-arm-musleabihf@4.57.0':
+    resolution: {integrity: sha512-Xds90ITXJCNyX9pDhqf85MKWUI4lqjiPAipJ8OLp8xqI2Ehk+TCVhF9rvOoN8xTbcafow3QOThkNnrM33uCFQA==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
-  '@rollup/rollup-linux-arm64-gnu@4.56.0':
-    resolution: {integrity: sha512-uQVoKkrC1KGEV6udrdVahASIsaF8h7iLG0U0W+Xn14ucFwi6uS539PsAr24IEF9/FoDtzMeeJXJIBo5RkbNWvQ==}
+  '@rollup/rollup-linux-arm64-gnu@4.57.0':
+    resolution: {integrity: sha512-Xws2KA4CLvZmXjy46SQaXSejuKPhwVdaNinldoYfqruZBaJHqVo6hnRa8SDo9z7PBW5x84SH64+izmldCgbezw==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-arm64-musl@4.56.0':
-    resolution: {integrity: sha512-vLZ1yJKLxhQLFKTs42RwTwa6zkGln+bnXc8ueFGMYmBTLfNu58sl5/eXyxRa2RarTkJbXl8TKPgfS6V5ijNqEA==}
+  '@rollup/rollup-linux-arm64-musl@4.57.0':
+    resolution: {integrity: sha512-hrKXKbX5FdaRJj7lTMusmvKbhMJSGWJ+w++4KmjiDhpTgNlhYobMvKfDoIWecy4O60K6yA4SnztGuNTQF+Lplw==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
-  '@rollup/rollup-linux-loong64-gnu@4.56.0':
-    resolution: {integrity: sha512-FWfHOCub564kSE3xJQLLIC/hbKqHSVxy8vY75/YHHzWvbJL7aYJkdgwD/xGfUlL5UV2SB7otapLrcCj2xnF1dg==}
+  '@rollup/rollup-linux-loong64-gnu@4.57.0':
+    resolution: {integrity: sha512-6A+nccfSDGKsPm00d3xKcrsBcbqzCTAukjwWK6rbuAnB2bHaL3r9720HBVZ/no7+FhZLz/U3GwwZZEh6tOSI8Q==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-loong64-musl@4.56.0':
-    resolution: {integrity: sha512-z1EkujxIh7nbrKL1lmIpqFTc/sr0u8Uk0zK/qIEFldbt6EDKWFk/pxFq3gYj4Bjn3aa9eEhYRlL3H8ZbPT1xvA==}
+  '@rollup/rollup-linux-loong64-musl@4.57.0':
+    resolution: {integrity: sha512-4P1VyYUe6XAJtQH1Hh99THxr0GKMMwIXsRNOceLrJnaHTDgk1FTcTimDgneRJPvB3LqDQxUmroBclQ1S0cIJwQ==}
     cpu: [loong64]
     os: [linux]
+    libc: [musl]
 
-  '@rollup/rollup-linux-ppc64-gnu@4.56.0':
-    resolution: {integrity: sha512-iNFTluqgdoQC7AIE8Q34R3AuPrJGJirj5wMUErxj22deOcY7XwZRaqYmB6ZKFHoVGqRcRd0mqO+845jAibKCkw==}
+  '@rollup/rollup-linux-ppc64-gnu@4.57.0':
+    resolution: {integrity: sha512-8Vv6pLuIZCMcgXre6c3nOPhE0gjz1+nZP6T+hwWjr7sVH8k0jRkH+XnfjjOTglyMBdSKBPPz54/y1gToSKwrSQ==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-ppc64-musl@4.56.0':
-    resolution: {integrity: sha512-MtMeFVlD2LIKjp2sE2xM2slq3Zxf9zwVuw0jemsxvh1QOpHSsSzfNOTH9uYW9i1MXFxUSMmLpeVeUzoNOKBaWg==}
+  '@rollup/rollup-linux-ppc64-musl@4.57.0':
+    resolution: {integrity: sha512-r1te1M0Sm2TBVD/RxBPC6RZVwNqUTwJTA7w+C/IW5v9Ssu6xmxWEi+iJQlpBhtUiT1raJ5b48pI8tBvEjEFnFA==}
     cpu: [ppc64]
     os: [linux]
+    libc: [musl]
 
-  '@rollup/rollup-linux-riscv64-gnu@4.56.0':
-    resolution: {integrity: sha512-in+v6wiHdzzVhYKXIk5U74dEZHdKN9KH0Q4ANHOTvyXPG41bajYRsy7a8TPKbYPl34hU7PP7hMVHRvv/5aCSew==}
+  '@rollup/rollup-linux-riscv64-gnu@4.57.0':
+    resolution: {integrity: sha512-say0uMU/RaPm3CDQLxUUTF2oNWL8ysvHkAjcCzV2znxBr23kFfaxocS9qJm+NdkRhF8wtdEEAJuYcLPhSPbjuQ==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-riscv64-musl@4.56.0':
-    resolution: {integrity: sha512-yni2raKHB8m9NQpI9fPVwN754mn6dHQSbDTwxdr9SE0ks38DTjLMMBjrwvB5+mXrX+C0npX0CVeCUcvvvD8CNQ==}
+  '@rollup/rollup-linux-riscv64-musl@4.57.0':
+    resolution: {integrity: sha512-/MU7/HizQGsnBREtRpcSbSV1zfkoxSTR7wLsRmBPQ8FwUj5sykrP1MyJTvsxP5KBq9SyE6kH8UQQQwa0ASeoQQ==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
-  '@rollup/rollup-linux-s390x-gnu@4.56.0':
-    resolution: {integrity: sha512-zhLLJx9nQPu7wezbxt2ut+CI4YlXi68ndEve16tPc/iwoylWS9B3FxpLS2PkmfYgDQtosah07Mj9E0khc3Y+vQ==}
+  '@rollup/rollup-linux-s390x-gnu@4.57.0':
+    resolution: {integrity: sha512-Q9eh+gUGILIHEaJf66aF6a414jQbDnn29zeu0eX3dHMuysnhTvsUvZTCAyZ6tJhUjnvzBKE4FtuaYxutxRZpOg==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-x64-gnu@4.56.0':
-    resolution: {integrity: sha512-MVC6UDp16ZSH7x4rtuJPAEoE1RwS8N4oK9DLHy3FTEdFoUTCFVzMfJl/BVJ330C+hx8FfprA5Wqx4FhZXkj2Kw==}
+  '@rollup/rollup-linux-x64-gnu@4.57.0':
+    resolution: {integrity: sha512-OR5p5yG5OKSxHReWmwvM0P+VTPMwoBS45PXTMYaskKQqybkS3Kmugq1W+YbNWArF8/s7jQScgzXUhArzEQ7x0A==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
-  '@rollup/rollup-linux-x64-musl@4.56.0':
-    resolution: {integrity: sha512-ZhGH1eA4Qv0lxaV00azCIS1ChedK0V32952Md3FtnxSqZTBTd6tgil4nZT5cU8B+SIw3PFYkvyR4FKo2oyZIHA==}
+  '@rollup/rollup-linux-x64-musl@4.57.0':
+    resolution: {integrity: sha512-XeatKzo4lHDsVEbm1XDHZlhYZZSQYym6dg2X/Ko0kSFgio+KXLsxwJQprnR48GvdIKDOpqWqssC3iBCjoMcMpw==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
-  '@rollup/rollup-openbsd-x64@4.56.0':
-    resolution: {integrity: sha512-O16XcmyDeFI9879pEcmtWvD/2nyxR9mF7Gs44lf1vGGx8Vg2DRNx11aVXBEqOQhWb92WN4z7fW/q4+2NYzCbBA==}
+  '@rollup/rollup-openbsd-x64@4.57.0':
+    resolution: {integrity: sha512-Lu71y78F5qOfYmubYLHPcJm74GZLU6UJ4THkf/a1K7Tz2ycwC2VUbsqbJAXaR6Bx70SRdlVrt2+n5l7F0agTUw==}
     cpu: [x64]
     os: [openbsd]
 
-  '@rollup/rollup-openharmony-arm64@4.56.0':
-    resolution: {integrity: sha512-LhN/Reh+7F3RCgQIRbgw8ZMwUwyqJM+8pXNT6IIJAqm2IdKkzpCh/V9EdgOMBKuebIrzswqy4ATlrDgiOwbRcQ==}
+  '@rollup/rollup-openharmony-arm64@4.57.0':
+    resolution: {integrity: sha512-v5xwKDWcu7qhAEcsUubiav7r+48Uk/ENWdr82MBZZRIm7zThSxCIVDfb3ZeRRq9yqk+oIzMdDo6fCcA5DHfMyA==}
     cpu: [arm64]
     os: [openharmony]
 
-  '@rollup/rollup-win32-arm64-msvc@4.56.0':
-    resolution: {integrity: sha512-kbFsOObXp3LBULg1d3JIUQMa9Kv4UitDmpS+k0tinPBz3watcUiV2/LUDMMucA6pZO3WGE27P7DsfaN54l9ing==}
+  '@rollup/rollup-win32-arm64-msvc@4.57.0':
+    resolution: {integrity: sha512-XnaaaSMGSI6Wk8F4KK3QP7GfuuhjGchElsVerCplUuxRIzdvZ7hRBpLR0omCmw+kI2RFJB80nenhOoGXlJ5TfQ==}
     cpu: [arm64]
     os: [win32]
 
-  '@rollup/rollup-win32-ia32-msvc@4.56.0':
-    resolution: {integrity: sha512-vSSgny54D6P4vf2izbtFm/TcWYedw7f8eBrOiGGecyHyQB9q4Kqentjaj8hToe+995nob/Wv48pDqL5a62EWtg==}
+  '@rollup/rollup-win32-ia32-msvc@4.57.0':
+    resolution: {integrity: sha512-3K1lP+3BXY4t4VihLw5MEg6IZD3ojSYzqzBG571W3kNQe4G4CcFpSUQVgurYgib5d+YaCjeFow8QivWp8vuSvA==}
     cpu: [ia32]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-gnu@4.56.0':
-    resolution: {integrity: sha512-FeCnkPCTHQJFbiGG49KjV5YGW/8b9rrXAM2Mz2kiIoktq2qsJxRD5giEMEOD2lPdgs72upzefaUvS+nc8E3UzQ==}
+  '@rollup/rollup-win32-x64-gnu@4.57.0':
+    resolution: {integrity: sha512-MDk610P/vJGc5L5ImE4k5s+GZT3en0KoK1MKPXCRgzmksAMk79j4h3k1IerxTNqwDLxsGxStEZVBqG0gIqZqoA==}
     cpu: [x64]
     os: [win32]
 
-  '@rollup/rollup-win32-x64-msvc@4.56.0':
-    resolution: {integrity: sha512-H8AE9Ur/t0+1VXujj90w0HrSOuv0Nq9r1vSZF2t5km20NTfosQsGGUXDaKdQZzwuLts7IyL1fYT4hM95TI9c4g==}
+  '@rollup/rollup-win32-x64-msvc@4.57.0':
+    resolution: {integrity: sha512-Zv7v6q6aV+VslnpwzqKAmrk5JdVkLUzok2208ZXGipjb+msxBr/fJPZyeEXiFgH7k62Ak0SLIfxQRZQvTuf7rQ==}
     cpu: [x64]
     os: [win32]
 
@@ -902,24 +919,28 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@tailwindcss/oxide-linux-arm64-musl@4.1.18':
     resolution: {integrity: sha512-1px92582HkPQlaaCkdRcio71p8bc8i/ap5807tPRDK/uw953cauQBT8c5tVGkOwrHMfc2Yh6UuxaH4vtTjGvHg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@tailwindcss/oxide-linux-x64-gnu@4.1.18':
     resolution: {integrity: sha512-v3gyT0ivkfBLoZGF9LyHmts0Isc8jHZyVcbzio6Wpzifg/+5ZJpDiRiUhDLkcr7f/r38SWNe7ucxmGW3j3Kb/g==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@tailwindcss/oxide-linux-x64-musl@4.1.18':
     resolution: {integrity: sha512-bhJ2y2OQNlcRwwgOAGMY0xTFStt4/wyU6pvI6LSuZpRgKQwxTec0/3Scu91O8ir7qCR3AuepQKLU/kX99FouqQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@tailwindcss/oxide-wasm32-wasi@4.1.18':
     resolution: {integrity: sha512-LffYTvPjODiP6PT16oNeUQJzNVyJl1cjIebq/rWWBF+3eDst5JGEFSc5cWxyRCJ0Mxl+KyIkqRxk1XPEs9x8TA==}
@@ -1344,8 +1365,8 @@ packages:
   devalue@5.6.2:
     resolution: {integrity: sha512-nPRkjWzzDQlsejL1WVifk5rvcFi/y1onBRxjaFMjZeR9mFpqu2gmAZ9xUB9/IEanEP/vBtGeGganC/GO1fmufg==}
 
-  devvit@0.12.9:
-    resolution: {integrity: sha512-53BwH3V9tR/DlNpAGkURfl51UM49m/V4+66onljNSlkR0foa3Nq1Pi5Txrf8YNPTxqI9zqqEFcU+e72qmfkIeQ==}
+  devvit@0.12.10:
+    resolution: {integrity: sha512-8UHUWDYqtv2L8qTHgrP+SiW5jHjNrkXCQTAYJuDTbEheVYEi8fN5sdmIpK5g3IiyQLEj6bMCYjIJaVW5lSW/Wg==}
     hasBin: true
 
   diff3@0.0.3:
@@ -1619,8 +1640,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.11.5:
-    resolution: {integrity: sha512-WemPi9/WfyMwZs+ZUXdiwcCh9Y+m7L+8vki9MzDw3jJ+W9Lc+12HGsd368Qc1vZi1xwW8BWMMsnK5efYKPdt4g==}
+  hono@4.11.7:
+    resolution: {integrity: sha512-l7qMiNee7t82bH3SeyUCt9UF15EVmaBvsppY2zQtrbIhl/yzBTny+YUxsVjSjQ6gaqaeVtZmGocom8TzBlA4Yw==}
     engines: {node: '>=16.9.0'}
 
   hotscript@1.0.13:
@@ -1908,48 +1929,56 @@ packages:
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-arm64-gnu@1.31.1:
     resolution: {integrity: sha512-WKyLWztD71rTnou4xAD5kQT+982wvca7E6QoLpoawZ1gP9JM0GJj4Tp5jMUh9B3AitHbRZ2/H3W5xQmdEOUlLg==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.30.2:
     resolution: {integrity: sha512-5Vh9dGeblpTxWHpOx8iauV02popZDsCYMPIgiuw97OJ5uaDsL86cnqSFs5LZkG3ghHoX5isLgWzMs+eD1YzrnA==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-arm64-musl@1.31.1:
     resolution: {integrity: sha512-mVZ7Pg2zIbe3XlNbZJdjs86YViQFoJSpc41CbVmKBPiGmC4YrfeOyz65ms2qpAobVd7WQsbW4PdsSJEMymyIMg==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.30.2:
     resolution: {integrity: sha512-Cfd46gdmj1vQ+lR6VRTTadNHu6ALuw2pKR9lYq4FnhvgBc4zWY1EtZcAc6EffShbb1MFrIPfLDXD6Xprbnni4w==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-x64-gnu@1.31.1:
     resolution: {integrity: sha512-xGlFWRMl+0KvUhgySdIaReQdB4FNudfUTARn7q0hh/V67PVGCs3ADFjw+6++kG1RNd0zdGRlEKa+T13/tQjPMA==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.30.2:
     resolution: {integrity: sha512-XJaLUUFXb6/QG2lGIW6aIk6jKdtjtcffUT0NKvIqhSBY3hh9Ch+1LCeH80dR9q9LBjG3ewbDjnumefsLsP6aiA==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-x64-musl@1.31.1:
     resolution: {integrity: sha512-eowF8PrKHw9LpoZii5tdZwnBcYDxRw2rRCyvAXLi34iyeYfqCQNA9rmUM0ce62NlPhCvof1+9ivRaTY6pSKDaA==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-win32-arm64-msvc@1.30.2:
     resolution: {integrity: sha512-FZn+vaj7zLv//D/192WFFVA0RgHawIcHqLX9xuWiQt7P0PtdFEVaxgF9rjM/IRYHQXNnk61/H/gb2Ei+kUQ4xQ==}
@@ -2266,8 +2295,8 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
 
-  rollup@4.56.0:
-    resolution: {integrity: sha512-9FwVqlgUHzbXtDg9RCMgodF3Ua4Na6Gau+Sdt9vyCN4RhHfVKX2DCHy3BjMLTDd47ITDhYAnTwGulWTblJSDLg==}
+  rollup@4.57.0:
+    resolution: {integrity: sha512-e5lPJi/aui4TO1LpAXIRLySmwXSE8k3b9zoGfd42p67wzxog4WHjiZF3M2uheQih4DGyc25QEV4yRBbpueNiUA==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
@@ -2439,8 +2468,8 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
-  svelte@5.48.0:
-    resolution: {integrity: sha512-+NUe82VoFP1RQViZI/esojx70eazGF4u0O/9ucqZ4rPcOZD+n5EVp17uYsqwdzjUjZyTpGKunHbDziW6AIAVkQ==}
+  svelte@5.48.5:
+    resolution: {integrity: sha512-NB3o70OxfmnE5UPyLr8uH3IV02Q43qJVAuWigYmsSOYsS0s/rHxP0TF81blG0onF/xkhNvZw4G8NfzIX+By5ZQ==}
     engines: {node: '>=18'}
 
   symbol-tree@3.2.4:
@@ -2856,14 +2885,14 @@ snapshots:
 
   '@csstools/css-tokenizer@3.0.4': {}
 
-  '@devvit/build-pack@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(@devvit/shared@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/build-pack@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(@devvit/shared@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/payments': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/splash': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/payments': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/splash': 0.12.10(twirp-ts@2.5.0)
       '@types/node': 20.14.12
       esbuild: 0.25.9
       rxjs: 7.8.1
@@ -2872,20 +2901,20 @@ snapshots:
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/cache@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/cache@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/redis': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/redis': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - '@devvit/server'
       - twirp-ts
 
-  '@devvit/cli@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(@devvit/shared@0.12.9(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3)':
+  '@devvit/cli@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(@devvit/shared@0.12.10(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3)':
     dependencies:
-      '@devvit/build-pack': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(@devvit/shared@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/public-api': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/build-pack': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(@devvit/shared@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
       '@improbable-eng/grpc-web': 0.15.0(google-protobuf@3.21.4)
       '@improbable-eng/grpc-web-node-http-transport': 0.15.0(@improbable-eng/grpc-web@0.15.0(google-protobuf@3.21.4))
       '@oclif/core': 2.9.4(@types/node@25.0.10)(typescript@5.9.3)
@@ -2929,155 +2958,155 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@devvit/client@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/client@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/media@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/media@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/metrics@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/metrics@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/notifications@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/notifications@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/payments@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/payments@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/public-api': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/protos@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/protos@0.12.10(twirp-ts@2.5.0)':
     dependencies:
       protobufjs: 7.5.4
       rxjs: 7.8.1
     optionalDependencies:
       twirp-ts: 2.5.0
 
-  '@devvit/public-api@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/public-api@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/metrics': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/metrics': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
       base64-js: 1.5.1
       clone-deep: 4.0.1
       moderndash: 4.0.0
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/realtime@0.12.9(@devvit/client@0.12.9(twirp-ts@2.5.0))(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/realtime@0.12.10(@devvit/client@0.12.10(twirp-ts@2.5.0))(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/client': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/client': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
       rxjs: 7.8.1
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/reddit@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/reddit@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/public-api': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/splash': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/splash': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/redis@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/redis@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/scheduler@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/scheduler@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/server@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/server@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/public-api': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/settings@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
+  '@devvit/settings@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/shared-types@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/shared-types@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
       jsonschema: 1.4.1
       uuid: 9.0.0
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/shared@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/shared@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/protos': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/shared-types': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/protos': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/shared-types': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/splash@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/splash@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/public-api': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/public-api': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
-  '@devvit/web@0.12.9(twirp-ts@2.5.0)':
+  '@devvit/web@0.12.10(twirp-ts@2.5.0)':
     dependencies:
-      '@devvit/cache': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/client': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/media': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/notifications': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/payments': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/realtime': 0.12.9(@devvit/client@0.12.9(twirp-ts@2.5.0))(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/reddit': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/redis': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/scheduler': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/server': 0.12.9(twirp-ts@2.5.0)
-      '@devvit/settings': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(twirp-ts@2.5.0)
-      '@devvit/shared': 0.12.9(twirp-ts@2.5.0)
+      '@devvit/cache': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/client': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/media': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/notifications': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/payments': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/realtime': 0.12.10(@devvit/client@0.12.10(twirp-ts@2.5.0))(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/reddit': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/redis': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/scheduler': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/server': 0.12.10(twirp-ts@2.5.0)
+      '@devvit/settings': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(twirp-ts@2.5.0)
+      '@devvit/shared': 0.12.10(twirp-ts@2.5.0)
     transitivePeerDependencies:
       - twirp-ts
 
@@ -3253,9 +3282,9 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
-  '@hono/node-server@1.19.9(hono@4.11.5)':
+  '@hono/node-server@1.19.9(hono@4.11.7)':
     dependencies:
-      hono: 4.11.5
+      hono: 4.11.7
 
   '@improbable-eng/grpc-web-node-http-transport@0.15.0(@improbable-eng/grpc-web@0.15.0(google-protobuf@3.21.4))':
     dependencies:
@@ -3290,9 +3319,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@lucide/svelte@0.563.0(svelte@5.48.0)':
+  '@lucide/svelte@0.563.1(svelte@5.48.5)':
     dependencies:
-      svelte: 5.48.0
+      svelte: 5.48.5
 
   '@napi-rs/wasm-runtime@1.1.1':
     dependencies:
@@ -3485,79 +3514,79 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.0-rc.1': {}
 
-  '@rollup/rollup-android-arm-eabi@4.56.0':
+  '@rollup/rollup-android-arm-eabi@4.57.0':
     optional: true
 
-  '@rollup/rollup-android-arm64@4.56.0':
+  '@rollup/rollup-android-arm64@4.57.0':
     optional: true
 
-  '@rollup/rollup-darwin-arm64@4.56.0':
+  '@rollup/rollup-darwin-arm64@4.57.0':
     optional: true
 
-  '@rollup/rollup-darwin-x64@4.56.0':
+  '@rollup/rollup-darwin-x64@4.57.0':
     optional: true
 
-  '@rollup/rollup-freebsd-arm64@4.56.0':
+  '@rollup/rollup-freebsd-arm64@4.57.0':
     optional: true
 
-  '@rollup/rollup-freebsd-x64@4.56.0':
+  '@rollup/rollup-freebsd-x64@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-gnueabihf@4.56.0':
+  '@rollup/rollup-linux-arm-gnueabihf@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-arm-musleabihf@4.56.0':
+  '@rollup/rollup-linux-arm-musleabihf@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-gnu@4.56.0':
+  '@rollup/rollup-linux-arm64-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-arm64-musl@4.56.0':
+  '@rollup/rollup-linux-arm64-musl@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-loong64-gnu@4.56.0':
+  '@rollup/rollup-linux-loong64-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-loong64-musl@4.56.0':
+  '@rollup/rollup-linux-loong64-musl@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-gnu@4.56.0':
+  '@rollup/rollup-linux-ppc64-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-ppc64-musl@4.56.0':
+  '@rollup/rollup-linux-ppc64-musl@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-gnu@4.56.0':
+  '@rollup/rollup-linux-riscv64-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-riscv64-musl@4.56.0':
+  '@rollup/rollup-linux-riscv64-musl@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-s390x-gnu@4.56.0':
+  '@rollup/rollup-linux-s390x-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-gnu@4.56.0':
+  '@rollup/rollup-linux-x64-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-linux-x64-musl@4.56.0':
+  '@rollup/rollup-linux-x64-musl@4.57.0':
     optional: true
 
-  '@rollup/rollup-openbsd-x64@4.56.0':
+  '@rollup/rollup-openbsd-x64@4.57.0':
     optional: true
 
-  '@rollup/rollup-openharmony-arm64@4.56.0':
+  '@rollup/rollup-openharmony-arm64@4.57.0':
     optional: true
 
-  '@rollup/rollup-win32-arm64-msvc@4.56.0':
+  '@rollup/rollup-win32-arm64-msvc@4.57.0':
     optional: true
 
-  '@rollup/rollup-win32-ia32-msvc@4.56.0':
+  '@rollup/rollup-win32-ia32-msvc@4.57.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-gnu@4.56.0':
+  '@rollup/rollup-win32-x64-gnu@4.57.0':
     optional: true
 
-  '@rollup/rollup-win32-x64-msvc@4.56.0':
+  '@rollup/rollup-win32-x64-msvc@4.57.0':
     optional: true
 
   '@sec-ant/readable-stream@0.4.1': {}
@@ -3570,20 +3599,20 @@ snapshots:
     dependencies:
       acorn: 8.15.0
 
-  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1)))(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))':
+  '@sveltejs/vite-plugin-svelte-inspector@5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1)))(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
+      '@sveltejs/vite-plugin-svelte': 6.2.4(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
       obug: 2.1.1
-      svelte: 5.48.0
+      svelte: 5.48.5
       vite: 8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1)
 
-  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))':
+  '@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))':
     dependencies:
-      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1)))(svelte@5.48.0)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
+      '@sveltejs/vite-plugin-svelte-inspector': 5.0.2(@sveltejs/vite-plugin-svelte@6.2.4(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1)))(svelte@5.48.5)(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
       deepmerge: 4.3.1
       magic-string: 0.30.21
       obug: 2.1.1
-      svelte: 5.48.0
+      svelte: 5.48.5
       vite: 8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1)
       vitefu: 1.1.1(vite@8.0.0-beta.9(@types/node@25.0.10)(esbuild@0.27.2)(jiti@2.6.1))
 
@@ -4017,9 +4046,9 @@ snapshots:
 
   devalue@5.6.2: {}
 
-  devvit@0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(@devvit/shared@0.12.9(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3):
+  devvit@0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(@devvit/shared@0.12.10(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3):
     dependencies:
-      '@devvit/cli': 0.12.9(@devvit/server@0.12.9(twirp-ts@2.5.0))(@devvit/shared@0.12.9(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3)
+      '@devvit/cli': 0.12.10(@devvit/server@0.12.10(twirp-ts@2.5.0))(@devvit/shared@0.12.10(twirp-ts@2.5.0))(@types/node@25.0.10)(google-protobuf@3.21.4)(typescript@5.9.3)
     transitivePeerDependencies:
       - '@devvit/server'
       - '@devvit/shared'
@@ -4358,7 +4387,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.11.5: {}
+  hono@4.11.7: {}
 
   hotscript@1.0.13: {}
 
@@ -4967,35 +4996,35 @@ snapshots:
       '@rolldown/binding-win32-arm64-msvc': 1.0.0-rc.1
       '@rolldown/binding-win32-x64-msvc': 1.0.0-rc.1
 
-  rollup@4.56.0:
+  rollup@4.57.0:
     dependencies:
       '@types/estree': 1.0.8
     optionalDependencies:
-      '@rollup/rollup-android-arm-eabi': 4.56.0
-      '@rollup/rollup-android-arm64': 4.56.0
-      '@rollup/rollup-darwin-arm64': 4.56.0
-      '@rollup/rollup-darwin-x64': 4.56.0
-      '@rollup/rollup-freebsd-arm64': 4.56.0
-      '@rollup/rollup-freebsd-x64': 4.56.0
-      '@rollup/rollup-linux-arm-gnueabihf': 4.56.0
-      '@rollup/rollup-linux-arm-musleabihf': 4.56.0
-      '@rollup/rollup-linux-arm64-gnu': 4.56.0
-      '@rollup/rollup-linux-arm64-musl': 4.56.0
-      '@rollup/rollup-linux-loong64-gnu': 4.56.0
-      '@rollup/rollup-linux-loong64-musl': 4.56.0
-      '@rollup/rollup-linux-ppc64-gnu': 4.56.0
-      '@rollup/rollup-linux-ppc64-musl': 4.56.0
-      '@rollup/rollup-linux-riscv64-gnu': 4.56.0
-      '@rollup/rollup-linux-riscv64-musl': 4.56.0
-      '@rollup/rollup-linux-s390x-gnu': 4.56.0
-      '@rollup/rollup-linux-x64-gnu': 4.56.0
-      '@rollup/rollup-linux-x64-musl': 4.56.0
-      '@rollup/rollup-openbsd-x64': 4.56.0
-      '@rollup/rollup-openharmony-arm64': 4.56.0
-      '@rollup/rollup-win32-arm64-msvc': 4.56.0
-      '@rollup/rollup-win32-ia32-msvc': 4.56.0
-      '@rollup/rollup-win32-x64-gnu': 4.56.0
-      '@rollup/rollup-win32-x64-msvc': 4.56.0
+      '@rollup/rollup-android-arm-eabi': 4.57.0
+      '@rollup/rollup-android-arm64': 4.57.0
+      '@rollup/rollup-darwin-arm64': 4.57.0
+      '@rollup/rollup-darwin-x64': 4.57.0
+      '@rollup/rollup-freebsd-arm64': 4.57.0
+      '@rollup/rollup-freebsd-x64': 4.57.0
+      '@rollup/rollup-linux-arm-gnueabihf': 4.57.0
+      '@rollup/rollup-linux-arm-musleabihf': 4.57.0
+      '@rollup/rollup-linux-arm64-gnu': 4.57.0
+      '@rollup/rollup-linux-arm64-musl': 4.57.0
+      '@rollup/rollup-linux-loong64-gnu': 4.57.0
+      '@rollup/rollup-linux-loong64-musl': 4.57.0
+      '@rollup/rollup-linux-ppc64-gnu': 4.57.0
+      '@rollup/rollup-linux-ppc64-musl': 4.57.0
+      '@rollup/rollup-linux-riscv64-gnu': 4.57.0
+      '@rollup/rollup-linux-riscv64-musl': 4.57.0
+      '@rollup/rollup-linux-s390x-gnu': 4.57.0
+      '@rollup/rollup-linux-x64-gnu': 4.57.0
+      '@rollup/rollup-linux-x64-musl': 4.57.0
+      '@rollup/rollup-openbsd-x64': 4.57.0
+      '@rollup/rollup-openharmony-arm64': 4.57.0
+      '@rollup/rollup-win32-arm64-msvc': 4.57.0
+      '@rollup/rollup-win32-ia32-msvc': 4.57.0
+      '@rollup/rollup-win32-x64-gnu': 4.57.0
+      '@rollup/rollup-win32-x64-msvc': 4.57.0
       fsevents: 2.3.3
 
   rrweb-cssom@0.7.1: {}
@@ -5150,19 +5179,19 @@ snapshots:
       has-flag: 4.0.0
       supports-color: 7.2.0
 
-  svelte-check@4.3.5(picomatch@4.0.3)(svelte@5.48.0)(typescript@5.9.3):
+  svelte-check@4.3.5(picomatch@4.0.3)(svelte@5.48.5)(typescript@5.9.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       chokidar: 4.0.3
       fdir: 6.5.0(picomatch@4.0.3)
       picocolors: 1.1.1
       sade: 1.8.1
-      svelte: 5.48.0
+      svelte: 5.48.5
       typescript: 5.9.3
     transitivePeerDependencies:
       - picomatch
 
-  svelte@5.48.0:
+  svelte@5.48.5:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -5319,7 +5348,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.3)
       picomatch: 4.0.3
       postcss: 8.5.6
-      rollup: 4.56.0
+      rollup: 4.57.0
       tinyglobby: 0.2.15
     optionalDependencies:
       '@types/node': 25.0.10

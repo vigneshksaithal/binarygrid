@@ -24,13 +24,13 @@
     "local": "cd src/client && vite dev"
   },
   "dependencies": {
-    "@devvit/web": "0.12.9",
+    "@devvit/web": "0.12.10",
     "@hono/node-server": "^1.19.9",
-    "@lucide/svelte": "^0.563.0",
+    "@lucide/svelte": "^0.563.1",
     "@tailwindcss/vite": "^4.1.18",
     "canvas-confetti": "^1.9.4",
-    "devvit": "0.12.9",
-    "hono": "^4.11.5",
+    "devvit": "0.12.10",
+    "hono": "^4.11.7",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
@@ -39,7 +39,7 @@
     "@types/node": "^25.0.10",
     "concurrently": "^9.2.1",
     "dotenv-cli": "^11.0.0",
-    "svelte": "^5.48.0",
+    "svelte": "^5.48.5",
     "svelte-check": "^4.3.5",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.9",
