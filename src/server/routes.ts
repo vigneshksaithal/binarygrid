@@ -5,8 +5,10 @@ import type {
   LeaderboardResponse
 } from '../shared/types/leaderboard'
 import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
+import { formatSimpleShareText } from '../shared/share-formatter'
 import { validateGrid } from '../shared/validator'
 import { generateDailyPuzzle } from './core/generator'
+import { getOrCreatePuzzleNumber } from './core/puzzle-number'
 
 const app = new Hono()
 
@@ -83,6 +85,27 @@ const parseLeaderboardMeta = (
 }
 
 app.get('/api/health', (c) => c.json({ ok: true }))
+
+// Get puzzle day number for current post
+app.get('/api/puzzle-number', async (c) => {
+  const { postId } = context
+  if (!postId) {
+    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  try {
+    const dateISO = todayISO()
+    const dayNumber = await getOrCreatePuzzleNumber(postId, dateISO)
+    return c.json({ dayNumber })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to get puzzle number: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
 
 // Check if user has joined subreddit
 app.get('/api/check-joined-status', async (c) => {
@@ -181,6 +204,98 @@ app.post('/api/comment-score', async (c) => {
       error instanceof Error ? error.message : 'Unknown error'
     return c.json(
       { error: `Failed to post comment: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+// Helper to generate share comment tracking key
+const shareCommentKey = (postId: string, puzzleId: string, userId: string): string =>
+  `share:comment:${postId}:${puzzleId}:${userId}`
+
+// Share comment endpoint - posts share text as Reddit comment
+app.post('/api/share-comment', async (c) => {
+  const body = await c.req
+    .json<{
+      solveTimeSeconds: number
+      difficulty: Difficulty
+      dayNumber: number
+    }>()
+    .catch(() => null)
+
+  // Validate request body
+  if (
+    !body ||
+    typeof body.solveTimeSeconds !== 'number' ||
+    typeof body.difficulty !== 'string' ||
+    typeof body.dayNumber !== 'number'
+  ) {
+    return c.json({ ok: false, error: 'invalid payload' }, HTTP_BAD_REQUEST)
+  }
+
+  const solveTimeSeconds = Number(body.solveTimeSeconds)
+  if (!Number.isFinite(solveTimeSeconds) || solveTimeSeconds < 0) {
+    return c.json({ ok: false, error: 'invalid solve time' }, HTTP_BAD_REQUEST)
+  }
+
+  if (!isDifficultyValue(body.difficulty)) {
+    return c.json({ ok: false, error: 'invalid difficulty' }, HTTP_BAD_REQUEST)
+  }
+
+  const dayNumber = Number(body.dayNumber)
+  if (!Number.isFinite(dayNumber) || dayNumber < 1 || !Number.isInteger(dayNumber)) {
+    return c.json({ ok: false, error: 'invalid day number' }, HTTP_BAD_REQUEST)
+  }
+
+  const { postId, userId } = context
+  if (!postId) {
+    return c.json({ ok: false, error: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+  if (!userId) {
+    return c.json({ ok: false, error: 'login required' }, HTTP_BAD_REQUEST)
+  }
+
+  // Generate puzzle ID for tracking (matches format used elsewhere)
+  const puzzleId = `${postId}:${body.difficulty}`
+
+  try {
+    // Check if user has already shared for this puzzle (idempotency)
+    const shareKey = shareCommentKey(postId, puzzleId, userId)
+    const existingShare = await redis.get(shareKey)
+
+    if (existingShare) {
+      // Already shared - return success (idempotent behavior)
+      return c.json({ ok: true })
+    }
+
+    // Generate simple share text
+    const commentText = formatSimpleShareText({
+      dayNumber,
+      completionTime: solveTimeSeconds,
+      difficulty: body.difficulty
+    })
+
+    // Ensure postId has t3_ prefix for Reddit API
+    const postIdWithPrefix = postId.startsWith('t3_')
+      ? (postId as `t3_${string}`)
+      : (`t3_${postId}` as `t3_${string}`)
+
+    // Post comment to Reddit
+    await reddit.submitComment({
+      runAs: 'USER',
+      id: postIdWithPrefix,
+      text: commentText
+    })
+
+    // Track share in Redis to prevent duplicates
+    await redis.set(shareKey, '1')
+
+    return c.json({ ok: true })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { ok: false, error: `Failed to post share comment: ${errorMessage}` },
       HTTP_BAD_REQUEST
     )
   }

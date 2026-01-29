@@ -11,6 +11,7 @@
 		ariaLabel,
 		variant = 'default',
 		size = 'default',
+		class: className = '',
 		children,
 	}: {
 		onClick?: () => void
@@ -19,6 +20,7 @@
 		ariaLabel?: string
 		variant?: Variant
 		size?: Size
+		class?: string
 		children?: Snippet
 	} = $props()
 
@@ -44,7 +46,7 @@
 
 <button
 	{type}
-	class={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]}`}
+	class={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
 	onclick={onClick}
 	{disabled}
 	aria-label={ariaLabel}
