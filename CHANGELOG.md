@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-01-26
+
+### Documentation
+
+- **architecture.md**: Replaced generic template with a project-specific architecture document. It now describes Binary Grid’s structure (`src/client`, `src/server`, `src/shared`), high-level flow (Reddit → webview client ↔ Devvit Hono server ↔ Redis/Reddit API), core components (Svelte client, Hono server, shared logic), Redis key patterns, external integrations (Devvit/Reddit), deployment (Devvit serverless), security, testing, and a short glossary (Devvit, Custom Post, fixed cells, puzzle ID, etc.).
+
 ## 2025-12-20
 
 ### Performance Optimizations
