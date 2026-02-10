@@ -24,7 +24,15 @@
 
 	let isJoining = $state(false)
 	let dayNumber = $state<number | null>(null)
-	let dayNumberError = $state(false)
+
+	const streakValue = $derived.by(() => {
+		const state = $rankStore as unknown as { streak?: number | null }
+		return state.streak ?? null
+	})
+	const bestStreakValue = $derived.by(() => {
+		const state = $rankStore as unknown as { bestStreak?: number | null }
+		return state.bestStreak ?? null
+	})
 
 	const getNextDifficulty = (current: Difficulty): Difficulty => {
 		if (current === 'easy') return 'medium'
@@ -58,14 +66,10 @@
 			if (res.ok) {
 				const data = await res.json()
 				dayNumber = data.dayNumber
-				dayNumberError = false
-			} else {
-				dayNumberError = true
 			}
 		} catch (error) {
 			// biome-ignore lint/suspicious/noConsole: we want to log the error
 			console.error('Failed to fetch day number', error)
-			dayNumberError = true
 		}
 	}
 
@@ -193,6 +197,23 @@
 							Beat {$rankStore.totalEntries - $rankStore.rank} players! Can you go faster?
 						</p>
 					{/if}
+				</div>
+			{/if}
+
+			{#if streakValue !== null}
+				<div class="mt-4 pt-4 border-t border-green-200 dark:border-green-800">
+					<div class="flex items-center justify-between text-sm font-semibold text-green-700 dark:text-green-300">
+						<span>🔥 Streak</span>
+						<span>{streakValue} days</span>
+					</div>
+					{#if bestStreakValue !== null}
+						<p class="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
+							Best: {bestStreakValue} days
+						</p>
+					{/if}
+					<p class="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
+						Come back tomorrow to keep it going.
+					</p>
 				</div>
 			{/if}
 		</div>

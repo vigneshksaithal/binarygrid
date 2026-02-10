@@ -1,19 +1,27 @@
 <script lang="ts">
-	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import Undo2Icon from '@lucide/svelte/icons/undo-2'
-	import type { Difficulty } from '../shared/types/puzzle'
-	import './app.css'
-	import Button from './components/Button.svelte'
-	import Dropdown from './components/Dropdown.svelte'
-	import Grid from './components/Grid.svelte'
-	import HowToPlayModal from './components/HowToPlayModal.svelte'
-	import PlayOverlay from './components/PlayOverlay.svelte'
-	import SuccessModal from './components/SuccessModal.svelte'
-	import Timer from './components/Timer.svelte'
+import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
+import TrophyIcon from '@lucide/svelte/icons/trophy'
+import Undo2Icon from '@lucide/svelte/icons/undo-2'
+import type { Difficulty } from '../shared/types/puzzle'
+import './app.css'
+import Button from './components/Button.svelte'
+import Dropdown from './components/Dropdown.svelte'
+import Grid from './components/Grid.svelte'
+import HowToPlayModal from './components/HowToPlayModal.svelte'
+import LeaderboardModal from './components/LeaderboardModal.svelte'
+import MiniLeaderboard from './components/MiniLeaderboard.svelte'
+import PlayOverlay from './components/PlayOverlay.svelte'
+import SuccessModal from './components/SuccessModal.svelte'
+import Timer from './components/Timer.svelte'
 	import { game, loadPuzzle, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
 	import { startTimer } from './stores/timer'
-	import { openHowToModal } from './stores/ui'
+	import {
+		openHowToModal,
+		openLeaderboardModal,
+		showAssistRails,
+		toggleAssistRails,
+	} from './stores/ui'
 
 	const difficultyOptions = [
 		{ value: 'easy', label: 'Easy' },
@@ -60,17 +68,33 @@
 				>
 					<Undo2Icon />
 				</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={openLeaderboardModal}
+					ariaLabel="Leaderboard"
+				>
+					<TrophyIcon />
+				</Button>
 				<div class="relative">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={handleHint}
-						disabled={!$canUseHint || $game.status !== 'in_progress'}
-						ariaLabel="Hint"
-					>
-						<LightbulbIcon />
-						<span class="sr-only">Hint</span>
-					</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={handleHint}
+					disabled={!$canUseHint || $game.status !== 'in_progress'}
+					ariaLabel="Hint"
+				>
+					<LightbulbIcon />
+					<span class="sr-only">Hint</span>
+				</Button>
+				<Button
+					variant="ghost"
+					size="sm"
+					onClick={toggleAssistRails}
+					ariaLabel="Toggle assist rails"
+				>
+					{$showAssistRails ? 'Assist On' : 'Assist Off'}
+				</Button>
 					{#if !$canUseHint}
 						<svg
 							class="absolute inset-0 pointer-events-none"
@@ -98,6 +122,16 @@
 			</div>
 			<Timer />
 		</div>
+		{#if $game.status === 'invalid' && $game.errors.length > 0}
+			<div
+				class="mb-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700"
+				role="status"
+				aria-live="polite"
+			>
+				{$game.errors[0]}
+			</div>
+		{/if}
+		<MiniLeaderboard />
 		<Grid />
 	</div>
 	<div class="mt-4 flex justify-center">
@@ -115,4 +149,5 @@
 <PlayOverlay />
 
 <HowToPlayModal />
+<LeaderboardModal />
 <SuccessModal />

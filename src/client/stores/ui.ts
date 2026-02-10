@@ -15,6 +15,11 @@ export const showLeaderboardModal = writable(false)
 export const openLeaderboardModal = () => showLeaderboardModal.set(true)
 export const closeLeaderboardModal = () => showLeaderboardModal.set(false)
 
+export const showAssistRails = writable(true)
+
+export const toggleAssistRails = () =>
+  showAssistRails.update((visible) => !visible)
+
 export const showPlayOverlay = writable(true)
 
 export const openPlayOverlay = () => showPlayOverlay.set(true)
@@ -23,4 +28,9 @@ export const closePlayOverlay = () => showPlayOverlay.set(false)
 export const hasJoinedSubreddit = writable(true)
 
 export const setHasJoinedSubreddit = (joined: boolean) =>
-    hasJoinedSubreddit.set(joined)
+  hasJoinedSubreddit.set(joined)
+
+export const isMiniLeaderboardCollapsed = writable(false)
+
+export const toggleMiniLeaderboard = () =>
+  isMiniLeaderboardCollapsed.update((collapsed) => !collapsed)

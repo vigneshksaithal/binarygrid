@@ -66,6 +66,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				lastHintedCell: null,
 			})
 		} else if (status === 'solved') {
 			const solvedGrid = createSolvedGrid()
@@ -83,6 +84,7 @@
 				solution: solvedGrid,
 				dateISO: null,
 				history: [],
+				lastHintedCell: null,
 			})
 		} else if (status === 'invalid') {
 			const invalidGrid = createMockGrid(1)
@@ -107,6 +109,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				lastHintedCell: null,
 			})
 		} else if (status === 'error') {
 			game.set({
@@ -123,6 +126,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				lastHintedCell: null,
 			})
 		} else if (status === 'in_progress') {
 			const inProgressGrid = createMockGrid(null)
@@ -149,6 +153,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				lastHintedCell: null,
 			})
 		} else {
 			game.set({
@@ -165,6 +170,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				lastHintedCell: null,
 			})
 		}
 	}

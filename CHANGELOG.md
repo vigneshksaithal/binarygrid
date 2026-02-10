@@ -1,5 +1,67 @@
 # Changelog
 
+## 2026-02-10
+
+### Feature: Compact Leaderboard Display
+
+- **Added MiniLeaderboard component (`src/client/components/MiniLeaderboard.svelte`)**:
+  - Displays top 5 players with rank, username, and solve time
+  - Shows user's rank below the top 5 if they're not in that group
+  - Collapsible design with toggle button to save screen space
+  - Auto-refreshes every 30 seconds to show live updates
+  - Refreshes immediately when puzzle is solved
+  - Includes "View Full Leaderboard" button to open detailed modal
+  - Uses medal colors for top 3 ranks (gold, silver, bronze)
+  - Highlights current player's entry with amber background
+
+- **UI Store updates (`src/client/stores/ui.ts`)**:
+  - Added `isMiniLeaderboardCollapsed` store for collapse state
+  - Added `toggleMiniLeaderboard()` function for toggle control
+
+- **App layout changes (`src/client/App.svelte`)**:
+  - Integrated MiniLeaderboard component above the game grid
+  - Imported and rendered MiniLeaderboard between error banner and Grid
+  - Maintains existing leaderboard modal access via trophy button
+
+### Bug Fixes
+
+- **game.ts (client)**:
+  - Fixed duplicate `setStreak(null, null)` call in `loadPuzzle` function
+
+### Tests
+
+- All existing tests pass (76 tests across 8 test files)
+- Type checking passes with no errors
+
+## 2026-02-05
+
+### Engagement Improvements
+
+- **Hint system (shared + client)**:
+  - Added deterministic hint helpers (`src/shared/hints.ts`) and tests (`src/shared/hints.test.ts`) to prioritize forced moves before random hints.
+  - Updated `useHint` in `src/client/stores/game.ts` to use forced moves first, falling back to a random empty cell.
+
+- **Guidance + feedback (client)**:
+  - Added an invalid-state error banner above the grid to surface the first rule violation in `src/client/App.svelte`.
+  - Added row/column remaining 0/1 counters in `src/client/components/Grid.svelte` to help players track progress.
+
+- **Competition + return hooks**:
+  - Added a leaderboard button in the top bar and rendered `LeaderboardModal` in `src/client/App.svelte`.
+  - Added global streak tracking (UTC) on the server via `src/server/core/streak.ts` with tests, and included streak fields in the `/api/submit` response.
+  - Displayed streak and best streak in the success modal (`src/client/components/SuccessModal.svelte`).
+
+### UI Polish
+
+- **Assist rails + hint focus (client)**:
+  - Replaced the heavy counter panels with compact edge assist rails that use in-game glyphs and pips to show remaining 0/1 slots in `src/client/components/Grid.svelte`.
+  - Added a toggleable “Assist” control near the hint button in `src/client/App.svelte`.
+  - Added hint focus highlighting (cell + row/column) after using a hint in `src/client/components/Cell.svelte` and `src/client/stores/game.ts`.
+
+### Tests
+
+- Added tests for hint candidate selection and forced-move detection.
+- Added tests for UTC streak continuation and resets.
+
 ## 2026-01-26
 
 ### Documentation

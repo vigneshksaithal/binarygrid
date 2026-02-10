@@ -1,10 +1,11 @@
 import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
+import { findForcedMoves } from '../../shared/hints'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetHintCooldown, startCooldown } from './hint'
-import { fetchRank, resetRank, setRank } from './rank'
+import { fetchRank, resetRank, setRank, setStreak } from './rank'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -35,6 +36,7 @@ export type GameState = {
   solution: Grid | null
   dateISO: string | null
   history: Grid[]
+  lastHintedCell: { r: number; c: number; at: number } | null
 }
 
 const emptyGrid = (): Grid =>
@@ -76,7 +78,8 @@ const initial: GameState = {
   errorCells: new Set(),
   solution: null,
   dateISO: null,
-  history: []
+  history: [],
+  lastHintedCell: null
 }
 
 export const game = writable<GameState>(initial)
@@ -86,13 +89,15 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   closeSuccessModal()
   resetHintCooldown()
   resetRank()
+  setStreak(null, null)
 
   game.update((s) => ({
     ...s,
     status: 'loading',
     errors: [],
     errorLocations: undefined,
-    errorCells: new Set()
+    errorCells: new Set(),
+    lastHintedCell: null
   }))
 
   const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
@@ -131,7 +136,8 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     errorCells: new Set(),
     solution,
     dateISO: '',
-    history: []
+    history: [],
+    lastHintedCell: null
   })
 
   resetTimer()
@@ -216,7 +222,8 @@ export const cycleCell = (r: number, c: number) => {
       errors,
       errorLocations: undefined,
       errorCells: new Set(),
-      history: [...s.history, previousGrid]
+      history: [...s.history, previousGrid],
+      lastHintedCell: null
     }
   })
   if (solved) {
@@ -246,7 +253,8 @@ export const undo = () => {
       status: 'in_progress',
       errors: [],
       errorLocations: undefined,
-      errorCells: new Set()
+      errorCells: new Set(),
+      lastHintedCell: null
     }
   })
 }
@@ -286,6 +294,14 @@ export const autosubmitIfSolved = async () => {
         // Fallback to fetching rank if not in response
         await fetchRank(snapshot.puzzleId)
       }
+
+      if (typeof data.streak === 'number' || typeof data.bestStreak === 'number') {
+        setStreak(
+          typeof data.streak === 'number' ? data.streak : null,
+          typeof data.bestStreak === 'number' ? data.bestStreak : null
+        )
+      }
+
     }
   } catch {
     // ignore network errors - autosubmit best effort only
@@ -307,40 +323,60 @@ export const useHint = (): boolean => {
 
   const solution = snapshot.solution
 
-  // Find all empty cells that are not fixed
-  const emptyCells: { r: number; c: number }[] = []
-  for (let r = 0; r < SIZE; r++) {
-    const row = snapshot.grid[r]
-    if (!row) continue
-    for (let c = 0; c < SIZE; c++) {
-      if (row[c] === null && !isCellFixed(snapshot.fixedSet, r, c)) {
-        emptyCells.push({ r, c })
+  const pickRandom = <T>(items: T[]): T | null => {
+    if (items.length === 0) {
+      return null
+    }
+    const index = Math.floor(Math.random() * items.length)
+    return items[index] ?? null
+  }
+
+  const forcedMoves = findForcedMoves(snapshot.grid, snapshot.fixed)
+  const matchingForcedMoves = forcedMoves.filter((move) => {
+    const solutionRow = solution[move.r]
+    return solutionRow ? solutionRow[move.c] === move.value : false
+  })
+
+  const forcedMove = pickRandom(matchingForcedMoves)
+
+  let target: { r: number; c: number; value: 0 | 1 } | null = null
+
+  if (forcedMove) {
+    target = forcedMove
+  } else {
+    const emptyCells: { r: number; c: number }[] = []
+    for (let r = 0; r < SIZE; r++) {
+      const row = snapshot.grid[r]
+      if (!row) continue
+      for (let c = 0; c < SIZE; c++) {
+        if (row[c] === null && !isCellFixed(snapshot.fixedSet, r, c)) {
+          emptyCells.push({ r, c })
+        }
       }
     }
+
+    const randomCell = pickRandom(emptyCells)
+    if (!randomCell) {
+      return false
+    }
+
+    const solutionRow = solution[randomCell.r]
+    if (!solutionRow) {
+      return false
+    }
+    const correctValue = solutionRow[randomCell.c]
+    if (correctValue === null || correctValue === undefined) {
+      return false
+    }
+
+    target = { r: randomCell.r, c: randomCell.c, value: correctValue }
   }
 
-  // No empty cells to fill
-  if (emptyCells.length === 0) {
+  if (!target) {
     return false
   }
 
-  // Pick a random empty cell
-  const randomIndex = Math.floor(Math.random() * emptyCells.length)
-  const cell = emptyCells[randomIndex]
-  if (!cell) {
-    return false
-  }
-  const { r, c } = cell
-
-  // Get the correct value from the solution
-  const solutionRow = solution[r]
-  if (!solutionRow) {
-    return false
-  }
-  const correctValue = solutionRow[c]
-  if (correctValue === null || correctValue === undefined) {
-    return false
-  }
+  const { r, c, value: correctValue } = target
 
   // Update the game state
   let solved = false
@@ -387,7 +423,8 @@ export const useHint = (): boolean => {
       errors,
       errorLocations: undefined,
       errorCells: new Set(),
-      history: [...s.history, previousGrid]
+      history: [...s.history, previousGrid],
+      lastHintedCell: { r, c, at: Date.now() }
     }
   })
 

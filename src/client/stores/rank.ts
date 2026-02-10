@@ -1,11 +1,13 @@
 import { writable } from 'svelte/store'
 import type { LeaderboardEntry } from '../../shared/types/leaderboard'
 
-type RankState = {
+export type RankState = {
     rank: number | null
     totalEntries: number | null
     isLoading: boolean
     playerEntry: LeaderboardEntry | null
+    streak: number | null
+    bestStreak: number | null
 }
 
 const initialState: RankState = {
@@ -13,6 +15,8 @@ const initialState: RankState = {
     totalEntries: null,
     isLoading: false,
     playerEntry: null,
+    streak: null,
+    bestStreak: null,
 }
 
 export const rankStore = writable<RankState>(initialState)
@@ -36,6 +40,8 @@ export const fetchRank = async (puzzleId: string): Promise<void> => {
                 totalEntries: data.totalEntries,
                 isLoading: false,
                 playerEntry,
+                streak: data.streak ?? null,
+                bestStreak: data.bestStreak ?? null,
             })
         } else {
             resetRank()
@@ -51,7 +57,17 @@ export const setRank = (rank: number, totalEntries: number): void => {
         totalEntries,
         isLoading: false,
         playerEntry: null,
+        streak: null,
+        bestStreak: null,
     })
+}
+
+export const setStreak = (streak: number | null, bestStreak: number | null) => {
+    rankStore.update((state) => ({
+        ...state,
+        streak,
+        bestStreak,
+    }))
 }
 
 export const resetRank = (): void => {
@@ -64,4 +80,3 @@ export const calculatePercentile = (rank: number, total: number): number => {
     }
     return Math.round((rank / total) * 100)
 }
-

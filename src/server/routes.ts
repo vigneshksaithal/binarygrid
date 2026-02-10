@@ -9,6 +9,7 @@ import { formatSimpleShareText } from '../shared/share-formatter'
 import { validateGrid } from '../shared/validator'
 import { generateDailyPuzzle } from './core/generator'
 import { getOrCreatePuzzleNumber } from './core/puzzle-number'
+import { computeStreakUpdate, type StreakState } from './core/streak'
 
 const app = new Hono()
 
@@ -56,6 +57,8 @@ const leaderboardKey = (puzzleId: string): string => `leaderboard:${puzzleId}`
 
 const leaderboardMetaKey = (puzzleId: string): string =>
   `leaderboard:${puzzleId}:meta`
+
+const streakKey = (userId: string): string => `streak:${userId}`
 
 const clampPageSize = (value: number | null | undefined): number => {
   if (!value || Number.isNaN(value)) {
@@ -396,15 +399,15 @@ app.post('/api/submit', async (c) => {
     return c.json({ error: 'invalid solve time' }, HTTP_BAD_REQUEST)
   }
 
-  const { postId, userId } = context
-  if (!postId) {
-    return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
-  }
-  if (!userId) {
-    return c.json({ error: 'login required' }, HTTP_BAD_REQUEST)
-  }
+   const { postId, userId } = context
+   if (!postId) {
+     return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
+   }
+   if (!userId) {
+     return c.json({ error: 'login required' }, HTTP_BAD_REQUEST)
+   }
 
-  try {
+   try {
     // Extract difficulty from puzzle ID (format: ${postId}:${difficulty} or ${dateISO}:${difficulty})
     const puzzleIdParts = body.id.split(':')
     const lastPart = puzzleIdParts[puzzleIdParts.length - 1]
@@ -481,10 +484,33 @@ app.post('/api/submit', async (c) => {
       redis.zCard(leaderboardSetKey)
     ])
 
+    const streakRaw = await redis.get(streakKey(userId))
+    let parsedStreak: StreakState = {
+      lastSolvedDate: null,
+      currentStreak: 0,
+      bestStreak: 0
+    }
+    if (streakRaw) {
+      try {
+        parsedStreak = JSON.parse(streakRaw) as StreakState
+      } catch {
+        parsedStreak = { lastSolvedDate: null, currentStreak: 0, bestStreak: 0 }
+      }
+    }
+
+    const today = todayISO()
+    const streakUpdate = computeStreakUpdate(parsedStreak, today)
+
+    if (streakUpdate.isNewDay) {
+      await redis.set(streakKey(userId), JSON.stringify(streakUpdate.nextState))
+    }
+
     return c.json({
       ok: true,
       rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
-      totalEntries
+      totalEntries,
+      streak: streakUpdate.streak,
+      bestStreak: streakUpdate.bestStreak
     })
   } catch (error) {
     const errorMessage =

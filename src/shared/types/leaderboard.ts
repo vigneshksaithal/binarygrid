@@ -14,4 +14,6 @@ export type LeaderboardResponse = {
   hasNextPage: boolean
   hasPreviousPage: boolean
   playerEntry: LeaderboardEntry | null
+  streak?: number | null
+  bestStreak?: number | null
 }
