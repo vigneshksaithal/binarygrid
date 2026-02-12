@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-02-12
+
+### Features
+
+- **Leaderboard Preview on Play Screen**: Added a preview of the top 3 leaderboard entries directly on the play overlay screen (below the PLAY button) to showcase today's fastest solvers before users start the game.
+  - Created new `LeaderboardPreview.svelte` component (`src/client/components/LeaderboardPreview.svelte`) that displays up to 3 entries with:
+    - **Avatar**: Circular avatar image fetched from Reddit profile (or fallback to initials if no avatar)
+    - **Rank**: Special medal emojis (🥇, 🥈, 🥉) with distinctive background colors for 1st, 2nd, and 3rd place
+    - **Username**: Displayed with truncation for long names
+    - **Time Taken**: Formatted elapsed time in MM:SS format
+  - Single unified card layout with dividers between entries (prevents layout overflow)
+  - Skeleton loader with animated placeholder rows while fetching data
+  - Empty state message: "Be the first to play!" when no entries exist
+  - Fully responsive design with proper dark mode support
+- **PlayOverlay Integration**: Modified `PlayOverlay.svelte` to:
+  - Fetch top 3 leaderboard entries when the overlay opens using existing `/api/leaderboard` endpoint
+  - Display `LeaderboardPreview` component below the PLAY button
+  - Handle loading states and empty states gracefully
+  - Reduced title margin to prevent layout overflow on smaller screens
+
+### UI Improvements
+
+- **LeaderboardPreview Component**:
+  - Changed from individual cards to unified single card with horizontal dividers
+  - Increased time taken font size from `text-xs` to `text-sm` for better readability
+  - Reduced padding and spacing for more compact layout
+  - Updated skeleton loader to match new single-card design
+
+- **PlayOverlay Component**:
+  - Reduced Binary Grid title bottom margin from `mb-12` to `mb-6` to prevent overflow
+  - Improved overall spacing balance between elements
+
 ## 2026-01-26
 
 ### Documentation

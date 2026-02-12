@@ -1,53 +1,90 @@
 <script lang="ts">
-	import ZapIcon from '@lucide/svelte/icons/zap'
-	import { cubicOut } from 'svelte/easing'
-	import { fade, fly } from 'svelte/transition'
-	import type { Difficulty } from '../../shared/types/puzzle'
-	import { loadPuzzle } from '../stores/game'
-	import { startTimer } from '../stores/timer'
-	import { closePlayOverlay, showPlayOverlay } from '../stores/ui'
-	import Circle from './Circle.svelte'
-	import Line from './Line.svelte'
+	import ZapIcon from "@lucide/svelte/icons/zap";
+	import { cubicOut } from "svelte/easing";
+	import { fade, fly } from "svelte/transition";
+	import type { Difficulty } from "../../shared/types/puzzle";
+	import type { LeaderboardEntry } from "../../shared/types/leaderboard";
+	import { loadPuzzle } from "../stores/game";
+	import { startTimer } from "../stores/timer";
+	import { closePlayOverlay, showPlayOverlay } from "../stores/ui";
+	import Circle from "./Circle.svelte";
+	import Line from "./Line.svelte";
+	import LeaderboardPreview from "./LeaderboardPreview.svelte";
 
-	let playCount = $state<number | null>(null)
-	let selectedDifficulty = $state<Difficulty>('easy')
+	let playCount = $state<number | null>(null);
+	let selectedDifficulty = $state<Difficulty>("easy");
+	let leaderboardEntries = $state<LeaderboardEntry[]>([]);
+	let isLoadingLeaderboard = $state(false);
 
 	const binaryGrid = [
-		[1, 1, 0],
-		[0, 1, 1],
-		[1, 0, 0],
-	]
+		[1, 0],
+		[0, 1],
+	];
 
 	const fixedCells = [
-		[true, false, true],
-		[false, true, false],
-		[true, false, true],
-	]
+		[true, false],
+		[false, true],
+	];
 
 	const startGame = async () => {
-		closePlayOverlay()
-		await loadPuzzle(selectedDifficulty)
-		startTimer()
-	}
+		closePlayOverlay();
+		await loadPuzzle(selectedDifficulty);
+		startTimer();
+	};
 
 	const fetchPlayCount = async () => {
 		try {
-			const res = await fetch('/api/play-count')
-			const data = res.ok ? await res.json() : { count: 0 }
-			playCount = data.count ?? 0
+			const res = await fetch("/api/play-count");
+			const data = res.ok ? await res.json() : { count: 0 };
+			playCount = data.count ?? 0;
 		} catch {
-			playCount = 0
+			playCount = 0;
 		}
-	}
+	};
+
+	const formatPlayCount = (count: number): string =>
+		new Intl.NumberFormat("en", { notation: "compact" }).format(count);
+
+	const fetchTopLeaderboard = async () => {
+		isLoadingLeaderboard = true;
+		try {
+			// First fetch the easy puzzle to get its ID
+			const puzzleRes = await fetch("/api/puzzle?difficulty=easy");
+			if (!puzzleRes.ok) {
+				leaderboardEntries = [];
+				return;
+			}
+			const puzzleData = await puzzleRes.json();
+			const puzzleId = puzzleData.puzzle?.id;
+			if (!puzzleId) {
+				leaderboardEntries = [];
+				return;
+			}
+
+			// Then fetch the leaderboard for this puzzle
+			const query = new URLSearchParams({
+				puzzleId,
+				page: "0",
+				pageSize: "3",
+			});
+			const res = await fetch(`/api/leaderboard?${query.toString()}`);
+			if (res.ok) {
+				const data = await res.json();
+				leaderboardEntries = data.entries ?? [];
+			}
+		} catch {
+			leaderboardEntries = [];
+		} finally {
+			isLoadingLeaderboard = false;
+		}
+	};
 
 	$effect.pre(() => {
 		if ($showPlayOverlay) {
-			fetchPlayCount()
+			fetchPlayCount();
+			fetchTopLeaderboard();
 		}
-	})
-
-	const formatPlayCount = (count: number): string =>
-		new Intl.NumberFormat('en', { notation: 'compact' }).format(count)
+	});
 </script>
 
 {#if $showPlayOverlay}
@@ -70,27 +107,27 @@
 
 		<!-- Decorative Binary Grid -->
 		<div
-			class="grid grid-cols-3 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden mb-6 max-w-2xs mx-auto"
+			class="grid grid-cols-2 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden mb-8 mx-auto"
 			in:fade={{ duration: 600, delay: 200 }}
 		>
 			{#each binaryGrid as row, rowIndex (rowIndex)}
 				{#each row as cell, cellIndex (`${rowIndex}-${cellIndex}`)}
 					<div
-						class="aspect-square flex items-center justify-center text-zinc-800 dark:text-zinc-200 {fixedCells[
+						class="w-7 h-7 flex items-center justify-center text-zinc-800 dark:text-zinc-200 {fixedCells[
 							rowIndex
 						]?.[cellIndex]
 							? 'bg-zinc-200 dark:bg-zinc-700'
-							: ''} {cellIndex < 2
+							: ''} {cellIndex < 1
 							? 'border-r-2 border-r-zinc-300 dark:border-r-zinc-600'
-							: ''} {rowIndex < 2
+							: ''} {rowIndex < 1
 							? 'border-b-2 border-b-zinc-300 dark:border-b-zinc-600'
 							: ''}"
 					>
-						<div class="scale-[0.5]">
+						<div>
 							{#if cell === 1}
-								<Line />
+								<Line class="size-3" />
 							{:else}
-								<Circle />
+								<Circle class="size-3" />
 							{/if}
 						</div>
 					</div>
@@ -100,7 +137,7 @@
 
 		<!-- Header Section -->
 		<h1
-			class="max-w-xs mx-auto text-5xl md:text-6xl text-center font-black bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent mb-12"
+			class="max-w-xs mx-auto text-5xl md:text-6xl text-center font-black bg-linear-to-r from-zinc-600 to-zinc-800 dark:from-zinc-300 dark:to-zinc-100 bg-clip-text text-transparent mb-6"
 		>
 			Binary Grid
 		</h1>
@@ -125,6 +162,12 @@
 				</span>
 			</button>
 		</div>
+
+		<!-- Top 3 Leaderboard Preview -->
+		<LeaderboardPreview
+			entries={leaderboardEntries}
+			isLoading={isLoadingLeaderboard}
+		/>
 	</div>
 
 	<style>
