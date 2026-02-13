@@ -107,7 +107,7 @@
 
 		<!-- Decorative Binary Grid -->
 		<div
-			class="grid grid-cols-2 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden mb-8 mx-auto"
+			class="grid grid-cols-2 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden mb-4 mx-auto"
 			in:fade={{ duration: 600, delay: 200 }}
 		>
 			{#each binaryGrid as row, rowIndex (rowIndex)}
