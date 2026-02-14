@@ -1,5 +1,6 @@
 <script lang="ts">
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
+	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
 	import type { Difficulty } from '../shared/types/puzzle'
 	import './app.css'
@@ -7,13 +8,14 @@
 	import Dropdown from './components/Dropdown.svelte'
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
+	import LeaderboardModal from './components/LeaderboardModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { game, loadPuzzle, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
 	import { startTimer } from './stores/timer'
-	import { openHowToModal } from './stores/ui'
+	import { openHowToModal, openLeaderboardModal } from './stores/ui'
 
 	const difficultyOptions = [
 		{ value: 'easy', label: 'Easy' },
@@ -95,6 +97,14 @@
 						</svg>
 					{/if}
 				</div>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={openLeaderboardModal}
+					ariaLabel="Leaderboard"
+				>
+					<TrophyIcon />
+				</Button>
 			</div>
 			<Timer />
 		</div>
@@ -116,3 +126,4 @@
 
 <HowToPlayModal />
 <SuccessModal />
+<LeaderboardModal />

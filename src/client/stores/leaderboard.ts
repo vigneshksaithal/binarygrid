@@ -39,9 +39,11 @@ const initialState = makeInitialState()
 export const leaderboard = writable<LeaderboardState>({ ...initialState })
 
 export const loadLeaderboard = async (
-  puzzleId: string | null,
-  page = 0
+	puzzleId: string | null,
+	page = 0,
+	customPageSize?: number,
 ): Promise<void> => {
+	const pageSize = customPageSize ?? PAGE_SIZE
   if (!puzzleId) {
     leaderboard.set(makeInitialState())
     return
@@ -58,7 +60,7 @@ export const loadLeaderboard = async (
   const query = new URLSearchParams({
     puzzleId,
     page: `${page}`,
-    pageSize: `${PAGE_SIZE}`
+    pageSize: `${pageSize}`
   })
 
   try {

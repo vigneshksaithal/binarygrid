@@ -1,6 +1,25 @@
 # Changelog
 
-## 2026-02-12
+## 2026-02-14
+
+### Features
+
+- **Leaderboard Modal with Difficulty Filters**: Added a new leaderboard modal accessible via the trophy button above the puzzle grid.
+  - **Difficulty Filter Buttons**: Toggle buttons (Easy, Medium, Hard) above the table to filter scores by difficulty
+  - **Default Difficulty**: Modal defaults to the currently selected game difficulty
+  - **Table Format**: Displays top 10 scores as a table with columns: Rank, Player (with avatar), Time
+  - **User Rank Display**: Shows the current user's rank above the table when they have a score
+  - **Avatar Support**: Displays user avatar images (with fallback placeholder for missing avatars)
+  - Updated `LeaderboardModal.svelte` to include all new UI elements
+  - Updated `leaderboard.ts` store to support custom page size (10 entries)
+
+### UI Changes
+
+- **App.svelte**: Added trophy icon button next to Timer to open the leaderboard modal
+
+### Bug Fixes
+
+- Leaderboard modal now properly fetches scores for the current date's puzzle based on selected difficulty
 
 ### Features
 

@@ -1,7 +1,7 @@
 <script lang="ts">
+	import type { Difficulty } from '../../shared/types/puzzle'
 	import { game } from '../stores/game'
 	import {
-		goToLeaderboardPage,
 		leaderboard,
 		loadLeaderboard,
 	} from '../stores/leaderboard'
@@ -10,45 +10,51 @@
 	import Button from './Button.svelte'
 	import Modal from './Modal.svelte'
 
+	const DIFFICULTIES: { value: Difficulty; label: string }[] = [
+		{ value: 'easy', label: 'Easy' },
+		{ value: 'medium', label: 'Medium' },
+		{ value: 'hard', label: 'Hard' },
+	]
+
+	let selectedDifficulty = $state<Difficulty>('medium')
 	let lastLoadedPuzzleId = $state<string | null>(null)
-
-	const showPlayerSummary = () => {
-		const state = $leaderboard
-		if (!state.playerEntry) {
-			return false
-		}
-		return !state.entries.some(
-			(entry) => entry.userId === state.playerEntry?.userId,
-		)
-	}
-
-	const goToNextPage = () => {
-		if (!$leaderboard.hasNextPage) {
-			return
-		}
-		goToLeaderboardPage($leaderboard.page + 1)
-	}
-
-	const goToPreviousPage = () => {
-		if (!$leaderboard.hasPreviousPage) {
-			return
-		}
-		goToLeaderboardPage(Math.max(0, $leaderboard.page - 1))
-	}
-
-	const formatRankLabel = (rank: number) => `#${rank}`
+	let currentPuzzleId = $state<string | null>(null)
 
 	$effect(() => {
 		if (!$showLeaderboardModal) {
 			return
 		}
-		const puzzleId = $game.puzzleId
-		if (!puzzleId) {
+		currentPuzzleId = $game.puzzleId
+		selectedDifficulty = $game.difficulty
+	})
+
+	const getPuzzleId = (difficulty: Difficulty): string => {
+		if (currentPuzzleId?.startsWith('t3_')) {
+			const parts = currentPuzzleId.split(':')
+			const postId = parts[0]
+			return `${postId}:${difficulty}`
+		}
+		const now = new Date()
+		const year = now.getFullYear()
+		const month = String(now.getMonth() + 1).padStart(2, '0')
+		const day = String(now.getDate()).padStart(2, '0')
+		return `${year}-${month}-${day}:${difficulty}`
+	}
+
+	const formatRankLabel = (rank: number) => `#${rank}`
+
+	const handleDifficultyChange = (difficulty: Difficulty) => {
+		selectedDifficulty = difficulty
+	}
+
+	$effect(() => {
+		if (!$showLeaderboardModal) {
 			return
 		}
+		const puzzleId = getPuzzleId(selectedDifficulty)
 		if ($leaderboard.status === 'idle' || lastLoadedPuzzleId !== puzzleId) {
 			lastLoadedPuzzleId = puzzleId
-			loadLeaderboard(puzzleId)
+			loadLeaderboard(puzzleId, 0, 10)
 		}
 	})
 </script>
@@ -59,100 +65,98 @@
 	labelledby="leaderboard-modal-title"
 	describedby="leaderboard-modal-description"
 >
-	<section class="flex max-h-full flex-col gap-4">
-		<h2 id="leaderboard-modal-title">Leaderboard</h2>
+	<section class="flex max-h-full flex-col gap-2 sm:gap-4">
+		<h2 id="leaderboard-modal-title" class="text-base sm:text-lg font-semibold">Leaderboard</h2>
+
+		<div class="flex gap-2 flex-wrap">
+			{#each DIFFICULTIES as difficulty}
+				<Button
+					variant={selectedDifficulty === difficulty.value ? 'default' : 'secondary'}
+					size="sm"
+					onClick={() => handleDifficultyChange(difficulty.value)}
+				>
+					{difficulty.label}
+				</Button>
+			{/each}
+		</div>
 
 		{#if $leaderboard.status === 'loading'}
 			<div
-				class="flex flex-1 flex-col items-center justify-center gap-3 py-10"
+				class="flex flex-1 flex-col items-center justify-center gap-3 py-6 sm:py-10"
 				role="status"
 				aria-live="polite"
 			>
 				<div
-					class="size-4 md:size-6 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin"
+					class="size-4 sm:size-6 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin"
 					aria-hidden="true"
 				></div>
-				<p class="text-sm text-zinc-600 dark:text-zinc-400">
+				<p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
 					Loading leaderboard…
 				</p>
 			</div>
 		{:else if $leaderboard.status === 'error'}
-			<p class="rounded-lg bg-error/10 p-4 text-sm text-error">
+			<p class="rounded-lg bg-error/10 p-3 sm:p-4 text-xs sm:text-sm text-error">
 				{$leaderboard.error ?? 'Unable to load leaderboard. Please try again.'}
 			</p>
 		{:else}
 			{@const state = $leaderboard}
-			<div
-				class="flex-1 overflow-y-auto space-y-3 pr-1 relative"
-				style="background-image: repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(161, 161, 170, 0.03) 1px, rgba(161, 161, 170, 0.03) 2px);"
-			>
-				{#if showPlayerSummary()}
-					<div
-						class="border border-zinc-400/50 bg-zinc-200/30 dark:bg-zinc-800/30 p-4 text-sm text-zinc-800 dark:text-zinc-300 rounded-lg"
-					>
-						<h3 class="text-zinc-800 dark:text-zinc-300">Your ranking</h3>
-						<div class="flex items-center justify-center gap-3">
-							<span class="text-sm font-semibold">
-								{formatRankLabel(state.playerEntry?.rank ?? 0)}
-							</span>
-							<p class="text-sm">
-								{state.playerEntry?.username ?? 'You'}
-							</p>
-							<p class="text-xs">
-								{formatElapsedTime(
-									Math.round(state.playerEntry?.timeSeconds ?? 0),
-								)}
-							</p>
-						</div>
-					</div>
-				{/if}
-				{#if state.entries.length === 0}
-					<p class="text-sm text-zinc-600 dark:text-zinc-400">
-						No leaderboard entries yet.
-					</p>
-				{:else}
-					<ol class="space-y-0.5">
-						{#each state.entries as entry (entry.userId)}
-							<li
-								class={`flex items-center gap-3 rounded-lg border border-transparent ${
-									entry.userId === state.playerEntry?.userId
-										? 'border-zinc-400/60 bg-zinc-200/30 dark:bg-zinc-800/30'
-										: ''
-								}`}
-							>
-								<p class="text-xs truncate">
-									{formatRankLabel(entry.rank)}
-								</p>
-								<p class="flex-1 text-xs">{entry.username}</p>
-								<p class="text-sm">
-									{formatElapsedTime(Math.round(entry.timeSeconds))}
-								</p>
-							</li>
-						{/each}
-					</ol>
-				{/if}
-			</div>
+			{#if state.playerEntry}
+				<div
+					class="border border-zinc-400/50 bg-zinc-200/30 dark:bg-zinc-800/30 p-2 sm:p-3 text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 rounded-lg text-center"
+				>
+					<span class="uppercase tracking-wide">Your Rank:</span>
+					<span class="ml-1 sm:ml-2 text-sm sm:text-lg font-bold">{formatRankLabel(state.playerEntry.rank)}</span>
+				</div>
+			{/if}
 
-			{#if $leaderboard.entries.length > 0}
-				<nav class="flex items-center justify-between text-xs">
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={goToPreviousPage}
-						disabled={!$leaderboard.hasPreviousPage}
-					>
-						Previous
-					</Button>
-					<p class="text-sm mb-0">[Page {$leaderboard.page + 1}]</p>
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={goToNextPage}
-						disabled={!$leaderboard.hasNextPage}
-					>
-						Next
-					</Button>
-				</nav>
+			{#if state.entries.length === 0}
+				<p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 py-4 sm:py-8 text-center">
+					No leaderboard entries yet.
+				</p>
+			{:else}
+				<div class="overflow-x-auto -mx-2 sm:mx-0">
+					<table class="w-full text-xs sm:text-sm min-w-[200px]">
+						<thead>
+							<tr class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 border-b border-zinc-300 dark:border-zinc-600">
+								<th class="text-left py-1.5 sm:py-2 px-1.5 sm:px-2">Rank</th>
+								<th class="text-left py-1.5 sm:py-2 px-1.5 sm:px-2">Player</th>
+								<th class="text-right py-1.5 sm:py-2 px-1.5 sm:px-2">Time</th>
+							</tr>
+						</thead>
+						<tbody>
+							{#each state.entries as entry (entry.userId)}
+								<tr
+									class={`border-b border-zinc-200 dark:border-zinc-700 ${
+										entry.userId === state.playerEntry?.userId
+											? 'bg-zinc-200/50 dark:bg-zinc-800/50'
+											: ''
+									}`}
+								>
+									<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 font-medium text-zinc-800 dark:text-zinc-200">
+										{formatRankLabel(entry.rank)}
+									</td>
+									<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 text-zinc-800 dark:text-zinc-200">
+										<div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+											{#if entry.avatarUrl}
+												<img
+													src={entry.avatarUrl}
+													alt=""
+													class="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex-shrink-0"
+												/>
+											{:else}
+												<div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-zinc-300 dark:bg-zinc-600 flex-shrink-0"></div>
+											{/if}
+											<span class="truncate min-w-0">{entry.username}</span>
+										</div>
+									</td>
+									<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 text-right text-zinc-800 dark:text-zinc-200">
+										{formatElapsedTime(Math.round(entry.timeSeconds))}
+									</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
 			{/if}
 		{/if}
 	</section>
