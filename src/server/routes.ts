@@ -344,15 +344,6 @@ app.get('/api/puzzle', async (c) => {
       )
     }
 
-    // Increment play count for this post if postId exists
-    if (postId) {
-      try {
-        await redis.incrBy(`playCount:${postId}`, 1)
-      } catch {
-        // Ignore errors - play count tracking is best effort
-      }
-    }
-
     return c.json({ puzzle })
   } catch (error) {
     const errorMessage =
@@ -378,6 +369,21 @@ app.get('/api/play-count', async (c) => {
   } catch (error) {
     // Return 0 on error - play count is best effort
     return c.json({ count: 0 })
+  }
+})
+
+// Register a play after user has played for at least 10 seconds
+app.post('/api/play-count', async (c) => {
+  const { postId } = context
+  if (!postId) {
+    return c.json({ success: false })
+  }
+
+  try {
+    await redis.incrBy(`playCount:${postId}`, 1)
+    return c.json({ success: true })
+  } catch {
+    return c.json({ success: false })
   }
 })
 

@@ -137,6 +137,15 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
 
   resetTimer()
   lastSubmittedPuzzleId = null
+
+  // Register play count after 10 seconds
+  setTimeout(async () => {
+    try {
+      await fetch('/api/play-count', { method: 'POST' })
+    } catch {
+      // best effort - ignore errors
+    }
+  }, 10000)
 }
 
 const getNextCellValue = (current: Cell): Cell => {
