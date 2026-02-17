@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Difficulty } from '../../shared/types/puzzle'
+	import type { StreakLeaderboardEntry } from '../../shared/types/streak'
 	import { game } from '../stores/game'
 	import {
 		leaderboard,
@@ -10,22 +11,28 @@
 	import Button from './Button.svelte'
 	import Modal from './Modal.svelte'
 
+	type TabType = Difficulty | 'streaks'
+
 	const DIFFICULTIES: { value: Difficulty; label: string }[] = [
 		{ value: 'easy', label: 'Easy' },
 		{ value: 'medium', label: 'Medium' },
 		{ value: 'hard', label: 'Hard' },
 	]
 
-	let selectedDifficulty = $state<Difficulty>('medium')
+	let selectedTab = $state<TabType>('medium')
 	let lastLoadedPuzzleId = $state<string | null>(null)
 	let currentPuzzleId = $state<string | null>(null)
+	let streakEntries = $state<StreakLeaderboardEntry[]>([])
+	let streakPlayerEntry = $state<StreakLeaderboardEntry | null>(null)
+	let isLoadingStreaks = $state(false)
+	let streakLoadError = $state<string | null>(null)
 
 	$effect(() => {
 		if (!$showLeaderboardModal) {
 			return
 		}
 		currentPuzzleId = $game.puzzleId
-		selectedDifficulty = $game.difficulty
+		selectedTab = $game.difficulty
 	})
 
 	const getPuzzleId = (difficulty: Difficulty): string => {
@@ -43,15 +50,38 @@
 
 	const formatRankLabel = (rank: number) => `#${rank}`
 
-	const handleDifficultyChange = (difficulty: Difficulty) => {
-		selectedDifficulty = difficulty
+	const handleTabChange = (tab: TabType) => {
+		selectedTab = tab
+	}
+
+	const fetchStreakLeaderboard = async () => {
+		isLoadingStreaks = true
+		streakLoadError = null
+		try {
+			const res = await fetch('/api/leaderboard/streaks')
+			if (res.ok) {
+				const data = await res.json()
+				streakEntries = data.entries ?? []
+				streakPlayerEntry = data.playerEntry ?? null
+			} else {
+				streakLoadError = 'Failed to load streak leaderboard'
+			}
+		} catch {
+			streakLoadError = 'Failed to load streak leaderboard'
+		} finally {
+			isLoadingStreaks = false
+		}
 	}
 
 	$effect(() => {
 		if (!$showLeaderboardModal) {
 			return
 		}
-		const puzzleId = getPuzzleId(selectedDifficulty)
+		if (selectedTab === 'streaks') {
+			fetchStreakLeaderboard()
+			return
+		}
+		const puzzleId = getPuzzleId(selectedTab)
 		if ($leaderboard.status === 'idle' || lastLoadedPuzzleId !== puzzleId) {
 			lastLoadedPuzzleId = puzzleId
 			loadLeaderboard(puzzleId, 0, 10)
@@ -71,16 +101,110 @@
 		<div class="flex gap-2 flex-wrap">
 			{#each DIFFICULTIES as difficulty}
 				<Button
-					variant={selectedDifficulty === difficulty.value ? 'default' : 'secondary'}
+					variant={selectedTab === difficulty.value ? 'default' : 'secondary'}
 					size="sm"
-					onClick={() => handleDifficultyChange(difficulty.value)}
+					onClick={() => handleTabChange(difficulty.value)}
 				>
 					{difficulty.label}
 				</Button>
 			{/each}
+			<Button
+				variant={selectedTab === 'streaks' ? 'default' : 'secondary'}
+				size="sm"
+				onClick={() => handleTabChange('streaks')}
+			>
+				🔥 Streaks
+			</Button>
 		</div>
 
-		{#if $leaderboard.status === 'loading'}
+		{#if selectedTab === 'streaks'}
+			{#if isLoadingStreaks}
+				<div
+					class="flex flex-1 flex-col items-center justify-center gap-3 py-6 sm:py-10"
+					role="status"
+					aria-live="polite"
+				>
+					<div
+						class="size-4 sm:size-6 rounded-full border-2 border-zinc-400 border-t-transparent animate-spin"
+						aria-hidden="true"
+					></div>
+					<p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+						Loading streak leaderboard…
+					</p>
+				</div>
+			{:else if streakLoadError}
+				<p class="rounded-lg bg-error/10 p-3 sm:p-4 text-xs sm:text-sm text-error">
+					{streakLoadError}
+				</p>
+			{:else}
+				{#if streakPlayerEntry}
+					<div
+						class="border border-zinc-400/50 bg-zinc-200/30 dark:bg-zinc-800/30 p-2 sm:p-3 text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 rounded-lg text-center"
+					>
+						<span class="uppercase tracking-wide">Your Streak:</span>
+						<span class="ml-1 sm:ml-2 text-sm sm:text-lg font-bold">🔥 {streakPlayerEntry.streak}</span>
+					</div>
+				{/if}
+
+				{#if streakEntries.length === 0}
+					<p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 py-4 sm:py-8 text-center">
+						No streak entries yet.
+					</p>
+				{:else}
+					<div class="overflow-x-auto -mx-2 sm:mx-0">
+						<table class="w-full text-xs sm:text-sm min-w-[200px]">
+							<thead>
+								<tr class="text-[10px] sm:text-xs text-zinc-500 dark:text-zinc-400 border-b border-zinc-300 dark:border-zinc-600">
+									<th class="text-left py-1.5 sm:py-2 px-1.5 sm:px-2">Rank</th>
+									<th class="text-left py-1.5 sm:py-2 px-1.5 sm:px-2">Player</th>
+									<th class="text-right py-1.5 sm:py-2 px-1.5 sm:px-2">Streak</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each streakEntries as entry (entry.userId)}
+									<tr
+										class={`border-b border-zinc-200 dark:border-zinc-700 ${
+											entry.userId === streakPlayerEntry?.userId
+												? 'bg-zinc-200/50 dark:bg-zinc-800/50'
+												: ''
+										}`}
+									>
+										<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 font-medium text-zinc-800 dark:text-zinc-200">
+											{#if entry.rank === 1}
+												🥇
+											{:else if entry.rank === 2}
+												🥈
+											{:else if entry.rank === 3}
+												🥉
+											{:else}
+												{formatRankLabel(entry.rank)}
+											{/if}
+										</td>
+										<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 text-zinc-800 dark:text-zinc-200">
+											<div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+												{#if entry.avatarUrl}
+													<img
+														src={entry.avatarUrl}
+														alt=""
+														class="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex-shrink-0"
+													/>
+												{:else}
+													<div class="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-zinc-300 dark:bg-zinc-600 flex-shrink-0"></div>
+												{/if}
+												<span class="truncate min-w-0">{entry.username}</span>
+											</div>
+										</td>
+										<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 text-right text-orange-600 dark:text-orange-400 font-semibold">
+											🔥 {entry.streak}
+										</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				{/if}
+			{/if}
+		{:else if $leaderboard.status === 'loading'}
 			<div
 				class="flex flex-1 flex-col items-center justify-center gap-3 py-6 sm:py-10"
 				role="status"

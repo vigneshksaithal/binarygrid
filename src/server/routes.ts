@@ -5,6 +5,7 @@ import type {
   LeaderboardResponse
 } from '../shared/types/leaderboard'
 import type { Difficulty, Grid, PuzzleWithGrid } from '../shared/types/puzzle'
+import type { StreakLeaderboardEntry } from '../shared/types/streak'
 import { formatSimpleShareText } from '../shared/share-formatter'
 import { validateGrid } from '../shared/validator'
 import { generateDailyPuzzle } from './core/generator'
@@ -220,6 +221,7 @@ app.post('/api/share-comment', async (c) => {
       solveTimeSeconds: number
       difficulty: Difficulty
       dayNumber: number
+      streak?: number
     }>()
     .catch(() => null)
 
@@ -272,7 +274,8 @@ app.post('/api/share-comment', async (c) => {
     const commentText = formatSimpleShareText({
       dayNumber,
       completionTime: solveTimeSeconds,
-      difficulty: body.difficulty
+      difficulty: body.difficulty,
+      streak: body.streak ?? undefined
     })
 
     // Ensure postId has t3_ prefix for Reddit API
@@ -378,6 +381,36 @@ app.get('/api/play-count', async (c) => {
   }
 })
 
+// Get user's streak data
+app.get('/api/streak', async (c) => {
+  const { userId } = context
+  if (!userId) {
+    return c.json({ currentStreak: 0, longestStreak: 0, lastPlayedDate: null, todayCompleted: false })
+  }
+
+  try {
+    const [currentStr, longestStr, lastDate] = await Promise.all([
+      redis.get(`user:${userId}:streak:current`),
+      redis.get(`user:${userId}:streak:longest`),
+      redis.get(`user:${userId}:streak:lastDate`)
+    ])
+
+    const currentStreak = currentStr ? Number.parseInt(currentStr, DECIMAL_RADIX) : 0
+    const longestStreak = longestStr ? Number.parseInt(longestStr, DECIMAL_RADIX) : 0
+    const todayDate = todayISO()
+    const todayCompleted = lastDate === todayDate
+
+    return c.json({
+      currentStreak,
+      longestStreak,
+      lastPlayedDate: lastDate ?? null,
+      todayCompleted
+    })
+  } catch {
+    return c.json({ currentStreak: 0, longestStreak: 0, lastPlayedDate: null, todayCompleted: false })
+  }
+})
+
 app.post('/api/submit', async (c) => {
   const body = await c.req
     .json<{ id: string; grid: Grid; solveTimeSeconds: number }>()
@@ -475,6 +508,59 @@ app.post('/api/submit', async (c) => {
       } satisfies StoredLeaderboardMeta)
     })
 
+    // Store user meta for streak leaderboard
+    await redis.hSet(`user:${userId}:meta`, {
+      username,
+      avatarUrl: avatarUrl ?? ''
+    })
+
+    // --- Streak tracking ---
+    const todayDate = todayISO()
+    const lastDate = await redis.get(`user:${userId}:streak:lastDate`)
+
+    let currentStreak = 0
+    let longestStreak = 0
+    let streakUpdated = false
+
+    if (lastDate !== todayDate) {
+      // Haven't completed today yet
+      const currentStreakStr = await redis.get(`user:${userId}:streak:current`)
+      currentStreak = currentStreakStr ? Number.parseInt(currentStreakStr, DECIMAL_RADIX) : 0
+
+      // Check if yesterday
+      const yesterday = new Date()
+      yesterday.setUTCDate(yesterday.getUTCDate() - 1)
+      const yesterdayDate = yesterday.toISOString().slice(0, 10)
+
+      if (lastDate === yesterdayDate) {
+        currentStreak += 1
+      } else {
+        currentStreak = 1 // Reset streak
+      }
+
+      // Update Redis
+      await redis.set(`user:${userId}:streak:current`, currentStreak.toString())
+      await redis.set(`user:${userId}:streak:lastDate`, todayDate)
+
+      // Update longest
+      const longestStr = await redis.get(`user:${userId}:streak:longest`)
+      longestStreak = longestStr ? Number.parseInt(longestStr, DECIMAL_RADIX) : 0
+      if (currentStreak > longestStreak) {
+        longestStreak = currentStreak
+        await redis.set(`user:${userId}:streak:longest`, currentStreak.toString())
+      }
+
+      // Update global streak leaderboard
+      await redis.zAdd('leaderboard:streaks', { score: currentStreak, member: userId })
+      streakUpdated = true
+    } else {
+      // Already completed today - just get current values
+      const currentStreakStr = await redis.get(`user:${userId}:streak:current`)
+      currentStreak = currentStreakStr ? Number.parseInt(currentStreakStr, DECIMAL_RADIX) : 0
+      const longestStr = await redis.get(`user:${userId}:streak:longest`)
+      longestStreak = longestStr ? Number.parseInt(longestStr, DECIMAL_RADIX) : 0
+    }
+
     // Get rank and total entries for immediate response
     const [userRank, totalEntries] = await Promise.all([
       redis.zRank(leaderboardSetKey, userId),
@@ -484,7 +570,12 @@ app.post('/api/submit', async (c) => {
     return c.json({
       ok: true,
       rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
-      totalEntries
+      totalEntries,
+      streak: {
+        currentStreak: currentStreak,
+        longestStreak: Math.max(currentStreak, longestStreak),
+        todayCompleted: lastDate === todayDate || streakUpdated
+      }
     })
   } catch (error) {
     const errorMessage =
@@ -601,6 +692,104 @@ app.get('/api/leaderboard', async (c) => {
       error instanceof Error ? error.message : 'Unknown error'
     return c.json(
       { error: `Failed to load leaderboard: ${errorMessage}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+// Get streak leaderboard (global, not per-puzzle)
+app.get('/api/leaderboard/streaks', async (c) => {
+  const { userId } = context
+
+  try {
+    const totalEntries = await redis.zCard('leaderboard:streaks')
+    
+    if (totalEntries === 0) {
+      return c.json({
+        entries: [],
+        totalEntries,
+        playerEntry: null
+      })
+    }
+
+    // Get top 10 streaks
+    const rangeMembers = await redis.zRange(
+      'leaderboard:streaks',
+      0,
+      9,
+      { by: 'rank', reverse: true }
+    )
+
+    const metaValues = rangeMembers.length > 0
+      ? await redis.hMGet(
+          `user:meta`,
+          rangeMembers.map((entry) => entry.member)
+        )
+      : []
+
+    const parseUserMeta = (value: string | null): { username: string; avatarUrl: string | null } => {
+      if (!value) {
+        return { username: 'Unknown player', avatarUrl: null }
+      }
+      try {
+        const parsed = JSON.parse(value)
+        return {
+          username: parsed.username || 'Unknown player',
+          avatarUrl: parsed.avatarUrl || null
+        }
+      } catch {
+        return { username: 'Unknown player', avatarUrl: null }
+      }
+    }
+
+    const entries: StreakLeaderboardEntry[] = rangeMembers.map((entry, index) => {
+      const rawMeta = metaValues[index]
+      const parsedMeta = parseUserMeta(rawMeta ?? null)
+
+      return {
+        userId: entry.member,
+        username: parsedMeta.username,
+        avatarUrl: parsedMeta.avatarUrl,
+        streak: entry.score,
+        rank: index + 1
+      }
+    })
+
+    let playerEntry: StreakLeaderboardEntry | null = null
+    if (userId) {
+      const [playerRank, playerScore, playerMetaRaw] = await Promise.all([
+        redis.zRank('leaderboard:streaks', userId),
+        redis.zScore('leaderboard:streaks', userId),
+        redis.hGet(`user:meta`, userId)
+      ])
+
+      if (
+        playerRank !== undefined &&
+        playerRank !== null &&
+        playerScore !== undefined &&
+        playerScore !== null
+      ) {
+        const playerMeta = parseUserMeta(playerMetaRaw ?? null)
+        playerEntry = {
+          userId,
+          username: playerMeta.username,
+          avatarUrl: playerMeta.avatarUrl,
+          streak: playerScore,
+          rank: totalEntries - playerRank
+        }
+      }
+    }
+
+    return c.json({
+      entries,
+      totalEntries,
+      playerEntry
+    })
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { error: `Failed to load streak leaderboard: ${errorMessage}` },
       HTTP_BAD_REQUEST
     )
   }

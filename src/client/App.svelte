@@ -10,10 +10,12 @@
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
 	import LeaderboardModal from './components/LeaderboardModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
+	import StreakBadge from './components/StreakBadge.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { game, loadPuzzle, undo, useHint } from './stores/game'
 	import { canUseHint, cooldownProgress } from './stores/hint'
+	import { fetchStreak } from './stores/streak'
 	import { startTimer } from './stores/timer'
 	import { openHowToModal, openLeaderboardModal } from './stores/ui'
 
@@ -33,6 +35,9 @@
 			useHint()
 		}
 	}
+
+	// Fetch streak on mount
+	fetchStreak()
 
 	// SVG circle parameters for progress ring
 	const RADIUS = 16
@@ -105,6 +110,7 @@
 				>
 					<TrophyIcon />
 				</Button>
+				<StreakBadge />
 			</div>
 			<Timer />
 		</div>

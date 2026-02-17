@@ -5,6 +5,7 @@ import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetHintCooldown, startCooldown } from './hint'
 import { fetchRank, resetRank, setRank } from './rank'
+import { updateStreakFromSubmit } from './streak'
 import { elapsedSeconds, resetTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -285,6 +286,10 @@ export const autosubmitIfSolved = async () => {
       } else {
         // Fallback to fetching rank if not in response
         await fetchRank(snapshot.puzzleId)
+      }
+      // Update streak from submit response
+      if (data.streak) {
+        updateStreakFromSubmit(data.streak)
       }
     }
   } catch {

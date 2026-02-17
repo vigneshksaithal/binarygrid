@@ -122,6 +122,7 @@ export interface SimpleShareInput {
     dayNumber: number
     completionTime: number
     difficulty: Difficulty
+    streak?: number | undefined
 }
 
 /**
@@ -129,7 +130,7 @@ export interface SimpleShareInput {
  *
  * Output format:
  * ```
- * Binary Grid #47 🧩 ⏱️ 02:34 | 🎯 Medium
+ * Binary Grid #47 🧩 ⏱️ 02:34 | 🎯 Medium 🔥 5 day streak
  * ```
  *
  * @param input - Share input containing day number, time, and difficulty
@@ -137,5 +138,11 @@ export interface SimpleShareInput {
  */
 export const formatSimpleShareText = (input: SimpleShareInput): string => {
     const { dayNumber, completionTime, difficulty } = input
-    return `Binary Grid #${dayNumber} 🧩 ⏱️ ${formatTime(completionTime)} | 🎯 ${DIFFICULTY_LABELS[difficulty]}`
+    let text = `Binary Grid #${dayNumber} 🧩 ⏱️ ${formatTime(completionTime)} | 🎯 ${DIFFICULTY_LABELS[difficulty]}`
+    
+    if (input.streak !== undefined && input.streak >= 2) {
+        text += ` 🔥 ${input.streak} day streak`
+    }
+    
+    return text
 }

@@ -3,9 +3,10 @@
  * Handles clipboard copying and Reddit sharing functionality.
  */
 
-import { writable } from 'svelte/store'
+import { writable, get } from 'svelte/store'
 import { copyToClipboard } from '../services/clipboard'
 import { formatShareText, type ShareTextInput } from '../../shared/share-formatter'
+import { streakStore } from './streak'
 
 /**
  * Share state interface for tracking copy and share operations.
@@ -25,6 +26,7 @@ export interface ShareCommentRequest {
     solveTimeSeconds: number
     difficulty: string
     dayNumber: number
+    streak?: number
 }
 
 const initialState: ShareState = {
@@ -87,12 +89,19 @@ export const shareToReddit = async (request: ShareCommentRequest): Promise<boole
     }))
 
     try {
-        // TODO: Implement API call in Task 8
-        // POST /api/share-comment with request body
+        // Get current streak from store
+        const streakData = get(streakStore)
+        const streak = streakData.data.currentStreak
+
+        // Include streak in request if >= 2
+        const requestBody = streak >= 2 
+            ? { ...request, streak }
+            : request
+
         const res = await fetch('/api/share-comment', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify(request),
+            body: JSON.stringify(requestBody),
         })
 
         if (!res.ok) {
