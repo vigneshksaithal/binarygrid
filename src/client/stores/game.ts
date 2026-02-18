@@ -2,6 +2,7 @@ import { get, writable } from 'svelte/store'
 import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
+import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
 import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetHintCooldown, startCooldown } from './hint'
 import { fetchRank, resetRank, setRank } from './rank'
@@ -38,18 +39,6 @@ export type GameState = {
   history: Grid[]
 }
 
-const emptyGrid = (): Grid =>
-  Array.from({ length: SIZE }, () =>
-    Array.from({ length: SIZE }, () => null as Cell)
-  )
-
-const cloneGrid = (grid: Grid): Grid =>
-  grid.map((row) => row.map((cell) => cell))
-
-/**
- * Creates a Set for O(1) fixed cell lookups.
- * Key format: "r,c"
- */
 const createFixedSet = (fixed: { r: number; c: number; v: 0 | 1 }[]): Set<string> => {
   const set = new Set<string>()
   for (const f of fixed) {
@@ -67,8 +56,8 @@ const isCellFixed = (
 const initial: GameState = {
   puzzleId: null,
   difficulty: 'medium',
-  grid: emptyGrid(),
-  initial: emptyGrid(),
+  grid: createEmptyGrid(),
+  initial: createEmptyGrid(),
   fixed: [],
   fixedSet: new Set(),
   status: 'idle',

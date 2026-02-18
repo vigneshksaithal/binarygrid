@@ -1,26 +1,13 @@
 import { SIZE } from '../../shared/rules'
+import { canPlaceValue } from '../../shared/constraints'
 import type {
   Cell,
   Difficulty,
   Grid,
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
+import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
 import { validateGrid } from '../../shared/validator'
-
-/**
- * Returns a deterministic 6x6 null grid.
- */
-const makeEmptyGrid = (): Grid => {
-  const grid: Grid = new Array(SIZE)
-  for (let r = 0; r < SIZE; r++) {
-    const row = new Array(SIZE)
-    for (let c = 0; c < SIZE; c++) {
-      row[c] = null
-    }
-    grid[r] = row
-  }
-  return grid
-}
 
 const ensureRow = (g: Grid, r: number): Cell[] => {
   const row = g[r]
@@ -147,91 +134,10 @@ const shuffleInPlace = <T>(arr: T[], rnd: Rng): void => {
   }
 }
 
-// -------------- Constraints --------------
-
-const countLine = (line: (0 | 1 | null)[]) => {
-  let zeros = 0
-  let ones = 0
-  for (const v of line) {
-    if (v === 0) {
-      zeros++
-    } else if (v === 1) {
-      ones++
-    }
-  }
-  return { zeros, ones }
-}
-
-const TRIPLE_RUN_LENGTH = 3
-
-/**
- * Checks if placing a value at idx would create a triple run.
- * Optimized: only checks the windows that could be affected by the placement.
- */
-const wouldCreateTripleRunAt = (
-  line: (0 | 1 | null)[],
-  idx: number,
-  val: 0 | 1
-): boolean => {
-  // Check window of 3 cells that could include idx
-  const start = Math.max(0, idx - 2)
-  const end = Math.min(line.length - TRIPLE_RUN_LENGTH, idx)
-
-  for (let i = start; i <= end; i++) {
-    const a = i === idx ? val : line[i]
-    const b = i + 1 === idx ? val : line[i + 1]
-    const c = i + 2 === idx ? val : line[i + 2]
-    if (a !== null && a === b && b === c) {
-      return true
-    }
-  }
-  return false
-}
-
-const MAX_COUNT_PER_LINE = 3
-
-// Reusable column array to reduce allocations in hot path
 const reusableCol: (0 | 1 | null)[] = new Array(SIZE)
 
-const canPlace = (grid: Grid, r: number, c: number, val: 0 | 1): boolean => {
-  const row = grid[r] as Cell[]
-  if (row[c] !== null) {
-    return false
-  }
-  const rowCounts = countLine(row)
-  if (val === 0 && rowCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && rowCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-
-  // Build column using reusable array
-  for (let i = 0; i < SIZE; i++) {
-    reusableCol[i] = (grid[i] as Cell[])[c] as Cell
-  }
-  const colCounts = countLine(reusableCol)
-  if (val === 0 && colCounts.zeros >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (val === 1 && colCounts.ones >= MAX_COUNT_PER_LINE) {
-    return false
-  }
-  if (wouldCreateTripleRunAt(row, c, val)) {
-    return false
-  }
-  if (wouldCreateTripleRunAt(reusableCol, r, val)) {
-    return false
-  }
-  return true
-}
-
-// -------------- Solver --------------
-
-const cloneGrid = (g: Grid): Grid => g.map((row) => row.slice())
-
 const generateFullSolution = (rnd: Rng): Grid => {
-  const grid = makeEmptyGrid()
+  const grid = createEmptyGrid()
   const cells: Array<{ r: number; c: number }> = []
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
@@ -258,7 +164,7 @@ const generateFullSolution = (rnd: Rng): Grid => {
     const values: (0 | 1)[] = [0, 1]
     shuffleInPlace(values, rnd)
     for (const v of values) {
-      if (!canPlace(grid, r, c, v)) {
+      if (!canPlaceValue(grid, r, c, v, reusableCol)) {
         continue
       }
       row[c] = v
@@ -308,7 +214,7 @@ const countSolutionsUpTo = (start: Grid, limit: number): number => {
     const c = spot.c
     const row = grid[r] as Cell[]
     for (const v of [0, 1] as const) {
-      if (!canPlace(grid, r, c, v)) {
+      if (!canPlaceValue(grid, r, c, v, reusableCol)) {
         continue
       }
       row[c] = v

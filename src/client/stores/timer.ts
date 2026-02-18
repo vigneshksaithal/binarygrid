@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store'
+import { formatTime } from '../../shared/utils/format'
 
 const elapsedSeconds = writable(0)
 
@@ -32,10 +33,6 @@ export const resetTimer = () => {
   elapsedSeconds.set(0)
 }
 
-export const formatElapsedTime = (elapsed: number) => {
-  const minutes = Math.floor(elapsed / 60)
-  const seconds = elapsed % 60
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
-}
+export const formatElapsedTime = formatTime
 
 export { elapsedSeconds }

@@ -1,5 +1,102 @@
 # Changelog
 
+## 2026-02-18
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: 0.12.12 → 0.12.13
+- `@devvit/test`: 0.12.12 → 0.12.13
+- `@devvit/web`: 0.12.12 → 0.12.13
+- `@lucide/svelte`: 0.564.0 → 0.574.0
+- `devvit`: 0.12.12 → 0.12.13
+
+### Refactoring: Code Organization & Maintainability
+
+Major codebase reorganization to improve maintainability, reduce code duplication, and enhance developer experience.
+
+#### Phase 1: Shared Utilities Extraction
+
+- **Created `src/shared/utils/grid.ts`**: Extracted common grid operations into a single module
+  - `cloneGrid(grid)`: Deep clone a grid
+  - `createEmptyGrid()`: Create a 6x6 null grid
+  - `countLine(line)`: Count zeros and ones in a line
+
+- **Created `src/shared/utils/format.ts`**: Unified time formatting
+  - `formatTime(seconds)`: Format seconds as MM:SS
+
+- **Created `src/shared/constraints.ts`**: Centralized puzzle constraint validation
+  - `wouldCreateTripleRun(line, idx, val)`: Check if placing a value creates a triple run
+  - `canPlaceValue(grid, r, c, val, reusableCol?)`: Validate if a value can be placed at position
+
+- **Updated consuming files**:
+  - `game.ts`: Now uses shared grid utilities
+  - `generator.ts`: Uses shared grid utilities and constraints
+  - `solver.ts`: Uses shared grid utilities and constraints
+  - `timer.ts`: Uses shared format utility
+  - `routes.ts`: Uses shared format utility
+  - `share-formatter.ts`: Uses shared format utility
+
+#### Phase 2: Routes Module Split
+
+Split monolithic `routes.ts` (804 lines) into focused, single-responsibility modules:
+
+- **`src/server/routes/utils.ts`** (73 lines): Shared constants and helpers
+  - HTTP status codes, default values, difficulty validation
+  - `todayISO()`, `resolveDate()`, `resolveDifficulty()`
+  - `leaderboardKey()`, `clampPageSize()`, `parseLeaderboardMeta()`
+  - `ensurePostIdPrefix()`: Helper for Reddit API ID formatting
+
+- **`src/server/routes/puzzle.ts`** (77 lines): Puzzle endpoints
+  - `GET /api/puzzle-number`: Get day number for current post
+  - `GET /api/puzzle`: Fetch puzzle by difficulty
+
+- **`src/server/routes/user.ts`** (67 lines): User-related endpoints
+  - `GET /api/check-joined-status`: Check subreddit membership
+  - `POST /api/join-subreddit`: Join subreddit
+  - `GET /api/streak`: Get user streak data
+
+- **`src/server/routes/share.ts`** (134 lines): Social sharing endpoints
+  - `POST /api/comment-score`: Post solve time as comment
+  - `POST /api/share-comment`: Post share text as Reddit comment
+
+- **`src/server/routes/play-count.ts`** (36 lines): Analytics endpoints
+  - `GET /api/play-count`: Get play count for post
+  - `POST /api/play-count`: Increment play count
+
+- **`src/server/routes/leaderboard.ts`** (223 lines): Leaderboard endpoints
+  - `GET /api/leaderboard`: Get puzzle leaderboard with pagination
+  - `GET /api/leaderboard/streaks`: Get global streak leaderboard
+
+- **`src/server/routes/submit.ts`** (179 lines): Submission endpoint
+  - `POST /api/submit`: Submit puzzle solution with streak tracking
+
+- **`src/server/routes/index.ts`** (25 lines): Main router combining all routes
+
+#### Phase 3: Import Optimization
+
+- **Created barrel export** `src/shared/utils/index.ts` for cleaner imports
+- **Updated test import paths** for new route structure
+- **Analyzed build optimizations** - current Vite defaults confirmed optimal
+
+### Metrics Summary
+
+| Metric | Before | After | Change |
+|--------|--------|-------|--------|
+| Total Lines | 6,704 | 6,572 | -132 lines (-2.0%) |
+| Source Files | 46 | 57 | +11 files |
+| Largest File | 804 lines | 409 lines | -49% |
+| Client Bundle (gzip) | 37,057 B | 37,079 B | +22 B (+0.06%) |
+| Tests | 67 passed | 67 passed | All passing |
+
+### Benefits
+
+- **Single Source of Truth**: Grid operations and constraints now in one place
+- **Reduced Bug Surface**: ~150 lines of duplicate code removed
+- **Better Navigation**: Find code by feature, not by scrolling
+- **Parallel Development**: Team members can work on different route modules
+- **Easier Testing**: Tests can be colocated with their routes
+
 ## 2026-02-14
 
 ### Features

@@ -39,7 +39,7 @@ vi.mock('@devvit/web/server', () => {
 })
 
 // Import after mocking
-import app from './routes'
+import app from './routes/index'
 import { redis, reddit, context } from '@devvit/web/server'
 
 /**

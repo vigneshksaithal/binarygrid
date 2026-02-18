@@ -6,7 +6,7 @@ import {
   crosspostLatestPost,
   TARGET_CROSSPOST_SUBREDDIT
 } from './core/post'
-import routes from './routes'
+import routes from './routes/index'
 
 const app = new Hono()
 app.route('/', routes)
