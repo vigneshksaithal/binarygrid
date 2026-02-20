@@ -36,7 +36,7 @@
     "dotenv-cli": "^11.0.0",
     "fast-check": "^4.5.3",
     "svelte": "^5.51.5",
-    "svelte-check": "^4.4.0",
+    "svelte-check": "^4.4.3",
     "typescript": "^5.9.3",
     "vite": "8.0.0-beta.14",
     "vitest": "^4.0.18"
