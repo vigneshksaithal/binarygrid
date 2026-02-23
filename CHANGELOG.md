@@ -1,5 +1,40 @@
 # Changelog
 
+## 2026-02-23
+
+### Bug Fixes
+
+- **Fixed streak leaderboard showing "Unknown player" for all users**: Corrected Redis key mismatch between read and write operations for user metadata.
+  - Root cause: `submit.ts` was writing user metadata to per-user keys (`user:t2_xxx:meta`) while `leaderboard.ts` was reading from a global hash (`user:meta`)
+  - Fix: 
+    1. Changed write in `submit.ts` to store in global `user:meta` hash with JSON-serialized values
+    2. Added fallback in `leaderboard.ts` to check legacy per-user keys (`user:t2_xxx:meta`) for existing users
+  - Files modified: `src/server/routes/submit.ts`, `src/server/routes/leaderboard.ts`
+
+## 2026-02-19
+
+### Bug Fixes
+
+- **Fixed rate limit error on share score button**: Resolved race condition in `/api/share-comment` endpoint where rapid button clicks could cause duplicate Reddit API calls.
+  - Root cause: Redis idempotency key was set AFTER the Reddit API call, allowing concurrent requests to bypass the check
+  - Fix: Set Redis key BEFORE calling Reddit API (optimistic locking pattern)
+  - Added rollback: If Reddit API fails, the Redis key is deleted to allow retry
+  - Files modified: `src/server/routes/share.ts`
+
+### Features
+
+- **Added attempts counter to leaderboard**: Players can now see how many tries each competitor needed to solve the puzzle.
+  - Added `attempts` field to `LeaderboardEntry` type
+  - Attempts are tracked per user per puzzle in Redis metadata
+  - Each submission increments the attempt counter
+  - New "Tries" column displayed in the leaderboard modal
+  - Files modified:
+    - `src/shared/types/leaderboard.ts` - Added `attempts` field
+    - `src/server/routes/utils.ts` - Updated `StoredLeaderboardMeta` type
+    - `src/server/routes/submit.ts` - Track attempts on each submission
+    - `src/server/routes/leaderboard.ts` - Include attempts in API response
+    - `src/client/components/LeaderboardModal.svelte` - Display attempts column
+
 ## 2026-02-18
 
 ### Dependencies

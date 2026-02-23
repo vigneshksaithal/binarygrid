@@ -245,6 +245,7 @@
 								<th class="text-left py-1.5 sm:py-2 px-1.5 sm:px-2">Rank</th>
 								<th class="text-left py-1.5 sm:py-2 px-1.5 sm:px-2">Player</th>
 								<th class="text-right py-1.5 sm:py-2 px-1.5 sm:px-2">Time</th>
+								<th class="text-right py-1.5 sm:py-2 px-1.5 sm:px-2">Tries</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -275,6 +276,9 @@
 									</td>
 									<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 text-right text-zinc-800 dark:text-zinc-200">
 										{formatElapsedTime(Math.round(entry.timeSeconds))}
+									</td>
+									<td class="py-1.5 sm:py-2 px-1.5 sm:px-2 text-right text-zinc-600 dark:text-zinc-400">
+										{entry.attempts}
 									</td>
 								</tr>
 							{/each}

@@ -4,6 +4,7 @@ export type LeaderboardEntry = {
   avatarUrl: string | null
   timeSeconds: number
   rank: number
+  attempts: number
 }
 
 export type LeaderboardResponse = {

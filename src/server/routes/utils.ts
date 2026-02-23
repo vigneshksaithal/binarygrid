@@ -14,6 +14,7 @@ export const CACHE_TTL_ONE_DAY = 86400
 export type StoredLeaderboardMeta = {
   username: string
   avatarUrl: string | null
+  attempts: number
 }
 
 export const isDifficultyValue = (value: string): value is Difficulty =>
@@ -56,7 +57,7 @@ export const parseLeaderboardMeta = (
   value: string | null | undefined
 ): StoredLeaderboardMeta => {
   if (!value) {
-    return { username: 'Unknown player', avatarUrl: null }
+    return { username: 'Unknown player', avatarUrl: null, attempts: 1 }
   }
   try {
     const parsed = JSON.parse(value) as StoredLeaderboardMeta
@@ -64,12 +65,12 @@ export const parseLeaderboardMeta = (
       typeof parsed.username === 'string' &&
       (parsed.avatarUrl === null || typeof parsed.avatarUrl === 'string')
     ) {
-      return parsed
+      return { ...parsed, attempts: parsed.attempts ?? 1 }
     }
   } catch {
     // ignore malformed JSON payloads
   }
-  return { username: 'Unknown player', avatarUrl: null }
+  return { username: 'Unknown player', avatarUrl: null, attempts: 1 }
 }
 
 export const ensurePostIdPrefix = (id: string): `t3_${string}` =>

@@ -92,6 +92,12 @@ app.post('/api/submit', async (c) => {
     const leaderboardDetailsKey = leaderboardMetaKey(body.id)
     const existingScore = await redis.zScore(leaderboardSetKey, userId)
 
+    const existingMetaRaw = await redis.hGet(leaderboardDetailsKey, userId)
+    const existingAttempts = existingMetaRaw
+      ? (JSON.parse(existingMetaRaw) as { attempts?: number }).attempts ?? 0
+      : 0
+    const newAttempts = existingAttempts + 1
+
     if (existingScore === undefined || solveTimeSeconds < existingScore) {
       await redis.zAdd(leaderboardSetKey, {
         score: solveTimeSeconds,
@@ -102,13 +108,13 @@ app.post('/api/submit', async (c) => {
     await redis.hSet(leaderboardDetailsKey, {
       [userId]: JSON.stringify({
         username,
-        avatarUrl: avatarUrl ?? null
+        avatarUrl: avatarUrl ?? null,
+        attempts: newAttempts
       } satisfies StoredLeaderboardMeta)
     })
 
-    await redis.hSet(`user:${userId}:meta`, {
-      username,
-      avatarUrl: avatarUrl ?? ''
+    await redis.hSet(`user:meta`, {
+      [userId]: JSON.stringify({ username, avatarUrl: avatarUrl ?? null })
     })
 
     const todayDate = todayISO()

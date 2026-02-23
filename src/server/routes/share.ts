@@ -117,6 +117,8 @@ app.post('/api/share-comment', async (c) => {
       return c.json({ ok: true })
     }
 
+    await redis.set(shareKey, '1')
+
     const commentText = formatSimpleShareText({
       dayNumber,
       completionTime: solveTimeSeconds,
@@ -124,13 +126,16 @@ app.post('/api/share-comment', async (c) => {
       streak: body.streak ?? undefined
     })
 
-    await reddit.submitComment({
-      runAs: 'USER',
-      id: ensurePostIdPrefix(postId),
-      text: commentText
-    })
-
-    await redis.set(shareKey, '1')
+    try {
+      await reddit.submitComment({
+        runAs: 'USER',
+        id: ensurePostIdPrefix(postId),
+        text: commentText
+      })
+    } catch (redditError) {
+      await redis.del(shareKey)
+      throw redditError
+    }
 
     return c.json({ ok: true })
   } catch (error) {

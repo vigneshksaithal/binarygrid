@@ -73,7 +73,8 @@ app.get('/api/leaderboard', async (c) => {
         username: parsedMeta.username,
         avatarUrl: parsedMeta.avatarUrl,
         timeSeconds: entry.score,
-        rank: offset + index + 1
+        rank: offset + index + 1,
+        attempts: parsedMeta.attempts
       }
     })
 
@@ -98,7 +99,8 @@ app.get('/api/leaderboard', async (c) => {
           username: playerMeta.username,
           avatarUrl: playerMeta.avatarUrl,
           timeSeconds: playerScore,
-          rank: playerRank + 1
+          rank: playerRank + 1,
+          attempts: playerMeta.attempts
         }
       }
     }
@@ -124,6 +126,25 @@ app.get('/api/leaderboard', async (c) => {
   }
 })
 
+type UserMeta = { username: string; avatarUrl: string | null }
+
+const getUserMeta = async (userId: string): Promise<UserMeta> => {
+  const metaRaw = await redis.hGet('user:meta', userId)
+  if (metaRaw) {
+    try {
+      const parsed = JSON.parse(metaRaw)
+      if (parsed.username) {
+        return { username: parsed.username, avatarUrl: parsed.avatarUrl ?? null }
+      }
+    } catch { /* fallthrough */ }
+  }
+  const legacyMeta = await redis.hGetAll(`user:${userId}:meta`)
+  if (legacyMeta?.username) {
+    return { username: legacyMeta.username, avatarUrl: legacyMeta.avatarUrl ?? null }
+  }
+  return { username: 'Unknown player', avatarUrl: null }
+}
+
 app.get('/api/leaderboard/streaks', async (c) => {
   const { userId } = context
 
@@ -145,36 +166,16 @@ app.get('/api/leaderboard/streaks', async (c) => {
       { by: 'rank', reverse: true }
     )
 
-    const metaValues = rangeMembers.length > 0
-      ? await redis.hMGet(
-        `user:meta`,
-        rangeMembers.map((entry) => entry.member)
-      )
-      : []
-
-    const parseUserMeta = (value: string | null): { username: string; avatarUrl: string | null } => {
-      if (!value) {
-        return { username: 'Unknown player', avatarUrl: null }
-      }
-      try {
-        const parsed = JSON.parse(value)
-        return {
-          username: parsed.username || 'Unknown player',
-          avatarUrl: parsed.avatarUrl || null
-        }
-      } catch {
-        return { username: 'Unknown player', avatarUrl: null }
-      }
-    }
+    const userMetaResults = await Promise.all(
+      rangeMembers.map((entry) => getUserMeta(entry.member))
+    )
 
     const entries: StreakLeaderboardEntry[] = rangeMembers.map((entry, index) => {
-      const rawMeta = metaValues[index]
-      const parsedMeta = parseUserMeta(rawMeta ?? null)
-
+      const meta = userMetaResults[index]!
       return {
         userId: entry.member,
-        username: parsedMeta.username,
-        avatarUrl: parsedMeta.avatarUrl,
+        username: meta.username,
+        avatarUrl: meta.avatarUrl,
         streak: entry.score,
         rank: index + 1
       }
@@ -182,19 +183,13 @@ app.get('/api/leaderboard/streaks', async (c) => {
 
     let playerEntry: StreakLeaderboardEntry | null = null
     if (userId) {
-      const [playerRank, playerScore, playerMetaRaw] = await Promise.all([
+      const [playerRank, playerScore] = await Promise.all([
         redis.zRank('leaderboard:streaks', userId),
-        redis.zScore('leaderboard:streaks', userId),
-        redis.hGet(`user:meta`, userId)
+        redis.zScore('leaderboard:streaks', userId)
       ])
 
-      if (
-        playerRank !== undefined &&
-        playerRank !== null &&
-        playerScore !== undefined &&
-        playerScore !== null
-      ) {
-        const playerMeta = parseUserMeta(playerMetaRaw ?? null)
+      if (playerRank !== undefined && playerRank !== null && playerScore !== undefined && playerScore !== null) {
+        const playerMeta = await getUserMeta(userId)
         playerEntry = {
           userId,
           username: playerMeta.username,
@@ -211,8 +206,7 @@ app.get('/api/leaderboard/streaks', async (c) => {
       playerEntry
     })
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error'
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return c.json(
       { error: `Failed to load streak leaderboard: ${errorMessage}` },
       HTTP_BAD_REQUEST
