@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-02-24
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@lucide/svelte`: 0.574.0 → 0.575.0
+- `@tailwindcss/vite`: 4.2.0 → 4.2.1
+- `tailwindcss`: 4.2.0 → 4.2.1
+- `@sveltejs/vite-plugin-svelte`: 6.2.4 → 7.0.0
+- `svelte`: 5.53.2 → 5.53.3
+- `vite`: 8.0.0-beta.14 → 7.3.1
+
+### Bug Fixes
+
+- **Fixed svelte-check failures after dependency upgrade**: Removed unused `index` bindings in `LeaderboardPreview` skeleton/loading loops and removed unused `dayNumberError` state from `SuccessModal`.
+
 ## 2026-02-23
 
 ### Bug Fixes

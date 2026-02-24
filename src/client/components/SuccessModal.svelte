@@ -25,7 +25,6 @@
 
 	let isJoining = $state(false);
 	let dayNumber = $state<number | null>(null);
-	let dayNumberError = $state(false);
 
 	const getNextDifficulty = (current: Difficulty): Difficulty => {
 		if (current === "easy") return "medium";
@@ -59,14 +58,13 @@
 			if (res.ok) {
 				const data = await res.json();
 				dayNumber = data.dayNumber;
-				dayNumberError = false;
 			} else {
-				dayNumberError = true;
+				dayNumber = null;
 			}
 		} catch (error) {
 			// biome-ignore lint/suspicious/noConsole: we want to log the error
 			console.error("Failed to fetch day number", error);
-			dayNumberError = true;
+			dayNumber = null;
 		}
 	};
 

@@ -35,7 +35,7 @@
 		<div
 			class="rounded-lg bg-zinc-100/50 dark:bg-zinc-800/50 overflow-hidden"
 		>
-			{#each [1, 2, 3] as i, index (i)}
+			{#each [1, 2, 3] as i (i)}
 				<div class="flex items-center gap-3 p-2.5">
 					<div
 						class="size-6 rounded-full bg-zinc-200 dark:bg-zinc-700 animate-pulse"
@@ -64,7 +64,7 @@
 		<div
 			class="rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/50 overflow-hidden"
 		>
-			{#each entries.slice(0, 3) as entry, index (entry.userId)}
+			{#each entries.slice(0, 3) as entry (entry.userId)}
 				<div class="flex items-center gap-2.5 p-2.5">
 					<div class="shrink-0">
 						<Medal class="size-5 {getRankColor(entry.rank)}" />
