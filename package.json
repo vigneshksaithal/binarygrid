@@ -20,7 +20,7 @@
     "@devvit/start": "^0.12.13",
     "@devvit/test": "^0.12.13",
     "@devvit/web": "0.12.13",
-    "@hono/node-server": "^1.19.9",
+    "@hono/node-server": "^1.19.10",
     "@lucide/svelte": "^0.575.0",
     "@tailwindcss/vite": "^4.2.1",
     "canvas-confetti": "^1.9.4",
