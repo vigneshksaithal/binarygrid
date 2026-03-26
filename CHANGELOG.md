@@ -1,5 +1,21 @@
 # Changelog
 
+## 2026-03-26
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: 0.12.15 → 0.12.16
+- `@devvit/test`: 0.12.15 → 0.12.16
+- `@devvit/web`: 0.12.15 → 0.12.16
+- `@lucide/svelte`: 0.577.0 → 1.7.0
+- `devvit`: 0.12.15 → 0.12.16
+- `hono`: 4.12.8 → 4.12.9
+- `svelte`: 5.54.0 → 5.55.0
+- `typescript`: 5.9.3 → 6.0.2
+- `vite`: 8.0.1 → 8.0.3
+- `vitest`: 4.1.0 → 4.1.1
+
 ## 2026-03-19
 
 ### Dependencies
