@@ -159,4 +159,58 @@ app.post('/api/shop/equip', async (c) => {
   }
 })
 
+// GET /api/leaderboard/coins — top 10 by total coins earned
+app.get('/api/leaderboard/coins', async (c) => {
+  const { userId } = context
+  try {
+    const topUsers = await redis.zRange('leaderboard:coins', 0, 9, {
+      reverse: true,
+      by: 'rank',
+    })
+
+    const entries = await Promise.all(
+      topUsers.map(async (item, i) => {
+        const memberId = item.member
+        const score = item.score
+        let username = 'Anon'
+        let titleEmoji = '🧩'
+        try {
+          const cacheKey = `user:${memberId}:display`
+          const cached = await redis.get(cacheKey)
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            username = parsed.username ?? 'Anon'
+            titleEmoji = parsed.titleEmoji ?? '🧩'
+          } else {
+            const economy = await getUserEconomy(memberId)
+            const titleDef = getTitleById(economy.equippedTitle)
+            titleEmoji = titleDef?.emoji ?? '🧩'
+            try {
+              const user = await (await import('@devvit/web/server')).reddit.getUserById(memberId as `t2_${string}`)
+              username = user?.username ?? 'Anon'
+            } catch { username = 'Anon' }
+            await redis.set(cacheKey, JSON.stringify({ username, titleEmoji }))
+            await redis.expire(cacheKey, 86400)
+          }
+        } catch { /* use defaults */ }
+        return { rank: i + 1, userId: memberId, username: `${titleEmoji} ${username}`, score }
+      })
+    )
+
+    let userRank: number | undefined
+    if (userId) {
+      const userScore = await redis.zScore('leaderboard:coins', userId)
+      if (userScore !== undefined && userScore !== null) {
+        const higher = await redis.zRange('leaderboard:coins', userScore + 1, Number.MAX_SAFE_INTEGER, { by: 'score' })
+        userRank = higher.length + 1
+      }
+    }
+
+    return c.json({ entries, userRank })
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    return c.json({ error: `Failed to fetch coins leaderboard: ${msg}` }, HTTP_BAD_REQUEST)
+  }
+})
+
 export default app
