@@ -4,6 +4,7 @@ import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
 import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
+import { resetCoinReward, setCoinReward } from './coinReward'
 import { resetHintCooldown, startCooldown } from './hint'
 import { fetchRank, resetRank, setRank } from './rank'
 import { updateStreakFromSubmit } from './streak'
@@ -76,6 +77,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   closeSuccessModal()
   resetHintCooldown()
   resetRank()
+  resetCoinReward()
 
   game.update((s) => ({
     ...s,
@@ -288,6 +290,10 @@ export const autosubmitIfSolved = async () => {
       // Update streak from submit response
       if (data.streak) {
         updateStreakFromSubmit(data.streak)
+      }
+      // Store coin reward
+      if (data.coinReward) {
+        setCoinReward(data.coinReward)
       }
     }
   } catch {
