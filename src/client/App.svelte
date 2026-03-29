@@ -1,11 +1,11 @@
 <script lang="ts">
 	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
+	import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal'
 	import TrophyIcon from '@lucide/svelte/icons/trophy'
 	import Undo2Icon from '@lucide/svelte/icons/undo-2'
 	import type { Difficulty } from '../shared/types/puzzle'
 	import './app.css'
 	import Button from './components/Button.svelte'
-	import CoinDisplay from './components/CoinDisplay.svelte'
 	import Dropdown from './components/Dropdown.svelte'
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
@@ -44,6 +44,7 @@
 	// Coin economy state
 	let coinBalance = $state(0)
 	let shopOpen = $state(false)
+	let menuOpen = $state(false)
 
 	$effect(() => {
 		fetch('/api/economy')
@@ -56,6 +57,16 @@
 			.catch(() => {})
 	})
 
+	const openShop = () => {
+		menuOpen = false
+		shopOpen = true
+	}
+
+	const openLeaderboard = () => {
+		menuOpen = false
+		openLeaderboardModal()
+	}
+
 	// SVG circle parameters for progress ring
 	const RADIUS = 16
 	const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -65,8 +76,10 @@
 	class="min-h-screen flex flex-col justify-center w-full max-w-sm mx-auto p-1"
 >
 	<div class="p-2 bg-zinc-200/50 dark:bg-zinc-800 rounded-2xl">
+		<!-- Header: left = actions, right = streak + timer + menu -->
 		<div class="flex justify-between items-center mb-4">
-			<div class="flex items-center gap-4">
+			<!-- Left: Difficulty + Undo + Hint -->
+			<div class="flex items-center gap-2">
 				<Dropdown
 					value={$game.difficulty}
 					options={difficultyOptions}
@@ -119,32 +132,60 @@
 						</svg>
 					{/if}
 				</div>
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={openLeaderboardModal}
-					ariaLabel="Leaderboard"
-				>
-					<TrophyIcon />
-				</Button>
-				<StreakBadge />
 			</div>
+
+			<!-- Right: Streak + Timer + ⋯ menu -->
 			<div class="flex items-center gap-2">
-				<CoinDisplay coins={coinBalance} onClick={() => (shopOpen = true)} />
+				<StreakBadge />
 				<Timer />
+				<!-- Overflow menu -->
+				<div class="relative">
+					<Button
+						variant="ghost"
+						size="icon"
+						onClick={() => (menuOpen = !menuOpen)}
+						ariaLabel="More options"
+					>
+						<MoreHorizontalIcon />
+					</Button>
+					{#if menuOpen}
+						<!-- svelte-ignore a11y_no_static_element_interactions -->
+						<!-- svelte-ignore a11y_click_events_have_key_events -->
+						<div
+							class="fixed inset-0 z-10"
+							onclick={() => (menuOpen = false)}
+						></div>
+						<div
+							class="absolute right-0 top-10 z-20 bg-zinc-900 border border-zinc-700 rounded-xl shadow-xl overflow-hidden min-w-[160px]"
+						>
+							<button
+								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors"
+								onclick={openLeaderboard}
+							>
+								<TrophyIcon class="w-4 h-4 text-zinc-400" />
+								Leaderboard
+							</button>
+							<button
+								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors border-t border-zinc-700"
+								onclick={openShop}
+							>
+								<span class="text-base">🪙</span>
+								<span>Shop</span>
+								<span class="ml-auto text-yellow-400 font-bold text-xs">{coinBalance}</span>
+							</button>
+							<button
+								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors border-t border-zinc-700"
+								onclick={() => { menuOpen = false; openHowToModal() }}
+							>
+								<span class="text-base">❓</span>
+								How to Play
+							</button>
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 		<Grid />
-	</div>
-	<div class="mt-4 flex justify-center">
-		<Button
-			variant="secondary"
-			size="sm"
-			onClick={openHowToModal}
-			ariaLabel="How to Play"
-		>
-			How to Play
-		</Button>
 	</div>
 </main>
 
