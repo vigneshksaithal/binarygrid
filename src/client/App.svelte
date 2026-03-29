@@ -5,11 +5,13 @@
 	import type { Difficulty } from '../shared/types/puzzle'
 	import './app.css'
 	import Button from './components/Button.svelte'
+	import CoinDisplay from './components/CoinDisplay.svelte'
 	import Dropdown from './components/Dropdown.svelte'
 	import Grid from './components/Grid.svelte'
 	import HowToPlayModal from './components/HowToPlayModal.svelte'
 	import LeaderboardModal from './components/LeaderboardModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
+	import ShopModal from './components/ShopModal.svelte'
 	import StreakBadge from './components/StreakBadge.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
@@ -38,6 +40,21 @@
 
 	// Fetch streak on mount
 	fetchStreak()
+
+	// Coin economy state
+	let coinBalance = $state(0)
+	let shopOpen = $state(false)
+
+	$effect(() => {
+		fetch('/api/economy')
+			.then((r) => (r.ok ? r.json() : null))
+			.then((data) => {
+				if (data && typeof data.coins === 'number') {
+					coinBalance = data.coins
+				}
+			})
+			.catch(() => {})
+	})
 
 	// SVG circle parameters for progress ring
 	const RADIUS = 16
@@ -112,7 +129,10 @@
 				</Button>
 				<StreakBadge />
 			</div>
-			<Timer />
+			<div class="flex items-center gap-2">
+				<CoinDisplay coins={coinBalance} onClick={() => (shopOpen = true)} />
+				<Timer />
+			</div>
 		</div>
 		<Grid />
 	</div>
@@ -133,3 +153,4 @@
 <HowToPlayModal />
 <SuccessModal />
 <LeaderboardModal />
+<ShopModal open={shopOpen} onClose={() => (shopOpen = false)} />

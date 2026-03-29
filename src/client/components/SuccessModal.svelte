@@ -1,6 +1,7 @@
 <script lang="ts">
 	import confetti from "canvas-confetti";
 	import type { Difficulty } from "../../shared/types/puzzle";
+	import { coinRewardStore } from "../stores/coinReward";
 	import { game, loadPuzzle } from "../stores/game";
 	import { calculatePercentile, rankStore } from "../stores/rank";
 	import {
@@ -257,6 +258,32 @@
 				</div>
 			{/if}
 		</div>
+
+		<!-- Coin Reward -->
+		{#if $coinRewardStore !== null}
+			<div
+				class="bg-zinc-800 rounded-xl p-4 border border-zinc-700 flex items-center justify-between"
+			>
+				<div>
+					<p class="text-sm font-semibold text-yellow-400">🪙 Coins Earned</p>
+					{#if $coinRewardStore.streakBonus > 0 || $coinRewardStore.speedBonus > 0 || $coinRewardStore.dailyBonus > 0}
+						<p class="text-xs text-zinc-400 mt-0.5">
+							Base {$coinRewardStore.base}
+							{#if $coinRewardStore.streakBonus > 0}
+								+ Streak {$coinRewardStore.streakBonus}
+							{/if}
+							{#if $coinRewardStore.speedBonus > 0}
+								+ Speed {$coinRewardStore.speedBonus}
+							{/if}
+							{#if $coinRewardStore.dailyBonus > 0}
+								+ Daily {$coinRewardStore.dailyBonus}
+							{/if}
+						</p>
+					{/if}
+				</div>
+				<span class="text-2xl font-bold text-yellow-400">+{$coinRewardStore.total}</span>
+			</div>
+		{/if}
 
 		<!-- Action Buttons -->
 		<div class="space-y-3">

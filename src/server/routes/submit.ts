@@ -2,6 +2,7 @@ import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import type { Grid } from '../../shared/types/puzzle'
 import { validateGrid } from '../../shared/validator'
+import { calculateCoinReward, getUserEconomy, saveUserEconomy } from '../lib/economy'
 import {
   DECIMAL_RADIX,
   DEFAULT_DIFFICULTY,
@@ -157,6 +158,34 @@ app.post('/api/submit', async (c) => {
       longestStreak = longestStr ? Number.parseInt(longestStr, DECIMAL_RADIX) : 0
     }
 
+    // ── Coin economy ──────────────────────────────────────────────────────
+    const economy = await getUserEconomy(userId)
+    const isDailyFirst = economy.dailyFirstSolve !== todayDate
+
+    const coinReward = calculateCoinReward(
+      solveTimeSeconds,
+      difficulty,
+      currentStreak,
+      isDailyFirst
+    )
+
+    const parTime = difficulty === 'easy' ? 60 : difficulty === 'medium' ? 120 : 240
+    const isSpeedSolve = solveTimeSeconds <= parTime
+
+    const updatedEconomy = await saveUserEconomy(userId, {
+      coins: economy.coins + coinReward.total,
+      totalCoins: economy.totalCoins + coinReward.total,
+      totalSolves: economy.totalSolves + 1,
+      speedSolves: isSpeedSolve ? economy.speedSolves + 1 : economy.speedSolves,
+      dailyFirstSolve: isDailyFirst ? todayDate : economy.dailyFirstSolve,
+    })
+
+    await redis.zAdd('leaderboard:coins', {
+      score: updatedEconomy.totalCoins,
+      member: userId,
+    })
+    // ── End coin economy ───────────────────────────────────────────────────
+
     const [userRank, totalEntries] = await Promise.all([
       redis.zRank(leaderboardSetKey, userId),
       redis.zCard(leaderboardSetKey)
@@ -166,6 +195,7 @@ app.post('/api/submit', async (c) => {
       ok: true,
       rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
       totalEntries,
+      coinReward,
       streak: {
         currentStreak: currentStreak,
         longestStreak: Math.max(currentStreak, longestStreak),
