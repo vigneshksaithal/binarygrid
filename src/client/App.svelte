@@ -12,7 +12,6 @@
 	import LeaderboardModal from './components/LeaderboardModal.svelte'
 	import PlayOverlay from './components/PlayOverlay.svelte'
 	import ShopModal from './components/ShopModal.svelte'
-	import StreakBadge from './components/StreakBadge.svelte'
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { game, loadPuzzle, undo, useHint } from './stores/game'
@@ -134,9 +133,16 @@
 				</div>
 			</div>
 
-			<!-- Right: Streak + Timer + ⋯ menu -->
+			<!-- Right: Trophy + Timer + ⋯ menu -->
 			<div class="flex items-center gap-2">
-				<StreakBadge />
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={openLeaderboard}
+					ariaLabel="Leaderboard"
+				>
+					<TrophyIcon />
+				</Button>
 				<Timer />
 				<!-- Overflow menu -->
 				<div class="relative">
@@ -160,13 +166,6 @@
 						>
 							<button
 								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors"
-								onclick={openLeaderboard}
-							>
-								<TrophyIcon class="w-4 h-4 text-zinc-400" />
-								Leaderboard
-							</button>
-							<button
-								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors border-t border-zinc-700"
 								onclick={openShop}
 							>
 								<span class="text-base">🪙</span>
