@@ -43,9 +43,13 @@
   },
   "scheduler": {
     "tasks": {
-      "daily-post": {
+      "daily-post-morning": {
         "endpoint": "/internal/schedule/daily",
-        "cron": "0 14 * * *"
+        "cron": "0 8 * * *"
+      },
+      "daily-post-evening": {
+        "endpoint": "/internal/schedule/daily",
+        "cron": "0 20 * * *"
       }
     }
   },
