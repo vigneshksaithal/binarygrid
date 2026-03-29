@@ -11,9 +11,14 @@ export const createPost = async () => {
     throw new Error('subredditName is required')
   }
 
+  const now = new Date()
+  const dateStr = now.toISOString().split('T')[0]
+  const hour = now.getUTCHours()
+  const session = hour < 14 ? 'Morning' : 'Evening'
+
   const post = await reddit.submitCustomPost({
     subredditName,
-    title: `Binary Grid: ${new Date().toISOString().split('T')[0]}`,
+    title: `Binary Grid: ${dateStr} (${session})`,
     entry: 'default'
   })
 
