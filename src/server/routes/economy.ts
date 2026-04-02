@@ -1,5 +1,6 @@
 import { context } from '@devvit/web/server'
 import { Hono } from 'hono'
+import { redis } from '@devvit/web/server'
 import { getTitleById } from '../../shared/economy-constants'
 import type {
   BuyTitleRequest,
@@ -169,7 +170,7 @@ app.get('/api/leaderboard/coins', async (c) => {
     })
 
     const entries = await Promise.all(
-      topUsers.map(async (item, i) => {
+      topUsers.map(async (item: { member: string; score: number }, i: number) => {
         const memberId = item.member
         const score = item.score
         let username = 'Anon'
