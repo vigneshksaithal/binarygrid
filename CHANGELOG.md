@@ -1,5 +1,19 @@
 # Changelog
 
+## 2026-05-07
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: 0.12.21 → 0.12.22
+- `@devvit/test`: 0.12.21 → 0.12.22
+- `@devvit/web`: 0.12.21 → 0.12.22
+- `@sveltejs/vite-plugin-svelte`: 7.0.0 → 7.1.1
+- `devvit`: 0.12.21 → 0.12.22
+- `hono`: 4.12.16 → 4.12.18
+- `svelte-check`: 4.4.6 → 4.4.8
+- `vite`: 8.0.10 → 8.0.11
+
 ## 2026-04-30
 
 ### Dependencies
