@@ -1,5 +1,26 @@
 # Changelog
 
+## 2026-05-14
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: ^0.12.21 → ^0.12.23
+- `@devvit/test`: ^0.12.21 → ^0.12.23
+- `@devvit/web`: 0.12.21 → 0.12.23
+- `@hono/node-server`: ^2.0.1 → ^2.0.2
+- `@lucide/svelte`: ^1.14.0 → ^1.16.0
+- `@tailwindcss/vite`: ^4.2.4 → ^4.3.0
+- `devvit`: 0.12.21 → 0.12.23
+- `hono`: ^4.12.16 → ^4.12.18
+- `tailwindcss`: ^4.2.4 → ^4.3.0
+- `@sveltejs/vite-plugin-svelte`: ^7.0.0 → ^7.1.2
+- `@types/node`: ^25.6.0 → ^25.7.0
+- `fast-check`: ^4.7.0 → ^4.8.0
+- `svelte-check`: ^4.4.6 → ^4.4.8
+- `vite`: 8.0.10 → 8.0.13
+- `vitest`: ^4.1.5 → ^4.1.6
+
 ## 2026-04-30
 
 ### Dependencies
