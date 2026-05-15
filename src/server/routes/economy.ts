@@ -1,4 +1,4 @@
-import { context } from '@devvit/web/server'
+import { context, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import { getTitleById } from '../../shared/economy-constants'
 import type {
@@ -19,6 +19,11 @@ import {
 import { HTTP_BAD_REQUEST, HTTP_OK } from './utils'
 
 const app = new Hono()
+
+type CoinLeaderboardMember = {
+  member: string
+  score: number
+}
 
 // GET /api/economy — returns UserEconomy for the current user
 app.get('/api/economy', async (c) => {
@@ -163,10 +168,10 @@ app.post('/api/shop/equip', async (c) => {
 app.get('/api/leaderboard/coins', async (c) => {
   const { userId } = context
   try {
-    const topUsers = await redis.zRange('leaderboard:coins', 0, 9, {
+    const topUsers = (await redis.zRange('leaderboard:coins', 0, 9, {
       reverse: true,
       by: 'rank',
-    })
+    })) as CoinLeaderboardMember[]
 
     const entries = await Promise.all(
       topUsers.map(async (item, i) => {

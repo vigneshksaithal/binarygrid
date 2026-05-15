@@ -15,6 +15,7 @@
 	import SuccessModal from './components/SuccessModal.svelte'
 	import Timer from './components/Timer.svelte'
 	import { game, loadPuzzle, undo, useHint } from './stores/game'
+	import { loadDailyProgress, trackGrowthEvent } from './stores/growth'
 	import { canUseHint, cooldownProgress } from './stores/hint'
 	import { fetchStreak } from './stores/streak'
 	import { startTimer } from './stores/timer'
@@ -39,6 +40,8 @@
 
 	// Fetch streak on mount
 	fetchStreak()
+	loadDailyProgress()
+	trackGrowthEvent('app_open')
 
 	// Coin economy state
 	let coinBalance = $state(0)
@@ -59,11 +62,13 @@
 	const openShop = () => {
 		menuOpen = false
 		shopOpen = true
+		trackGrowthEvent('shop_open')
 	}
 
 	const openLeaderboard = () => {
 		menuOpen = false
 		openLeaderboardModal()
+		trackGrowthEvent('leaderboard_open')
 	}
 
 	// SVG circle parameters for progress ring

@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import economyRoutes from './economy'
+import growthRoutes from './growth'
 import leaderboardRoutes from './leaderboard'
 import playCountRoutes from './play-count'
 import puzzleRoutes from './puzzle'
@@ -18,5 +19,6 @@ app.route('/', playCountRoutes)
 app.route('/', leaderboardRoutes)
 app.route('/', submitRoutes)
 app.route('/', economyRoutes)
+app.route('/', growthRoutes)
 
 export default app

@@ -3,8 +3,8 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import {
   createPost,
-  crosspostLatestPost,
-  TARGET_CROSSPOST_SUBREDDIT
+  createWeeklyRecap,
+  ensureScoreThread
 } from './core/post'
 import routes from './routes/index'
 
@@ -49,26 +49,63 @@ app.post('/internal/menu/post-create', async (c) => {
   }
 })
 
+app.post('/internal/menu/create-weekly-recap', async (c) => {
+  try {
+    const post = await createWeeklyRecap()
+
+    return c.json({
+      navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
+    })
+  } catch {
+    return c.json(
+      {
+        status: 'error',
+        message: 'Failed to create weekly recap'
+      },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.post('/internal/schedule/ensure-score-thread', async (c) => {
+  const { postId } = context
+  if (!postId) {
+    return c.json({ status: 'error', message: 'postId is required' }, HTTP_BAD_REQUEST)
+  }
+
+  try {
+    const commentId = await ensureScoreThread(postId)
+    return c.json({ status: 'ok', commentId })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { status: 'error', message: `Failed to ensure score thread: ${message}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
+app.post('/internal/schedule/weekly-recap', async (c) => {
+  try {
+    const post = await createWeeklyRecap()
+
+    return c.json({
+      status: 'ok',
+      postId: post.id
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return c.json(
+      { status: 'error', message: `Failed to create weekly recap: ${message}` },
+      HTTP_BAD_REQUEST
+    )
+  }
+})
+
 // Scheduler endpoint for daily post creation
 app.post('/internal/schedule/daily', async (c) => {
   try {
     const post = await createPost()
-
-    // Only crosspost to RedditGames if current subreddit is binarygrid
-    if (context.subredditName?.toLowerCase() === 'binarygrid') {
-      // Crosspost to target subreddit (don't fail daily post if crosspost fails)
-      try {
-        await crosspostLatestPost(post.id, TARGET_CROSSPOST_SUBREDDIT)
-      } catch (crosspostError) {
-        // Log error but don't fail the daily post creation
-        const errorMessage =
-          crosspostError instanceof Error
-            ? crosspostError.message
-            : 'Unknown error'
-        // biome-ignore lint/suspicious/noConsole: we want to log crosspost errors
-        console.error(`Failed to crosspost daily post: ${errorMessage}`)
-      }
-    }
 
     return c.json({
       status: 'ok',

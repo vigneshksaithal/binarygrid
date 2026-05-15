@@ -1,8 +1,13 @@
 <script lang="ts">
 	import confetti from "canvas-confetti";
+	import {
+		SOLVE_QUALITY_LABELS,
+		type SolveQuality,
+	} from "../../shared/growth";
 	import type { Difficulty } from "../../shared/types/puzzle";
 	import { coinRewardStore } from "../stores/coinReward";
 	import { game, loadPuzzle } from "../stores/game";
+	import { growthStore, trackGrowthEvent } from "../stores/growth";
 	import { rankStore } from "../stores/rank";
 	import {
 		resetAllShareState,
@@ -26,6 +31,12 @@
 
 	let isJoining = $state(false);
 	let dayNumber = $state<number | null>(null);
+
+	const qualityLabel = $derived(
+		$growthStore.solveQuality
+			? SOLVE_QUALITY_LABELS[$growthStore.solveQuality as SolveQuality]
+			: "Solved",
+	);
 
 	const getNextDifficulty = (current: Difficulty): Difficulty => {
 		if (current === "easy") return "medium";
@@ -76,11 +87,13 @@
 		isJoining = true;
 
 		try {
+			trackGrowthEvent("join_click");
 			const res = await fetch("/api/join-subreddit", {
 				method: "POST",
 			});
 			if (res.ok) {
 				setHasJoinedSubreddit(true);
+				trackGrowthEvent("join_success");
 				closeSuccessModal();
 			} else {
 				// biome-ignore lint/suspicious/noConsole: we want to log the error
@@ -99,11 +112,17 @@
 			return;
 		}
 
-		await shareToReddit({
+		trackGrowthEvent("share_preview");
+		const shared = await shareToReddit({
 			solveTimeSeconds: $elapsedSeconds,
 			difficulty: $game.difficulty,
 			dayNumber,
+			solveQuality: $growthStore.solveQuality ?? undefined,
+			rank: $growthStore.playerContext?.rank ?? $rankStore.rank,
 		});
+		if (shared) {
+			trackGrowthEvent("share_success");
+		}
 	};
 
 	const showConfetti = () => {
@@ -173,6 +192,32 @@
 				</div>
 			{:else}
 				<div></div>
+			{/if}
+		</div>
+
+		<!-- Recognition -->
+		<div class="rounded-xl bg-zinc-800/70 border border-zinc-700 px-3 py-2 text-center">
+			<div class="text-sm font-bold text-emerald-300">{qualityLabel}</div>
+			{#if $growthStore.playerContext}
+				<p class="text-xs text-zinc-400 mt-1 mb-0">
+					Faster than {$growthStore.playerContext.fasterThanPercentile}% today
+					{#if $growthStore.playerContext.nextRankSeconds !== null}
+						· {$growthStore.playerContext.nextRankSeconds}s from next rank
+					{/if}
+				</p>
+			{/if}
+			{#if $growthStore.dailyProgress}
+				<p class="text-xs text-zinc-400 mt-1 mb-0">
+					{$growthStore.dailyProgress.trio.completedCount}/3 difficulties today
+					{#if $growthStore.dailyProgress.trio.perfectDay}
+						· Perfect Day
+					{:else if $growthStore.dailyProgress.trio.trioComplete}
+						· Trio Complete
+					{/if}
+					{#if $growthStore.dailyProgress.streak.freezes > 0}
+						· {$growthStore.dailyProgress.streak.freezes} freeze{$growthStore.dailyProgress.streak.freezes === 1 ? "" : "s"}
+					{/if}
+				</p>
 			{/if}
 		</div>
 

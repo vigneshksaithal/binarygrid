@@ -35,6 +35,13 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
+      },
+      {
+        "label": "Create Weekly Recap",
+        "description": "Post Binary Grid weekly recap",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/create-weekly-recap"
       }
     ]
   },
@@ -50,6 +57,10 @@
       "daily-post-evening": {
         "endpoint": "/internal/schedule/daily",
         "cron": "0 20 * * *"
+      },
+      "weekly-recap": {
+        "endpoint": "/internal/schedule/weekly-recap",
+        "cron": "0 18 * * 0"
       }
     }
   },
