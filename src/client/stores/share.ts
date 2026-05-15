@@ -6,6 +6,7 @@
 import { writable, get } from 'svelte/store'
 import { copyToClipboard } from '../services/clipboard'
 import { formatShareText, type ShareTextInput } from '../../shared/share-formatter'
+import type { SolveQuality } from '../../shared/growth'
 import { streakStore } from './streak'
 
 /**
@@ -26,7 +27,10 @@ export interface ShareCommentRequest {
     solveTimeSeconds: number
     difficulty: string
     dayNumber: number
+    solveQuality?: SolveQuality | undefined
+    rank?: number | null | undefined
     streak?: number
+    templateId?: string
 }
 
 const initialState: ShareState = {
@@ -94,11 +98,14 @@ export const shareToReddit = async (request: ShareCommentRequest): Promise<boole
         const streak = streakData.data.currentStreak
 
         // Include streak in request if >= 2
-        const requestBody = streak >= 2 
-            ? { ...request, streak }
-            : request
+        const requestBody = {
+            ...request,
+            mode: 'scoreThread',
+            templateId: request.templateId ?? 'beat_time',
+            ...(streak >= 2 ? { streak } : {}),
+        }
 
-        const res = await fetch('/api/share-comment', {
+        const res = await fetch('/api/share-score', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify(requestBody),

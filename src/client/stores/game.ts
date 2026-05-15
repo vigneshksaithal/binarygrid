@@ -5,6 +5,15 @@ import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
 import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetCoinReward, setCoinReward } from './coinReward'
+import {
+  loadDailyProgress,
+  loadPlayerContext,
+  resetGrowth,
+  setDailyProgress,
+  setPlayerContext,
+  setSolveQuality,
+  trackGrowthEvent,
+} from './growth'
 import { resetHintCooldown, startCooldown } from './hint'
 import { fetchRank, resetRank, setRank } from './rank'
 import { updateStreakFromSubmit } from './streak'
@@ -38,6 +47,10 @@ export type GameState = {
   solution: Grid | null
   dateISO: string | null
   history: Grid[]
+  hintsUsed: number
+  mistakeCount: number
+  undoCount: number
+  firstInputTracked: boolean
 }
 
 const createFixedSet = (fixed: { r: number; c: number; v: 0 | 1 }[]): Set<string> => {
@@ -67,7 +80,11 @@ const initial: GameState = {
   errorCells: new Set(),
   solution: null,
   dateISO: null,
-  history: []
+  history: [],
+  hintsUsed: 0,
+  mistakeCount: 0,
+  undoCount: 0,
+  firstInputTracked: false
 }
 
 export const game = writable<GameState>(initial)
@@ -78,6 +95,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   resetHintCooldown()
   resetRank()
   resetCoinReward()
+  resetGrowth()
 
   game.update((s) => ({
     ...s,
@@ -123,11 +141,16 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     errorCells: new Set(),
     solution,
     dateISO: '',
-    history: []
+    history: [],
+    hintsUsed: 0,
+    mistakeCount: 0,
+    undoCount: 0,
+    firstInputTracked: false
   })
 
   resetTimer()
   lastSubmittedPuzzleId = null
+  trackGrowthEvent('puzzle_start')
 
   // Register play count after 10 seconds
   setTimeout(async () => {
@@ -169,6 +192,11 @@ export const cycleCell = (r: number, c: number) => {
     errorTimer = undefined
   }
 
+  const snapshot = get(game)
+  const shouldTrackFirstInput =
+    !snapshot.firstInputTracked &&
+    snapshot.status === 'in_progress' &&
+    !isCellFixed(snapshot.fixedSet, r, c)
   let solved = false
   game.update((s) => {
     if (s.status === 'solved') {
@@ -190,6 +218,7 @@ export const cycleCell = (r: number, c: number) => {
     let status = determineStatus(result.ok, nextGrid)
     let errors = result.ok ? [] : result.errors
     solved = status === 'solved'
+    const mistakeCount = result.ok ? s.mistakeCount : s.mistakeCount + 1
 
     const currentGridJSON = JSON.stringify(nextGrid)
     if (!result.ok) {
@@ -217,9 +246,14 @@ export const cycleCell = (r: number, c: number) => {
       errors,
       errorLocations: undefined,
       errorCells: new Set(),
-      history: [...s.history, previousGrid]
+      history: [...s.history, previousGrid],
+      mistakeCount,
+      firstInputTracked: s.firstInputTracked || shouldTrackFirstInput
     }
   })
+  if (shouldTrackFirstInput) {
+    trackGrowthEvent('first_input')
+  }
   if (solved) {
     stopTimer()
     openSuccessModal()
@@ -247,7 +281,8 @@ export const undo = () => {
       status: 'in_progress',
       errors: [],
       errorLocations: undefined,
-      errorCells: new Set()
+      errorCells: new Set(),
+      undoCount: s.undoCount + 1
     }
   })
 }
@@ -270,7 +305,10 @@ export const autosubmitIfSolved = async () => {
       body: JSON.stringify({
         id: snapshot.puzzleId,
         grid: snapshot.grid,
-        solveTimeSeconds: timeSeconds
+        solveTimeSeconds: timeSeconds,
+        hintsUsed: snapshot.hintsUsed,
+        mistakeCount: snapshot.mistakeCount,
+        undoCount: snapshot.undoCount
       })
     })
     if (res.ok) {
@@ -294,6 +332,19 @@ export const autosubmitIfSolved = async () => {
       // Store coin reward
       if (data.coinReward) {
         setCoinReward(data.coinReward)
+      }
+      if (data.solveQuality) {
+        setSolveQuality(data.solveQuality)
+      }
+      if (data.dailyProgress) {
+        setDailyProgress(data.dailyProgress)
+      } else {
+        await loadDailyProgress()
+      }
+      if (data.playerContext) {
+        setPlayerContext(data.playerContext)
+      } else {
+        await loadPlayerContext(snapshot.puzzleId)
       }
     }
   } catch {
@@ -396,7 +447,8 @@ export const useHint = (): boolean => {
       errors,
       errorLocations: undefined,
       errorCells: new Set(),
-      history: [...s.history, previousGrid]
+      history: [...s.history, previousGrid],
+      hintsUsed: s.hintsUsed + 1
     }
   })
 

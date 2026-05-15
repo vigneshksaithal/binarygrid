@@ -50,6 +50,12 @@
 	) => {
 		const mockGrid = createMockGrid(null)
 		const mockFixed = [{ r: 0, c: 0, v: 1 as const }]
+		const growthMetrics = {
+			hintsUsed: 0,
+			mistakeCount: 0,
+			undoCount: 0,
+			firstInputTracked: false,
+		}
 
 		if (status === 'loading') {
 			game.set({
@@ -66,6 +72,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				...growthMetrics,
 			})
 		} else if (status === 'solved') {
 			const solvedGrid = createSolvedGrid()
@@ -83,6 +90,7 @@
 				solution: solvedGrid,
 				dateISO: null,
 				history: [],
+				...growthMetrics,
 			})
 		} else if (status === 'invalid') {
 			const invalidGrid = createMockGrid(1)
@@ -107,6 +115,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				...growthMetrics,
 			})
 		} else if (status === 'error') {
 			game.set({
@@ -123,6 +132,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				...growthMetrics,
 			})
 		} else if (status === 'in_progress') {
 			const inProgressGrid = createMockGrid(null)
@@ -149,6 +159,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				...growthMetrics,
 			})
 		} else {
 			game.set({
@@ -165,6 +176,7 @@
 				solution: null,
 				dateISO: null,
 				history: [],
+				...growthMetrics,
 			})
 		}
 	}

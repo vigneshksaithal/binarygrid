@@ -2,7 +2,22 @@ import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import type { Grid } from '../../shared/types/puzzle'
 import { validateGrid } from '../../shared/validator'
+import {
+  calculateWeeklyLeaguePoints,
+  getUTCWeekId,
+  getWeeklyLeagueId
+} from '../../shared/growth'
 import { calculateCoinReward, getUserEconomy, saveUserEconomy } from '../lib/economy'
+import {
+  economyLedgerKey,
+  getPlayerContext,
+  markLedgerEvent,
+  normalizeAndLabelSolve,
+  recordDailyCompletion,
+  recordGrowthEvent,
+  consumeStreakFreeze,
+  updateEarnedStreakFreeze
+} from '../lib/growth'
 import {
   DECIMAL_RADIX,
   DEFAULT_DIFFICULTY,
@@ -19,7 +34,14 @@ const app = new Hono()
 
 app.post('/api/submit', async (c) => {
   const body = await c.req
-    .json<{ id: string; grid: Grid; solveTimeSeconds: number }>()
+    .json<{
+      id: string
+      grid: Grid
+      solveTimeSeconds: number
+      hintsUsed?: number
+      mistakeCount?: number
+      undoCount?: number
+    }>()
     .catch(() => null)
   if (
     !body ||
@@ -34,6 +56,12 @@ app.post('/api/submit', async (c) => {
   if (!Number.isFinite(solveTimeSeconds) || solveTimeSeconds < 0) {
     return c.json({ error: 'invalid solve time' }, HTTP_BAD_REQUEST)
   }
+
+  const { metrics: solveMetrics, solveQuality } = normalizeAndLabelSolve({
+    hintsUsed: body.hintsUsed,
+    mistakeCount: body.mistakeCount,
+    undoCount: body.undoCount
+  })
 
   const { postId, userId } = context
   if (!postId) {
@@ -124,6 +152,7 @@ app.post('/api/submit', async (c) => {
     let currentStreak = 0
     let longestStreak = 0
     let streakUpdated = false
+    let streakSaved = false
 
     if (lastDate !== todayDate) {
       const currentStreakStr = await redis.get(`user:${userId}:streak:current`)
@@ -132,9 +161,15 @@ app.post('/api/submit', async (c) => {
       const yesterday = new Date()
       yesterday.setUTCDate(yesterday.getUTCDate() - 1)
       const yesterdayDate = yesterday.toISOString().slice(0, 10)
+      const dayBeforeYesterday = new Date()
+      dayBeforeYesterday.setUTCDate(dayBeforeYesterday.getUTCDate() - 2)
+      const dayBeforeYesterdayDate = dayBeforeYesterday.toISOString().slice(0, 10)
 
       if (lastDate === yesterdayDate) {
         currentStreak += 1
+      } else if (lastDate === dayBeforeYesterdayDate && await consumeStreakFreeze(userId)) {
+        currentStreak += 1
+        streakSaved = true
       } else {
         currentStreak = 1
       }
@@ -151,6 +186,9 @@ app.post('/api/submit', async (c) => {
 
       await redis.zAdd('leaderboard:streaks', { score: currentStreak, member: userId })
       streakUpdated = true
+      if (streakSaved) {
+        await recordGrowthEvent('streak_saved', userId, todayDate)
+      }
     } else {
       const currentStreakStr = await redis.get(`user:${userId}:streak:current`)
       currentStreak = currentStreakStr ? Number.parseInt(currentStreakStr, DECIMAL_RADIX) : 0
@@ -158,48 +196,101 @@ app.post('/api/submit', async (c) => {
       longestStreak = longestStr ? Number.parseInt(longestStr, DECIMAL_RADIX) : 0
     }
 
+    const freezeUpdate = streakUpdated
+      ? await updateEarnedStreakFreeze(userId, currentStreak)
+      : {
+        freezes: Number.parseInt(
+          (await redis.get(`user:${userId}:streak:freezes`)) ?? '0',
+          DECIMAL_RADIX
+        ),
+        earnedFreeze: false
+      }
+
     // ── Coin economy ──────────────────────────────────────────────────────
     const economy = await getUserEconomy(userId)
-    const isDailyFirst = economy.dailyFirstSolve !== todayDate
+    const rewardEventId = `${todayDate}:${difficulty}:solve`
+    const canRewardSolve = await markLedgerEvent(economyLedgerKey(userId, rewardEventId))
+    const isDailyFirst = canRewardSolve && economy.dailyFirstSolve !== todayDate
+    const coinReward = canRewardSolve
+      ? calculateCoinReward(solveTimeSeconds, difficulty, currentStreak, isDailyFirst)
+      : { base: 0, streakBonus: 0, speedBonus: 0, dailyBonus: 0, total: 0 }
 
-    const coinReward = calculateCoinReward(
-      solveTimeSeconds,
-      difficulty,
-      currentStreak,
-      isDailyFirst
-    )
+    if (canRewardSolve) {
+      const parTime = difficulty === 'easy' ? 60 : difficulty === 'medium' ? 120 : 240
+      const isSpeedSolve = solveTimeSeconds <= parTime
+      const updatedEconomy = await saveUserEconomy(userId, {
+        coins: economy.coins + coinReward.total,
+        totalCoins: economy.totalCoins + coinReward.total,
+        totalSolves: economy.totalSolves + 1,
+        speedSolves: isSpeedSolve ? economy.speedSolves + 1 : economy.speedSolves,
+        dailyFirstSolve: isDailyFirst ? todayDate : economy.dailyFirstSolve,
+      })
 
-    const parTime = difficulty === 'easy' ? 60 : difficulty === 'medium' ? 120 : 240
-    const isSpeedSolve = solveTimeSeconds <= parTime
-
-    const updatedEconomy = await saveUserEconomy(userId, {
-      coins: economy.coins + coinReward.total,
-      totalCoins: economy.totalCoins + coinReward.total,
-      totalSolves: economy.totalSolves + 1,
-      speedSolves: isSpeedSolve ? economy.speedSolves + 1 : economy.speedSolves,
-      dailyFirstSolve: isDailyFirst ? todayDate : economy.dailyFirstSolve,
-    })
-
-    await redis.zAdd('leaderboard:coins', {
-      score: updatedEconomy.totalCoins,
-      member: userId,
-    })
+      await redis.zAdd('leaderboard:coins', {
+        score: updatedEconomy.totalCoins,
+        member: userId,
+      })
+    }
     // ── End coin economy ───────────────────────────────────────────────────
+
+    const dailyProgress = await recordDailyCompletion({
+      userId,
+      dateISOValue: todayDate,
+      difficulty,
+      solveTimeSeconds,
+      solveQuality
+    })
+
+    const weekId = getUTCWeekId()
+    await redis.zAdd(`leaderboard:weekly:${weekId}:${difficulty}`, {
+      score: solveTimeSeconds,
+      member: userId
+    })
+    if (dailyProgress.trio.perfectDay) {
+      await redis.zAdd(`leaderboard:weekly-perfect:${weekId}`, {
+        score: dailyProgress.trio.totalSolveTimeSeconds,
+        member: userId
+      })
+    }
+    if (canRewardSolve) {
+      const leagueId = getWeeklyLeagueId(userId, weekId)
+      const leagueKey = `leaderboard:weekly:${weekId}:${leagueId}`
+      const existingLeagueScore = await redis.zScore(leagueKey, userId)
+      const leaguePoints = calculateWeeklyLeaguePoints({
+        difficulty,
+        solveQuality,
+        trioComplete: dailyProgress.trio.trioComplete
+      })
+      await redis.zAdd(leagueKey, {
+        score: (existingLeagueScore ?? 0) + leaguePoints,
+        member: userId
+      })
+    }
+    await recordGrowthEvent('submit_success', userId, todayDate)
 
     const [userRank, totalEntries] = await Promise.all([
       redis.zRank(leaderboardSetKey, userId),
       redis.zCard(leaderboardSetKey)
     ])
 
+    const playerContext = await getPlayerContext(userId, body.id, todayDate)
+
     return c.json({
       ok: true,
       rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
       totalEntries,
+      solveQuality,
+      solveMetrics,
+      dailyProgress,
+      playerContext,
       coinReward,
       streak: {
         currentStreak: currentStreak,
         longestStreak: Math.max(currentStreak, longestStreak),
-        todayCompleted: lastDate === todayDate || streakUpdated
+        todayCompleted: lastDate === todayDate || streakUpdated,
+        freezes: freezeUpdate.freezes,
+        earnedFreeze: freezeUpdate.earnedFreeze,
+        savedByFreeze: streakSaved
       }
     })
   } catch (error) {

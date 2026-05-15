@@ -4,6 +4,7 @@
 	import { fade, fly } from "svelte/transition";
 	import type { Difficulty } from "../../shared/types/puzzle";
 	import type { LeaderboardEntry } from "../../shared/types/leaderboard";
+	import { growthStore, loadDailyProgress } from "../stores/growth";
 	import { loadPuzzle } from "../stores/game";
 	import { fetchStreak, streakStore } from "../stores/streak";
 	import { startTimer } from "../stores/timer";
@@ -80,9 +81,11 @@
 
 	$effect.pre(() => {
 		if ($showPlayOverlay) {
+			fetch("/api/puzzle?difficulty=easy").catch(() => {});
 			fetchPlayCount();
 			fetchTopLeaderboard();
 			fetchStreak();
+			loadDailyProgress();
 		}
 	});
 
@@ -185,6 +188,17 @@
 					<p class="text-sm text-zinc-600 dark:text-zinc-400">
 						Start your streak today! 🔥
 					</p>
+				{/if}
+			</div>
+		{/if}
+
+		{#if $growthStore.dailyProgress}
+			<div class="mt-3 text-center text-xs text-zinc-500 dark:text-zinc-400">
+				<span class="font-semibold text-zinc-700 dark:text-zinc-300">
+					{$growthStore.dailyProgress.trio.completedCount}/3 today
+				</span>
+				{#if $growthStore.dailyProgress.missions[0]}
+					<span> · {$growthStore.dailyProgress.missions[0].label}</span>
 				{/if}
 			</div>
 		{/if}

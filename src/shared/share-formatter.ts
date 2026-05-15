@@ -1,4 +1,5 @@
 import type { Difficulty, Grid } from './types/puzzle'
+import { SOLVE_QUALITY_LABELS, type SolveQuality } from './growth'
 import { formatTime as formatTimeString } from './utils/format'
 
 export interface ShareTextInput {
@@ -63,6 +64,13 @@ export interface SimpleShareInput {
     streak?: number | undefined
 }
 
+export interface ScoreShareInput extends SimpleShareInput {
+    solveQuality?: SolveQuality | undefined
+    rank?: number | undefined
+    templateId?: string | undefined
+    customText?: string | undefined
+}
+
 export const formatSimpleShareText = (input: SimpleShareInput): string => {
     const { dayNumber, completionTime, difficulty } = input
     let text = `Binary Grid #${dayNumber} 🧩 ⏱️ ${formatTime(completionTime)} | 🎯 ${DIFFICULTY_LABELS[difficulty]}`
@@ -72,4 +80,36 @@ export const formatSimpleShareText = (input: SimpleShareInput): string => {
     }
     
     return text
+}
+
+const SHARE_TEMPLATES: Record<string, (time: string) => string> = {
+    beat_time: (time) => `Beat my time: ${time}.`,
+    pure_logic: () => 'No guesses. Pure logic.',
+    streak_save: () => 'Saved my streak by one cell.',
+}
+
+export const formatScoreShareText = (input: ScoreShareInput): string => {
+    const time = formatTime(input.completionTime)
+    const parts = [
+        `Solved Binary Grid #${input.dayNumber} in ${time}`,
+        DIFFICULTY_LABELS[input.difficulty],
+    ]
+
+    if (input.solveQuality) {
+        parts.push(SOLVE_QUALITY_LABELS[input.solveQuality])
+    }
+    if (input.streak !== undefined && input.streak >= 2) {
+        parts.push(`${input.streak}-day streak`)
+    }
+    if (input.rank !== undefined && input.rank >= 1) {
+        parts.push(`rank #${input.rank}`)
+    }
+
+    const baseText = parts.join(' | ')
+    const templateText = input.templateId
+        ? SHARE_TEMPLATES[input.templateId]?.(time)
+        : undefined
+    const customText = input.customText?.trim()
+
+    return [baseText, customText || templateText].filter(Boolean).join('\n')
 }

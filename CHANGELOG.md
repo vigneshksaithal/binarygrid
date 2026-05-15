@@ -1,5 +1,50 @@
 # Changelog
 
+## 2026-05-15
+
+### Dependencies
+
+Updated requested packages:
+- `@devvit/web`: 0.12.16 → 0.12.23
+- `@hono/node-server`: 1.19.14 → 2.0.2
+- `devvit`: 0.12.16 → 0.12.23
+- `vite`: 8.0.3 → 8.0.13
+
+### Growth Features
+
+- **Added Reddit-native growth loop infrastructure**:
+  - Added `/api/events` for allowlisted funnel events such as app opens, puzzle starts, first input, share success, join success, and streak saves.
+  - Added `/api/daily-progress` with daily trio progress, deterministic daily missions, streak freeze counts, and current streak state.
+  - Added `/api/player-context` with rank, faster-than percentile, next-rank gap, top-10 cutoff, best difficulty today, and completed difficulties.
+  - Added shared growth utilities for solve-quality labels, daily missions, trio summaries, percentile math, UTC week IDs, and streak-freeze earning.
+
+- **Moved score sharing toward a compliant score-thread model**:
+  - Daily post creation now attempts to create an app-authored score thread comment, sticky it, and store `post:{postId}:scoreThreadCommentId`.
+  - Added `/api/share-score` so user-triggered score shares reply to the stored score thread by default.
+  - Kept `/api/share-comment` as a backward-compatible wrapper.
+  - Score comments now include richer status like solve quality, streak, rank, and “Beat my time” template text.
+
+- **Expanded post-solve recognition and retention surfaces**:
+  - Submissions now accept `hintsUsed`, `mistakeCount`, and `undoCount`.
+  - Solves are labeled as `clean`, `sharp`, `comeback`, or `assisted`.
+  - The success modal now shows solve quality, faster-than percentile, next-rank gap, daily trio progress, perfect/trio completion, and streak freezes.
+  - The client now records first input, puzzle start, share preview/success, leaderboard open, shop open, and subreddit join events.
+  - The play overlay warms the daily puzzle and shows daily progress/mission context before play.
+
+- **Added weekly Reddit ritual support**:
+  - Added `/internal/schedule/weekly-recap` and moderator menu item `/internal/menu/create-weekly-recap`.
+  - Weekly recap posts summarize the current UTC week’s easy/medium/hard leaderboards.
+  - Removed automatic daily crossposting from the daily scheduler so crossposts can be milestone/feedback driven instead.
+
+- **Improved economy and streak safeguards**:
+  - Added `economy:ledger:{userId}:{eventId}` reward idempotency so repeated solves cannot farm base rewards.
+  - Added daily-trio, weekly difficulty leaderboard, and deterministic weekly league Redis writes.
+  - Added earnable streak freezes at five-day intervals, capped at two, with automatic one-day save support.
+
+### Tests
+
+- Added unit tests for solve-quality derivation, daily mission rotation, trio summary, percentile math, and streak-freeze earning.
+- Added route tests for analytics events, daily progress, player context, score-thread sharing, and duplicate share idempotency.
 ## 2026-04-30
 
 ### Dependencies
@@ -51,7 +96,6 @@ Updated packages to latest versions:
 - `hono`: 4.12.9 → 4.12.10
 - `svelte`: 5.55.0 → 5.55.1
 - `svelte-check`: 4.4.5 → 4.4.6
-
 ## 2026-03-26
 
 ### Dependencies
