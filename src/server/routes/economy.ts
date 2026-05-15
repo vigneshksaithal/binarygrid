@@ -174,7 +174,7 @@ app.get('/api/leaderboard/coins', async (c) => {
     })) as CoinLeaderboardMember[]
 
     const entries = await Promise.all(
-      topUsers.map(async (item, i) => {
+      topUsers.map(async (item: { member: string; score: number }, i: number) => {
         const memberId = item.member
         const score = item.score
         let username = 'Anon'

@@ -45,7 +45,57 @@ Updated requested packages:
 
 - Added unit tests for solve-quality derivation, daily mission rotation, trio summary, percentile math, and streak-freeze earning.
 - Added route tests for analytics events, daily progress, player context, score-thread sharing, and duplicate share idempotency.
+## 2026-04-30
 
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: 0.12.18 → 0.12.21
+- `@devvit/test`: 0.12.18 → 0.12.21
+- `@devvit/web`: 0.12.18 → 0.12.21
+- `@hono/node-server`: 1.19.13 → 2.0.1
+- `@lucide/svelte`: 1.8.0 → 1.14.0
+- `@tailwindcss/vite`: 4.2.2 → 4.2.4
+- `devvit`: 0.12.18 → 0.12.21
+- `fast-check`: 4.6.0 → 4.7.0
+- `hono`: 4.12.12 → 4.12.16
+- `svelte`: 5.55.2 → 5.55.5
+- `tailwindcss`: 4.2.2 → 4.2.4
+- `@types/node`: 25.5.2 → 25.6.0
+- `typescript`: 6.0.2 → 6.0.3
+- `vite`: 8.0.8 → 8.0.10
+- `vitest`: 4.1.4 → 4.1.5
+
+## 2026-04-09
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: 0.12.17 → 0.12.18
+- `@devvit/test`: 0.12.17 → 0.12.18
+- `@devvit/web`: 0.12.17 → 0.12.18
+- `@hono/node-server`: 1.19.12 → 1.19.13
+- `@lucide/svelte`: 1.7.0 → 1.8.0
+- `devvit`: 0.12.17 → 0.12.18
+- `hono`: 4.12.10 → 4.12.12
+- `@types/node`: 25.5.0 → 25.5.2
+- `svelte`: 5.55.1 → 5.55.2
+- `vite`: 8.0.3 → 8.0.8
+- `vitest`: 4.1.2 → 4.1.4
+
+## 2026-04-02
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: 0.12.16 → 0.12.17
+- `@devvit/test`: 0.12.16 → 0.12.17
+- `@devvit/web`: 0.12.16 → 0.12.17
+- `@hono/node-server`: 1.19.11 → 1.19.12
+- `devvit`: 0.12.16 → 0.12.17
+- `hono`: 4.12.9 → 4.12.10
+- `svelte`: 5.55.0 → 5.55.1
+- `svelte-check`: 4.4.5 → 4.4.6
 ## 2026-03-26
 
 ### Dependencies
