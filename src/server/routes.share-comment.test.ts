@@ -23,6 +23,8 @@ vi.mock('@devvit/web/server', () => {
                 redisStore.set(key, value)
                 return Promise.resolve()
             }),
+            incrBy: vi.fn((_key: string, _amount: number) => Promise.resolve(1)),
+            expire: vi.fn((_key: string, _ttl: number) => Promise.resolve(1)),
             // Expose store for test inspection
             __store: redisStore,
             __clearStore: () => redisStore.clear(),

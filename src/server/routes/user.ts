@@ -1,6 +1,6 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
-import { DECIMAL_RADIX, HTTP_BAD_REQUEST, todayISO } from './utils'
+import { DECIMAL_RADIX, HTTP_BAD_REQUEST, HTTP_OK, todayISO } from './utils'
 
 const app = new Hono()
 
@@ -36,6 +36,25 @@ app.post('/api/join-subreddit', async (c) => {
       { status: 'error', message: `Failed to join subreddit. Error: ${error}` },
       HTTP_BAD_REQUEST
     )
+  }
+})
+
+// GET /api/user/is-moderator — returns auth status and moderator flag for the current user
+app.get('/api/user/is-moderator', async (c) => {
+  const { userId, subredditName } = context
+  if (!userId) {
+    return c.json({ isAuthenticated: false, isModerator: false }, HTTP_OK)
+  }
+
+  try {
+    const mods = await (reddit as unknown as {
+      getModerators: (opts: { subredditName: string }) => Promise<{ children: Array<{ id: string }> }>
+    }).getModerators({ subredditName: subredditName ?? '' })
+    const isModerator = mods.children.some((mod) => mod.id === userId)
+    return c.json({ isAuthenticated: true, isModerator }, HTTP_OK)
+  } catch {
+    // Fail safe: authenticated but not a moderator
+    return c.json({ isAuthenticated: true, isModerator: false }, HTTP_OK)
   }
 })
 

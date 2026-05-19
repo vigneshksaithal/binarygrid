@@ -6,12 +6,26 @@ import {
   isGrowthEventName,
   recordGrowthEvent,
 } from '../lib/growth'
-import { HTTP_BAD_REQUEST, HTTP_OK } from './utils'
+import { recordSolve } from '../lib/social'
+import { trackDau, trackFunnelEvent, trackRetentionOnOpen, trackShare } from '../lib/viral-analytics'
+import { HTTP_BAD_REQUEST, HTTP_OK, todayISO } from './utils'
 
 const app = new Hono()
 
+type EventBody = {
+  eventName: string
+  puzzleId?: string
+  solveTime?: number
+}
+
+const fireAndForget = (promise: Promise<unknown>): void => {
+  promise.catch(() => {
+    // Viral tracking failures must not break the critical path
+  })
+}
+
 app.post('/api/events', async (c) => {
-  const body = await c.req.json<{ eventName: string }>().catch(() => null)
+  const body = await c.req.json<EventBody>().catch(() => null)
   if (!body || typeof body.eventName !== 'string') {
     return c.json({ error: 'invalid payload' }, HTTP_BAD_REQUEST)
   }
@@ -21,6 +35,32 @@ app.post('/api/events', async (c) => {
 
   try {
     await recordGrowthEvent(body.eventName, context.userId)
+
+    const { userId } = context
+    const date = todayISO()
+
+    if (body.eventName === 'app_open' && userId) {
+      fireAndForget(trackRetentionOnOpen(userId))
+      fireAndForget(trackFunnelEvent('open', date))
+      fireAndForget(trackDau(userId, date))
+    }
+
+    if (body.eventName === 'puzzle_start') {
+      fireAndForget(trackFunnelEvent('start', date))
+    }
+
+    if (body.eventName === 'submit_success' && userId) {
+      fireAndForget(trackFunnelEvent('complete', date))
+      if (body.puzzleId) {
+        fireAndForget(recordSolve(userId, body.puzzleId, body.solveTime ?? 0))
+      }
+    }
+
+    if (body.eventName === 'share_success' && userId) {
+      fireAndForget(trackFunnelEvent('share', date))
+      fireAndForget(trackShare(userId, date))
+    }
+
     return c.json({ ok: true }, HTTP_OK)
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'

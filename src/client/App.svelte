@@ -1,79 +1,110 @@
 <script lang="ts">
-	import LightbulbIcon from '@lucide/svelte/icons/lightbulb'
-	import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal'
-	import TrophyIcon from '@lucide/svelte/icons/trophy'
-	import Undo2Icon from '@lucide/svelte/icons/undo-2'
-	import type { Difficulty } from '../shared/types/puzzle'
-	import './app.css'
-	import Button from './components/Button.svelte'
-	import Dropdown from './components/Dropdown.svelte'
-	import Grid from './components/Grid.svelte'
-	import HowToPlayModal from './components/HowToPlayModal.svelte'
-	import LeaderboardModal from './components/LeaderboardModal.svelte'
-	import PlayOverlay from './components/PlayOverlay.svelte'
-	import ShopModal from './components/ShopModal.svelte'
-	import SuccessModal from './components/SuccessModal.svelte'
-	import Timer from './components/Timer.svelte'
-	import { game, loadPuzzle, undo, useHint } from './stores/game'
-	import { loadDailyProgress, trackGrowthEvent } from './stores/growth'
-	import { canUseHint, cooldownProgress } from './stores/hint'
-	import { fetchStreak } from './stores/streak'
-	import { startTimer } from './stores/timer'
-	import { openHowToModal, openLeaderboardModal } from './stores/ui'
+	import LightbulbIcon from "@lucide/svelte/icons/lightbulb";
+	import MoreHorizontalIcon from "@lucide/svelte/icons/more-horizontal";
+	import TrophyIcon from "@lucide/svelte/icons/trophy";
+	import Undo2Icon from "@lucide/svelte/icons/undo-2";
+	import type { Difficulty } from "../shared/types/puzzle";
+	import "./app.css";
+	import AdminDashboard from "./components/AdminDashboard.svelte";
+	import Button from "./components/Button.svelte";
+	import ChallengePanel from "./components/ChallengePanel.svelte";
+	import Dropdown from "./components/Dropdown.svelte";
+	import Grid from "./components/Grid.svelte";
+	import HowToPlayModal from "./components/HowToPlayModal.svelte";
+	import LeaderboardModal from "./components/LeaderboardModal.svelte";
+	import PlayOverlay from "./components/PlayOverlay.svelte";
+	import ShopModal from "./components/ShopModal.svelte";
+	import SocialPresence from "./components/SocialPresence.svelte";
+	import SuccessModal from "./components/SuccessModal.svelte";
+	import Timer from "./components/Timer.svelte";
+	import { game, loadPuzzle, undo, useHint } from "./stores/game";
+	import { loadDailyProgress, trackGrowthEvent } from "./stores/growth";
+	import { canUseHint, cooldownProgress } from "./stores/hint";
+	import { fetchStreak } from "./stores/streak";
+	import { startTimer } from "./stores/timer";
+	import { openHowToModal, openLeaderboardModal } from "./stores/ui";
 
 	const difficultyOptions = [
-		{ value: 'easy', label: 'Easy' },
-		{ value: 'medium', label: 'Medium' },
-		{ value: 'hard', label: 'Hard' },
-	]
+		{ value: "easy", label: "Easy" },
+		{ value: "medium", label: "Medium" },
+		{ value: "hard", label: "Hard" },
+	];
 
 	const handleDifficultyChange = async (difficulty: string) => {
-		await loadPuzzle(difficulty as Difficulty)
-		startTimer()
-	}
+		await loadPuzzle(difficulty as Difficulty);
+		startTimer();
+	};
 
 	const handleHint = () => {
 		if ($canUseHint) {
-			useHint()
+			useHint();
 		}
-	}
+	};
 
 	// Fetch streak on mount
-	fetchStreak()
-	loadDailyProgress()
-	trackGrowthEvent('app_open')
+	fetchStreak();
+	loadDailyProgress();
+	trackGrowthEvent("app_open");
 
 	// Coin economy state
-	let coinBalance = $state(0)
-	let shopOpen = $state(false)
-	let menuOpen = $state(false)
+	let coinBalance = $state(0);
+	let shopOpen = $state(false);
+	let menuOpen = $state(false);
 
 	$effect(() => {
-		fetch('/api/economy')
+		fetch("/api/economy")
 			.then((r) => (r.ok ? r.json() : null))
 			.then((data) => {
-				if (data && typeof data.coins === 'number') {
-					coinBalance = data.coins
+				if (data && typeof data.coins === "number") {
+					coinBalance = data.coins;
 				}
 			})
-			.catch(() => {})
-	})
+			.catch(() => {});
+	});
+
+	// User context: authentication and moderator status
+	let isAuthenticated = $state(false);
+	let isModerator = $state(false);
+
+	$effect(() => {
+		fetch("/api/user/is-moderator")
+			.then((r) => (r.ok ? r.json() : null))
+			.then(
+				(
+					data: {
+						isAuthenticated: boolean;
+						isModerator: boolean;
+					} | null,
+				) => {
+					if (data) {
+						isAuthenticated = data.isAuthenticated;
+						isModerator = data.isModerator;
+					}
+				},
+			)
+			.catch(() => {});
+	});
 
 	const openShop = () => {
-		menuOpen = false
-		shopOpen = true
-		trackGrowthEvent('shop_open')
-	}
+		menuOpen = false;
+		shopOpen = true;
+		trackGrowthEvent("shop_open");
+	};
 
 	const openLeaderboard = () => {
-		menuOpen = false
-		openLeaderboardModal()
-		trackGrowthEvent('leaderboard_open')
-	}
+		menuOpen = false;
+		openLeaderboardModal();
+		trackGrowthEvent("leaderboard_open");
+	};
 
 	// SVG circle parameters for progress ring
-	const RADIUS = 16
-	const CIRCUMFERENCE = 2 * Math.PI * RADIUS
+	const RADIUS = 16;
+	const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+	// postId for social presence — falls back to puzzle id; server reads from Devvit context
+	const postId = $derived($game.puzzleId ?? "default");
+	// puzzleId for challenge panel
+	const puzzleId = $derived($game.puzzleId ?? "");
 </script>
 
 <main
@@ -96,7 +127,8 @@
 					size="icon"
 					onClick={undo}
 					disabled={$game.history.length === 0 ||
-						($game.status !== 'in_progress' && $game.status !== 'invalid')}
+						($game.status !== "in_progress" &&
+							$game.status !== "invalid")}
 					ariaLabel="Undo"
 				>
 					<Undo2Icon />
@@ -106,7 +138,8 @@
 						variant="ghost"
 						size="icon"
 						onClick={handleHint}
-						disabled={!$canUseHint || $game.status !== 'in_progress'}
+						disabled={!$canUseHint ||
+							$game.status !== "in_progress"}
 						ariaLabel="Hint"
 					>
 						<LightbulbIcon />
@@ -175,11 +208,17 @@
 							>
 								<span class="text-base">🪙</span>
 								<span>Shop</span>
-								<span class="ml-auto text-yellow-400 font-bold text-xs">{coinBalance}</span>
+								<span
+									class="ml-auto text-yellow-400 font-bold text-xs"
+									>{coinBalance}</span
+								>
 							</button>
 							<button
 								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors border-t border-zinc-700"
-								onclick={() => { menuOpen = false; openHowToModal() }}
+								onclick={() => {
+									menuOpen = false;
+									openHowToModal();
+								}}
 							>
 								<span class="text-base">❓</span>
 								How to Play
@@ -191,6 +230,25 @@
 		</div>
 		<Grid />
 	</div>
+
+	<!-- Social presence: active players + recent solvers (visible to all) -->
+	<div class="mt-4 px-1">
+		<SocialPresence {postId} />
+	</div>
+
+	<!-- Challenge panel: auth-gated -->
+	{#if isAuthenticated && puzzleId}
+		<div class="mt-4 px-1">
+			<ChallengePanel {puzzleId} {isAuthenticated} />
+		</div>
+	{/if}
+
+	<!-- Admin dashboard: moderator-gated -->
+	{#if isModerator}
+		<div class="mt-6 px-1">
+			<AdminDashboard {isModerator} />
+		</div>
+	{/if}
 </main>
 
 <PlayOverlay />

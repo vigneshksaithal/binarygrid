@@ -1,5 +1,37 @@
 # Changelog
 
+## 2026-05-17
+
+### Viral Social Engine — Wire Components into App.svelte (task 11.4)
+
+- **Added `GET /api/user/is-moderator` endpoint** in `src/server/routes/user.ts`:
+  - Returns `{ isAuthenticated: boolean, isModerator: boolean }` for the current Devvit context user.
+  - Unauthenticated users receive `{ isAuthenticated: false, isModerator: false }`.
+  - Uses the same `getModerators` pattern as the admin route; fails safe to `{ isAuthenticated: true, isModerator: false }` on any Reddit API error.
+
+- **Updated `src/client/App.svelte`**:
+  - Imported and mounted `SocialPresence`, `ChallengePanel`, and `AdminDashboard`.
+  - Added `$effect` to fetch `/api/user/is-moderator` on load, populating `isAuthenticated` and `isModerator` reactive state.
+  - `SocialPresence` is rendered below the grid for all users (including unauthenticated), receiving `postId` derived from `$game.puzzleId`.
+  - `ChallengePanel` is rendered below `SocialPresence`, gated on `isAuthenticated && puzzleId` (requires a loaded puzzle and authenticated user).
+  - `AdminDashboard` is rendered at the bottom, gated on `isModerator` (client-side cosmetic gate; server enforces access independently).
+  - All new state uses Svelte 5 runes (`$state`, `$derived`, `$effect`); no style blocks added.
+
+
+
+### Viral Social Engine — Admin Dashboard Component
+
+- **Added `src/client/components/AdminDashboard.svelte`** (task 10.5):
+  - Accepts `isModerator: boolean` prop; renders nothing when `false` (client-side cosmetic gate per requirement 6.4).
+  - On mount, calls `fetchMetrics(14)` from the metrics store to load 14-day rolling data.
+  - Displays a spinner loading state while `$metricsStore.loading` is `true`.
+  - Shows a red error message via `role="alert"` when `$metricsStore.error` is non-null.
+  - Renders five `MetricsKPI` cards (DAU, K-Factor, Share Rate, D1 Retention, D7 Retention) — always present, showing `—` on fetch failure rather than being hidden.
+  - Each KPI card receives a sparkline array built from all 14 days of data (oldest → newest), with share/retention values converted to percentages.
+  - Renders `FunnelViz` with the most recent day's funnel data, falling back to an all-zero funnel on failure.
+  - Renders `CopyButton` wired to `copyMetricsToClipboard()` from the metrics store.
+  - Uses Svelte 5 runes syntax (`$props`, `$derived`, `onMount`), Tailwind CSS v4 classes, and no external chart libraries.
+
 ## 2026-05-15
 
 ### Dependencies

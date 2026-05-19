@@ -19,6 +19,10 @@ import {
   updateEarnedStreakFreeze
 } from '../lib/growth'
 import {
+  hasReferredOpenToday,
+  trackReferredConversion
+} from '../lib/viral-analytics'
+import {
   DECIMAL_RADIX,
   DEFAULT_DIFFICULTY,
   HTTP_BAD_REQUEST,
@@ -240,6 +244,14 @@ app.post('/api/submit', async (c) => {
       solveTimeSeconds,
       solveQuality
     })
+
+    // Wire referred conversion tracking: if the user arrived via a referral
+    // link today, count this puzzle completion as a referred conversion.
+    // Completions on subsequent days do not count (Requirement 16.3).
+    const isReferredToday = await hasReferredOpenToday(userId, todayDate)
+    if (isReferredToday) {
+      await trackReferredConversion(userId, todayDate)
+    }
 
     const weekId = getUTCWeekId()
     await redis.zAdd(`leaderboard:weekly:${weekId}:${difficulty}`, {

@@ -4,11 +4,13 @@ import type { SolveQuality } from '../../shared/growth'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { formatScoreShareText } from '../../shared/share-formatter'
 import { formatTime } from '../../shared/utils/format'
+import { trackFunnelEvent, trackShare } from '../lib/viral-analytics'
 import {
   ensurePostIdPrefix,
   HTTP_BAD_REQUEST,
   HTTP_OK,
-  isDifficultyValue
+  isDifficultyValue,
+  todayISO
 } from './utils'
 
 const app = new Hono()
@@ -121,6 +123,8 @@ const shareScore = async (input: ShareScoreInput) => {
 
   await redis.set(shareKey, '1')
 
+  const date = todayISO()
+
   try {
     const targetId = await getShareTargetId(postId, input.mode, Boolean(customText))
     const text = formatScoreShareText({
@@ -139,9 +143,23 @@ const shareScore = async (input: ShareScoreInput) => {
       id: targetId,
       text,
     })
+
+    // Record share counters after successful Reddit comment (fire-and-forget)
+    void Promise.all([
+      trackShare(userId, date),
+      trackFunnelEvent('share', date),
+    ])
+
     return { ok: true }
   } catch (error) {
     await redis.del(shareKey)
+
+    // Still record the share counter even when the Reddit API call fails (Req 16.1)
+    void Promise.all([
+      trackShare(userId, date),
+      trackFunnelEvent('share', date),
+    ])
+
     const message = error instanceof Error ? error.message : 'Unknown error'
     return { ok: false, error: `Failed to post share comment: ${message}` }
   }
