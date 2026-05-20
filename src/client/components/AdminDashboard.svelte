@@ -117,12 +117,19 @@
         {:else if !hasData}
             <!-- Empty state -->
             <div
-                class="flex flex-col items-center gap-2 py-8 text-center"
+                class="flex flex-col items-center gap-3 py-8 text-center"
                 aria-live="polite"
             >
                 <p class="text-sm text-zinc-500 dark:text-zinc-400">
                     No analytics data yet. Metrics will appear once users start interacting with the app.
                 </p>
+                <button
+                    type="button"
+                    class="rounded-lg bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-200 transition-colors"
+                    onclick={handleRetry}
+                >
+                    Refresh
+                </button>
             </div>
         {:else}
             <!-- KPI cards — only shown when there is actual data -->

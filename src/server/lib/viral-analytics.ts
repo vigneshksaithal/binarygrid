@@ -312,7 +312,8 @@ const safePfCount = async (key: string): Promise<number> => {
  */
 export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> => {
     const [dau, impressions, shares, referredOpens, referredConversions,
-        challengesSent, challengesCompleted, funnel] = await Promise.all([
+        challengesSent, challengesCompleted, funnel,
+        retentionD1, retentionD7, retentionD30] = await Promise.all([
             safeBitCount(`viral:dau:${date}`),
             safePfCount(`viral:impressions:${date}`),
             getCounter(`viral:daily:${date}:shares`),
@@ -321,17 +322,14 @@ export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> 
             getCounter(`viral:daily:${date}:challenges_sent`),
             getCounter(`viral:daily:${date}:challenges_completed`),
             getFunnelMetrics(date),
+            getRetentionRate(date, 1),
+            getRetentionRate(date, 7),
+            getRetentionRate(date, 30),
         ])
 
     const shareRate = dau > 0 ? shares / dau : 0
     const conversionRate = referredOpens > 0 ? referredConversions / referredOpens : 0
     const kFactor = calculateKFactor({ dau, shares, referredOpens, referredConversions })
-
-    const [retentionD1, retentionD7, retentionD30] = await Promise.all([
-        getRetentionRate(date, 1),
-        getRetentionRate(date, 7),
-        getRetentionRate(date, 30),
-    ])
 
     return {
         date, dau, impressions, shares, shareRate,
