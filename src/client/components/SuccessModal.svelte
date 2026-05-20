@@ -10,6 +10,9 @@
 	import { growthStore, trackGrowthEvent } from "../stores/growth";
 	import { rankStore } from "../stores/rank";
 	import {
+		isStreakMilestone,
+		postReplay,
+		postStreakConfession,
 		resetAllShareState,
 		shareState,
 		shareToReddit,
@@ -32,10 +35,25 @@
 	let isJoining = $state(false);
 	let dayNumber = $state<number | null>(null);
 
+	// ── Streak Confession state ──────────────────────────────────────────────
+	let confessionPromptVisible = $state(false);
+	let confessionPosted = $state(false);
+	let confessionPosting = $state(false);
+
 	const qualityLabel = $derived(
 		$growthStore.solveQuality
 			? SOLVE_QUALITY_LABELS[$growthStore.solveQuality as SolveQuality]
 			: "Solved",
+	);
+
+	const currentStreak = $derived(
+		$growthStore.dailyProgress?.streak.currentStreak ??
+			$streakStore.data.currentStreak,
+	);
+
+	// Show confession prompt if this solve landed on a milestone streak
+	const shouldShowConfession = $derived(
+		isStreakMilestone(currentStreak) && !confessionPosted,
 	);
 
 	const getNextDifficulty = (current: Difficulty): Difficulty => {
@@ -59,7 +77,6 @@
 				setHasJoinedSubreddit(data.hasJoined);
 			}
 		} catch (error) {
-			// biome-ignore lint/suspicious/noConsole: we want to log the error
 			console.error("Failed to check joined status", error);
 		}
 	};
@@ -74,44 +91,58 @@
 				dayNumber = null;
 			}
 		} catch (error) {
-			// biome-ignore lint/suspicious/noConsole: we want to log the error
 			console.error("Failed to fetch day number", error);
 			dayNumber = null;
 		}
 	};
 
 	const joinSubreddit = async () => {
-		if (isJoining) {
-			return;
-		}
+		if (isJoining) return;
 		isJoining = true;
-
 		try {
 			trackGrowthEvent("join_click");
-			const res = await fetch("/api/join-subreddit", {
-				method: "POST",
-			});
+			const res = await fetch("/api/join-subreddit", { method: "POST" });
 			if (res.ok) {
 				setHasJoinedSubreddit(true);
 				trackGrowthEvent("join_success");
 				closeSuccessModal();
 			} else {
-				// biome-ignore lint/suspicious/noConsole: we want to log the error
 				console.error("Failed to join subreddit");
 			}
 		} catch (error) {
-			// biome-ignore lint/suspicious/noConsole: we want to log the error
 			console.error("Failed to join subreddit", error);
 		} finally {
 			isJoining = false;
 		}
 	};
 
-	const handleShareToReddit = async () => {
-		if ($shareState.isSharing || dayNumber === null) {
-			return;
-		}
+	// ── Post Replay (fixes the closed-loop share problem) ───────────────────
+	const handlePostReplay = async () => {
+		if ($shareState.isSharing || dayNumber === null) return;
+		if ($game.status !== "solved") return;
 
+		trackGrowthEvent("share_preview");
+
+		const streakVal = currentStreak;
+
+		const ok = await postReplay({
+			grid: $game.grid,
+			dayNumber,
+			solveTimeSeconds: $elapsedSeconds,
+			difficulty: $game.difficulty,
+			solveQuality: $growthStore.solveQuality ?? undefined,
+			rank: $growthStore.playerContext?.rank ?? $rankStore.rank ?? undefined,
+			streak: streakVal >= 2 ? streakVal : undefined,
+			fasterThanPercentile:
+				$growthStore.playerContext?.fasterThanPercentile ?? undefined,
+		});
+
+		if (ok) trackGrowthEvent("share_success");
+	};
+
+	// ── Legacy score-thread share (kept for backward compat) ────────────────
+	const handleShareToReddit = async () => {
+		if ($shareState.isSharing || dayNumber === null) return;
 		trackGrowthEvent("share_preview");
 		const shared = await shareToReddit({
 			solveTimeSeconds: $elapsedSeconds,
@@ -120,20 +151,30 @@
 			solveQuality: $growthStore.solveQuality ?? undefined,
 			rank: $growthStore.playerContext?.rank ?? $rankStore.rank,
 		});
-		if (shared) {
-			trackGrowthEvent("share_success");
+		if (shared) trackGrowthEvent("share_success");
+	};
+
+	// ── Streak Confession ────────────────────────────────────────────────────
+	const handleConfession = async () => {
+		if (confessionPosting) return;
+		confessionPosting = true;
+		const ok = await postStreakConfession(currentStreak);
+		confessionPosting = false;
+		if (ok) {
+			confessionPosted = true;
+			confessionPromptVisible = false;
 		}
 	};
 
-	const showConfetti = () => {
-		const CONFETTI_PARTICLE_COUNT = 100;
-		const CONFETTI_SPREAD = 70;
-		const CONFETTI_ORIGIN_Y = 0.6; // Vertical origin to start confetti lower on the screen
+	const dismissConfession = () => {
+		confessionPromptVisible = false;
+	};
 
+	const showConfetti = () => {
 		confetti({
-			particleCount: CONFETTI_PARTICLE_COUNT,
-			spread: CONFETTI_SPREAD,
-			origin: { y: CONFETTI_ORIGIN_Y },
+			particleCount: 100,
+			spread: 70,
+			origin: { y: 0.6 },
 		});
 	};
 
@@ -141,8 +182,20 @@
 		if ($showSuccessModal) {
 			showConfetti();
 			resetAllShareState();
+			confessionPosted = false;
+			confessionPromptVisible = false;
 			fetchJoinedStatus();
 			fetchDayNumber();
+		}
+	});
+
+	// Reveal confession prompt a beat after modal opens, if applicable
+	$effect(() => {
+		if ($showSuccessModal && shouldShowConfession) {
+			const t = setTimeout(() => {
+				confessionPromptVisible = true;
+			}, 1200);
+			return () => clearTimeout(t);
 		}
 	});
 </script>
@@ -182,7 +235,7 @@
 				<div></div>
 			{/if}
 			<div>
-				<div class="text-xl font-bold text-orange-400">🔥{$streakStore.data.currentStreak}</div>
+				<div class="text-xl font-bold text-orange-400">🔥{currentStreak}</div>
 				<div class="text-xs text-zinc-500">Streak</div>
 			</div>
 			{#if $coinRewardStore !== null}
@@ -221,19 +274,54 @@
 			{/if}
 		</div>
 
+		<!-- ── Streak Confession prompt (milestone only, opt-in) ─────────── -->
+		{#if confessionPromptVisible}
+			<div class="rounded-xl border border-orange-500/40 bg-orange-950/30 px-3 py-3 text-center space-y-2">
+				<p class="text-sm font-semibold text-orange-300">
+					🔥 Day {currentStreak}. That's a streak.
+				</p>
+				<p class="text-xs text-zinc-400">
+					Post this moment to r/binarygrid? Other players will see it.
+					No pressure — it's opt-in.
+				</p>
+				<div class="flex gap-2 justify-center">
+					<Button
+						class="text-xs px-3 py-1.5"
+						onClick={handleConfession}
+						disabled={confessionPosting}
+					>
+						{confessionPosting ? "Posting…" : "🔥 Post my streak"}
+					</Button>
+					<Button
+						variant="secondary"
+						class="text-xs px-3 py-1.5"
+						onClick={dismissConfession}
+					>
+						Not now
+					</Button>
+				</div>
+			</div>
+		{/if}
+		{#if confessionPosted}
+			<div class="rounded-xl bg-zinc-800/50 border border-zinc-700 px-3 py-2 text-center">
+				<p class="text-xs text-emerald-400">✓ Streak posted to r/binarygrid</p>
+			</div>
+		{/if}
+
 		<!-- Action Buttons -->
 		<div class="space-y-2">
+			<!-- Primary: Post Your Replay (fixes closed-loop share) -->
 			<Button
 				class="w-full"
-				onClick={handleShareToReddit}
+				onClick={handlePostReplay}
 				disabled={$shareState.isSharing || $shareState.shareSuccess === true || dayNumber === null}
 			>
 				{#if $shareState.isSharing}
-					Sharing…
+					Posting…
 				{:else if $shareState.shareSuccess === true}
-					✓ Shared!
+					✓ Replay posted!
 				{:else}
-					📢 Share Score
+					📋 Post Your Replay
 				{/if}
 			</Button>
 
