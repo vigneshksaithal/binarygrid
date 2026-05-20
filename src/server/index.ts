@@ -6,6 +6,7 @@ import {
   createWeeklyRecap,
   ensureScoreThread
 } from './core/post'
+import { refreshPostPreview } from './core/preview'
 import routes from './routes/index'
 
 const app = new Hono()
@@ -122,6 +123,17 @@ app.post('/internal/schedule/daily', async (c) => {
       },
       HTTP_BAD_REQUEST
     )
+  }
+})
+
+// Scheduler endpoint for live feed preview refresh (every 15 minutes)
+app.post('/internal/schedule/refresh-preview', async (c) => {
+  try {
+    const result = await refreshPostPreview()
+    return c.json({ status: result.ok ? 'ok' : 'noop', reason: result.reason })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    return c.json({ status: 'error', message: `Preview refresh failed: ${message}` }, HTTP_BAD_REQUEST)
   }
 })
 

@@ -3,6 +3,7 @@ import { getUTCWeekId } from '../../shared/growth'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { formatTime } from '../../shared/utils/format'
 import { generatePuzzleForPost } from './generator'
+import { setActivePostAndRefreshPreview } from './preview'
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
 export const TARGET_CROSSPOST_SUBREDDIT = 'RedditGames'
@@ -72,6 +73,9 @@ export const createPost = async () => {
   } catch {
     await redis.set(`post:${post.id}:scoreThreadStickyStatus`, 'failed')
   }
+
+  // Register this as the active post and set its initial live preview
+  await setActivePostAndRefreshPreview(post.id)
 
   return post
 }

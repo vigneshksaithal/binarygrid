@@ -61,6 +61,10 @@
       "weekly-recap": {
         "endpoint": "/internal/schedule/weekly-recap",
         "cron": "0 18 * * 0"
+      },
+      "refresh-preview": {
+        "endpoint": "/internal/schedule/refresh-preview",
+        "cron": "*/15 * * * *"
       }
     }
   },

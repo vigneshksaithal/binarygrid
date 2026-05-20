@@ -7,7 +7,14 @@ import { writable, get } from 'svelte/store'
 import { copyToClipboard } from '../services/clipboard'
 import { formatShareText, type ShareTextInput } from '../../shared/share-formatter'
 import type { SolveQuality } from '../../shared/growth'
+import type { Grid } from '../../shared/types/puzzle'
 import { streakStore } from './streak'
+
+export const STREAK_MILESTONES = [7, 14, 30, 50, 100] as const
+export type StreakMilestone = typeof STREAK_MILESTONES[number]
+
+export const isStreakMilestone = (n: number): n is StreakMilestone =>
+  (STREAK_MILESTONES as readonly number[]).includes(n)
 
 /**
  * Share state interface for tracking copy and share operations.
@@ -31,6 +38,20 @@ export interface ShareCommentRequest {
     rank?: number | null | undefined
     streak?: number
     templateId?: string
+}
+
+/**
+ * Request payload for posting a replay to r/binarygrid.
+ */
+export interface ReplayPostRequest {
+    grid: Grid
+    dayNumber: number
+    solveTimeSeconds: number
+    difficulty: string
+    solveQuality?: SolveQuality | undefined
+    rank?: number | null | undefined
+    streak?: number
+    fasterThanPercentile?: number
 }
 
 const initialState: ShareState = {
@@ -178,4 +199,54 @@ export const resetShareState = () => {
  */
 export const resetAllShareState = () => {
     shareState.set(initialState)
+}
+
+/**
+ * Posts the player's completed grid as a new replay post to r/binarygrid.
+ * This fixes the closed-loop share problem — result appears in the subreddit feed.
+ */
+export const postReplay = async (request: ReplayPostRequest): Promise<boolean> => {
+    shareState.update((s) => ({ ...s, isSharing: true, shareSuccess: null, shareError: null }))
+
+    try {
+        const res = await fetch('/api/post-replay', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+                ...request,
+                rank: request.rank ?? undefined,
+            }),
+        })
+
+        if (!res.ok) {
+            const data = await res.json().catch(() => ({}))
+            const errorMessage = (data as { error?: string }).error || `HTTP ${res.status}`
+            shareState.update((s) => ({ ...s, isSharing: false, shareSuccess: false, shareError: errorMessage }))
+            return false
+        }
+
+        shareState.update((s) => ({ ...s, isSharing: false, shareSuccess: true, shareError: null }))
+        return true
+    } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unexpected error'
+        shareState.update((s) => ({ ...s, isSharing: false, shareSuccess: false, shareError: errorMessage }))
+        return false
+    }
+}
+
+/**
+ * Posts an opt-in streak confession at milestone streaks (7, 14, 30, 50, 100).
+ * Self-aware, Reddit-native copy — not marketing, just a human moment.
+ */
+export const postStreakConfession = async (streak: number): Promise<boolean> => {
+    try {
+        const res = await fetch('/api/streak-confession', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ streak }),
+        })
+        return res.ok
+    } catch {
+        return false
+    }
 }
