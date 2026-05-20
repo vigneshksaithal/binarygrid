@@ -19,8 +19,14 @@ export const metricsStore = writable<MetricsState>(initialState)
 export const fetchMetrics = async (days = 14): Promise<void> => {
     metricsStore.update(state => ({ ...state, loading: true, error: null }))
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
     try {
-        const res = await fetch(`/api/admin/metrics?days=${days}`)
+        const res = await fetch(`/api/admin/metrics?days=${days}`, {
+            signal: controller.signal,
+        })
+        clearTimeout(timeoutId)
         if (!res.ok) {
             const data = await res.json() as { error?: string }
             throw new Error(data.error ?? `HTTP ${res.status}`)
@@ -28,7 +34,13 @@ export const fetchMetrics = async (days = 14): Promise<void> => {
         const data = await res.json() as { metrics: DailyViralMetrics[] }
         metricsStore.update(state => ({ ...state, loading: false, metrics: data.metrics }))
     } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to fetch metrics'
+        clearTimeout(timeoutId)
+        let message = 'Failed to fetch metrics'
+        if (error instanceof Error) {
+            message = error.name === 'AbortError'
+                ? 'Request timed out. Please try again.'
+                : error.message
+        }
         metricsStore.update(state => ({ ...state, loading: false, error: message }))
     }
 }

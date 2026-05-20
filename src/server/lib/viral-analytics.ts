@@ -218,6 +218,7 @@ export const trackRetentionOnOpen = async (userId: string): Promise<void> => {
  * date to get the cohort size.
  *
  * Returns `retained / cohortSize`, or 0 if cohortSize is 0.
+ * Falls back to 0 if bitCount is unavailable on the Redis client.
  *
  * Requirements: 3.5, 3.6
  */
@@ -225,15 +226,19 @@ export const getRetentionRate = async (
     cohortDate: string,
     dayOffset: number
 ): Promise<number> => {
-    const [retained, cohortSize] = await Promise.all([
-        (redis as unknown as { bitCount: (key: string) => Promise<number> })
-            .bitCount(retentionKey(dayOffset, cohortDate)),
-        (redis as unknown as { bitCount: (key: string) => Promise<number> })
-            .bitCount(dauKey(cohortDate)),
-    ])
+    try {
+        const [retained, cohortSize] = await Promise.all([
+            (redis as unknown as { bitCount: (key: string) => Promise<number> })
+                .bitCount(retentionKey(dayOffset, cohortDate)),
+            (redis as unknown as { bitCount: (key: string) => Promise<number> })
+                .bitCount(dauKey(cohortDate)),
+        ])
 
-    if (cohortSize === 0) return 0
-    return retained / cohortSize
+        if (cohortSize === 0) return 0
+        return retained / cohortSize
+    } catch {
+        return 0
+    }
 }
 
 // ─── Metrics Aggregation Helpers ───────────────────────────────────────────
@@ -274,18 +279,42 @@ export const getFunnelMetrics = async (date: string): Promise<FunnelMetrics> => 
 }
 
 /**
+ * Safely calls bitCount, returning 0 if the method is unavailable or throws.
+ */
+const safeBitCount = async (key: string): Promise<number> => {
+    try {
+        return await (redis as unknown as { bitCount: (key: string) => Promise<number> })
+            .bitCount(key)
+    } catch {
+        return 0
+    }
+}
+
+/**
+ * Safely calls pfCount, returning 0 if the method is unavailable or throws.
+ */
+const safePfCount = async (key: string): Promise<number> => {
+    try {
+        return await (redis as unknown as { pfCount: (key: string) => Promise<number> })
+            .pfCount(key)
+    } catch {
+        return 0
+    }
+}
+
+/**
  * Reads all counters for a single date and assembles a `DailyViralMetrics`
- * object. Missing Redis keys default to 0.
+ * object. Missing Redis keys default to 0. Type-cast Redis operations
+ * (bitCount, pfCount) are wrapped in try-catch to prevent failures when
+ * these methods are unavailable on the Devvit Redis client.
  *
  * Requirements: 8.1, 8.3, 8.4, 8.5, 8.6
  */
 export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> => {
     const [dau, impressions, shares, referredOpens, referredConversions,
         challengesSent, challengesCompleted, funnel] = await Promise.all([
-            (redis as unknown as { bitCount: (key: string) => Promise<number> })
-                .bitCount(`viral:dau:${date}`),
-            (redis as unknown as { pfCount: (key: string) => Promise<number> })
-                .pfCount(`viral:impressions:${date}`),
+            safeBitCount(`viral:dau:${date}`),
+            safePfCount(`viral:impressions:${date}`),
             getCounter(`viral:daily:${date}:shares`),
             getCounter(`viral:daily:${date}:referred_opens`),
             getCounter(`viral:daily:${date}:referred_converts`),
@@ -298,9 +327,11 @@ export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> 
     const conversionRate = referredOpens > 0 ? referredConversions / referredOpens : 0
     const kFactor = calculateKFactor({ dau, shares, referredOpens, referredConversions })
 
-    const retentionD1 = await getRetentionRate(date, 1)
-    const retentionD7 = await getRetentionRate(date, 7)
-    const retentionD30 = await getRetentionRate(date, 30)
+    const [retentionD1, retentionD7, retentionD30] = await Promise.all([
+        getRetentionRate(date, 1),
+        getRetentionRate(date, 7),
+        getRetentionRate(date, 30),
+    ])
 
     return {
         date, dau, impressions, shares, shareRate,
@@ -313,16 +344,13 @@ export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> 
 /**
  * Returns exactly `days` `DailyViralMetrics` entries ordered most-recent-first
  * (index 0 = today, index days-1 = oldest). Missing Redis data defaults to 0.
+ * Uses Promise.all to fetch all days in parallel for better performance in
+ * serverless environments.
  *
  * Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6
  */
 export const aggregateMetrics = async (days: number): Promise<DailyViralMetrics[]> => {
-    const results: DailyViralMetrics[] = []
-
-    for (let i = 0; i < days; i++) {
-        const date = getDateNDaysAgo(i)
-        results.push(await getDailyMetrics(date))
-    }
-
+    const dates = Array.from({ length: days }, (_, i) => getDateNDaysAgo(i))
+    const results = await Promise.all(dates.map((date) => getDailyMetrics(date)))
     return results
 }

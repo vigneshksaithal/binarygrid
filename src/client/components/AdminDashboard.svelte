@@ -54,6 +54,19 @@
     };
     const funnelData = $derived(latest?.funnel ?? EMPTY_FUNNEL);
 
+    // Determine if loaded data is all zeros (no real data yet)
+    const hasData = $derived(
+        $metricsStore.metrics !== null &&
+        $metricsStore.metrics.length > 0 &&
+        $metricsStore.metrics.some(
+            (m) => m.dau > 0 || m.impressions > 0 || m.shares > 0 || m.referredOpens > 0,
+        ),
+    );
+
+    const handleRetry = () => {
+        fetchMetrics(14);
+    };
+
     onMount(() => {
         fetchMetrics(14);
     });
@@ -83,61 +96,78 @@
                 ></span>
                 Loading metrics…
             </div>
-        {/if}
-
-        <!-- Error message -->
-        {#if $metricsStore.error}
-            <p
-                class="text-sm text-red-600 dark:text-red-400"
+        {:else if $metricsStore.error}
+            <!-- Error state with retry -->
+            <div
+                class="flex flex-col gap-3 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-4"
                 role="alert"
                 aria-live="assertive"
             >
-                {$metricsStore.error}
-            </p>
-        {/if}
-
-        <!-- KPI cards — always rendered; show empty state on fetch failure -->
-        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            <MetricsKPI
-                label="DAU"
-                value={dauDisplay}
-                sparklineValues={dauValues}
-            />
-            <MetricsKPI
-                label="K-Factor"
-                value={kFactorDisplay}
-                sparklineValues={kFactorValues}
-            />
-            <MetricsKPI
-                label="Share Rate"
-                value={shareRateDisplay}
-                sparklineValues={shareRateValues}
-            />
-            <MetricsKPI
-                label="D1 Retention"
-                value={retentionD1Display}
-                sparklineValues={retentionD1Values}
-            />
-            <MetricsKPI
-                label="D7 Retention"
-                value={retentionD7Display}
-                sparklineValues={retentionD7Values}
-            />
-        </div>
-
-        <!-- Conversion funnel -->
-        <div class="flex flex-col gap-2">
-            <h3
-                class="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider"
+                <p class="text-sm text-red-700 dark:text-red-300">
+                    {$metricsStore.error}
+                </p>
+                <button
+                    type="button"
+                    class="self-start rounded-lg bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-medium text-white transition-colors"
+                    onclick={handleRetry}
+                >
+                    Retry
+                </button>
+            </div>
+        {:else if !hasData}
+            <!-- Empty state -->
+            <div
+                class="flex flex-col items-center gap-2 py-8 text-center"
+                aria-live="polite"
             >
-                Conversion Funnel
-            </h3>
-            <FunnelViz funnel={funnelData} />
-        </div>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    No analytics data yet. Metrics will appear once users start interacting with the app.
+                </p>
+            </div>
+        {:else}
+            <!-- KPI cards — only shown when there is actual data -->
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                <MetricsKPI
+                    label="DAU"
+                    value={dauDisplay}
+                    sparklineValues={dauValues}
+                />
+                <MetricsKPI
+                    label="K-Factor"
+                    value={kFactorDisplay}
+                    sparklineValues={kFactorValues}
+                />
+                <MetricsKPI
+                    label="Share Rate"
+                    value={shareRateDisplay}
+                    sparklineValues={shareRateValues}
+                />
+                <MetricsKPI
+                    label="D1 Retention"
+                    value={retentionD1Display}
+                    sparklineValues={retentionD1Values}
+                />
+                <MetricsKPI
+                    label="D7 Retention"
+                    value={retentionD7Display}
+                    sparklineValues={retentionD7Values}
+                />
+            </div>
 
-        <!-- Clipboard export -->
-        <div class="flex justify-end">
-            <CopyButton onCopy={copyMetricsToClipboard} />
-        </div>
+            <!-- Conversion funnel -->
+            <div class="flex flex-col gap-2">
+                <h3
+                    class="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider"
+                >
+                    Conversion Funnel
+                </h3>
+                <FunnelViz funnel={funnelData} />
+            </div>
+
+            <!-- Clipboard export -->
+            <div class="flex justify-end">
+                <CopyButton onCopy={copyMetricsToClipboard} />
+            </div>
+        {/if}
     </section>
 {/if}
