@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21
+
+### Dependencies
+
+- Updated all NPM dependencies via `npm-check-updates -u` and `pnpm up --latest`. This includes major minor patch bumps for packages like `vite`, `vitest`, `svelte`, `hono`, and many internal transitives.
+
 ## 2026-05-17
 
 ### Viral Social Engine — Wire Components into App.svelte (task 11.4)
