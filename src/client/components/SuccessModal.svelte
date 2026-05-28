@@ -130,17 +130,18 @@
 			dayNumber,
 			solveTimeSeconds: $elapsedSeconds,
 			difficulty: $game.difficulty,
-			solveQuality: $growthStore.solveQuality ?? undefined,
-			rank: $growthStore.playerContext?.rank ?? $rankStore.rank ?? undefined,
-			streak: streakVal >= 2 ? streakVal : undefined,
-			fasterThanPercentile:
-				$growthStore.playerContext?.fasterThanPercentile ?? undefined,
+			...($growthStore.solveQuality ? { solveQuality: $growthStore.solveQuality } : {}),
+			...($growthStore.playerContext?.rank ?? $rankStore.rank ? { rank: $growthStore.playerContext?.rank ?? $rankStore.rank } : {}),
+			...(streakVal >= 2 ? { streak: streakVal } : {}),
+			...($growthStore.playerContext?.fasterThanPercentile ? { fasterThanPercentile: $growthStore.playerContext?.fasterThanPercentile } : {}),
 		});
 
 		if (ok) trackGrowthEvent("share_success");
 	};
 
 	// ── Legacy score-thread share (kept for backward compat) ────────────────
+	// @ts-expect-error - Kept for backward compatibility
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handleShareToReddit = async () => {
 		if ($shareState.isSharing || dayNumber === null) return;
 		trackGrowthEvent("share_preview");
