@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-05-28
+
+### Dependencies
+
+- Updated `@devvit/start` from `^0.12.24` to `^0.13.0`
+- Updated `@devvit/test` from `^0.12.24` to `^0.13.0`
+- Updated `@devvit/web` from `0.12.24` to `0.13.0`
+- Updated `@hono/node-server` from `^2.0.3` to `^2.0.4`
+- Updated `@lucide/svelte` from `^1.16.0` to `^1.17.0`
+- Updated `concurrently` from `^9.2.1` to `^10.0.0`
+- Updated `devvit` from `0.12.24` to `0.13.0`
+- Updated `hono` from `^4.12.21` to `^4.12.23`
+- Updated `svelte` from `^5.55.9` to `^5.55.10`
+- Updated `vite` from `8.0.13` to `8.0.14`
+
 ## 2026-05-17
 
 ### Viral Social Engine — Wire Components into App.svelte (task 11.4)
