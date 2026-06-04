@@ -130,17 +130,18 @@
 			dayNumber,
 			solveTimeSeconds: $elapsedSeconds,
 			difficulty: $game.difficulty,
-			solveQuality: $growthStore.solveQuality ?? undefined,
-			rank: $growthStore.playerContext?.rank ?? $rankStore.rank ?? undefined,
-			streak: streakVal >= 2 ? streakVal : undefined,
-			fasterThanPercentile:
-				$growthStore.playerContext?.fasterThanPercentile ?? undefined,
+			...($growthStore.solveQuality ? { solveQuality: $growthStore.solveQuality } : {}),
+			...(($growthStore.playerContext?.rank ?? $rankStore.rank) != null ? { rank: $growthStore.playerContext?.rank ?? $rankStore.rank } : {}),
+			...(streakVal >= 2 ? { streak: streakVal } : {}),
+
+				...($growthStore.playerContext?.fasterThanPercentile != null ? { fasterThanPercentile: $growthStore.playerContext?.fasterThanPercentile } : {}),
 		});
 
 		if (ok) trackGrowthEvent("share_success");
 	};
 
 	// ── Legacy score-thread share (kept for backward compat) ────────────────
+	// @ts-expect-error kept for backward compat
 	const handleShareToReddit = async () => {
 		if ($shareState.isSharing || dayNumber === null) return;
 		trackGrowthEvent("share_preview");
@@ -148,7 +149,7 @@
 			solveTimeSeconds: $elapsedSeconds,
 			difficulty: $game.difficulty,
 			dayNumber,
-			solveQuality: $growthStore.solveQuality ?? undefined,
+			...($growthStore.solveQuality ? { solveQuality: $growthStore.solveQuality } : {}),
 			rank: $growthStore.playerContext?.rank ?? $rankStore.rank,
 		});
 		if (shared) trackGrowthEvent("share_success");
