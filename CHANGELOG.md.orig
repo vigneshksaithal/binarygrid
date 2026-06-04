@@ -1,11 +1,5 @@
 # Changelog
 
-## 2025-02-19
-
-### Dependencies
-- Bumped all NPM dependencies to latest versions, including `svelte`, `@devvit/*`, `vite`, and `vitest`.
-- Fixed strict Svelte typings caused by the `svelte-check` update.
-
 ## 2026-05-17
 
 ### Viral Social Engine — Wire Components into App.svelte (task 11.4)
@@ -199,7 +193,7 @@ Updated packages to latest versions:
 
 - **Fixed streak leaderboard showing "Unknown player" for all users**: Corrected Redis key mismatch between read and write operations for user metadata.
   - Root cause: `submit.ts` was writing user metadata to per-user keys (`user:t2_xxx:meta`) while `leaderboard.ts` was reading from a global hash (`user:meta`)
-  - Fix: 
+  - Fix:
     1. Changed write in `submit.ts` to store in global `user:meta` hash with JSON-serialized values
     2. Added fallback in `leaderboard.ts` to check legacy per-user keys (`user:t2_xxx:meta`) for existing users
   - Files modified: `src/server/routes/submit.ts`, `src/server/routes/leaderboard.ts`
@@ -411,7 +405,7 @@ Split monolithic `routes.ts` (804 lines) into focused, single-responsibility mod
 
 ### Performance Optimizations
 
-- **validator.ts**: 
+- **validator.ts**:
   - Optimized `hasTripleRun` function to use incremental run tracking instead of window-based iteration, reducing time complexity.
   - Split `getRow` into fast path (direct return) and slow path (fallback creation) to avoid unnecessary array allocations.
   - Reused column array in `validateGrid` to reduce memory allocations during validation loops.

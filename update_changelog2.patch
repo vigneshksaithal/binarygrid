@@ -1,0 +1,14 @@
+--- CHANGELOG.md
++++ CHANGELOG.md
+@@ -1,5 +1,11 @@
+ # Changelog
+
++## 2025-02-19
++
++### Dependencies
++- Bumped all NPM dependencies to latest versions, including `svelte`, `@devvit/*`, `vite`, and `vitest`.
++- Fixed strict Svelte typings caused by the `svelte-check` update.
++
+ ## 2026-05-17
+
+ ### Viral Social Engine — Wire Components into App.svelte (task 11.4)

@@ -13,8 +13,7 @@
 
     // Track the latest challenge state from the store so we react to poll updates
 
-    // svelte-ignore state_referenced_locally
-    let liveChallenge = $state<Challenge>(challenge);
+    let liveChallenge = $state<Challenge | null>(challenge);
 
 
     let solveTimeInput = $state("");
