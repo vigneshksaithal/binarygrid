@@ -132,15 +132,18 @@
 			difficulty: $game.difficulty,
 			solveQuality: $growthStore.solveQuality ?? undefined,
 			rank: $growthStore.playerContext?.rank ?? $rankStore.rank ?? undefined,
-			streak: streakVal >= 2 ? streakVal : undefined,
-			fasterThanPercentile:
-				$growthStore.playerContext?.fasterThanPercentile ?? undefined,
+			...(streakVal >= 2 ? { streak: streakVal } : {}),
+			...($growthStore.playerContext?.fasterThanPercentile !== undefined && $growthStore.playerContext?.fasterThanPercentile !== null
+				? { fasterThanPercentile: $growthStore.playerContext.fasterThanPercentile }
+				: {}),
 		});
 
 		if (ok) trackGrowthEvent("share_success");
 	};
 
 	// ── Legacy score-thread share (kept for backward compat) ────────────────
+	// @ts-expect-error
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handleShareToReddit = async () => {
 		if ($shareState.isSharing || dayNumber === null) return;
 		trackGrowthEvent("share_preview");

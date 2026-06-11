@@ -17,28 +17,28 @@
     "local": "vite dev --port 7474"
   },
   "dependencies": {
-    "@devvit/start": "^0.12.24",
-    "@devvit/test": "^0.12.24",
-    "@devvit/web": "0.12.24",
-    "@hono/node-server": "^2.0.3",
-    "@lucide/svelte": "^1.16.0",
+    "@devvit/start": "^0.13.3",
+    "@devvit/test": "^0.13.3",
+    "@devvit/web": "0.13.3",
+    "@hono/node-server": "^2.0.4",
+    "@lucide/svelte": "^1.17.0",
     "@tailwindcss/vite": "^4.3.0",
     "canvas-confetti": "^1.9.4",
-    "devvit": "0.12.24",
-    "hono": "^4.12.21",
+    "devvit": "0.13.3",
+    "hono": "^4.12.25",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@types/canvas-confetti": "^1.9.0",
-    "@types/node": "^25.9.1",
-    "concurrently": "^9.2.1",
+    "@types/node": "^25.9.3",
+    "concurrently": "^10.0.3",
     "dotenv-cli": "^11.0.0",
     "fast-check": "^4.8.0",
-    "svelte": "^5.55.9",
-    "svelte-check": "^4.4.8",
+    "svelte": "^5.56.3",
+    "svelte-check": "^4.6.0",
     "typescript": "^6.0.3",
-    "vite": "8.0.13",
-    "vitest": "^4.1.7"
+    "vite": "8.0.16",
+    "vitest": "^4.1.8"
   }
 }

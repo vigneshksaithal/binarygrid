@@ -12,6 +12,7 @@
     const { challenge }: { challenge: Challenge } = $props();
 
     // Track the latest challenge state from the store so we react to poll updates
+    // svelte-ignore state_referenced_locally
     let liveChallenge = $state<Challenge>(challenge);
 
     let solveTimeInput = $state("");
