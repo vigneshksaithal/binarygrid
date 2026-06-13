@@ -2,6 +2,109 @@
 
 ## 2026-06-13
 
+### Remove the dead "recent solvers" social-presence row
+
+Code review found the recent-solvers avatar row never populated: `recordSolve` was only wired to the `/api/events` `submit_success` handler, but the client never POSTs that event (real solves go through `/api/submit`, which only records a growth-event counter). With nothing ever writing `social:solvers:*`, the row was permanently empty. Since the rest of social presence (challenge, solved-today, solving-now) was already removed, this dead remnant and its unused APIs are now removed too.
+
+- **Client**:
+  - Deleted `src/client/components/SocialPresence.svelte` and `src/client/components/RecentAvatars.svelte`.
+  - Deleted `src/client/stores/social.ts` (presence polling).
+  - `src/client/App.svelte`: removed the `SocialPresence` import, the social-presence block, and the now-unused `postId` derived value.
+- **Server**:
+  - Deleted `src/server/routes/social.ts` (`GET /api/social/presence`, `GET /api/social/recent-solvers`) and `src/server/lib/social.ts` (`recordSolve`, `getRecentSolvers`, `getSocialProof`).
+  - `src/server/routes/index.ts`: removed the `socialRoutes` import and registration.
+  - `src/server/routes/growth.ts`: removed the dead `recordSolve` call (and import) from the `submit_success` branch and trimmed the now-unused `puzzleId`/`solveTime` fields from `EventBody`. Funnel tracking is unchanged.
+- **Shared**:
+  - `src/shared/viral-types.ts`: removed the now-unused `RecentSolver` and `SocialProofData` types.
+- **Note**: this completes removal of the social-presence surface. `submit_success` is still recorded as a growth-funnel event in `src/server/routes/submit.ts`. Orphaned `social:solvers:*` ZSETs (if any) are inert; they carry no TTL but are never read.
+- **Verified**: `bun run build` ✅, `bun run test` ✅ (86/86), `bunx biome check` clean, `tsc` no new errors (pre-existing `game.ts` errors unrelated).
+
+---
+
+## 2026-06-13
+
+### Remove the "solving now" active-players feature
+
+Removed the active-player ("X solving now") count end-to-end, including the heartbeat machinery that backed it. Recent-solver avatars and the leaderboard are unaffected.
+
+- **Client**:
+  - `src/client/components/SocialPresence.svelte`: removed the `Users` icon, the active-player count block, the `activePlayers`/`activeLabel` derived values, and the `sendHeartbeat` call. The component now renders only recent-solver avatars (with a simplified loading skeleton).
+  - `src/client/stores/social.ts`: removed the `sendHeartbeat` function (the `/api/social/heartbeat` POST). Presence polling for recent solvers is retained.
+- **Server**:
+  - `src/server/routes/social.ts`: removed the `POST /api/social/heartbeat` route and the `recordHeartbeat` import.
+  - `src/server/lib/social.ts`: removed `recordHeartbeat`, `getActivePlayers`, the `resolveAvatar`/`zRemRangeByScore` helpers, the `activeKey` key helper, and the `ACTIVE_PLAYERS_TTL_SECONDS`/`FIVE_MINUTES_MS` constants; `getSocialProof` now returns only `recentSolvers`. No more writes/reads to `social:active:{postId}`.
+  - `src/server/core/preview.ts`: removed the local `getActivePlayers` helper and the "solving now" stat block from the preview card; `buildPreviewHtml`/`refreshPostPreview` updated accordingly.
+- **Shared**:
+  - `src/shared/viral-types.ts`: removed `activePlayers` from `SocialProofData` and deleted the now-unused `ActivePlayerSummary` and `ActivityType` types.
+- **Note**: `/api/social/presence` now returns only `{ recentSolvers }`. The `/api/social/recent-solvers` route is unchanged.
+- **Verified**: `bun run test` passes (86/86); `bunx biome check` clean on changed files; `tsc` reports no new errors (the 9 pre-existing `game.ts` errors are unrelated).
+
+---
+
+## 2026-06-13
+
+### Remove the "players solved today" counter feature
+
+Removed the solved-today counter end-to-end: the game-screen widget, the social-proof API field, the backing Redis read/write, and the post-preview stat.
+
+- **Client**:
+  - Deleted `src/client/components/SolveCounter.svelte`.
+  - `src/client/components/SocialPresence.svelte`: removed the `SolveCounter` import, the `solvedToday` derived value, and the "Today's solve count" render block.
+- **Server**:
+  - `src/server/lib/social.ts`: removed `getSolvedTodayCount` and the `solveCountKey` helper; dropped `solvedTodayCount` from the `recordHeartbeat` and `getActivePlayers` return values and `solvedToday` from `getSocialProof`; removed the `social:solvecount:{date}` increment/TTL from `recordSolve`; dropped the now-unused `todayISO` import.
+  - `src/server/core/preview.ts`: removed the `getSolveCount` helper and the "solved today" stat block from the preview card; updated `buildPreviewHtml`/`refreshPostPreview` accordingly; dropped the now-unused `todayISO` import and header doc reference.
+- **Shared**:
+  - `src/shared/viral-types.ts`: removed `solvedTodayCount` from `ActivePlayerSummary` and `solvedToday` from `SocialProofData`.
+- **Note**: `getActivePlayers` ("solving now"), recent solvers, and top-3 solvers are unchanged. The `/api/social/presence` response no longer includes `solvedToday`.
+- **Verified**: `bun run test` passes (86/86); `bunx biome check` clean on changed files; `tsc` reports no new errors (the 9 pre-existing `game.ts` errors are unrelated).
+
+---
+
+## 2026-06-13
+
+### Remove the "Challenge a player" (1v1 challenge) feature
+
+Removed the head-to-head challenge feature end-to-end, including its UI, client store, server APIs, and shared logic.
+
+- **Client**:
+  - Deleted components `ChallengePanel.svelte`, `ChallengeCreate.svelte`, `ChallengeItem.svelte`, `ChallengeList.svelte`, and `ChallengeRace.svelte`.
+  - Deleted the `src/client/stores/challenge.ts` store (polling, create/accept/submit).
+  - `src/client/App.svelte`: removed the `ChallengePanel` import, the `puzzleId` derived value, and the auth-gated challenge panel block. Dropped the now-unused `isAuthenticated` state; the user-context effect now only tracks `isModerator`.
+- **Server**:
+  - Deleted `src/server/routes/challenge.ts` (all `/api/challenge/*` endpoints: create, accept, pending, history, complete, status) and `src/server/lib/challenge.ts`.
+  - `src/server/routes/index.ts`: removed the `challengeRoutes` import and registration.
+  - `src/server/lib/social.ts`: dropped `pendingChallenges` from `getSocialProof` (now takes only `postId`) and removed the now-unused `lRange` helper.
+  - `src/server/routes/social.ts`: updated the presence route to call `getSocialProof(postId)`.
+  - `src/server/lib/viral-analytics.ts`: removed `challengesSent`/`challengesCompleted` counter reads from `getDailyMetrics`.
+- **Shared**:
+  - Deleted `src/shared/challenge-logic.ts`.
+  - `src/shared/viral-types.ts`: removed `Challenge`, `ChallengeResult`, `ChallengeNotification`, and `ChallengeState` types; removed `challengesSent`/`challengesCompleted` from `DailyViralMetrics` and `pendingChallenges` from `SocialProofData`.
+  - `src/shared/viral-analytics.ts`: dropped the "Challenges" column and "Total Challenges" summary from `formatMetricsAsMarkdown`.
+  - `src/shared/growth.test.ts`: renamed a misleadingly-named test ("rotates the challenge mission by date" → "rotates the mission set by date"); the daily missions never included a challenge mission.
+- **Verified**: `bun run test` passes (86/86); `bunx biome check` is clean on changed files. The 9 pre-existing `tsc` errors in `src/client/stores/game.ts` are unrelated (confirmed identical with these changes stashed).
+
+---
+
+## 2026-06-13
+
+### Fix `e.exclude.has is not a function` crash from duplicate Svelte runtimes
+
+- **Root cause**: `node_modules` was a mixed/corrupted install. Although `bun.lock` was the only tracked lockfile (bun is the active package manager), the tree still held stale **pnpm** artifacts — `.pnpm/svelte@5.55.7`, `.pnpm/@lucide+svelte@1.16.0`, and `.ignored/svelte@5.51.3` — alongside the hoisted `svelte@5.56.3`. With multiple Svelte runtimes present, the Lucide `Icon.svelte` (used by `Dropdown.svelte` via `chevron-down`) was compiled against one Svelte version while linked to another's `svelte/internal/client` runtime. `rest_props`'s `exclude` argument changed from an array to a `Set` between versions, producing `TypeError: e.exclude.has is not a function`.
+- **Fix**: clean reinstall — removed `node_modules` (and stale Vite caches) and reinstalled with `bun install`, leaving a single `svelte@5.56.3` / `@lucide/svelte@1.18.0`; the `.pnpm` and `.ignored` leftovers are gone.
+- **Prevention**: pinned `"packageManager": "bun@1.3.14"` in `package.json` so contributors and CI use one package manager (corepack-enforced), preventing the pnpm/bun mixing that caused the duplicate runtimes.
+- **Verified**: built and served `dist/client` statically, loaded in a browser, and confirmed the difficulty `Dropdown` and its chevron icon render with no `props.js`/`Icon.svelte` error (only expected `/api/*` 404s from having no local backend).
+- **Note**: no Vite `resolve.dedupe` was added — `@sveltejs/vite-plugin-svelte` already injects `resolve.dedupe` for `svelte` and all its subpath exports (including `svelte/internal/client`) unconditionally, so a manual entry would be redundant and incomplete.
+
+### Standardize tooling on Bun
+
+- Reconciled the package-manager discrepancy that allowed the duplicate-runtime corruption above: the repo uses bun (`bun.lock`) but docs/scripts referenced pnpm/npm.
+- **`AGENTS.md`**: changed "Pnpm — Package manager" to "Bun", and converted the setup and development command blocks from `pnpm ...` to `bun run ...`.
+- **`package.json`**: replaced `npm run ...` in `postinstall`, `deploy`, and `launch` scripts with `bun run ...` (uses `bun run` rather than `bun build`/`bun test` to avoid invoking Bun's built-in bundler/test runner).
+
+---
+
+## 2026-06-13
+
 ### Rewrite timer.ts and game.ts for clarity and correctness
 
 - **`src/client/stores/timer.ts`**:

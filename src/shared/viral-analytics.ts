@@ -50,7 +50,7 @@ const NO_DATA = 'No data available'
  * Formats an array of daily viral metrics as a markdown table with a summary section.
  *
  * Produces:
- * - Header row with columns: Date, DAU, K-Factor, Share Rate, D1 Ret, D7 Ret, Conversions, Challenges
+ * - Header row with columns: Date, DAU, K-Factor, Share Rate, D1 Ret, D7 Ret, Conversions
  * - Separator row immediately after the header
  * - One data row per day
  * - Summary section with averages and best-day identification
@@ -59,13 +59,13 @@ const NO_DATA = 'No data available'
  */
 export const formatMetricsAsMarkdown = (metrics: DailyViralMetrics[]): string => {
     const header =
-        '| Date | DAU | K-Factor | Share Rate | D1 Ret | D7 Ret | Conversions | Challenges |'
+        '| Date | DAU | K-Factor | Share Rate | D1 Ret | D7 Ret | Conversions |'
     const separator =
-        '|------|-----|----------|------------|--------|--------|-------------|------------|'
+        '|------|-----|----------|------------|--------|--------|-------------|'
 
     const rows = metrics.map(
         (m) =>
-            `| ${m.date} | ${m.dau} | ${m.kFactor.toFixed(3)} | ${(m.shareRate * 100).toFixed(1)}% | ${(m.retentionD1 * 100).toFixed(1)}% | ${(m.retentionD7 * 100).toFixed(1)}% | ${m.referredConversions}/${m.referredOpens} | ${m.challengesCompleted}/${m.challengesSent} |`
+            `| ${m.date} | ${m.dau} | ${m.kFactor.toFixed(3)} | ${(m.shareRate * 100).toFixed(1)}% | ${(m.retentionD1 * 100).toFixed(1)}% | ${(m.retentionD7 * 100).toFixed(1)}% | ${m.referredConversions}/${m.referredOpens} |`
     )
 
     const summary = buildSummarySection(metrics)
@@ -82,7 +82,6 @@ const buildSummarySection = (metrics: DailyViralMetrics[]): string[] => {
             `- **Avg DAU**: ${NO_DATA}`,
             `- **Avg K-Factor**: ${NO_DATA}`,
             `- **Avg Share Rate**: ${NO_DATA}`,
-            `- **Total Challenges**: ${NO_DATA}`,
             `- **Best Day (K)**: ${NO_DATA}`,
         ]
     }
@@ -91,7 +90,6 @@ const buildSummarySection = (metrics: DailyViralMetrics[]): string[] => {
     const avgDau = Math.round(metrics.reduce((s, m) => s + m.dau, 0) / count)
     const avgKFactor = (metrics.reduce((s, m) => s + m.kFactor, 0) / count).toFixed(3)
     const avgShareRate = ((metrics.reduce((s, m) => s + m.shareRate, 0) / count) * 100).toFixed(1)
-    const totalChallenges = metrics.reduce((s, m) => s + m.challengesCompleted, 0)
     const bestDay = metrics.reduce((best, m) => (m.kFactor > best.kFactor ? m : best)).date
 
     return [
@@ -99,7 +97,6 @@ const buildSummarySection = (metrics: DailyViralMetrics[]): string[] => {
         `- **Avg DAU**: ${avgDau}`,
         `- **Avg K-Factor**: ${avgKFactor}`,
         `- **Avg Share Rate**: ${avgShareRate}%`,
-        `- **Total Challenges**: ${totalChallenges}`,
         `- **Best Day (K)**: ${bestDay}`,
     ]
 }

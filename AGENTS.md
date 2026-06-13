@@ -37,7 +37,7 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 ### Tools
 
 - Vite — Build tool
-- Pnpm — Package manager
+- Bun — Package manager
 - Biome JS — Linter and formatter
 
 ---
@@ -123,12 +123,12 @@ CHANGELOG.md      # Changelog
 ## Setup Commands
 
 ```zsh
-pnpm install        # Install dependencies
-pnpm dev            # Start development server
-pnpm build          # Build the project
-pnpm test           # Run tests
-pnpm type-check     # Check types
-pnpm fix            # Format and lint code
+bun install         # Install dependencies
+bun run dev         # Start development server
+bun run build       # Build the project
+bun run test        # Run tests
+bun run type-check  # Check types
+bun run fix         # Format and lint code
 ```
 
 ---
@@ -209,11 +209,11 @@ Follow the following workflow:
 
 ### 3. Start Development
 
-- Run `pnpm dev` to start development.
+- Run `bun run dev` to start development.
 - Modify code as needed in client/server/shared.
-- Test with `pnpm test`.
-- Type-check with `pnpm type-check`.
-- Format and lint with `pnpm fix`.
+- Test with `bun run test`.
+- Type-check with `bun run type-check`.
+- Format and lint with `bun run fix`.
 
 ---
 

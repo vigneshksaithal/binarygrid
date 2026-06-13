@@ -7,13 +7,11 @@
 	import "./app.css";
 	import AdminDashboard from "./components/AdminDashboard.svelte";
 	import Button from "./components/Button.svelte";
-	import ChallengePanel from "./components/ChallengePanel.svelte";
 	import Dropdown from "./components/Dropdown.svelte";
 	import Grid from "./components/Grid.svelte";
 	import HowToPlayModal from "./components/HowToPlayModal.svelte";
 	import LeaderboardModal from "./components/LeaderboardModal.svelte";
 	import ShopModal from "./components/ShopModal.svelte";
-	import SocialPresence from "./components/SocialPresence.svelte";
 	import SuccessModal from "./components/SuccessModal.svelte";
 	import Timer from "./components/Timer.svelte";
 	import { game, loadPuzzle, undo, useHint } from "./stores/game";
@@ -62,8 +60,7 @@
 			.catch(() => {});
 	});
 
-	// User context: authentication and moderator status
-	let isAuthenticated = $state(false);
+	// User context: moderator status
 	let isModerator = $state(false);
 
 	$effect(() => {
@@ -72,12 +69,10 @@
 			.then(
 				(
 					data: {
-						isAuthenticated: boolean;
 						isModerator: boolean;
 					} | null,
 				) => {
 					if (data) {
-						isAuthenticated = data.isAuthenticated;
 						isModerator = data.isModerator;
 					}
 				},
@@ -100,11 +95,6 @@
 	// SVG circle parameters for progress ring
 	const RADIUS = 16;
 	const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-	// postId for social presence — falls back to puzzle id; server reads from Devvit context
-	const postId = $derived($game.puzzleId ?? "default");
-	// puzzleId for challenge panel
-	const puzzleId = $derived($game.puzzleId ?? "");
 </script>
 
 <main
@@ -230,18 +220,6 @@
 		</div>
 		<Grid />
 	</div>
-
-	<!-- Social presence: active players + recent solvers (visible to all) -->
-	<div class="mt-4 px-1">
-		<SocialPresence {postId} />
-	</div>
-
-	<!-- Challenge panel: auth-gated -->
-	{#if isAuthenticated && puzzleId}
-		<div class="mt-4 px-1">
-			<ChallengePanel {puzzleId} {isAuthenticated} />
-		</div>
-	{/if}
 
 	<!-- Admin dashboard: moderator-gated -->
 	{#if isModerator}

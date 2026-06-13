@@ -6,7 +6,6 @@ import {
   isGrowthEventName,
   recordGrowthEvent,
 } from '../lib/growth'
-import { recordSolve } from '../lib/social'
 import { trackDau, trackFunnelEvent, trackRetentionOnOpen, trackShare } from '../lib/viral-analytics'
 import { HTTP_BAD_REQUEST, HTTP_OK, todayISO } from './utils'
 
@@ -14,8 +13,6 @@ const app = new Hono()
 
 type EventBody = {
   eventName: string
-  puzzleId?: string
-  solveTime?: number
 }
 
 const fireAndForget = (promise: Promise<unknown>): void => {
@@ -51,9 +48,6 @@ app.post('/api/events', async (c) => {
 
     if (body.eventName === 'submit_success' && userId) {
       fireAndForget(trackFunnelEvent('complete', date))
-      if (body.puzzleId) {
-        fireAndForget(recordSolve(userId, body.puzzleId, body.solveTime ?? 0))
-      }
     }
 
     if (body.eventName === 'share_success' && userId) {

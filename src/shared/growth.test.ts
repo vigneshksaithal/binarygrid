@@ -61,7 +61,7 @@ describe('getDailyMissions', () => {
     expect(getDailyMissions('2026-05-15')).toEqual(getDailyMissions('2026-05-15'))
   })
 
-  it('rotates the challenge mission by date', () => {
+  it('rotates the mission set by date', () => {
     const first = getDailyMissions('2026-05-15').map((mission) => mission.id)
     const second = getDailyMissions('2026-05-16').map((mission) => mission.id)
 

@@ -312,15 +312,13 @@ const safePfCount = async (key: string): Promise<number> => {
  */
 export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> => {
     const [dau, impressions, shares, referredOpens, referredConversions,
-        challengesSent, challengesCompleted, funnel,
+        funnel,
         retentionD1, retentionD7, retentionD30] = await Promise.all([
             safeBitCount(`viral:dau:${date}`),
             safePfCount(`viral:impressions:${date}`),
             getCounter(`viral:daily:${date}:shares`),
             getCounter(`viral:daily:${date}:referred_opens`),
             getCounter(`viral:daily:${date}:referred_converts`),
-            getCounter(`viral:daily:${date}:challenges_sent`),
-            getCounter(`viral:daily:${date}:challenges_completed`),
             getFunnelMetrics(date),
             getRetentionRate(date, 1),
             getRetentionRate(date, 7),
@@ -335,7 +333,7 @@ export const getDailyMetrics = async (date: string): Promise<DailyViralMetrics> 
         date, dau, impressions, shares, shareRate,
         referredOpens, referredConversions, conversionRate,
         kFactor, retentionD1, retentionD7, retentionD30,
-        challengesSent, challengesCompleted, funnel,
+        funnel,
     }
 }
 

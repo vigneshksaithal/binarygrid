@@ -2,8 +2,8 @@
  * preview.ts — Live feed preview card for Binary Grid.
  *
  * Builds the HTML passed to setCustomPostPreview so every Reddit feed scroll
- * shows a live thumbnail with: today's solve count, top-3 times, active
- * player count, and a spoiler-free emoji preview of today's grid.
+ * shows a live thumbnail with: top-3 times and a spoiler-free emoji preview
+ * of today's grid.
  *
  * Constraints:
  *  - No external image fetches (Devvit sandboxed preview)
@@ -12,7 +12,6 @@
  */
 
 import { reddit, redis } from '@devvit/web/server'
-import { todayISO } from '../routes/utils'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { formatTime } from '../../shared/utils/format'
 
@@ -20,28 +19,6 @@ const PREVIEW_ACTIVE_POST_KEY = 'active:postId:current'
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
 
 // ── Redis helpers ────────────────────────────────────────────────────────────
-
-const getSolveCount = async (date: string): Promise<number> => {
-  const raw = await redis.get(`social:solvecount:${date}`)
-  return raw ? Number.parseInt(raw, 10) : 0
-}
-
-const getActivePlayers = async (postId: string): Promise<number> => {
-  try {
-    const now = Date.now()
-    const cutoff = now - 5 * 60 * 1000 // 5-minute window
-    // zRange with by:'score' returns members whose score falls in [cutoff, now]
-    const members = await redis.zRange(
-      `social:active:${postId}`,
-      cutoff,
-      now,
-      { by: 'score' }
-    )
-    return Array.isArray(members) ? members.length : 0
-  } catch {
-    return 0
-  }
-}
 
 type LeaderboardEntry = { member: string; score: number }
 type TopSolverRow = { rank: number; username: string; timeSeconds: number }
@@ -86,12 +63,10 @@ const medal = (rank: number) =>
   rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'
 
 export const buildPreviewHtml = (opts: {
-  solvedToday: number
-  activePlayers: number
   topSolvers: TopSolverRow[]
   puzzleNumber: number | null
 }): string => {
-  const { solvedToday, activePlayers, topSolvers } = opts
+  const { topSolvers } = opts
 
   const solverRows = topSolvers
     .map(
@@ -119,17 +94,6 @@ export const buildPreviewHtml = (opts: {
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <span style="font-size:22px">🧩</span>
       <span style="font-size:17px;font-weight:700;color:#4ade80">${escapeHtml(puzzleLabel)}</span>
-    </div>
-
-    <div style="display:flex;gap:16px;margin-bottom:6px">
-      <div style="text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#4ade80">${solvedToday.toLocaleString()}</div>
-        <div style="font-size:11px;color:#71717a;margin-top:2px">solved today</div>
-      </div>
-      <div style="text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#f59e0b">${activePlayers}</div>
-        <div style="font-size:11px;color:#71717a;margin-top:2px">solving now</div>
-      </div>
     </div>
 
     <div style="border-top:1px solid #27272a;padding-top:10px">
@@ -161,13 +125,7 @@ export const refreshPostPreview = async (): Promise<{ ok: boolean; reason?: stri
     return { ok: false, reason: 'no active postId stored' }
   }
 
-  const date = todayISO()
-
-  const [solvedToday, activePlayers, topSolvers] = await Promise.all([
-    getSolveCount(date),
-    getActivePlayers(storedPostId),
-    getTop3Solvers(storedPostId),
-  ])
+  const topSolvers = await getTop3Solvers(storedPostId)
 
   // Resolve puzzle number (day number) for the post title
   let puzzleNumber: number | null = null
@@ -178,7 +136,7 @@ export const refreshPostPreview = async (): Promise<{ ok: boolean; reason?: stri
     // non-fatal
   }
 
-  const html = buildPreviewHtml({ solvedToday, activePlayers, topSolvers, puzzleNumber })
+  const html = buildPreviewHtml({ topSolvers, puzzleNumber })
 
   // setCustomPostPreview is available on the post object via the Reddit API
   try {
