@@ -1,0 +1,61 @@
+{
+    "mcpServers": {
+        "playwright": {
+            "command": "bunx",
+            "args": [
+                "@playwright/mcp@latest"
+            ],
+            "disabled": false,
+            "autoApprove": [
+                "browser_navigate",
+                "browser_screenshot",
+                "browser_click",
+                "browser_type",
+                "browser_scroll",
+                "browser_wait_for",
+                "browser_snapshot",
+                "browser_close",
+                "browser_console_messages",
+                "browser_take_screenshot",
+                "browser_resize",
+                "browser_evaluate",
+                "browser_run_code_unsafe",
+                "browser_press_key",
+                "browser_network_requests",
+                "browser_tabs"
+            ]
+        },
+        "devvit": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@devvit/mcp"
+            ],
+            "disabled": false,
+            "autoApprove": [
+                "devvit_search",
+                "devvit_logs"
+            ]
+        },
+        "svelte": {
+            "url": "https://mcp.svelte.dev/mcp",
+            "disabled": false,
+            "autoApprove": [
+                "list-sections",
+                "get-documentation",
+                "svelte-autofixer",
+                "playground-link"
+            ]
+        },
+        "sequential-thinking": {
+            "command": "bunx",
+            "args": [
+                "@modelcontextprotocol/server-sequential-thinking"
+            ],
+            "disabled": false,
+            "autoApprove": [
+                "sequentialthinking"
+            ]
+        }
+    }
+}
