@@ -17,16 +17,10 @@ import {
 import { resetHintCooldown, startCooldown } from './hint'
 import { fetchRank, resetRank, setRank } from './rank'
 import { updateStreakFromSubmit } from './streak'
-import { elapsedSeconds, resetTimer, stopTimer } from './timer'
+import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
-type Status =
-  | 'idle'
-  | 'loading'
-  | 'in_progress'
-  | 'solved'
-  | 'invalid'
-  | 'error'
+type Status = 'idle' | 'loading' | 'in_progress' | 'solved' | 'invalid' | 'error'
 
 export type GameState = {
   puzzleId: string | null
@@ -37,12 +31,7 @@ export type GameState = {
   fixedSet: Set<string>
   status: Status
   errors: string[]
-  errorLocations?:
-  | {
-    rows: number[]
-    columns: number[]
-  }
-  | undefined
+  errorLocations?: { rows: number[]; columns: number[] }
   errorCells: Set<string>
   solution: Grid | null
   dateISO: string | null
@@ -53,19 +42,48 @@ export type GameState = {
   firstInputTracked: boolean
 }
 
-const createFixedSet = (fixed: { r: number; c: number; v: 0 | 1 }[]): Set<string> => {
-  const set = new Set<string>()
-  for (const f of fixed) {
-    set.add(`${f.r},${f.c}`)
-  }
-  return set
+// --- helpers ---
+
+const createFixedSet = (fixed: { r: number; c: number; v: 0 | 1 }[]): Set<string> =>
+  new Set(fixed.map((f) => `${f.r},${f.c}`))
+
+const isCellFixed = (fixedSet: Set<string>, r: number, c: number): boolean =>
+  fixedSet.has(`${r},${c}`)
+
+const NEXT_CELL_VALUE: Record<string, Cell> = { null: 0, '0': 1, '1': null }
+const getNextCellValue = (current: Cell): Cell => NEXT_CELL_VALUE[String(current)] ?? null
+
+const determineStatus = (isValid: boolean, grid: Grid): Status => {
+  if (!isValid) return 'invalid'
+  if (isComplete(grid)) return 'solved'
+  return 'in_progress'
 }
 
-const isCellFixed = (
-  fixedSet: Set<string>,
-  r: number,
-  c: number
-): boolean => fixedSet.has(`${r},${c}`)
+// Schedules the deferred error display after ERROR_DISPLAY_DELAY ms.
+// Returns the timeout handle so the caller can cancel it on the next interaction.
+const ERROR_DISPLAY_DELAY = 1000
+
+const scheduleErrorDisplay = (
+  nextGrid: Grid,
+  result: ReturnType<typeof validateGrid>
+): ReturnType<typeof setTimeout> => {
+  const gridSnapshot = JSON.stringify(nextGrid)
+  const cellsWithErrors = findErrorCells(nextGrid)
+  return setTimeout(() => {
+    const current = get(game)
+    if (JSON.stringify(current.grid) === gridSnapshot) {
+      game.update((s) => ({
+        ...s,
+        status: 'invalid',
+        errors: result.errors,
+        errorLocations: result.errorLocations,
+        errorCells: cellsWithErrors,
+      }))
+    }
+  }, ERROR_DISPLAY_DELAY)
+}
+
+// --- initial state ---
 
 const initial: GameState = {
   puzzleId: null,
@@ -84,10 +102,29 @@ const initial: GameState = {
   hintsUsed: 0,
   mistakeCount: 0,
   undoCount: 0,
-  firstInputTracked: false
+  firstInputTracked: false,
 }
 
 export const game = writable<GameState>(initial)
+
+// --- module-level side-effect state ---
+
+let errorTimer: ReturnType<typeof setTimeout> | undefined
+let lastSubmittedPuzzleId: string | null = null
+
+const clearErrorTimer = () => {
+  if (!errorTimer) return
+  clearTimeout(errorTimer)
+  errorTimer = undefined
+}
+
+// Starts the game timer on the player's first interaction (cell tap or hint).
+// No-op if the player has already interacted this round.
+const startTimerOnFirstInput = (wasTracked: boolean) => {
+  if (!wasTracked) startTimer()
+}
+
+// --- public actions ---
 
 export const loadPuzzle = async (difficulty: Difficulty) => {
   resetTimer()
@@ -102,7 +139,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     status: 'loading',
     errors: [],
     errorLocations: undefined,
-    errorCells: new Set()
+    errorCells: new Set(),
   }))
 
   const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
@@ -113,147 +150,98 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
       status: 'error',
       errors: ['failed to load puzzle', `HTTP ${res.status}`],
       errorLocations: undefined,
-      errorCells: new Set()
+      errorCells: new Set(),
     }))
-
     return
   }
 
   const data = await res.json()
-
-  const id = data.puzzle.id
   const initialGrid = cloneGrid(data.puzzle.initial)
-  const grid = cloneGrid(initialGrid)
   const fixed = data.puzzle.fixed
-  const fixedSet = createFixedSet(fixed)
-  const solution = solvePuzzle(initialGrid, fixed) ?? null
 
   game.set({
-    puzzleId: id,
+    puzzleId: data.puzzle.id,
     difficulty,
-    grid,
+    grid: cloneGrid(initialGrid),
     initial: initialGrid,
     fixed,
-    fixedSet,
+    fixedSet: createFixedSet(fixed),
     status: 'in_progress',
     errors: [],
     errorLocations: undefined,
     errorCells: new Set(),
-    solution,
+    solution: solvePuzzle(initialGrid, fixed) ?? null,
     dateISO: '',
     history: [],
     hintsUsed: 0,
     mistakeCount: 0,
     undoCount: 0,
-    firstInputTracked: false
+    firstInputTracked: false,
   })
 
   resetTimer()
   lastSubmittedPuzzleId = null
   trackGrowthEvent('puzzle_start')
 
-  // Register play count after 10 seconds
+  // Best-effort play count registration after 10 s of dwell time
   setTimeout(async () => {
     try {
       await fetch('/api/play-count', { method: 'POST' })
     } catch {
-      // best effort - ignore errors
+      // ignore — best effort only
     }
   }, 10000)
 }
 
-const getNextCellValue = (current: Cell): Cell => {
-  if (current === null) {
-    return 0
-  }
-  if (current === 0) {
-    return 1
-  }
-  return null
-}
-
-const determineStatus = (isValid: boolean, grid: Grid): Status => {
-  if (!isValid) {
-    return 'invalid'
-  }
-  if (isComplete(grid)) {
-    return 'solved'
-  }
-  return 'in_progress'
-}
-
-const ERROR_DISPLAY_DELAY = 1000
-let errorTimer: ReturnType<typeof setTimeout> | undefined
-let lastSubmittedPuzzleId: string | null = null
-
 export const cycleCell = (r: number, c: number) => {
-  if (errorTimer) {
-    clearTimeout(errorTimer)
-    errorTimer = undefined
-  }
+  clearErrorTimer()
 
   const snapshot = get(game)
-  const shouldTrackFirstInput =
-    !snapshot.firstInputTracked &&
-    snapshot.status === 'in_progress' &&
-    !isCellFixed(snapshot.fixedSet, r, c)
+
+  if (
+    snapshot.status === 'solved' ||
+    snapshot.status === 'loading' ||
+    isCellFixed(snapshot.fixedSet, r, c)
+  ) return
+
+  const wasFirstInput = !snapshot.firstInputTracked && snapshot.status === 'in_progress'
   let solved = false
+
   game.update((s) => {
-    if (s.status === 'solved') {
-      return s
-    }
-    if (isCellFixed(s.fixedSet, r, c)) {
-      return s
-    }
     const previousGrid = cloneGrid(s.grid)
-    const nextGrid = s.grid.map((gridRow) => gridRow.slice())
+    const nextGrid = s.grid.map((row) => row.slice())
     const targetRow = nextGrid[r]
-    if (!targetRow) {
-      return s
-    }
-    const currentValue = targetRow[c] as Cell
-    targetRow[c] = getNextCellValue(currentValue)
+    if (!targetRow) return s
+
+    targetRow[c] = getNextCellValue(targetRow[c] as Cell)
 
     const result = validateGrid(nextGrid, s.fixed)
-    let status = determineStatus(result.ok, nextGrid)
-    let errors = result.ok ? [] : result.errors
+    const status = determineStatus(result.ok, nextGrid)
     solved = status === 'solved'
-    const mistakeCount = result.ok ? s.mistakeCount : s.mistakeCount + 1
 
-    const currentGridJSON = JSON.stringify(nextGrid)
     if (!result.ok) {
-      const cellsWithErrors = findErrorCells(nextGrid)
-      errorTimer = setTimeout(() => {
-        const currentGameState = get(game)
-        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
-          game.update((gameState) => ({
-            ...gameState,
-            status: 'invalid',
-            errors: result.errors,
-            errorLocations: result.errorLocations,
-            errorCells: cellsWithErrors
-          }))
-        }
-      }, ERROR_DISPLAY_DELAY)
-
-      status = 'in_progress'
-      errors = []
+      errorTimer = scheduleErrorDisplay(nextGrid, result)
     }
+
     return {
       ...s,
       grid: nextGrid,
-      status,
-      errors,
+      // Show the cell change immediately; deferred timeout will surface errors
+      status: result.ok ? status : 'in_progress',
+      errors: result.ok ? result.errors : [],
       errorLocations: undefined,
       errorCells: new Set(),
       history: [...s.history, previousGrid],
-      mistakeCount,
-      firstInputTracked: s.firstInputTracked || shouldTrackFirstInput
+      mistakeCount: result.ok ? s.mistakeCount : s.mistakeCount + 1,
+      firstInputTracked: s.firstInputTracked || wasFirstInput,
     }
   })
-  if (shouldTrackFirstInput) {
+
+  if (wasFirstInput) {
     trackGrowthEvent('first_input')
+    startTimer()
   }
+
   if (solved) {
     stopTimer()
     openSuccessModal()
@@ -261,40 +249,90 @@ export const cycleCell = (r: number, c: number) => {
 }
 
 export const undo = () => {
-  if (errorTimer) {
-    clearTimeout(errorTimer)
-    errorTimer = undefined
-  }
-
+  clearErrorTimer()
   resetHintCooldown()
 
   game.update((s) => {
-    if (s.history.length === 0) {
-      return s
-    }
-    const previousGrid = s.history[s.history.length - 1]!
-    const newHistory = s.history.slice(0, -1)
+    if (s.history.length === 0) return s
     return {
       ...s,
-      grid: previousGrid,
-      history: newHistory,
+      grid: s.history[s.history.length - 1]!,
+      history: s.history.slice(0, -1),
       status: 'in_progress',
       errors: [],
       errorLocations: undefined,
       errorCells: new Set(),
-      undoCount: s.undoCount + 1
+      undoCount: s.undoCount + 1,
     }
   })
 }
 
+export const useHint = (): boolean => {
+  clearErrorTimer()
+
+  const snapshot = get(game)
+
+  if (snapshot.status !== 'in_progress' || !snapshot.solution) return false
+
+  const emptyCells = snapshot.grid.flatMap((row, r) =>
+    row
+      .map((cell, c) => ({ r, c, cell }))
+      .filter(({ cell, c }) => cell === null && !isCellFixed(snapshot.fixedSet, r, c))
+  )
+
+  if (emptyCells.length === 0) return false
+
+  const { r, c } = emptyCells[Math.floor(Math.random() * emptyCells.length)]!
+  const correctValue = snapshot.solution[r]?.[c]
+
+  if (correctValue === null || correctValue === undefined) return false
+
+  let solved = false
+
+  game.update((s) => {
+    const previousGrid = cloneGrid(s.grid)
+    const nextGrid = s.grid.map((row) => row.slice())
+    const targetRow = nextGrid[r]
+    if (!targetRow) return s
+
+    targetRow[c] = correctValue
+
+    const result = validateGrid(nextGrid, s.fixed)
+    const status = determineStatus(result.ok, nextGrid)
+    solved = status === 'solved'
+
+    if (!result.ok) {
+      errorTimer = scheduleErrorDisplay(nextGrid, result)
+    }
+
+    return {
+      ...s,
+      grid: nextGrid,
+      status: result.ok ? status : 'in_progress',
+      errors: result.ok ? result.errors : [],
+      errorLocations: undefined,
+      errorCells: new Set(),
+      history: [...s.history, previousGrid],
+      hintsUsed: s.hintsUsed + 1,
+      firstInputTracked: true,
+    }
+  })
+
+  if (solved) {
+    stopTimer()
+    openSuccessModal()
+  }
+
+  startTimerOnFirstInput(snapshot.firstInputTracked)
+  startCooldown()
+  return true
+}
+
 export const autosubmitIfSolved = async () => {
   const snapshot = get(game)
-  if (!snapshot || snapshot.status !== 'solved' || !snapshot.puzzleId) {
-    return
-  }
-  if (snapshot.puzzleId === lastSubmittedPuzzleId) {
-    return
-  }
+
+  if (snapshot.status !== 'solved' || !snapshot.puzzleId) return
+  if (snapshot.puzzleId === lastSubmittedPuzzleId) return
 
   const timeSeconds = get(elapsedSeconds)
 
@@ -308,160 +346,37 @@ export const autosubmitIfSolved = async () => {
         solveTimeSeconds: timeSeconds,
         hintsUsed: snapshot.hintsUsed,
         mistakeCount: snapshot.mistakeCount,
-        undoCount: snapshot.undoCount
-      })
+        undoCount: snapshot.undoCount,
+      }),
     })
-    if (res.ok) {
-      lastSubmittedPuzzleId = snapshot.puzzleId
-      // Get rank from submit response
-      const data = await res.json()
-      if (
-        data.rank !== null &&
-        data.rank !== undefined &&
-        typeof data.totalEntries === 'number'
-      ) {
-        setRank(data.rank, data.totalEntries)
-      } else {
-        // Fallback to fetching rank if not in response
-        await fetchRank(snapshot.puzzleId)
-      }
-      // Update streak from submit response
-      if (data.streak) {
-        updateStreakFromSubmit(data.streak)
-      }
-      // Store coin reward
-      if (data.coinReward) {
-        setCoinReward(data.coinReward)
-      }
-      if (data.solveQuality) {
-        setSolveQuality(data.solveQuality)
-      }
-      if (data.dailyProgress) {
-        setDailyProgress(data.dailyProgress)
-      } else {
-        await loadDailyProgress()
-      }
-      if (data.playerContext) {
-        setPlayerContext(data.playerContext)
-      } else {
-        await loadPlayerContext(snapshot.puzzleId)
-      }
+
+    if (!res.ok) return
+
+    lastSubmittedPuzzleId = snapshot.puzzleId
+    const data = await res.json()
+
+    if (data.rank !== null && data.rank !== undefined && typeof data.totalEntries === 'number') {
+      setRank(data.rank, data.totalEntries)
+    } else {
+      await fetchRank(snapshot.puzzleId)
+    }
+
+    if (data.streak) updateStreakFromSubmit(data.streak)
+    if (data.coinReward) setCoinReward(data.coinReward)
+    if (data.solveQuality) setSolveQuality(data.solveQuality)
+
+    if (data.dailyProgress) {
+      setDailyProgress(data.dailyProgress)
+    } else {
+      await loadDailyProgress()
+    }
+
+    if (data.playerContext) {
+      setPlayerContext(data.playerContext)
+    } else {
+      await loadPlayerContext(snapshot.puzzleId)
     }
   } catch {
-    // ignore network errors - autosubmit best effort only
+    // ignore network errors — autosubmit is best effort
   }
-}
-
-export const useHint = (): boolean => {
-  if (errorTimer) {
-    clearTimeout(errorTimer)
-    errorTimer = undefined
-  }
-
-  const snapshot = get(game)
-
-  // Can only use hint during active game with a solution
-  if (snapshot.status !== 'in_progress' || !snapshot.solution) {
-    return false
-  }
-
-  const solution = snapshot.solution
-
-  // Find all empty cells that are not fixed
-  const emptyCells: { r: number; c: number }[] = []
-  for (let r = 0; r < SIZE; r++) {
-    const row = snapshot.grid[r]
-    if (!row) continue
-    for (let c = 0; c < SIZE; c++) {
-      if (row[c] === null && !isCellFixed(snapshot.fixedSet, r, c)) {
-        emptyCells.push({ r, c })
-      }
-    }
-  }
-
-  // No empty cells to fill
-  if (emptyCells.length === 0) {
-    return false
-  }
-
-  // Pick a random empty cell
-  const randomIndex = Math.floor(Math.random() * emptyCells.length)
-  const cell = emptyCells[randomIndex]
-  if (!cell) {
-    return false
-  }
-  const { r, c } = cell
-
-  // Get the correct value from the solution
-  const solutionRow = solution[r]
-  if (!solutionRow) {
-    return false
-  }
-  const correctValue = solutionRow[c]
-  if (correctValue === null || correctValue === undefined) {
-    return false
-  }
-
-  // Update the game state
-  let solved = false
-  let hintApplied = false
-  game.update((s) => {
-    const previousGrid = cloneGrid(s.grid)
-    const nextGrid = s.grid.map((gridRow) => gridRow.slice())
-    const targetRow = nextGrid[r]
-    if (!targetRow) {
-      return s
-    }
-    targetRow[c] = correctValue
-    hintApplied = true
-
-    const result = validateGrid(nextGrid, s.fixed)
-    let status = determineStatus(result.ok, nextGrid)
-    let errors = result.ok ? [] : result.errors
-    solved = status === 'solved'
-
-    const currentGridJSON = JSON.stringify(nextGrid)
-    if (!result.ok) {
-      const cellsWithErrors = findErrorCells(nextGrid)
-      errorTimer = setTimeout(() => {
-        const currentGameState = get(game)
-        if (JSON.stringify(currentGameState.grid) === currentGridJSON) {
-          game.update((gameState) => ({
-            ...gameState,
-            status: 'invalid',
-            errors: result.errors,
-            errorLocations: result.errorLocations,
-            errorCells: cellsWithErrors
-          }))
-        }
-      }, ERROR_DISPLAY_DELAY)
-
-      status = 'in_progress'
-      errors = []
-    }
-
-    return {
-      ...s,
-      grid: nextGrid,
-      status,
-      errors,
-      errorLocations: undefined,
-      errorCells: new Set(),
-      history: [...s.history, previousGrid],
-      hintsUsed: s.hintsUsed + 1
-    }
-  })
-
-  if (solved) {
-    stopTimer()
-    openSuccessModal()
-  }
-
-  // Start the cooldown timer only if hint was successfully applied
-  if (hintApplied) {
-    startCooldown()
-    return true
-  }
-
-  return false
 }

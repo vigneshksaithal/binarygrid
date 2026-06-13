@@ -1,5 +1,79 @@
 # Changelog
 
+## 2026-06-13
+
+### Rewrite timer.ts and game.ts for clarity and correctness
+
+- **`src/client/stores/timer.ts`**:
+  - Removed unused `export` wrapper on `elapsedSeconds` — now exported directly.
+  - Collapsed multi-line arrow functions to single-line where trivially readable.
+  - No behaviour change; cosmetic tightening only.
+
+- **`src/client/stores/game.ts`** — significant rewrite, same external API:
+  - **Extracted `clearErrorTimer`**: the `if (errorTimer) { clearTimeout; = undefined }` block was duplicated in `cycleCell`, `undo`, and `useHint`. Now a single helper.
+  - **Extracted `scheduleErrorDisplay`**: the deferred error-display `setTimeout` block was copy-pasted verbatim in `cycleCell` and `useHint`. Now one function that returns the handle.
+  - **Extracted `startTimerOnFirstInput`**: documents intent at call sites; `useHint` uses it instead of the raw `if (!wasTracked) startTimer()` inline.
+  - **`getNextCellValue`**: replaced if-chain with a lookup map (`NEXT_CELL_VALUE`) — the three-state cycle is now a data declaration, not procedural logic.
+  - **`createFixedSet`**: replaced manual `for` loop with `new Set(fixed.map(...))`.
+  - **`useHint`**: replaced nested `for` loops with `flatMap + filter` to collect empty cells; removed `let hintApplied` mutation flag — the function now returns early on every failure path, so reaching the end implies success. Removed 6 of the 9 early-return guards.
+  - **`autosubmitIfSolved`**: removed redundant `!snapshot` null check (writable store always has a value); added early return on `!res.ok` to reduce nesting; replaced long if-chain with sequential single-line conditionals.
+  - **`cycleCell`**: removed redundant guards inside `game.update` (pre-update snapshot guards are sufficient); simplified return object.
+  - **`undo`**: simplified return object.
+  - `GameState.errorLocations` type is now inline (was split across multiple lines unnecessarily).
+
+---
+
+## 2026-06-13
+
+- **`src/client/stores/timer.ts`**:
+  - Unified environment guard: replaced inconsistent `canUseWindow` / `typeof window` pattern with a single `isBrowser` helper using `typeof document`.
+  - Renamed `timerStarted` → `timerEngaged` to accurately express that the flag means "user has engaged with the puzzle", not "timer is currently running".
+  - Added comment to `stopTimer` explaining why it intentionally does not clear `timerEngaged` (pause mid-game must still allow visibilitychange to resume).
+  - Added comment to `visibilitychange` registration explaining the single-instance / no-cleanup intent.
+
+- **`src/client/stores/game.ts`**:
+  - **Bug fix (`useHint`)**: `game.update` now sets `firstInputTracked: true` so that a hint used as the first action correctly marks the puzzle as engaged. Previously, a subsequent cell tap would see `firstInputTracked === false` and double-fire the `first_input` growth event.
+  - **Bug fix (`cycleCell`)**: Renamed `shouldTrackFirstInput` → `wasFirstInput` and added an early-return guard for non-interactable states (`solved`, `loading`, fixed cell) before entering `game.update`, removing the duplicate status checks that were inside the updater. The store update now atomically flips `firstInputTracked`, so any concurrent tap sees it as already set.
+
+---
+
+## 2026-06-13
+
+- **`src/client/stores/timer.ts`**:
+  - Added `timerStarted` flag to track whether the user has engaged with the puzzle yet.
+  - Added `visibilitychange` listener: pauses the timer when the user scrolls away / switches tabs, resumes when they return — but only if the timer had already been started by a cell interaction.
+  - `resetTimer` now also clears `timerStarted` so a new puzzle starts fresh.
+
+- **`src/client/stores/game.ts`**:
+  - Imported `startTimer` — game store now owns the timer start responsibility.
+  - `cycleCell`: calls `startTimer()` alongside `trackGrowthEvent('first_input')` on first real cell tap.
+  - `useHint`: calls `startTimer()` when `!snapshot.firstInputTracked`, so using a hint before touching any cell also starts the clock.
+
+- **`src/client/App.svelte`**:
+  - Removed `startTimer` import — App no longer manages the timer lifecycle.
+  - `handleDifficultyChange` no longer calls `startTimer()` after loading a new puzzle.
+  - `loadPuzzle` called without `.then(() => startTimer())` — puzzle loads silently, timer stays at zero until first interaction.
+
+---
+
+### Fix timer race condition and dead code from preview screen removal
+
+- **`src/client/App.svelte`**:
+  - Fixed race condition: changed `loadPuzzle(...); startTimer()` to `loadPuzzle(...).then(() => startTimer())` so the timer only starts after the puzzle has fully loaded, matching the original `startGame()` contract and avoiding being reset by `resetTimer()` inside `loadPuzzle`.
+  - Removed `?? 'medium'` fallback — `$game.difficulty` is always `'medium'` at init since the store's initial state defines it; the fallback was redundant and obscured the store as the source of truth.
+  - Removed dead `PlayOverlay` import and `<PlayOverlay />` tag — with `showPlayOverlay` defaulting to `false` and no code path calling `openPlayOverlay()`, the component was permanently invisible and mounting for nothing.
+
+---
+
+## 2026-06-13
+
+### Skip preview screen — load game directly on post open
+
+- **`src/client/stores/ui.ts`**: Changed `showPlayOverlay` initial value from `true` to `false` so the play overlay is never shown on load.
+- **`src/client/App.svelte`**: Added `loadPuzzle($game.difficulty ?? 'medium')` and `startTimer()` calls at module init (alongside the existing `fetchStreak`, `loadDailyProgress`, and `trackGrowthEvent` calls), so the puzzle loads and the timer starts immediately without requiring the user to click PLAY.
+
+---
+
 ## 2026-05-17
 
 ### Viral Social Engine — Wire Components into App.svelte (task 11.4)

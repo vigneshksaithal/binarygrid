@@ -12,7 +12,6 @@
 	import Grid from "./components/Grid.svelte";
 	import HowToPlayModal from "./components/HowToPlayModal.svelte";
 	import LeaderboardModal from "./components/LeaderboardModal.svelte";
-	import PlayOverlay from "./components/PlayOverlay.svelte";
 	import ShopModal from "./components/ShopModal.svelte";
 	import SocialPresence from "./components/SocialPresence.svelte";
 	import SuccessModal from "./components/SuccessModal.svelte";
@@ -21,7 +20,6 @@
 	import { loadDailyProgress, trackGrowthEvent } from "./stores/growth";
 	import { canUseHint, cooldownProgress } from "./stores/hint";
 	import { fetchStreak } from "./stores/streak";
-	import { startTimer } from "./stores/timer";
 	import { openHowToModal, openLeaderboardModal } from "./stores/ui";
 
 	const difficultyOptions = [
@@ -32,7 +30,6 @@
 
 	const handleDifficultyChange = async (difficulty: string) => {
 		await loadPuzzle(difficulty as Difficulty);
-		startTimer();
 	};
 
 	const handleHint = () => {
@@ -40,6 +37,9 @@
 			useHint();
 		}
 	};
+
+	// Load puzzle silently — timer starts on first cell interaction, not here
+	loadPuzzle($game.difficulty);
 
 	// Fetch streak on mount
 	fetchStreak();
@@ -250,8 +250,6 @@
 		</div>
 	{/if}
 </main>
-
-<PlayOverlay />
 
 <HowToPlayModal />
 <SuccessModal />

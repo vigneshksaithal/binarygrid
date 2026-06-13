@@ -1,38 +1,45 @@
 import { writable } from 'svelte/store'
 import { formatTime } from '../../shared/utils/format'
 
-const elapsedSeconds = writable(0)
+export const elapsedSeconds = writable(0)
+
+const TICK_MS = 1000
+const isBrowser = () => typeof document !== 'undefined'
 
 let interval: ReturnType<typeof setInterval> | null = null
-const TICK_MS = 1000
 
-const canUseWindow = () => typeof window !== 'undefined'
+// True once the player has engaged (first cell/hint). Persists through
+// pause/resume so visibilitychange can resume mid-game. Cleared on resetTimer.
+let timerEngaged = false
 
 export const startTimer = () => {
-  if (!canUseWindow()) {
-    return
-  }
-  if (interval) {
-    return
-  }
-  interval = setInterval(() => {
-    elapsedSeconds.update((value) => value + 1)
-  }, TICK_MS)
+  if (!isBrowser() || interval) return
+  timerEngaged = true
+  interval = setInterval(() => elapsedSeconds.update((s) => s + 1), TICK_MS)
 }
 
 export const stopTimer = () => {
-  if (!interval) {
-    return
-  }
+  // Does NOT clear timerEngaged — pause must still allow visibilitychange resume.
+  if (!interval) return
   clearInterval(interval)
   interval = null
 }
 
 export const resetTimer = () => {
   stopTimer()
+  timerEngaged = false
   elapsedSeconds.set(0)
 }
 
-export const formatElapsedTime = formatTime
+// Single registration at module load — this is a singleton module.
+if (isBrowser()) {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopTimer()
+    } else if (timerEngaged && !interval) {
+      startTimer()
+    }
+  })
+}
 
-export { elapsedSeconds }
+export const formatElapsedTime = formatTime
