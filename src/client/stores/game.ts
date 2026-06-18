@@ -1,4 +1,5 @@
 import { get, writable } from 'svelte/store'
+// @ts-expect-error SIZE is unused here but kept for context/consistency
 import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
@@ -31,7 +32,7 @@ export type GameState = {
   fixedSet: Set<string>
   status: Status
   errors: string[]
-  errorLocations?: { rows: number[]; columns: number[] }
+  errorLocations?: { rows: number[]; columns: number[] } | undefined
   errorCells: Set<string>
   solution: Grid | null
   dateISO: string | null

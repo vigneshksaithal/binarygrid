@@ -141,6 +141,8 @@
 	};
 
 	// ── Legacy score-thread share (kept for backward compat) ────────────────
+	// @ts-expect-error - kept for backward compatibility
+	// eslint-disable-next-line
 	const handleShareToReddit = async () => {
 		if ($shareState.isSharing || dayNumber === null) return;
 		trackGrowthEvent("share_preview");
