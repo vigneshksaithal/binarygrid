@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-06-18
+
+### Dependencies
+Updated npm packages to their latest versions:
+- `@devvit/start`: `^0.13.3` -> `^0.13.4`
+- `@devvit/test`: `^0.13.3` -> `^0.13.4`
+- `@devvit/web`: `0.13.3` -> `0.13.4`
+- `@hono/node-server`: `^2.0.4` -> `^2.0.5`
+- `@lucide/svelte`: `^1.18.0` -> `^1.21.0`
+- `devvit`: `0.13.3` -> `0.13.4`
+- `hono`: `^4.12.25` -> `^4.12.26`
+- `vitest`: `^4.1.8` -> `^4.1.9`
+
 ## 2026-06-13
 
 ### Remove the dead "recent solvers" social-presence row

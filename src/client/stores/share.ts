@@ -50,8 +50,8 @@ export interface ReplayPostRequest {
     difficulty: string
     solveQuality?: SolveQuality | undefined
     rank?: number | null | undefined
-    streak?: number
-    fasterThanPercentile?: number
+    streak?: number | undefined
+    fasterThanPercentile?: number | undefined
 }
 
 const initialState: ShareState = {
