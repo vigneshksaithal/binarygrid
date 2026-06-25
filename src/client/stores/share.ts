@@ -36,7 +36,7 @@ export interface ShareCommentRequest {
     dayNumber: number
     solveQuality?: SolveQuality | undefined
     rank?: number | null | undefined
-    streak?: number
+    streak?: number | undefined
     templateId?: string
 }
 
@@ -50,8 +50,8 @@ export interface ReplayPostRequest {
     difficulty: string
     solveQuality?: SolveQuality | undefined
     rank?: number | null | undefined
-    streak?: number
-    fasterThanPercentile?: number
+    streak?: number | undefined
+    fasterThanPercentile?: number | undefined
 }
 
 const initialState: ShareState = {
