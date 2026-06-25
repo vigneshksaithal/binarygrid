@@ -1,5 +1,5 @@
 import { get, writable } from 'svelte/store'
-import { SIZE } from '../../shared/rules'
+
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
@@ -22,7 +22,7 @@ import { closeSuccessModal, openSuccessModal } from './ui'
 
 type Status = 'idle' | 'loading' | 'in_progress' | 'solved' | 'invalid' | 'error'
 
-export type GameState = {
+export interface GameState {
   puzzleId: string | null
   difficulty: Difficulty
   grid: Grid
@@ -31,7 +31,7 @@ export type GameState = {
   fixedSet: Set<string>
   status: Status
   errors: string[]
-  errorLocations?: { rows: number[]; columns: number[] }
+  errorLocations?: { rows: number[]; columns: number[] } | undefined
   errorCells: Set<string>
   solution: Grid | null
   dateISO: string | null
