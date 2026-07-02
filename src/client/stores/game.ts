@@ -1,5 +1,4 @@
 import { get, writable } from 'svelte/store'
-import { SIZE } from '../../shared/rules'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
@@ -76,7 +75,7 @@ const scheduleErrorDisplay = (
         ...s,
         status: 'invalid',
         errors: result.errors,
-        errorLocations: result.errorLocations,
+        ...(result.errorLocations ? { errorLocations: result.errorLocations } : {}),
         errorCells: cellsWithErrors,
       }))
     }
@@ -94,8 +93,7 @@ const initial: GameState = {
   fixedSet: new Set(),
   status: 'idle',
   errors: [],
-  errorLocations: undefined,
-  errorCells: new Set(),
+    errorCells: new Set(),
   solution: null,
   dateISO: null,
   history: [],
@@ -138,8 +136,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     ...s,
     status: 'loading',
     errors: [],
-    errorLocations: undefined,
-    errorCells: new Set(),
+        errorCells: new Set(),
   }))
 
   const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
@@ -149,8 +146,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
       ...s,
       status: 'error',
       errors: ['failed to load puzzle', `HTTP ${res.status}`],
-      errorLocations: undefined,
-      errorCells: new Set(),
+            errorCells: new Set(),
     }))
     return
   }
@@ -168,8 +164,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     fixedSet: createFixedSet(fixed),
     status: 'in_progress',
     errors: [],
-    errorLocations: undefined,
-    errorCells: new Set(),
+        errorCells: new Set(),
     solution: solvePuzzle(initialGrid, fixed) ?? null,
     dateISO: '',
     history: [],
@@ -229,8 +224,7 @@ export const cycleCell = (r: number, c: number) => {
       // Show the cell change immediately; deferred timeout will surface errors
       status: result.ok ? status : 'in_progress',
       errors: result.ok ? result.errors : [],
-      errorLocations: undefined,
-      errorCells: new Set(),
+            errorCells: new Set(),
       history: [...s.history, previousGrid],
       mistakeCount: result.ok ? s.mistakeCount : s.mistakeCount + 1,
       firstInputTracked: s.firstInputTracked || wasFirstInput,
@@ -260,8 +254,7 @@ export const undo = () => {
       history: s.history.slice(0, -1),
       status: 'in_progress',
       errors: [],
-      errorLocations: undefined,
-      errorCells: new Set(),
+            errorCells: new Set(),
       undoCount: s.undoCount + 1,
     }
   })
@@ -310,8 +303,7 @@ export const useHint = (): boolean => {
       grid: nextGrid,
       status: result.ok ? status : 'in_progress',
       errors: result.ok ? result.errors : [],
-      errorLocations: undefined,
-      errorCells: new Set(),
+            errorCells: new Set(),
       history: [...s.history, previousGrid],
       hintsUsed: s.hintsUsed + 1,
       firstInputTracked: true,
