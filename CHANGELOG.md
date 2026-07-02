@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-07-02
+
+### Dependencies
+
+Updated packages to latest versions:
+- `@devvit/start`: ^0.13.3 → ^0.13.6
+- `@devvit/test`: ^0.13.3 → ^0.13.6
+- `@devvit/web`: 0.13.3 → 0.13.6
+- `@hono/node-server`: ^2.0.4 → ^2.0.8
+- `@lucide/svelte`: ^1.18.0 → ^1.23.0
+- `@tailwindcss/vite`: ^4.3.1 → ^4.3.2
+- `@types/node`: ^25.9.3 → ^26.1.0
+- `devvit`: 0.13.3 → 0.13.6
+- `hono`: ^4.12.25 → ^4.12.27
+- `svelte`: ^5.56.3 → ^5.56.4
+- `svelte-check`: ^4.6.0 → ^4.7.1
+- `tailwindcss`: ^4.3.1 → ^4.3.2
+- `vite`: 8.0.16 → 8.1.3
+- `vitest`: ^4.1.8 → ^4.1.9
+
+---
+
 ## 2026-06-13
 
 ### Remove the dead "recent solvers" social-presence row
