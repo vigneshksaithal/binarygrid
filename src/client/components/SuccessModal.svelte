@@ -15,7 +15,6 @@
 		postStreakConfession,
 		resetAllShareState,
 		shareState,
-		shareToReddit,
 	} from "../stores/share";
 	import { streakStore } from "../stores/streak";
 	import {
@@ -138,20 +137,6 @@
 		});
 
 		if (ok) trackGrowthEvent("share_success");
-	};
-
-	// ── Legacy score-thread share (kept for backward compat) ────────────────
-	const handleShareToReddit = async () => {
-		if ($shareState.isSharing || dayNumber === null) return;
-		trackGrowthEvent("share_preview");
-		const shared = await shareToReddit({
-			solveTimeSeconds: $elapsedSeconds,
-			difficulty: $game.difficulty,
-			dayNumber,
-			solveQuality: $growthStore.solveQuality ?? undefined,
-			rank: $growthStore.playerContext?.rank ?? $rankStore.rank,
-		});
-		if (shared) trackGrowthEvent("share_success");
 	};
 
 	// ── Streak Confession ────────────────────────────────────────────────────

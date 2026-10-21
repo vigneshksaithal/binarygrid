@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-10-21
+
+### Update dependencies and migrate to Devvit 0.15.0
+
+- Updated all direct dependencies to their latest stable releases where compatible and regenerated `bun.lock`, refreshing transitive dependencies within their declared ranges.
+- Pinned `devvit`, `@devvit/start`, `@devvit/web`, and `@devvit/test` together at **0.15.0** (previously 0.13.3).
+- Upgraded Vite **8.0.16 → 8.3.5**, Vitest **4.1.8 → 5.0.5**, Svelte **5.56.3 → 5.57.2**, the Svelte Vite plugin **7.1.2 → 7.3.1**, and Svelte Check **4.6.0 → 4.7.7**.
+- Upgraded Hono **4.12.25 → 4.13.13**, its Node server adapter **2.0.4 → 2.1.5**, Lucide **1.18.0 → 1.61.0**, and both Tailwind packages **4.3.1 → 4.3.3**.
+- Updated Node types **25.9.3 → 26.6.5**, concurrently **10.0.3 → 10.0.6**, fast-check **4.8.0 → 4.10.2**, and the declared Bun version **1.3.14 → 1.4.3**. Confetti, its types, and dotenv-cli were already current.
+- Installed the latest **TypeScript 7.0.2** compiler as `@typescript/native` and made `bun run type-check` select it explicitly. Retained **TypeScript 6.0.3** as Svelte Check's required compatibility dependency, following [upstream guidance](https://github.com/sveltejs/language-tools/blob/master/packages/svelte-check/README.md). The Svelte check continues to use the classic checker; its native mode fails on this project's composite configuration and generated source layout.
+
+### Devvit release review and compatibility
+
+- Reviewed the [0.13 release history](https://developers.reddit.com/docs/0.13/changelog), [0.14 release history](https://developers.reddit.com/docs/changelog), and [0.15.0 release announcement](https://www.reddit.com/r/Devvit/comments/1xau8ru/release_0150_api_updates_expanded_mode/).
+- Devvit 0.13.7 adds Vite 8 support and changes experimental moderation filter signatures; the app does not use those methods.
+- Devvit 0.14 moves the runtime to Node.js 24 and replaces the test Redis implementation with a JavaScript mock. Documented the supported Node.js 24 development runtime.
+- Devvit 0.15 removes YAML configuration and the positional wiki revision argument. The app already uses `devvit.json` and `@devvit/web`, with no deprecated wiki calls or Blocks configuration, so no server API or configuration migration was necessary. Validated `devvit.json` using the installed 0.15.0 schema parser.
+- Reviewed the [Vitest 5 migration guide](https://vitest.dev/guide/migration/); the existing suite passes with the new defaults without configuration overrides.
+
+### Restore clean validation
+
+- Fixed pre-existing strict optional-property errors: the game state and replay request types now allow the explicit `undefined` values already used by their callers. Removed an unused game-store import and an unused legacy success-modal share handler; the active replay sharing flow is unchanged.
+- Made Vite load the existing Svelte configuration explicitly and removed unnecessary preprocessing. Svelte 5 already handles this app's type-only TypeScript and plain CSS; CSS preprocessing otherwise tries to load Devvit's build-only plugin during Svelte checking.
+- Updated development documentation and `AGENTS.md` for the compiler compatibility setup and runtime versions.
+- Verified: **86/86 tests**, TypeScript 7 project build check, Svelte Check (**0 errors, 0 warnings**), production build, and Devvit configuration parsing. The documented `bun run fix` command is unavailable because the repository has no `fix` script or installed Biome dependency.
+
+---
+
 ## 2026-06-13
 
 ### Remove the dead "recent solvers" social-presence row

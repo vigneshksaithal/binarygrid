@@ -12,9 +12,9 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 
 ### Frontend
 
-- Devvit (v0.12.8) — Reddit App Platform
+- Devvit (v0.15.0) — Reddit App Platform; keep `devvit`, `@devvit/start`, `@devvit/web`, and `@devvit/test` pinned to the same release
 - Svelte (v5, runes) — UI framework
-- TypeScript (v5) — Programming language
+- TypeScript (v7) — Project compiler via the `@typescript/native` npm alias; TypeScript v6 is retained for Svelte tooling compatibility
 - Tailwind CSS (v4) — CSS framework
 - Lucide Svelte — Icon library
 
@@ -37,7 +37,8 @@ Binary Grid is a daily 6×6 logic puzzle game. Players fill a grid with 0s and 1
 ### Tools
 
 - Vite — Build tool
-- Bun — Package manager
+- Bun (v1.4.3) — Package manager
+- Node.js (v24.18.0 or newer in v24) — Supported local Devvit runtime
 - Biome JS — Linter and formatter
 
 ---
@@ -128,8 +129,21 @@ bun run dev         # Start development server
 bun run build       # Build the project
 bun run test        # Run tests
 bun run type-check  # Check types
-bun run fix         # Format and lint code
+bun run check       # Check Svelte components (uses the TypeScript 6 compatibility dependency)
 ```
+
+The repository does not currently define a `fix` script or install Biome.
+Review formatting manually until formatter tooling is configured.
+
+`bun run type-check` explicitly invokes the TypeScript 7 compiler from
+`@typescript/native` because its `tsc` executable name overlaps with TypeScript 6.
+Keep TypeScript 6 on `~6.0.3` until Svelte tooling supports TypeScript 7 without
+the compatibility dependency. See the [Svelte checker guidance](https://github.com/sveltejs/language-tools/blob/master/packages/svelte-check/README.md).
+
+Vite loads `src/client/svelte.config.js` explicitly. Svelte 5 handles the app's
+type-only TypeScript natively; plain CSS needs no Vite preprocessing. Avoid
+enabling CSS preprocessing without configuring it to work with Devvit's
+build-only Vite plugin.
 
 ---
 
@@ -213,7 +227,7 @@ Follow the following workflow:
 - Modify code as needed in client/server/shared.
 - Test with `bun run test`.
 - Type-check with `bun run type-check`.
-- Format and lint with `bun run fix`.
+- Review formatting manually; run `bun run fix` once formatter tooling is configured.
 
 ---
 
