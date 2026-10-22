@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-22
+
+### Replace stale dependency pull requests with Bun updates
+
+- Added targeted transitive dependency overrides for lodash **4.17.23 → 4.18.1**, minimatch **3.1.2 → 3.1.5** and **5.1.6 → 5.1.9**, and tmp **0.2.5 / 0.0.33 → 0.2.7**. Preserved the two minimatch major versions for their existing consumers.
+- Regenerated `bun.lock` with Bun 1.4.3. Version-scoped overrides use lockfile format 3; documented this requirement in `AGENTS.md`. Removed the redundant legacy tmp copy and its unused os-tmpdir dependency.
+- Kept all four Devvit packages pinned together at **0.15.0**, replacing the obsolete PR approach that upgraded only `devvit` to 1.0.0 and changed retired npm/pnpm lockfiles.
+- Verified **86/86 tests**, TypeScript project checks, Svelte Check (**0 errors, 0 warnings**), the production build, frozen-lockfile installation, and temporary-file creation/cleanup through external-editor using the overridden tmp version.
+- `bun audit` no longer reports lodash, minimatch, or tmp advisories. Existing advisories remain in nine other packages: brace-expansion, braces, form-data, image-size, js-yaml, picomatch, sprintf-js, ws, and yaml. This focused update does not resolve those separate findings.
+
 ## 2026-10-21
 
 ### Update dependencies and migrate to Devvit 0.15.0
