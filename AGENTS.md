@@ -135,6 +135,11 @@ bun run check       # Check Svelte components (uses the TypeScript 6 compatibili
 The repository does not currently define a `fix` script or install Biome.
 Review formatting manually until formatter tooling is configured.
 
+Use Bun's `overrides` in `package.json` for targeted transitive dependency fixes,
+preserving each dependency's major version where possible. Version-scoped overrides
+require Bun 1.4.3 and its version 3 lockfile; regenerate `bun.lock` with Bun and verify
+the affected advisories with `bun audit` before replacing dependency pull requests.
+
 `bun run type-check` explicitly invokes the TypeScript 7 compiler from
 `@typescript/native` because its `tsc` executable name overlaps with TypeScript 6.
 Keep TypeScript 6 on `~6.0.3` until Svelte tooling supports TypeScript 7 without
