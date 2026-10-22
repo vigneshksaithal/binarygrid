@@ -46,6 +46,7 @@ app.post('/api/submit', async (c) => {
       hintsUsed?: number
       mistakeCount?: number
       undoCount?: number
+      scoringVersion?: unknown
     }>()
     .catch(() => null)
   if (
@@ -62,10 +63,11 @@ app.post('/api/submit', async (c) => {
     return c.json({ error: 'invalid solve time' }, HTTP_BAD_REQUEST)
   }
 
-  const { metrics: solveMetrics, solveQuality } = normalizeAndLabelSolve({
+  const { metrics: solveMetrics, solveQuality, scoringVersion } = normalizeAndLabelSolve({
     hintsUsed: body.hintsUsed,
     mistakeCount: body.mistakeCount,
-    undoCount: body.undoCount
+    undoCount: body.undoCount,
+    scoringVersion: body.scoringVersion
   })
 
   const { postId, userId } = context
@@ -243,7 +245,8 @@ app.post('/api/submit', async (c) => {
       dateISOValue: todayDate,
       difficulty,
       solveTimeSeconds,
-      solveQuality
+      solveQuality,
+      scoringVersion
     })
 
     // Wire referred conversion tracking: if the user arrived via a referral

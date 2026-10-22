@@ -11,6 +11,8 @@ export type SolveMetrics = {
 export type DailyCompletion = {
   solveTimeSeconds: number
   solveQuality: SolveQuality
+  /** The rules the label was counted under; see SCORING_VERSION. */
+  scoringVersion: number
 }
 
 export type DailyCompletionMap = Partial<Record<Difficulty, DailyCompletion>>
@@ -35,6 +37,18 @@ export type StreakFreezeUpdate = {
 }
 
 export const DAILY_DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard']
+
+/**
+ * Version of the rules behind the solve labels, sent with each solve and
+ * stored with each completion so Clean rates are only compared within one
+ * version. Version 1 charged every rule-breaking tap; version 2 charges only a
+ * violation left standing (src/shared/clean.ts). Bump it whenever that rule or
+ * deriveSolveQuality changes.
+ */
+export const SCORING_VERSION = 2
+
+/** Solves and completions that carry no version were scored by version 1. */
+export const LEGACY_SCORING_VERSION = 1
 
 export const SOLVE_QUALITY_LABELS: Record<SolveQuality, string> = {
   clean: 'Clean Solve',

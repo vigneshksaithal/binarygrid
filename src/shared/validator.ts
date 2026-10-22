@@ -1,3 +1,4 @@
+import { LEGACY_SCORING_VERSION, SCORING_VERSION } from './growth'
 import {
   EXACT_ONES_PER_LINE,
   EXACT_ZEROS_PER_LINE,
@@ -260,6 +261,18 @@ function validateFixedCells(
     }
   }
 }
+
+/**
+ * Reads the scoring version a client sent with a solve. A missing or unknown
+ * value means the legacy version, so a bad payload can't mint new label keys.
+ */
+export const normalizeScoringVersion = (value: unknown): number =>
+  typeof value === 'number' &&
+  Number.isInteger(value) &&
+  value >= LEGACY_SCORING_VERSION &&
+  value <= SCORING_VERSION
+    ? value
+    : LEGACY_SCORING_VERSION
 
 /**
  * Validates the entire grid against all rules and fixed clues.

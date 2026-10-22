@@ -6,6 +6,7 @@ import {
   getDailyMissions,
   getDailyTrioSummary,
   getWeeklyLeagueId,
+  SCORING_VERSION,
   updateStreakFreezeBalance,
 } from './growth'
 
@@ -44,9 +45,9 @@ describe('calculateFasterThanPercentile', () => {
 describe('getDailyTrioSummary', () => {
   it('counts completed difficulties and marks perfect day only when all three are clean', () => {
     const summary = getDailyTrioSummary({
-      easy: { solveTimeSeconds: 48, solveQuality: 'clean' },
-      medium: { solveTimeSeconds: 132, solveQuality: 'sharp' },
-      hard: { solveTimeSeconds: 230, solveQuality: 'clean' },
+      easy: { solveTimeSeconds: 48, solveQuality: 'clean', scoringVersion: SCORING_VERSION },
+      medium: { solveTimeSeconds: 132, solveQuality: 'sharp', scoringVersion: SCORING_VERSION },
+      hard: { solveTimeSeconds: 230, solveQuality: 'clean', scoringVersion: SCORING_VERSION },
     })
 
     expect(summary.completedCount).toBe(3)

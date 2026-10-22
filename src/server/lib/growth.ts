@@ -13,6 +13,7 @@ import {
   type SolveMetrics,
   type SolveQuality,
 } from '../../shared/growth'
+import { normalizeScoringVersion } from '../../shared/validator'
 import {
   DECIMAL_RADIX,
   leaderboardKey,
@@ -70,6 +71,11 @@ export const isGrowthEventName = (value: string): value is GrowthEventName =>
 const dailyCompletedKey = (userId: string, dateISOValue: string): string =>
   `user:${userId}:daily:${dateISOValue}:completed`
 
+// Solve labels per day and scoring version, an aggregate with no user IDs and
+// no TTL, so the Clean rate can be read without scanning per-user keys.
+const dailyQualityKey = (dateISOValue: string, scoringVersion: number): string =>
+  `daily:${dateISOValue}:quality:v${scoringVersion}`
+
 export const economyLedgerKey = (userId: string, eventId: string): string =>
   `economy:ledger:${userId}:${eventId}`
 
@@ -90,6 +96,8 @@ const parseCompletion = (value: string | undefined): DailyCompletion | null => {
       return {
         solveTimeSeconds: parsed.solveTimeSeconds,
         solveQuality: parsed.solveQuality as SolveQuality,
+        // Completions stored before versioning have none: they were scored by version 1.
+        scoringVersion: normalizeScoringVersion(parsed.scoringVersion),
       }
     }
   } catch {
@@ -167,21 +175,30 @@ export const recordDailyCompletion = async ({
   difficulty,
   solveTimeSeconds,
   solveQuality,
+  scoringVersion,
 }: {
   userId: string
   dateISOValue: string
   difficulty: Difficulty
   solveTimeSeconds: number
   solveQuality: SolveQuality
+  scoringVersion: number
 }): Promise<DailyProgress> => {
   const existing = await getUserDailyCompletions(userId, dateISOValue)
   const current = existing[difficulty]
   const shouldReplace = !current || solveTimeSeconds < current.solveTimeSeconds
 
   if (shouldReplace) {
+    const completion: DailyCompletion = { solveTimeSeconds, solveQuality, scoringVersion }
     await redis.hSet(dailyCompletedKey(userId, dateISOValue), {
-      [difficulty]: JSON.stringify({ solveTimeSeconds, solveQuality }),
+      [difficulty]: JSON.stringify(completion),
     })
+  }
+
+  // Count only a player's first solve of a tier each day, so replays of a
+  // known grid don't inflate the Clean rate.
+  if (!current) {
+    await redis.hIncrBy(dailyQualityKey(dateISOValue, scoringVersion), solveQuality, 1)
   }
 
   const progress = await getDailyProgress(userId, dateISOValue)
@@ -198,14 +215,17 @@ export const normalizeAndLabelSolve = (metrics: {
   hintsUsed?: number | undefined
   mistakeCount?: number | undefined
   undoCount?: number | undefined
+  scoringVersion?: unknown
 }): {
   metrics: SolveMetrics
   solveQuality: SolveQuality
+  scoringVersion: number
 } => {
   const normalized = normalizeSolveMetrics(metrics)
   return {
     metrics: normalized,
     solveQuality: deriveSolveQuality(normalized),
+    scoringVersion: normalizeScoringVersion(metrics.scoringVersion),
   }
 }
 

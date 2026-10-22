@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { LEGACY_SCORING_VERSION, SCORING_VERSION } from './growth'
 import { SIZE } from './rules'
 import type { Cell, FixedCell, Grid } from './types/puzzle'
 import {
@@ -6,6 +7,7 @@ import {
   findViolations,
   hasTripleRun,
   isComplete,
+  normalizeScoringVersion,
   validateGrid
 } from './validator'
 
@@ -185,6 +187,28 @@ describe('findViolations', () => {
     expect(findViolations(after).map((violation) => violation.id)).toEqual(
       findViolations(before).map((violation) => violation.id)
     )
+  })
+})
+
+describe('normalizeScoringVersion', () => {
+  it('keeps a known scoring version', () => {
+    expect(normalizeScoringVersion(SCORING_VERSION)).toBe(SCORING_VERSION)
+    expect(normalizeScoringVersion(LEGACY_SCORING_VERSION)).toBe(LEGACY_SCORING_VERSION)
+  })
+
+  it('reads a missing version as the legacy version', () => {
+    expect(normalizeScoringVersion(undefined)).toBe(LEGACY_SCORING_VERSION)
+  })
+
+  it.each([
+    ['zero', 0],
+    ['a version newer than this build', SCORING_VERSION + 1],
+    ['a fraction', 1.5],
+    ['a numeric string', '2'],
+    ['null', null],
+    ['NaN', Number.NaN]
+  ])('reads %s as the legacy version, so no unknown version reaches storage', (_, value) => {
+    expect(normalizeScoringVersion(value)).toBe(LEGACY_SCORING_VERSION)
   })
 })
 

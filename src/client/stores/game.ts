@@ -1,5 +1,6 @@
 import { get, writable } from 'svelte/store'
 import { chargedCells, chargeTap, standingCharges } from '../../shared/clean'
+import { SCORING_VERSION } from '../../shared/growth'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, FixedCell, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
@@ -374,6 +375,7 @@ export const autosubmitIfSolved = async () => {
         hintsUsed: snapshot.hintsUsed,
         mistakeCount: snapshot.mistakeCount,
         undoCount: snapshot.undoCount,
+        scoringVersion: SCORING_VERSION,
       }),
     })
 

@@ -1,12 +1,12 @@
 import * as fc from 'fast-check'
 import { get } from 'svelte/store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { deriveSolveQuality } from '../../shared/growth'
+import { deriveSolveQuality, SCORING_VERSION } from '../../shared/growth'
 import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, FixedCell, Grid } from '../../shared/types/puzzle'
 import { createEmptyGrid } from '../../shared/utils/grid'
 import { generateDailyPuzzle } from '../../server/core/generator'
-import { cycleCell, game, loadPuzzle, undo } from './game'
+import { autosubmitIfSolved, cycleCell, game, loadPuzzle, undo } from './game'
 
 type ServedPuzzle = {
   id: string
@@ -61,7 +61,7 @@ const fakeResponse = (body: unknown) => ({ ok: true, status: 200, json: async ()
 
 // Serves the puzzle to the real store and answers every other call with ok.
 const playPuzzle = async (puzzle: ServedPuzzle) => {
-  const fetchMock = vi.fn(async (url: string) =>
+  const fetchMock = vi.fn(async (url: string, _init?: RequestInit) =>
     fakeResponse(url.startsWith('/api/puzzle?') ? { puzzle } : { ok: true })
   )
   vi.stubGlobal('fetch', fetchMock)
@@ -214,5 +214,17 @@ describe('cycleCell mistake counting', () => {
 
     expect(get(game).errorCells).toEqual(TRIPLE_CELLS)
     expect(get(game).mistakeCount).toBe(1)
+  })
+
+  it('sends the scoring version with the solve, so stored labels never mix rules', async () => {
+    const fetchMock = await playPuzzle(BLANK_PUZZLE)
+    finishFlawlessly(FAST_TAP_MS)
+    await autosubmitIfSolved()
+
+    const [, submit] = fetchMock.mock.calls.find(([url]) => url === '/api/submit') ?? []
+    expect(JSON.parse(String(submit?.body))).toMatchObject({
+      mistakeCount: 0,
+      scoringVersion: SCORING_VERSION,
+    })
   })
 })
