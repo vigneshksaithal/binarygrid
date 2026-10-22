@@ -57,6 +57,16 @@ export const SOLVE_QUALITY_LABELS: Record<SolveQuality, string> = {
   assisted: 'Assisted Solve',
 }
 
+// Shown under the earned label and in How to Play. deriveSolveQuality reads
+// them from the bottom up: a hint makes any solve Assisted, then a line left
+// broken makes it a Comeback, then an undo makes it Sharp.
+export const SOLVE_QUALITY_DEFINITIONS: Record<SolveQuality, string> = {
+  clean: 'Clean: no hints, no undos, never left a broken line.',
+  sharp: 'Sharp: used undo, never left a broken line.',
+  comeback: 'Comeback: left a broken line, then fixed it.',
+  assisted: 'Assisted: used a hint.',
+}
+
 const MAX_STREAK_FREEZES = 2
 const FREEZE_EARN_INTERVAL = 5
 

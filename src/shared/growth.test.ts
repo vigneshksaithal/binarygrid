@@ -7,8 +7,13 @@ import {
   getDailyTrioSummary,
   getWeeklyLeagueId,
   SCORING_VERSION,
+  SOLVE_QUALITY_DEFINITIONS,
+  SOLVE_QUALITY_LABELS,
+  type SolveQuality,
   updateStreakFreezeBalance,
 } from './growth'
+
+const SOLVE_QUALITIES: readonly SolveQuality[] = ['clean', 'sharp', 'comeback', 'assisted']
 
 describe('deriveSolveQuality', () => {
   it('labels a solve with no help or corrections as clean', () => {
@@ -25,6 +30,22 @@ describe('deriveSolveQuality', () => {
 
   it('labels any solve with hints as assisted', () => {
     expect(deriveSolveQuality({ hintsUsed: 1, mistakeCount: 0, undoCount: 0 })).toBe('assisted')
+  })
+})
+
+describe('SOLVE_QUALITY_DEFINITIONS', () => {
+  it('defines Clean with the agreed copy', () => {
+    expect(SOLVE_QUALITY_DEFINITIONS.clean).toBe(
+      'Clean: no hints, no undos, never left a broken line.'
+    )
+  })
+
+  it.each(SOLVE_QUALITIES)('defines %s in one line that opens with its label', (quality) => {
+    const [name] = SOLVE_QUALITY_LABELS[quality].split(' ')
+    const definition = SOLVE_QUALITY_DEFINITIONS[quality]
+
+    expect(definition.startsWith(`${name}: `)).toBe(true)
+    expect(definition).not.toContain('\n')
   })
 })
 

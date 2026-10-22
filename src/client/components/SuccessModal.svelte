@@ -1,6 +1,7 @@
 <script lang="ts">
 	import confetti from "canvas-confetti";
 	import {
+		SOLVE_QUALITY_DEFINITIONS,
 		SOLVE_QUALITY_LABELS,
 		type SolveQuality,
 	} from "../../shared/growth";
@@ -236,6 +237,11 @@
 		<!-- Recognition -->
 		<div class="rounded-xl bg-zinc-800/70 border border-zinc-700 px-3 py-2 text-center">
 			<div class="text-sm font-bold text-emerald-300">{qualityLabel}</div>
+			{#if $growthStore.solveQuality}
+				<p class="text-xs text-zinc-400 mt-1 mb-0">
+					{SOLVE_QUALITY_DEFINITIONS[$growthStore.solveQuality]}
+				</p>
+			{/if}
 			{#if $growthStore.playerContext}
 				<p class="text-xs text-zinc-400 mt-1 mb-0">
 					Faster than {$growthStore.playerContext.fasterThanPercentile}% today

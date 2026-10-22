@@ -1,6 +1,9 @@
 <script lang="ts">
+	import { SOLVE_QUALITY_DEFINITIONS } from '../../shared/growth'
 	import { closeHowTo, showHowToModal } from '../stores/ui'
 	import Modal from './Modal.svelte'
+
+	const labelDefinitions = Object.values(SOLVE_QUALITY_DEFINITIONS)
 </script>
 
 <Modal
@@ -34,4 +37,10 @@
 			</li>
 		</ol>
 	</div>
+	<h3>Solve labels</h3>
+	<ul>
+		{#each labelDefinitions as definition (definition)}
+			<li>{definition}</li>
+		{/each}
+	</ul>
 </Modal>
