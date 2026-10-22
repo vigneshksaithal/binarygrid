@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cellLabel } from '../services/cell-label'
 	import Circle from './Circle.svelte'
 	import Line from './Line.svelte'
 
@@ -24,7 +25,7 @@
 		}
 	}
 
-	const label = $derived(fixed ? 'Fixed cell' : 'Editable cell')
+	const label = $derived(cellLabel({ row, col, value, fixed, breaksRule: hasError }))
 
 	// Build border classes for clean matrix grid
 	const borderClass = $derived.by(() => {
@@ -44,7 +45,7 @@
 
 <button
 	type="button"
-	class="relative aspect-square flex items-center justify-center text-zinc-800 dark:text-zinc-200 focus:outline-none disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
+	class="relative aspect-square flex items-center justify-center text-zinc-800 dark:text-zinc-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-zinc-500 disabled:cursor-not-allowed transition-colors hover:bg-black/10 dark:hover:bg-white/10 {fixed
 		? 'bg-zinc-200 dark:bg-zinc-700'
 		: ''} {borderClass}"
 	onclick={handleClick}

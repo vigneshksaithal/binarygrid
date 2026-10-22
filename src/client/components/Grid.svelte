@@ -9,9 +9,6 @@
 		}
 	})
 
-	// Check if grid should shake
-	const shouldShake = $derived($game.status === 'invalid')
-
 	// Generate skeleton cells with random animation delays for loading state
 	const skeletonCells = Array.from({ length: 36 }, (_, i) => ({
 		id: i,
@@ -22,9 +19,7 @@
 </script>
 
 <div
-	class="w-full grid grid-cols-6 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden {shouldShake
-		? 'shake'
-		: ''}"
+	class="w-full grid grid-cols-6 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl overflow-hidden"
 >
 	{#if $game.status === 'loading'}
 		{#each skeletonCells as cell (cell.id)}
@@ -55,30 +50,6 @@
 </div>
 
 <style>
-	@keyframes shake {
-		0%,
-		100% {
-			transform: translateX(0);
-		}
-		10%,
-		30%,
-		50%,
-		70%,
-		90% {
-			transform: translateX(-4px);
-		}
-		20%,
-		40%,
-		60%,
-		80% {
-			transform: translateX(4px);
-		}
-	}
-
-	.shake {
-		animation: shake 0.4s ease-in-out;
-	}
-
 	@keyframes skeleton-pulse {
 		0%,
 		100% {
