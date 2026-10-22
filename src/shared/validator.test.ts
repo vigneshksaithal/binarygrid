@@ -1,12 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { SIZE } from './rules'
 import type { Cell, FixedCell, Grid } from './types/puzzle'
-import { hasTripleRun, isComplete, validateGrid } from './validator'
+import {
+  findErrorCells,
+  findViolations,
+  hasTripleRun,
+  isComplete,
+  validateGrid
+} from './validator'
 
 const empty = (): Grid =>
   Array.from({ length: SIZE }, () =>
     Array.from({ length: SIZE }, () => null as Cell)
   )
+
+const CELL_BY_CHAR: Partial<Record<string, Cell>> = { '0': 0, '1': 1 }
+
+// Reads one string per row: '0' and '1' are digits, anything else is empty.
+const parseGrid = (rows: string[]): Grid =>
+  rows.map((row) => Array.from(row, (char) => CELL_BY_CHAR[char] ?? null))
 
 describe('validator', () => {
   it('rejects wrong shape', () => {
@@ -120,5 +132,71 @@ describe('hasTripleRun', () => {
 
   it('returns false for empty line', () => {
     expect(hasTripleRun([null, null, null, null, null, null])).toBe(false)
+  })
+})
+
+describe('findViolations', () => {
+  const cellsOf = (grid: Grid): string[][] =>
+    findViolations(grid).map((violation) => violation.cells)
+
+  it('finds nothing on a grid that breaks no rule', () => {
+    const solved = parseGrid([
+      '001101',
+      '110010',
+      '010110',
+      '101001',
+      '011010',
+      '100101'
+    ])
+    expect(findViolations(solved)).toEqual([])
+  })
+
+  it('reports three in a row with its three cells', () => {
+    const grid = parseGrid(['.000..', '......', '......', '......', '......', '......'])
+    expect(cellsOf(grid)).toEqual([['0,1', '0,2', '0,3']])
+  })
+
+  it('reports three in a column with its three cells', () => {
+    const grid = parseGrid(['......', '..1...', '..1...', '..1...', '......', '......'])
+    expect(cellsOf(grid)).toEqual([['1,2', '2,2', '3,2']])
+  })
+
+  it('reports a line holding more than three of one digit, marking each of them', () => {
+    const grid = parseGrid(['0.0.00', '......', '......', '......', '......', '......'])
+    expect(cellsOf(grid)).toEqual([['0,0', '0,2', '0,4', '0,5']])
+  })
+
+  it('reports each three-in-a-row window of a longer run as its own violation', () => {
+    const grid = parseGrid(['0000..', '......', '......', '......', '......', '......'])
+    const violations = findViolations(grid)
+
+    expect(violations.map((violation) => violation.cells)).toEqual([
+      ['0,0', '0,1', '0,2'],
+      ['0,1', '0,2', '0,3'],
+      ['0,0', '0,1', '0,2', '0,3']
+    ])
+    expect(new Set(violations.map((violation) => violation.id)).size).toBe(3)
+  })
+
+  it('keeps a violation id while it stands, whatever else changes', () => {
+    const before = parseGrid(['000...', '......', '......', '......', '......', '......'])
+    const after = parseGrid(['000...', '1.....', '.1....', '......', '......', '.....0'])
+
+    expect(findViolations(after).map((violation) => violation.id)).toEqual(
+      findViolations(before).map((violation) => violation.id)
+    )
+  })
+})
+
+describe('findErrorCells', () => {
+  it('marks every cell of every violation once', () => {
+    const grid = parseGrid(['111...', '1.....', '1.....', '......', '......', '......'])
+    expect(findErrorCells(grid)).toEqual(
+      new Set(['0,0', '0,1', '0,2', '1,0', '2,0'])
+    )
+  })
+
+  it('marks nothing on a grid that breaks no rule', () => {
+    expect(findErrorCells(empty()).size).toBe(0)
   })
 })

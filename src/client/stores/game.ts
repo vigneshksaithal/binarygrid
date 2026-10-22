@@ -1,8 +1,9 @@
 import { get, writable } from 'svelte/store'
+import { chargedCells, chargeTap, standingCharges } from '../../shared/clean'
 import { solvePuzzle } from '../../shared/solver'
-import type { Cell, Difficulty, Grid } from '../../shared/types/puzzle'
+import type { Cell, Difficulty, FixedCell, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
-import { findErrorCells, isComplete, validateGrid } from '../../shared/validator'
+import { cellKey, findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { resetCoinReward, setCoinReward } from './coinReward'
 import {
   loadDailyProgress,
@@ -32,6 +33,8 @@ export type GameState = {
   errors: string[]
   errorLocations?: { rows: number[]; columns: number[] } | undefined
   errorCells: Set<string>
+  /** Ids of violations already charged as mistakes that still stand (src/shared/clean.ts). */
+  chargedViolations: Set<string>
   solution: Grid | null
   dateISO: string | null
   history: Grid[]
@@ -52,13 +55,8 @@ const isCellFixed = (fixedSet: Set<string>, r: number, c: number): boolean =>
 const NEXT_CELL_VALUE: Record<string, Cell> = { null: 0, '0': 1, '1': null }
 const getNextCellValue = (current: Cell): Cell => NEXT_CELL_VALUE[String(current)] ?? null
 
-const determineStatus = (isValid: boolean, grid: Grid): Status => {
-  if (!isValid) return 'invalid'
-  if (isComplete(grid)) return 'solved'
-  return 'in_progress'
-}
-
-// Schedules the deferred error display after ERROR_DISPLAY_DELAY ms.
+// Schedules the free preview: after ERROR_DISPLAY_DELAY ms without a change,
+// every standing violation shows its ✕, charged or not. It never costs a mistake.
 // Returns the timeout handle so the caller can cancel it on the next interaction.
 const ERROR_DISPLAY_DELAY = 1000
 
@@ -95,6 +93,7 @@ const initial: GameState = {
   errors: [],
   errorLocations: undefined,
   errorCells: new Set(),
+  chargedViolations: new Set(),
   solution: null,
   dateISO: null,
   history: [],
@@ -115,6 +114,39 @@ const clearErrorTimer = () => {
   if (!errorTimer) return
   clearTimeout(errorTimer)
   errorTimer = undefined
+}
+
+type ErrorDisplay = Pick<GameState, 'status' | 'errors' | 'errorLocations' | 'errorCells'>
+
+// Shows the errors on a changed grid. Charged violations keep their ✕ until
+// fixed; the rest wait for the free preview. Status is 'invalid' exactly while
+// a ✕ shows, as before, so hints stay unavailable while an error is marked.
+const showErrorsFor = (
+  grid: Grid,
+  fixed: FixedCell[],
+  charged: ReadonlySet<string>
+): ErrorDisplay => {
+  const result = validateGrid(grid, fixed)
+  if (result.ok) {
+    return {
+      status: isComplete(grid) ? 'solved' : 'in_progress',
+      errors: [],
+      errorLocations: undefined,
+      errorCells: new Set(),
+    }
+  }
+
+  errorTimer = scheduleErrorDisplay(grid, result)
+  const errorCells = chargedCells(grid, charged)
+  if (errorCells.size === 0) {
+    return { status: 'in_progress', errors: [], errorLocations: undefined, errorCells }
+  }
+  return {
+    status: 'invalid',
+    errors: result.errors,
+    errorLocations: result.errorLocations,
+    errorCells,
+  }
 }
 
 // Starts the game timer on the player's first interaction (cell tap or hint).
@@ -169,6 +201,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     errors: [],
     errorLocations: undefined,
     errorCells: new Set(),
+    chargedViolations: new Set(),
     solution: solvePuzzle(initialGrid, fixed) ?? null,
     dateISO: '',
     history: [],
@@ -214,24 +247,22 @@ export const cycleCell = (r: number, c: number) => {
 
     targetRow[c] = getNextCellValue(targetRow[c] as Cell)
 
-    const result = validateGrid(nextGrid, s.fixed)
-    const status = determineStatus(result.ok, nextGrid)
-    solved = status === 'solved'
-
-    if (!result.ok) {
-      errorTimer = scheduleErrorDisplay(nextGrid, result)
-    }
+    const charge = chargeTap({
+      before: s.grid,
+      after: nextGrid,
+      tappedCell: cellKey(r, c),
+      charged: s.chargedViolations,
+    })
+    const display = showErrorsFor(nextGrid, s.fixed, charge.charged)
+    solved = display.status === 'solved'
 
     return {
       ...s,
+      ...display,
       grid: nextGrid,
-      // Show the cell change immediately; deferred timeout will surface errors
-      status: result.ok ? status : 'in_progress',
-      errors: result.ok ? result.errors : [],
-      errorLocations: undefined,
-      errorCells: new Set(),
       history: [...s.history, previousGrid],
-      mistakeCount: result.ok ? s.mistakeCount : s.mistakeCount + 1,
+      chargedViolations: charge.charged,
+      mistakeCount: s.mistakeCount + charge.mistakes,
       firstInputTracked: s.firstInputTracked || wasFirstInput,
     }
   })
@@ -252,15 +283,17 @@ export const undo = () => {
   resetHintCooldown()
 
   game.update((s) => {
-    if (s.history.length === 0) return s
+    const grid = s.history.at(-1)
+    if (!grid) return s
+
+    // Undo never refunds a mistake: a charged violation it leaves standing keeps its ✕.
+    const chargedViolations = standingCharges(grid, s.chargedViolations)
     return {
       ...s,
-      grid: s.history[s.history.length - 1]!,
+      ...showErrorsFor(grid, s.fixed, chargedViolations),
+      grid,
       history: s.history.slice(0, -1),
-      status: 'in_progress',
-      errors: [],
-      errorLocations: undefined,
-      errorCells: new Set(),
+      chargedViolations,
       undoCount: s.undoCount + 1,
     }
   })
@@ -296,22 +329,17 @@ export const useHint = (): boolean => {
 
     targetRow[c] = correctValue
 
-    const result = validateGrid(nextGrid, s.fixed)
-    const status = determineStatus(result.ok, nextGrid)
-    solved = status === 'solved'
-
-    if (!result.ok) {
-      errorTimer = scheduleErrorDisplay(nextGrid, result)
-    }
+    // Only taps are judged for mistakes; a hint just keeps the charges still standing.
+    const chargedViolations = standingCharges(nextGrid, s.chargedViolations)
+    const display = showErrorsFor(nextGrid, s.fixed, chargedViolations)
+    solved = display.status === 'solved'
 
     return {
       ...s,
+      ...display,
       grid: nextGrid,
-      status: result.ok ? status : 'in_progress',
-      errors: result.ok ? result.errors : [],
-      errorLocations: undefined,
-      errorCells: new Set(),
       history: [...s.history, previousGrid],
+      chargedViolations,
       hintsUsed: s.hintsUsed + 1,
       firstInputTracked: true,
     }

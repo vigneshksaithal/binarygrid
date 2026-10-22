@@ -55,6 +55,7 @@
 			mistakeCount: 0,
 			undoCount: 0,
 			firstInputTracked: false,
+			chargedViolations: new Set<string>(),
 		}
 
 		if (status === 'loading') {
