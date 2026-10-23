@@ -3,10 +3,16 @@ import { vi } from 'vitest'
 // In-memory stand-in for `@devvit/web/server`, shared by server tests through
 // `vi.mock('@devvit/web/server', async () =>
 //   (await import('./test-helpers/devvit-fake')).createDevvitServerFake())`.
-// It implements only the Redis and Reddit calls the server code uses.
+// It implements only the Redis, Reddit and settings calls the server code uses.
+// A test that drives the fake directly can build it with
+// `const fake = await vi.hoisted(async () => (await import(...)).createDevvitServerFake())`
+// and mock with `() => fake`, which keeps its types without a cast.
 
 type ZMember = { member: string; score: number }
 type ZRangeOptions = { by?: 'rank' | 'score'; reverse?: boolean }
+type SetOptions = { nx?: boolean }
+type CustomPostOptions = { subredditName: string; title: string; entry?: string }
+type SettingValue = string | number | boolean | string[] | undefined
 
 const toAsyncIterator = <T>(items: readonly T[]): AsyncIterator<T> => {
   let index = 0
@@ -57,9 +63,11 @@ const createRedisFake = () => {
 
   return {
     get: vi.fn((key: string) => Promise.resolve(redisStore.get(key) ?? null)),
-    set: vi.fn((key: string, value: string) => {
+    // Like Devvit's client: 'OK' once written, '' when `nx` finds the key taken.
+    set: vi.fn((key: string, value: string, options?: SetOptions) => {
+      if (options?.nx && redisStore.has(key)) return Promise.resolve('')
       redisStore.set(key, value)
-      return Promise.resolve()
+      return Promise.resolve('OK')
     }),
     del: vi.fn((key: string) => {
       redisStore.delete(key)
@@ -137,7 +145,7 @@ const createRedisFake = () => {
 
 const createRedditFake = () => ({
   submitComment: vi.fn(() => Promise.resolve({ id: 't1_comment_123' })),
-  submitCustomPost: vi.fn(() => Promise.resolve({ id: 't3_recap_123' })),
+  submitCustomPost: vi.fn((_options: CustomPostOptions) => Promise.resolve({ id: 't3_recap_123' })),
   getCurrentUser: vi.fn(() => Promise.resolve({ username: 'testuser' })),
   getCurrentUsername: vi.fn(() => Promise.resolve('testuser')),
   getSnoovatarUrl: vi.fn(() => Promise.resolve(null)),
@@ -149,6 +157,12 @@ const createRedditFake = () => ({
   ),
 })
 
+// The installed subreddit settings: none set, so readers fall back to their
+// defaults. A test sets values with `settings.getAll.mockResolvedValue`.
+const createSettingsFake = () => ({
+  getAll: vi.fn((): Promise<Record<string, SettingValue>> => Promise.resolve({})),
+})
+
 export const createDevvitServerFake = () => ({
   context: {
     postId: 't3_post_123',
@@ -158,6 +172,7 @@ export const createDevvitServerFake = () => ({
   cache: vi.fn((fn: () => Promise<unknown>) => fn()),
   redis: createRedisFake(),
   reddit: createRedditFake(),
+  settings: createSettingsFake(),
   // The server entry hands these to `serve`; tests that import it mock `serve`.
   createServer: () => undefined,
   getServerPort: () => 0,
