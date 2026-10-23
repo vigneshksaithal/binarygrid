@@ -190,6 +190,7 @@ build-only Vite plugin.
 
 - Shared utilities must be framework-agnostic and deterministic; no side-effects. They must be testable from both client and server.
 - Colocate Vitest test files next to the module under test (e.g. `generator.test.ts`, `validator.test.ts`). Use lightweight fakes over live services.
+- Server tests mock `@devvit/web/server` with the shared in-memory fake in `src/server/test-helpers/devvit-fake.ts`: `vi.mock('@devvit/web/server', async () => (await import('./test-helpers/devvit-fake')).createDevvitServerFake())`. Extend that fake instead of copying it.
 
 ### Devvit
 
@@ -198,6 +199,13 @@ Refer to "devvit app" (`/src/devvit`) and "client" (`/src/client`).
 > **IMPORTANT:**
 > This is a serverless runtime (like AWS Lambda); do not run SQLite or stateful in-memory processes. 
 > For real-time use cases, see `devvit_search` docs regarding the real-time service.
+
+### Scheduled jobs and analytics baseline
+
+- `devvit.json` uses 5 of the 10 recurring scheduler tasks Devvit allows per install. Check the count before adding one.
+- `baseline-nightly` (00:30 UTC) calls `/internal/schedule/baseline`. The Redis reads and writes live in `src/server/core/baseline.ts` and the math in `src/shared/baseline.ts`. It saves `metrics:daily:{date}`, `metrics:cohort:{date}` and `metrics:cohort-week:{week}` from the 60-day `daily:{date}:unique:{event}` hashes, the weekly boards and the per-post boards. Writes are skip-if-present, so a failed run resumes the next night.
+- `metrics:*` keys hold aggregates only: never write a user ID into them and never give them a TTL.
+- Moderators read the latest WRS, the week's new users and day-1 retention from the subreddit menu item "Show Baseline Metrics".
 
 ---
 
