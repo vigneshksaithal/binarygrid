@@ -85,6 +85,12 @@ const createDevvitServerFake = () => {
       if (hash?.size === 0) hashes.delete(key)
       return removed
     },
+    hIncrBy: async (key: string, field: string, value: number): Promise<number> => {
+      const hash = hashAt(key)
+      const next = Number(hash.get(field) ?? '0') + value
+      hash.set(field, `${next}`)
+      return next
+    },
     zAdd: async (key: string, ...members: SortedSetMember[]): Promise<number> => {
       const set = sortedSetAt(key)
       const added = members.filter(({ member }) => !set.has(member)).length
