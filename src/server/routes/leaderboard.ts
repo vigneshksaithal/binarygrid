@@ -2,6 +2,7 @@ import { context, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import type { LeaderboardEntry, LeaderboardResponse } from '../../shared/types/leaderboard'
 import type { StreakLeaderboardEntry } from '../../shared/types/streak'
+import { getShownTitle, getShownTitles } from '../lib/economy'
 import {
   clampPageSize,
   DECIMAL_RADIX,
@@ -54,13 +55,11 @@ app.get('/api/leaderboard', async (c) => {
       { by: 'rank' }
     )
 
-    const metaValues =
-      rangeMembers.length > 0
-        ? await redis.hMGet(
-          leaderboardDetailsKey,
-          rangeMembers.map((entry) => entry.member)
-        )
-        : []
+    const memberIds = rangeMembers.map((entry) => entry.member)
+    const [metaValues, titles] = await Promise.all([
+      memberIds.length > 0 ? redis.hMGet(leaderboardDetailsKey, memberIds) : [],
+      getShownTitles(memberIds)
+    ])
 
     const entries: LeaderboardEntry[] = rangeMembers.map((entry, index) => {
       const rawMeta = metaValues[index]
@@ -74,7 +73,8 @@ app.get('/api/leaderboard', async (c) => {
         avatarUrl: parsedMeta.avatarUrl,
         timeSeconds: entry.score,
         rank: offset + index + 1,
-        attempts: parsedMeta.attempts
+        attempts: parsedMeta.attempts,
+        title: titles[index] ?? null
       }
     })
 
@@ -100,7 +100,8 @@ app.get('/api/leaderboard', async (c) => {
           avatarUrl: playerMeta.avatarUrl,
           timeSeconds: playerScore,
           rank: playerRank + 1,
-          attempts: playerMeta.attempts
+          attempts: playerMeta.attempts,
+          title: await getShownTitle(userId)
         }
       }
     }
@@ -166,9 +167,11 @@ app.get('/api/leaderboard/streaks', async (c) => {
       { by: 'rank', reverse: true }
     )
 
-    const userMetaResults = await Promise.all(
-      rangeMembers.map((entry) => getUserMeta(entry.member))
-    )
+    const memberIds = rangeMembers.map((entry) => entry.member)
+    const [userMetaResults, titles] = await Promise.all([
+      Promise.all(memberIds.map((memberId) => getUserMeta(memberId))),
+      getShownTitles(memberIds)
+    ])
 
     const entries: StreakLeaderboardEntry[] = rangeMembers.map((entry, index) => {
       const meta = userMetaResults[index]!
@@ -177,7 +180,8 @@ app.get('/api/leaderboard/streaks', async (c) => {
         username: meta.username,
         avatarUrl: meta.avatarUrl,
         streak: entry.score,
-        rank: index + 1
+        rank: index + 1,
+        title: titles[index] ?? null
       }
     })
 
@@ -189,13 +193,17 @@ app.get('/api/leaderboard/streaks', async (c) => {
       ])
 
       if (playerRank !== undefined && playerRank !== null && playerScore !== undefined && playerScore !== null) {
-        const playerMeta = await getUserMeta(userId)
+        const [playerMeta, playerTitle] = await Promise.all([
+          getUserMeta(userId),
+          getShownTitle(userId)
+        ])
         playerEntry = {
           userId,
           username: playerMeta.username,
           avatarUrl: playerMeta.avatarUrl,
           streak: playerScore,
-          rank: totalEntries - playerRank
+          rank: totalEntries - playerRank,
+          title: playerTitle
         }
       }
     }

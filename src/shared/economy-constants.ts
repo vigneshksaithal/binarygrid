@@ -58,3 +58,28 @@ export const TITLES: readonly TitleDef[] = [
 
 export const getTitleById = (id: string): TitleDef | undefined =>
   TITLES.find((t) => t.id === id)
+
+// Every player starts with the free Puzzler title equipped, so only titles
+// bought with coins say anything beside a name.
+const isBoughtTitle = (title: TitleDef | undefined): title is TitleDef =>
+  title !== undefined && title.cost > 0
+
+/**
+ * The title shown beside a player's name: the bought title they equipped,
+ * else the highest-priced title they bought. Players with only the free
+ * starting title show none.
+ */
+export const pickShownTitle = (
+  equippedTitle: string,
+  ownedTitles: readonly string[]
+): TitleDef | undefined => {
+  const equipped = getTitleById(equippedTitle)
+  if (isBoughtTitle(equipped)) return equipped
+  return ownedTitles
+    .map((id) => getTitleById(id))
+    .filter(isBoughtTitle)
+    .reduce<TitleDef | undefined>(
+      (highest, title) => (highest && highest.cost >= title.cost ? highest : title),
+      undefined
+    )
+}

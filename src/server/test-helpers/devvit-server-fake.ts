@@ -67,6 +67,8 @@ const createDevvitServerFake = () => {
       hashes.get(key)?.get(field),
     hGetAll: async (key: string): Promise<Record<string, string>> =>
       Object.fromEntries(hashes.get(key) ?? []),
+    hMGet: async (key: string, fields: string[]): Promise<(string | null)[]> =>
+      fields.map((field) => hashes.get(key)?.get(field) ?? null),
     hSet: async (key: string, fieldValues: Record<string, string>): Promise<number> => {
       const hash = hashAt(key)
       const added = Object.keys(fieldValues).filter((field) => !hash.has(field)).length

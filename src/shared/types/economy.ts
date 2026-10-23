@@ -27,6 +27,9 @@ export type TitleDef = {
   }
 }
 
+/** A title as the boards show it beside a player's name. */
+export type PlayerTitle = Pick<TitleDef, 'emoji' | 'label'>
+
 export type ShopItem = TitleDef & {
   owned: boolean
   equipped: boolean

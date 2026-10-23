@@ -1,3 +1,5 @@
+import type { PlayerTitle } from './economy'
+
 export type LeaderboardEntry = {
   userId: string
   username: string
@@ -5,6 +7,7 @@ export type LeaderboardEntry = {
   timeSeconds: number
   rank: number
   attempts: number
+  title: PlayerTitle | null
 }
 
 export type LeaderboardResponse = {

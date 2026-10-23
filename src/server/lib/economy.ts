@@ -7,9 +7,10 @@ import {
   DIFFICULTY_MULTIPLIER,
   getTitleById,
   PAR_TIMES,
+  pickShownTitle,
   TITLES,
 } from '../../shared/economy-constants'
-import type { CoinReward, ShopItem, UserEconomy } from '../../shared/types/economy'
+import type { CoinReward, PlayerTitle, ShopItem, UserEconomy } from '../../shared/types/economy'
 import { DECIMAL_RADIX } from '../routes/utils'
 
 const ECONOMY_HASH_PREFIX = 'user'
@@ -55,6 +56,24 @@ export const getUserEconomy = async (userId: string): Promise<UserEconomy> => {
     return defaultEconomy()
   }
 }
+
+// ────────────────────────────────────────────
+// getShownTitle
+// ────────────────────────────────────────────
+
+/**
+ * The title the boards show beside a player's name, read straight from the
+ * saved record (never from a display cache), or null for none.
+ */
+export const getShownTitle = async (userId: string): Promise<PlayerTitle | null> => {
+  const { equippedTitle, ownedTitles } = await getUserEconomy(userId)
+  const title = pickShownTitle(equippedTitle, ownedTitles)
+  return title ? { emoji: title.emoji, label: title.label } : null
+}
+
+/** Shown titles for several players, in the order given. */
+export const getShownTitles = (userIds: readonly string[]): Promise<(PlayerTitle | null)[]> =>
+  Promise.all(userIds.map((userId) => getShownTitle(userId)))
 
 // ────────────────────────────────────────────
 // saveUserEconomy

@@ -6,6 +6,7 @@
 	import { formatElapsedTime } from '../stores/timer'
 	import { closeLeaderboardModal, showLeaderboardModal } from '../stores/ui'
 	import Modal from './Modal.svelte'
+	import TitleBadge from './TitleBadge.svelte'
 
 	type TabType = Difficulty | 'streaks' | 'coins'
 
@@ -155,6 +156,7 @@
 										<div class="w-6 h-6 rounded-full bg-zinc-600 flex-shrink-0"></div>
 									{/if}
 									<span class="text-sm text-zinc-200 truncate">{entry.username}</span>
+									<TitleBadge title={entry.title} />
 								</div>
 								<span class="text-sm font-mono text-green-400 flex-shrink-0">{formatElapsedTime(Math.round(entry.timeSeconds))}</span>
 								<span class="text-xs text-zinc-500 flex-shrink-0 w-10 text-right">{entry.attempts}x</span>
@@ -192,6 +194,7 @@
 										<div class="w-6 h-6 rounded-full bg-zinc-600 flex-shrink-0"></div>
 									{/if}
 									<span class="text-sm text-zinc-200 truncate">{entry.username}</span>
+									<TitleBadge title={entry.title} />
 								</div>
 								<span class="text-sm font-semibold text-orange-400 flex-shrink-0">🔥 {entry.streak}</span>
 							</div>
