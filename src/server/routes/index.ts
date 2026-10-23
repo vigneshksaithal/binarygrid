@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import { baselineRoutes } from './baseline'
+import { dailyPostRoutes } from './daily-post'
 import growthRoutes from './growth'
 import leaderboardRoutes from './leaderboard'
 import playCountRoutes from './play-count'
@@ -20,5 +21,6 @@ app.route('/', leaderboardRoutes)
 app.route('/', submitRoutes)
 app.route('/', growthRoutes)
 app.route('/', baselineRoutes)
+app.route('/', dailyPostRoutes)
 
 export default app

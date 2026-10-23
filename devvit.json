@@ -58,16 +58,36 @@
   "scheduler": {
     "tasks": {
       "daily-post-morning": {
-        "endpoint": "/internal/schedule/daily",
+        "endpoint": "/internal/schedule/daily-morning",
         "cron": "0 8 * * *"
       },
       "daily-post-evening": {
-        "endpoint": "/internal/schedule/daily",
+        "endpoint": "/internal/schedule/daily-evening",
         "cron": "0 20 * * *"
       },
       "baseline-nightly": {
         "endpoint": "/internal/schedule/baseline",
         "cron": "30 0 * * *"
+      }
+    }
+  },
+  "settings": {
+    "subreddit": {
+      "dailyPostSlot": {
+        "type": "select",
+        "label": "Daily puzzle post time",
+        "helpText": "When the daily puzzle posts. A change applies from the next scheduled post, and a day never gets a second scheduled post.",
+        "options": [
+          {
+            "label": "Morning (08:00 UTC)",
+            "value": "morning"
+          },
+          {
+            "label": "Evening (20:00 UTC)",
+            "value": "evening"
+          }
+        ],
+        "defaultValue": "morning"
       }
     }
   },

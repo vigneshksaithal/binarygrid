@@ -1,10 +1,14 @@
 import { redis } from '@devvit/web/server'
+import { DECIMAL_RADIX } from '../routes/utils'
 
 /**
  * Redis key patterns for puzzle numbering:
  * - puzzle:number:counter — Global counter for puzzle numbers
  * - puzzle:number:{postId} — Maps postId to its puzzle number
  * - puzzle:number:date:{dateISO} — Maps date to puzzle number (for daily puzzles)
+ * - post:{postId}:createdAt — When createPost created the post (ISO time). Only
+ *   stamped posts have it; older posts got their number lazily.
+ * - puzzle:post:{N} — #N's indexed post: the first post stamped with N
  */
 
 const PUZZLE_NUMBER_COUNTER_KEY = 'puzzle:number:counter'
@@ -15,26 +19,60 @@ const puzzleNumberKey = (postId: string): string =>
 const puzzleDateKey = (dateISO: string): string =>
     `puzzle:number:date:${dateISO}`
 
+const postCreatedAtKey = (postId: string): string => `post:${postId}:createdAt`
+
+const indexedPostKey = (number: number): string => `puzzle:post:${number}`
+
+/** A stored number, or 0 when the key is missing or unreadable. */
+const parseNumber = (value: string | null | undefined): number => {
+    if (!value) return 0
+    const parsed = Number.parseInt(value, DECIMAL_RADIX)
+    return Number.isNaN(parsed) ? 0 : parsed
+}
+
+const parseTime = (value: string | null | undefined): Date | null => {
+    if (!value) return null
+    const time = new Date(value)
+    return Number.isNaN(time.getTime()) ? null : time
+}
+
+/** A stamped post's #N and when createPost created it. */
+export type PostStamp = { number: number; createdAt: Date }
+
+/** #N's indexed post, the first post stamped with N, and its creation time. */
+export type IndexedPost = { postId: string; createdAt: Date }
+
 /**
  * Retrieves the puzzle number for a given post.
  * Returns the puzzle number if it exists, or 0 if not found.
  */
-export const getPuzzleNumber = async (postId: string): Promise<number> => {
-    const key = puzzleNumberKey(postId)
-    const value = await redis.get(key)
+export const getPuzzleNumber = async (postId: string): Promise<number> =>
+    parseNumber(await redis.get(puzzleNumberKey(postId)))
 
-    if (!value) {
-        return 0
-    }
+/**
+ * Mints #N for a UTC date through the date key, once: every post and every
+ * lazy fallback on that date gets the same number (N-7 (a)). If two first
+ * mints race, the number stored first wins and the other counter value is
+ * skipped, so a date never has two numbers.
+ */
+export const getOrCreateDateNumber = async (dateISO: string): Promise<number> => {
+    const dateKey = puzzleDateKey(dateISO)
+    const existing = parseNumber(await redis.get(dateKey))
+    if (existing > 0) return existing
 
-    const parsed = Number.parseInt(value, 10)
-    return Number.isNaN(parsed) ? 0 : parsed
+    const minted = await redis.incrBy(PUZZLE_NUMBER_COUNTER_KEY, 1)
+    if (await redis.set(dateKey, minted.toString(), { nx: true })) return minted
+
+    const stored = parseNumber(await redis.get(dateKey))
+    if (stored > 0) return stored
+    throw new Error(`No puzzle number could be stored for ${dateISO}`)
 }
 
 /**
  * Gets an existing puzzle number or creates a new one for the given post.
- * Uses the dateISO to track daily puzzles and ensure consistent numbering.
- * 
+ * createPost stamps every new post, so this mints only for posts created
+ * before stamping: they take the number of the date they are first seen.
+ *
  * @param postId - The Reddit post ID
  * @param dateISO - The date in ISO format (YYYY-MM-DD)
  * @returns The puzzle number (existing or newly assigned)
@@ -43,34 +81,46 @@ export const getOrCreatePuzzleNumber = async (
     postId: string,
     dateISO: string
 ): Promise<number> => {
-    // First, check if this post already has a puzzle number
     const existingNumber = await getPuzzleNumber(postId)
     if (existingNumber > 0) {
         return existingNumber
     }
 
-    // Check if this date already has a puzzle number assigned
-    const dateKey = puzzleDateKey(dateISO)
-    const existingDateNumber = await redis.get(dateKey)
+    const dateNumber = await getOrCreateDateNumber(dateISO)
+    await redis.set(puzzleNumberKey(postId), dateNumber.toString())
+    return dateNumber
+}
 
-    if (existingDateNumber) {
-        const dateNumber = Number.parseInt(existingDateNumber, 10)
-        if (!Number.isNaN(dateNumber) && dateNumber > 0) {
-            // Store the mapping for this post to the existing date's puzzle number
-            await redis.set(puzzleNumberKey(postId), existingDateNumber)
-            return dateNumber
-        }
-    }
+/**
+ * Stamps a new post with its date's #N and creation time, and makes it #N's
+ * indexed post unless an earlier post that date already is. The index is
+ * written last, so an indexed post always has its creation time.
+ */
+export const stampPost = async (
+    postId: string,
+    number: number,
+    createdAt: Date
+): Promise<void> => {
+    await redis.set(puzzleNumberKey(postId), number.toString())
+    await redis.set(postCreatedAtKey(postId), createdAt.toISOString())
+    await redis.set(indexedPostKey(number), postId, { nx: true })
+}
 
-    // No existing number found, create a new one using atomic increment
-    const newNumber = await redis.incrBy(PUZZLE_NUMBER_COUNTER_KEY, 1)
-
-    // Store the mapping for both post and date
-    const postKey = puzzleNumberKey(postId)
-    await Promise.all([
-        redis.set(postKey, newNumber.toString()),
-        redis.set(dateKey, newNumber.toString())
+/** A post's stamp, or null for a post createPost didn't stamp. */
+export const readPostStamp = async (postId: string): Promise<PostStamp | null> => {
+    const [numberValue, createdAtValue] = await Promise.all([
+        redis.get(puzzleNumberKey(postId)),
+        redis.get(postCreatedAtKey(postId))
     ])
+    const number = parseNumber(numberValue)
+    const createdAt = parseTime(createdAtValue)
+    return number > 0 && createdAt ? { number, createdAt } : null
+}
 
-    return newNumber
+/** #N's indexed post, or null when no post was stamped with N. */
+export const readIndexedPost = async (number: number): Promise<IndexedPost | null> => {
+    const postId = await redis.get(indexedPostKey(number))
+    if (!postId) return null
+    const createdAt = parseTime(await redis.get(postCreatedAtKey(postId)))
+    return createdAt ? { postId, createdAt } : null
 }

@@ -1,9 +1,9 @@
 import { context, reddit, redis } from '@devvit/web/server'
-import type { Difficulty } from '../../shared/types/puzzle'
+import { toISODate } from '../../shared/baseline'
 import { generatePuzzleForPost } from './generator'
 import { storePostPuzzle } from './post-puzzle'
-
-const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
+import { getOrCreateDateNumber, stampPost } from './puzzle-number'
+import { getOrCreatePuzzleSet } from './puzzle-set'
 
 const ensurePostIdPrefix = (id: string): `t3_${string}` =>
   id.startsWith('t3_') ? (id as `t3_${string}`) : `t3_${id}`
@@ -36,26 +36,35 @@ export const ensureScoreThread = async (postId: string): Promise<string | null> 
   return comment.id
 }
 
-export const createPost = async () => {
+const dailyPostTitle = (number: number): string => `Binary Grid #${number}`
+
+/**
+ * Creates a puzzle post. Every post created on a UTC date, scheduled or from
+ * the moderator menu, gets that date's #N and puzzle set; each serves the set
+ * under its own post-scoped puzzle IDs, so boards stay per post.
+ */
+export const createPost = async (now: Date = new Date()) => {
   const { subredditName } = context
   if (!subredditName) {
     throw new Error('subredditName is required')
   }
 
-  const now = new Date()
-  const dateStr = now.toISOString().split('T')[0]
-  const hour = now.getUTCHours()
-  const session = hour < 14 ? 'Morning' : 'Evening'
-
+  const date = toISODate(now)
+  // Minted before posting, since the title carries it.
+  const number = await getOrCreateDateNumber(date)
   const post = await reddit.submitCustomPost({
     subredditName,
-    title: `Binary Grid: ${dateStr} (${session})`,
+    title: dailyPostTitle(number),
     entry: 'default'
   })
+  await stampPost(post.id, number, now)
 
-  // Generate and store puzzles for all three difficulty levels
-  for (const difficulty of DIFFICULTIES) {
-    await storePostPuzzle(post.id, generatePuzzleForPost(post.id, difficulty))
+  // The date's first post seeds the set from its own ID, as every post did before.
+  const puzzles = await getOrCreatePuzzleSet(date, (difficulty) =>
+    generatePuzzleForPost(post.id, difficulty)
+  )
+  for (const puzzle of puzzles) {
+    await storePostPuzzle(post.id, { ...puzzle, id: `${post.id}:${puzzle.difficulty}` })
   }
 
   try {
