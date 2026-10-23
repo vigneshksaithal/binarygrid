@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-23
+
+### Add a Devvit publish command
+
+- Added `bun run publish`, which runs the existing build-and-upload `deploy` script before `devvit publish`. Publishing stops if the build or upload fails.
+- Changed `bun run launch` to an alias for `publish`, removing its redundant build, and documented the command in `AGENTS.md`.
+
 ## 2026-10-22
 
 ### Engagement batch 1: analytics baseline, spoiler-free sharing, an earnable Clean label and no lost solves
