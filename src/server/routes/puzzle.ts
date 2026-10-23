@@ -1,13 +1,11 @@
-import { cache, context, redis } from '@devvit/web/server'
+import { cache, context } from '@devvit/web/server'
 import { Hono } from 'hono'
-import type { PuzzleWithGrid } from '../../shared/types/puzzle'
+import type { Difficulty, PuzzleWithGrid } from '../../shared/types/puzzle'
 import { generateDailyPuzzle } from '../core/generator'
+import { readPostPuzzle, storePostPuzzle } from '../core/post-puzzle'
 import { getOrCreatePuzzleNumber } from '../core/puzzle-number'
 import {
   CACHE_TTL_ONE_DAY,
-  DECIMAL_RADIX,
-  DEFAULT_GRID_SIZE,
-  GRID_SIZE_TYPE,
   HTTP_BAD_REQUEST,
   resolveDate,
   resolveDifficulty,
@@ -15,6 +13,28 @@ import {
 } from './utils'
 
 const app = new Hono()
+
+const getDailyPuzzle = (date: string, difficulty: Difficulty): Promise<PuzzleWithGrid> =>
+  cache(async () => generateDailyPuzzle(date, difficulty), {
+    key: `puzzle:cache:${date}:${difficulty}`,
+    ttl: CACHE_TTL_ONE_DAY
+  })
+
+// A post without a stored puzzle (the weekly recap, or a post whose generation
+// failed) stores today's puzzle under its own ID before serving it, so solves
+// of it validate. Today's date, not a requested one, so no client picks it.
+const getOrStorePostPuzzle = async (
+  postId: string,
+  difficulty: Difficulty
+): Promise<PuzzleWithGrid> => {
+  const stored = await readPostPuzzle(postId, difficulty)
+  if (stored) return stored
+
+  const daily = await getDailyPuzzle(todayISO(), difficulty)
+  const puzzle = { ...daily, id: `${postId}:${difficulty}` }
+  await storePostPuzzle(postId, puzzle)
+  return puzzle
+}
 
 app.get('/api/puzzle-number', async (c) => {
   const { postId } = context
@@ -39,41 +59,11 @@ app.get('/api/puzzle-number', async (c) => {
 app.get('/api/puzzle', async (c) => {
   try {
     const { postId } = context
-    const requestedDifficulty = resolveDifficulty(
-      c.req.query('difficulty') ?? null
-    )
-    let puzzle: PuzzleWithGrid | null = null
+    const difficulty = resolveDifficulty(c.req.query('difficulty') ?? null)
 
-    if (postId) {
-      const puzzleData = await redis.hGetAll(
-        `post:${postId}:puzzle:${requestedDifficulty}`
-      )
-
-      if (puzzleData?.id) {
-        puzzle = {
-          id: puzzleData.id,
-          size: Number.parseInt(
-            puzzleData.size || DEFAULT_GRID_SIZE.toString(),
-            DECIMAL_RADIX
-          ) as typeof GRID_SIZE_TYPE,
-          difficulty: resolveDifficulty(puzzleData.difficulty ?? null),
-          fixed: JSON.parse(puzzleData.fixed || '[]'),
-          initial: JSON.parse(puzzleData.initial || '[]')
-        }
-      }
-    }
-
-    if (!puzzle) {
-      const date = resolveDate(c.req.query('date') ?? null)
-      const difficulty = requestedDifficulty
-      puzzle = await cache(
-        async () => generateDailyPuzzle(date, difficulty),
-        {
-          key: `puzzle:cache:${date}:${difficulty}`,
-          ttl: CACHE_TTL_ONE_DAY
-        }
-      )
-    }
+    const puzzle = postId
+      ? await getOrStorePostPuzzle(postId, difficulty)
+      : await getDailyPuzzle(resolveDate(c.req.query('date') ?? null), difficulty)
 
     return c.json({ puzzle })
   } catch (error) {

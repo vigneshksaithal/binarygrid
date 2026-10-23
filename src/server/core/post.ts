@@ -3,6 +3,7 @@ import { getUTCWeekId } from '../../shared/growth'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { formatTime } from '../../shared/utils/format'
 import { generatePuzzleForPost } from './generator'
+import { storePostPuzzle } from './post-puzzle'
 import { setActivePostAndRefreshPreview } from './preview'
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
@@ -58,14 +59,7 @@ export const createPost = async () => {
 
   // Generate and store puzzles for all three difficulty levels
   for (const difficulty of DIFFICULTIES) {
-    const puzzle = generatePuzzleForPost(post.id, difficulty)
-    await redis.hSet(`post:${post.id}:puzzle:${difficulty}`, {
-      id: puzzle.id,
-      size: puzzle.size.toString(),
-      difficulty: puzzle.difficulty,
-      fixed: JSON.stringify(puzzle.fixed),
-      initial: JSON.stringify(puzzle.initial)
-    })
+    await storePostPuzzle(post.id, generatePuzzleForPost(post.id, difficulty))
   }
 
   try {
