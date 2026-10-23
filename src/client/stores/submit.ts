@@ -1,7 +1,6 @@
 import { get, writable } from 'svelte/store'
 import type { SolveQuality } from '../../shared/growth'
 import { LOGIN_REQUIRED_CODE } from '../../shared/submit'
-import type { CoinReward } from '../../shared/types/economy'
 import type { StreakData } from '../../shared/types/streak'
 import { timeoutSignal } from '../services/request-timeout'
 import type { DailyProgress, PlayerContext } from './growth'
@@ -18,7 +17,6 @@ export type SubmitResponse = {
   rank?: number | null
   totalEntries?: number
   streak?: StreakData
-  coinReward?: CoinReward
   solveQuality?: SolveQuality
   dailyProgress?: DailyProgress
   playerContext?: PlayerContext

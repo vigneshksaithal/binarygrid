@@ -65,6 +65,17 @@ const submitSuccessCount = async (): Promise<number> =>
 
 const weeklyEntries = () => redis.zCard(`leaderboard:weekly:${getUTCWeekId()}:${TIER}`)
 
+const ECONOMY_KEY = `user:${FAKE_USER_ID}:economy`
+const SAVED_ECONOMY = JSON.stringify({
+  coins: 340,
+  totalCoins: 1290,
+  totalSolves: 61,
+  speedSolves: 12,
+  equippedTitle: 'grid_master',
+  ownedTitles: ['puzzler', 'grid_master'],
+  dailyFirstSolve: '2026-10-21',
+})
+
 const deferred = <T>() => {
   let resolve: (value: T) => void = () => {}
   const promise = new Promise<T>((settle) => {
@@ -196,6 +207,38 @@ describe('POST /api/submit idempotency', () => {
     expect(response.status).toBe(400)
     expect(await response.json()).not.toHaveProperty('code')
     expect(devvitServerFake.snapshot()).toBe(before)
+  })
+})
+
+describe('POST /api/submit with coins retired', () => {
+  it('answers a solve without a coin reward', async () => {
+    const response = await submit(solveBody())
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).not.toHaveProperty('coinReward')
+  })
+
+  it('writes no coins board, coin ledger or weekly league entry', async () => {
+    await submit(solveBody())
+
+    const stored = devvitServerFake.snapshot()
+    expect(stored).not.toContain('leaderboard:coins')
+    expect(stored).not.toContain('economy:ledger:')
+    expect(stored).not.toContain(':league-')
+  })
+
+  it('leaves a saved balance and titles exactly as they were', async () => {
+    await redis.hSet(ECONOMY_KEY, { economy: SAVED_ECONOMY })
+
+    await submit(solveBody())
+
+    expect(await redis.hGetAll(ECONOMY_KEY)).toEqual({ economy: SAVED_ECONOMY })
+  })
+
+  it('starts no coin record for a player who never had one', async () => {
+    await submit(solveBody())
+
+    expect(await redis.hGetAll(ECONOMY_KEY)).toEqual({})
   })
 })
 

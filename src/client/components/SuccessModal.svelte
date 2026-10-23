@@ -5,7 +5,6 @@
 		SOLVE_QUALITY_LABELS,
 		type SolveQuality,
 	} from "../../shared/growth";
-	import { coinRewardStore } from "../stores/coinReward";
 	import { growthStore } from "../stores/growth";
 	import { rankStore } from "../stores/rank";
 	import { streakStore } from "../stores/streak";
@@ -85,8 +84,8 @@
 			{/if}
 		</div>
 
-		<!-- Stats row: Time · Rank · Streak · Coins -->
-		<div class="grid grid-cols-4 gap-2 text-center">
+		<!-- Stats row: Time · Rank · Streak -->
+		<div class="grid grid-cols-3 gap-2 text-center">
 			<div>
 				<div class="text-xl font-bold text-green-400">{formatElapsedTime($elapsedSeconds)}</div>
 				<div class="text-xs text-zinc-500">Time</div>
@@ -103,14 +102,6 @@
 				<div class="text-xl font-bold text-orange-400">🔥{currentStreak}</div>
 				<div class="text-xs text-zinc-500">Streak</div>
 			</div>
-			{#if $coinRewardStore !== null}
-				<div>
-					<div class="text-xl font-bold text-yellow-400">+{$coinRewardStore.total}</div>
-					<div class="text-xs text-zinc-500">🪙 Coins</div>
-				</div>
-			{:else}
-				<div></div>
-			{/if}
 		</div>
 		<!-- Save status; the login line for logged-out solvers -->
 		<SubmitStatus />

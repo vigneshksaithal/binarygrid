@@ -10,7 +10,6 @@
 	import Grid from "./components/Grid.svelte";
 	import HowToPlayModal from "./components/HowToPlayModal.svelte";
 	import LeaderboardModal from "./components/LeaderboardModal.svelte";
-	import ShopModal from "./components/ShopModal.svelte";
 	import SuccessModal from "./components/SuccessModal.svelte";
 	import Timer from "./components/Timer.svelte";
 	import { game, loadPuzzle, undo, useHint } from "./stores/game";
@@ -43,27 +42,7 @@
 	loadDailyProgress();
 	trackGrowthEvent("app_open");
 
-	// Coin economy state
-	let coinBalance = $state(0);
-	let shopOpen = $state(false);
 	let menuOpen = $state(false);
-
-	$effect(() => {
-		fetch("/api/economy")
-			.then((r) => (r.ok ? r.json() : null))
-			.then((data) => {
-				if (data && typeof data.coins === "number") {
-					coinBalance = data.coins;
-				}
-			})
-			.catch(() => {});
-	});
-
-	const openShop = () => {
-		menuOpen = false;
-		shopOpen = true;
-		trackGrowthEvent("shop_open");
-	};
 
 	const openLeaderboard = () => {
 		menuOpen = false;
@@ -173,17 +152,6 @@
 						>
 							<button
 								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors"
-								onclick={openShop}
-							>
-								<span class="text-base">🪙</span>
-								<span>Shop</span>
-								<span
-									class="ml-auto text-yellow-400 font-bold text-xs"
-									>{coinBalance}</span
-								>
-							</button>
-							<button
-								class="w-full flex items-center gap-3 px-4 py-3 text-sm text-zinc-200 hover:bg-zinc-800 transition-colors border-t border-zinc-700"
 								onclick={() => {
 									menuOpen = false;
 									openHowToModal();
@@ -204,4 +172,3 @@
 <HowToPlayModal />
 <SuccessModal />
 <LeaderboardModal />
-<ShopModal open={shopOpen} onClose={() => (shopOpen = false)} />

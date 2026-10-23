@@ -38,7 +38,6 @@ export const GROWTH_EVENT_NAMES = [
 export type GrowthEventName = (typeof GROWTH_EVENT_NAMES)[number]
 
 export const ANALYTICS_TTL_SECONDS = 60 * 60 * 24 * 60
-const LEDGER_TTL_SECONDS = 60 * 60 * 24 * 180
 const MAX_STREAK_FREEZES = 2
 
 export type DailyProgress = {
@@ -75,9 +74,6 @@ const dailyCompletedKey = (userId: string, dateISOValue: string): string =>
 // no TTL, so the Clean rate can be read without scanning per-user keys.
 const dailyQualityKey = (dateISOValue: string, scoringVersion: number): string =>
   `daily:${dateISOValue}:quality:v${scoringVersion}`
-
-export const economyLedgerKey = (userId: string, eventId: string): string =>
-  `economy:ledger:${userId}:${eventId}`
 
 const parseInteger = (value: string | null | undefined, fallback = 0): number => {
   if (value === null || value === undefined) return fallback
@@ -300,12 +296,4 @@ const getNextRankSeconds = async (
   })
   const targetScore = nextRank[0]?.score
   return targetScore === undefined ? null : Math.max(0, score - targetScore)
-}
-
-export const markLedgerEvent = async (key: string): Promise<boolean> => {
-  const exists = await redis.get(key)
-  if (exists) return false
-  await redis.set(key, '1')
-  await redis.expire(key, LEDGER_TTL_SECONDS)
-  return true
 }

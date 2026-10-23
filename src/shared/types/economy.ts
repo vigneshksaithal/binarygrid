@@ -1,3 +1,4 @@
+/** A player's saved `user:{id}:economy` record, kept untouched since coins were retired. */
 export type UserEconomy = {
   coins: number
   totalCoins: number
@@ -6,14 +7,6 @@ export type UserEconomy = {
   equippedTitle: string
   ownedTitles: string[]
   dailyFirstSolve: string | null
-}
-
-export type CoinReward = {
-  base: number
-  streakBonus: number
-  speedBonus: number
-  dailyBonus: number
-  total: number
 }
 
 export type TitleDef = {
@@ -29,19 +22,3 @@ export type TitleDef = {
 
 /** A title as the boards show it beside a player's name. */
 export type PlayerTitle = Pick<TitleDef, 'emoji' | 'label'>
-
-export type ShopItem = TitleDef & {
-  owned: boolean
-  equipped: boolean
-  unlocked: boolean
-}
-
-export type ShopResponse = {
-  items: ShopItem[]
-  coins: number
-}
-
-export type BuyTitleRequest = { titleId: string }
-export type BuyTitleResponse = { success: boolean; newBalance?: number; error?: string }
-export type EquipTitleRequest = { titleId: string }
-export type EquipTitleResponse = { success: boolean; error?: string }

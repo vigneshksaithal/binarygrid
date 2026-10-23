@@ -1,11 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   calculateFasterThanPercentile,
-  calculateWeeklyLeaguePoints,
   deriveSolveQuality,
   getDailyMissions,
   getDailyTrioSummary,
-  getWeeklyLeagueId,
   SCORING_VERSION,
   SOLVE_QUALITY_DEFINITIONS,
   SOLVE_QUALITY_LABELS,
@@ -101,28 +99,5 @@ describe('updateStreakFreezeBalance', () => {
       freezes: 2,
       earnedFreeze: false,
     })
-  })
-})
-
-describe('weekly leagues', () => {
-  it('assigns users to deterministic weekly league buckets', () => {
-    expect(getWeeklyLeagueId('t2_user', '2026-W20')).toBe(
-      getWeeklyLeagueId('t2_user', '2026-W20')
-    )
-  })
-
-  it('awards more points for harder clean trio solves', () => {
-    const cleanHard = calculateWeeklyLeaguePoints({
-      difficulty: 'hard',
-      solveQuality: 'clean',
-      trioComplete: true,
-    })
-    const assistedEasy = calculateWeeklyLeaguePoints({
-      difficulty: 'easy',
-      solveQuality: 'assisted',
-      trioComplete: false,
-    })
-
-    expect(cleanHard).toBeGreaterThan(assistedEasy)
   })
 })

@@ -3,17 +3,10 @@ import { Hono } from 'hono'
 import { LOGIN_REQUIRED_CODE } from '../../shared/submit'
 import type { Grid } from '../../shared/types/puzzle'
 import { isValidAttemptId, validateGrid } from '../../shared/validator'
-import {
-  calculateWeeklyLeaguePoints,
-  getUTCWeekId,
-  getWeeklyLeagueId
-} from '../../shared/growth'
+import { getUTCWeekId } from '../../shared/growth'
 import { recordHourlySolve } from '../core/baseline'
-import { calculateCoinReward, getUserEconomy, saveUserEconomy } from '../lib/economy'
 import {
-  economyLedgerKey,
   getPlayerContext,
-  markLedgerEvent,
   normalizeAndLabelSolve,
   recordDailyCompletion,
   recordGrowthEvent,
@@ -240,33 +233,6 @@ app.post('/api/submit', async (c) => {
         earnedFreeze: false
       }
 
-    // ── Coin economy ──────────────────────────────────────────────────────
-    const economy = await getUserEconomy(userId)
-    const rewardEventId = `${todayDate}:${difficulty}:solve`
-    const canRewardSolve = await markLedgerEvent(economyLedgerKey(userId, rewardEventId))
-    const isDailyFirst = canRewardSolve && economy.dailyFirstSolve !== todayDate
-    const coinReward = canRewardSolve
-      ? calculateCoinReward(solveTimeSeconds, difficulty, currentStreak, isDailyFirst)
-      : { base: 0, streakBonus: 0, speedBonus: 0, dailyBonus: 0, total: 0 }
-
-    if (canRewardSolve) {
-      const parTime = difficulty === 'easy' ? 60 : difficulty === 'medium' ? 120 : 240
-      const isSpeedSolve = solveTimeSeconds <= parTime
-      const updatedEconomy = await saveUserEconomy(userId, {
-        coins: economy.coins + coinReward.total,
-        totalCoins: economy.totalCoins + coinReward.total,
-        totalSolves: economy.totalSolves + 1,
-        speedSolves: isSpeedSolve ? economy.speedSolves + 1 : economy.speedSolves,
-        dailyFirstSolve: isDailyFirst ? todayDate : economy.dailyFirstSolve,
-      })
-
-      await redis.zAdd('leaderboard:coins', {
-        score: updatedEconomy.totalCoins,
-        member: userId,
-      })
-    }
-    // ── End coin economy ───────────────────────────────────────────────────
-
     const dailyProgress = await recordDailyCompletion({
       userId,
       dateISOValue: todayDate,
@@ -295,20 +261,6 @@ app.post('/api/submit', async (c) => {
         member: userId
       })
     }
-    if (canRewardSolve) {
-      const leagueId = getWeeklyLeagueId(userId, weekId)
-      const leagueKey = `leaderboard:weekly:${weekId}:${leagueId}`
-      const existingLeagueScore = await redis.zScore(leagueKey, userId)
-      const leaguePoints = calculateWeeklyLeaguePoints({
-        difficulty,
-        solveQuality,
-        trioComplete: dailyProgress.trio.trioComplete
-      })
-      await redis.zAdd(leagueKey, {
-        score: (existingLeagueScore ?? 0) + leaguePoints,
-        member: userId
-      })
-    }
     await recordGrowthEvent('submit_success', userId, todayDate)
     await recordHourlySolve()
 
@@ -327,7 +279,6 @@ app.post('/api/submit', async (c) => {
       solveMetrics,
       dailyProgress,
       playerContext,
-      coinReward,
       streak: {
         currentStreak: currentStreak,
         longestStreak: Math.max(currentStreak, longestStreak),

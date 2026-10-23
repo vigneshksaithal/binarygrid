@@ -6,7 +6,6 @@ import type { Cell, Difficulty, FixedCell, Grid } from '../../shared/types/puzzl
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
 import { cellKey, findErrorCells, isComplete, validateGrid } from '../../shared/validator'
 import { fetchPuzzle } from '../services/puzzle-api'
-import { resetCoinReward, setCoinReward } from './coinReward'
 import {
   loadDailyProgress,
   loadPlayerContext,
@@ -164,7 +163,6 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   closeSuccessModal()
   resetHintCooldown()
   resetRank()
-  resetCoinReward()
   resetGrowth()
   startAttempt()
 
@@ -361,7 +359,7 @@ export const useHint = (): boolean => {
   return true
 }
 
-// Fills the result screen from a saved solve: rank, streak, coins, label and progress.
+// Fills the result screen from a saved solve: rank, streak, label and progress.
 const showSubmitResult = (puzzleId: string) => async (data: SubmitResponse) => {
   if (data.rank !== null && data.rank !== undefined && typeof data.totalEntries === 'number') {
     setRank(data.rank, data.totalEntries)
@@ -370,7 +368,6 @@ const showSubmitResult = (puzzleId: string) => async (data: SubmitResponse) => {
   }
 
   if (data.streak) updateStreakFromSubmit(data.streak)
-  if (data.coinReward) setCoinReward(data.coinReward)
   if (data.solveQuality) setSolveQuality(data.solveQuality)
 
   if (data.dailyProgress) {

@@ -1,22 +1,7 @@
 import type { TitleDef } from './types/economy'
 
-export const COIN_BASE = 10
-export const COIN_STREAK_MULTIPLIER = 2
-export const COIN_SPEED_BONUS = 5
-export const COIN_DAILY_BONUS = 5
-
-export const DIFFICULTY_MULTIPLIER: Record<string, number> = {
-  easy: 1,
-  medium: 1.5,
-  hard: 2,
-}
-
-export const PAR_TIMES: Record<string, number> = {
-  easy: 60,
-  medium: 120,
-  hard: 240,
-}
-
+// The titles players bought while coins and the shop existed. Nothing can be
+// bought or equipped now; the boards still show the ones players own.
 export const TITLES: readonly TitleDef[] = [
   { id: 'puzzler', emoji: '🧩', label: 'Puzzler', cost: 0 },
   {

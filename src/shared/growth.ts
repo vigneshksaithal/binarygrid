@@ -188,26 +188,6 @@ export const getUTCWeekId = (date = new Date()): string => {
   return `${working.getUTCFullYear()}-W${String(week).padStart(2, '0')}`
 }
 
-export const getWeeklyLeagueId = (userId: string, weekId: string): string => {
-  let seed = stableDateSeed(`${weekId}:${userId}`)
-  seed = Math.abs(seed)
-  return `league-${String((seed % 30) + 1).padStart(2, '0')}`
-}
-
-export const calculateWeeklyLeaguePoints = ({
-  difficulty,
-  solveQuality,
-  trioComplete,
-}: {
-  difficulty: Difficulty
-  solveQuality: SolveQuality
-  trioComplete: boolean
-}): number => {
-  const difficultyPoints = difficulty === 'hard' ? 8 : difficulty === 'medium' ? 5 : 3
-  const qualityPoints = solveQuality === 'clean' ? 5 : solveQuality === 'sharp' ? 3 : 1
-  return 10 + difficultyPoints + qualityPoints + (trioComplete ? 7 : 0)
-}
-
 export const updateStreakFreezeBalance = ({
   currentStreak,
   currentFreezes,
