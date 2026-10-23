@@ -5,7 +5,6 @@
 	import Undo2Icon from "@lucide/svelte/icons/undo-2";
 	import type { Difficulty } from "../shared/types/puzzle";
 	import "./app.css";
-	import AdminDashboard from "./components/AdminDashboard.svelte";
 	import Button from "./components/Button.svelte";
 	import Dropdown from "./components/Dropdown.svelte";
 	import Grid from "./components/Grid.svelte";
@@ -57,26 +56,6 @@
 					coinBalance = data.coins;
 				}
 			})
-			.catch(() => {});
-	});
-
-	// User context: moderator status
-	let isModerator = $state(false);
-
-	$effect(() => {
-		fetch("/api/user/is-moderator")
-			.then((r) => (r.ok ? r.json() : null))
-			.then(
-				(
-					data: {
-						isModerator: boolean;
-					} | null,
-				) => {
-					if (data) {
-						isModerator = data.isModerator;
-					}
-				},
-			)
 			.catch(() => {});
 	});
 
@@ -220,13 +199,6 @@
 		</div>
 		<Grid />
 	</div>
-
-	<!-- Admin dashboard: moderator-gated -->
-	{#if isModerator}
-		<div class="mt-6 px-1">
-			<AdminDashboard {isModerator} />
-		</div>
-	{/if}
 </main>
 
 <HowToPlayModal />

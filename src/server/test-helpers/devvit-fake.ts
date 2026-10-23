@@ -158,4 +158,7 @@ export const createDevvitServerFake = () => ({
   cache: vi.fn((fn: () => Promise<unknown>) => fn()),
   redis: createRedisFake(),
   reddit: createRedditFake(),
+  // The server entry hands these to `serve`; tests that import it mock `serve`.
+  createServer: () => undefined,
+  getServerPort: () => 0,
 })
