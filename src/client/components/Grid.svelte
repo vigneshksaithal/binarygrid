@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SIZE } from '../../shared/rules'
-	import { autosubmitIfSolved, cycleCell, game } from '../stores/game'
+	import { autosubmitIfSolved, cycleCell, game, retryPuzzleLoad } from '../stores/game'
+	import Button from './Button.svelte'
 	import Cell from './Cell.svelte'
 
 	$effect(() => {
@@ -31,6 +32,16 @@
 				style="animation-delay: {cell.delay}s"
 			></div>
 		{/each}
+	{:else if $game.status === 'error'}
+		<div
+			class="col-span-6 aspect-square flex flex-col items-center justify-center gap-4 p-6 text-center"
+			role="alert"
+		>
+			<span class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+				Couldn't load the puzzle.
+			</span>
+			<Button onClick={retryPuzzleLoad}>Retry</Button>
+		</div>
 	{:else}
 		{#each Array.from({ length: SIZE }) as _, r (r)}
 			{#each Array.from({ length: SIZE }) as __, c (c)}

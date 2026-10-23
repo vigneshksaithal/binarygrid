@@ -5,6 +5,7 @@ import { solvePuzzle } from '../../shared/solver'
 import type { Cell, Difficulty, FixedCell, Grid } from '../../shared/types/puzzle'
 import { cloneGrid, createEmptyGrid } from '../../shared/utils/grid'
 import { cellKey, findErrorCells, isComplete, validateGrid } from '../../shared/validator'
+import { fetchPuzzle } from '../services/puzzle-api'
 import { resetCoinReward, setCoinReward } from './coinReward'
 import {
   loadDailyProgress,
@@ -166,33 +167,34 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   resetCoinReward()
   resetGrowth()
 
+  // The tier is set now, so Retry after a failed load asks for the same one.
   game.update((s) => ({
     ...s,
+    difficulty,
     status: 'loading',
     errors: [],
     errorLocations: undefined,
     errorCells: new Set(),
   }))
 
-  const res = await fetch(`/api/puzzle?difficulty=${difficulty}`)
+  const puzzle = await fetchPuzzle(difficulty)
 
-  if (!res.ok) {
+  if (!puzzle) {
     game.update((s) => ({
       ...s,
       status: 'error',
-      errors: ['failed to load puzzle', `HTTP ${res.status}`],
+      errors: ['failed to load puzzle'],
       errorLocations: undefined,
       errorCells: new Set(),
     }))
     return
   }
 
-  const data = await res.json()
-  const initialGrid = cloneGrid(data.puzzle.initial)
-  const fixed = data.puzzle.fixed
+  const initialGrid = cloneGrid(puzzle.initial)
+  const fixed = puzzle.fixed
 
   game.set({
-    puzzleId: data.puzzle.id,
+    puzzleId: puzzle.id,
     difficulty,
     grid: cloneGrid(initialGrid),
     initial: initialGrid,
@@ -225,6 +227,9 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     }
   }, 10000)
 }
+
+/** Loads the tier that failed to load again, from the grid's Retry. */
+export const retryPuzzleLoad = () => loadPuzzle(get(game).difficulty)
 
 export const cycleCell = (r: number, c: number) => {
   clearErrorTimer()
