@@ -1,7 +1,5 @@
 import { context, reddit, redis } from '@devvit/web/server'
-import { getUTCWeekId } from '../../shared/growth'
 import type { Difficulty } from '../../shared/types/puzzle'
-import { formatTime } from '../../shared/utils/format'
 import { generatePuzzleForPost } from './generator'
 import { storePostPuzzle } from './post-puzzle'
 import { setActivePostAndRefreshPreview } from './preview'
@@ -70,54 +68,6 @@ export const createPost = async () => {
 
   // Register this as the active post and set its initial live preview
   await setActivePostAndRefreshPreview(post.id)
-
-  return post
-}
-
-const formatLeaderboardLine = (
-  entry: { member: string; score: number },
-  index: number
-): string => `${index + 1}. ${entry.member} - ${formatTime(Math.round(entry.score))}`
-
-export const createWeeklyRecap = async () => {
-  const { subredditName } = context
-  if (!subredditName) {
-    throw new Error('subredditName is required')
-  }
-
-  const weekId = getUTCWeekId()
-  const post = await reddit.submitCustomPost({
-    subredditName,
-    title: `Binary Grid weekly recap: ${weekId}`,
-    entry: 'default'
-  })
-
-  const [easy, medium, hard] = await Promise.all(
-    DIFFICULTIES.map((difficulty) =>
-      redis.zRange(`leaderboard:weekly:${weekId}:${difficulty}`, 0, 2, {
-        by: 'rank',
-      })
-    )
-  )
-  const lines = [
-    'Weekly recap',
-    '',
-    'Easy',
-    ...(easy ?? []).map(formatLeaderboardLine),
-    '',
-    'Medium',
-    ...(medium ?? []).map(formatLeaderboardLine),
-    '',
-    'Hard',
-    ...(hard ?? []).map(formatLeaderboardLine),
-    '',
-    'New puzzle is live in the latest Binary Grid post.',
-  ]
-
-  await reddit.submitComment({
-    id: ensurePostIdPrefix(post.id),
-    text: lines.join('\n'),
-  })
 
   return post
 }

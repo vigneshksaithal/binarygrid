@@ -3,7 +3,6 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import {
   createPost,
-  createWeeklyRecap,
   ensureScoreThread
 } from './core/post'
 import { refreshPostPreview } from './core/preview'
@@ -50,24 +49,6 @@ app.post('/internal/menu/post-create', async (c) => {
   }
 })
 
-app.post('/internal/menu/create-weekly-recap', async (c) => {
-  try {
-    const post = await createWeeklyRecap()
-
-    return c.json({
-      navigateTo: `https://reddit.com/r/${context.subredditName}/comments/${post.id}`
-    })
-  } catch {
-    return c.json(
-      {
-        status: 'error',
-        message: 'Failed to create weekly recap'
-      },
-      HTTP_BAD_REQUEST
-    )
-  }
-})
-
 app.post('/internal/schedule/ensure-score-thread', async (c) => {
   const { postId } = context
   if (!postId) {
@@ -81,23 +62,6 @@ app.post('/internal/schedule/ensure-score-thread', async (c) => {
     const message = error instanceof Error ? error.message : 'Unknown error'
     return c.json(
       { status: 'error', message: `Failed to ensure score thread: ${message}` },
-      HTTP_BAD_REQUEST
-    )
-  }
-})
-
-app.post('/internal/schedule/weekly-recap', async (c) => {
-  try {
-    const post = await createWeeklyRecap()
-
-    return c.json({
-      status: 'ok',
-      postId: post.id
-    })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return c.json(
-      { status: 'error', message: `Failed to create weekly recap: ${message}` },
       HTTP_BAD_REQUEST
     )
   }

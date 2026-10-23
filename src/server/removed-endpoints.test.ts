@@ -7,11 +7,19 @@ vi.mock('@devvit/web/server', async () =>
 vi.mock('@hono/node-server', () => ({ serve: vi.fn() }))
 
 import { serve } from '@hono/node-server'
+import devvitConfig from '../../devvit.json'
 import './index'
 
 type Method = 'GET' | 'POST'
 
 const serverFetch = vi.mocked(serve).mock.calls[0]?.[0].fetch
+
+// Every endpoint Reddit can call: menu items, triggers and scheduled tasks.
+const configuredEndpoints = new Set<string>([
+  ...devvitConfig.menu.items.map((item) => item.endpoint),
+  ...Object.values(devvitConfig.triggers),
+  ...Object.values(devvitConfig.scheduler.tasks).map((task) => task.endpoint),
+])
 
 const callServer = async (method: Method, path: string, body?: unknown): Promise<Response> => {
   if (!serverFetch) throw new Error('the server entry did not start a server')
@@ -22,7 +30,12 @@ const callServer = async (method: Method, path: string, body?: unknown): Promise
   return serverFetch(new Request(`http://localhost${path}`, { method, ...payload }))
 }
 
-// Deleted after a needed-by check found no caller (see the task 11 handoff).
+// Deleted after a needed-by check (see the task 11 handoff).
+const REMOVED_PLATFORM_ENDPOINTS = [
+  '/internal/menu/create-weekly-recap',
+  '/internal/schedule/weekly-recap',
+]
+
 const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
   ['GET', '/api/user/is-moderator', undefined],
   ['GET', '/api/admin/metrics', undefined],
@@ -34,6 +47,13 @@ const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
 describe('removed endpoints', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+  })
+
+  it.each(REMOVED_PLATFORM_ENDPOINTS)('neither configures nor serves %s', async (endpoint) => {
+    const response = await callServer('POST', endpoint)
+
+    expect(configuredEndpoints.has(endpoint)).toBe(false)
+    expect(response.status).toBe(404)
   })
 
   it.each(REMOVED_API_ROUTES)('no longer serves %s %s', async (method, path, body) => {
