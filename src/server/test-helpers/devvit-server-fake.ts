@@ -1,8 +1,8 @@
 /**
  * In-memory stand-in for `@devvit/web/server` in route tests: strings,
  * hashes and sorted sets, TTLs recorded but never enforced, a logged-in
- * player on a post, a pass-through cache and no subreddit settings set.
- * Load it with:
+ * player on a post, subreddit settings (`setSettings`), and a pass-through
+ * cache. Load it with:
  *
  *   vi.mock('@devvit/web/server', async () =>
  *     (await import('../test-helpers/devvit-server-fake')).devvitServerFake.module)
@@ -34,6 +34,8 @@ const createDevvitServerFake = () => {
   const sortedSets = new Map<string, Map<string, number>>()
   const ttls = new Map<string, number>()
   const context = defaultContext()
+  // The installed subreddit settings: none set until a test calls setSettings.
+  const settingValues = new Map<string, SettingValue>()
 
   const hashAt = (key: string): Map<string, string> => {
     const hash = hashes.get(key) ?? new Map<string, string>()
@@ -54,7 +56,11 @@ const createDevvitServerFake = () => {
 
   const redis = {
     get: async (key: string): Promise<string | undefined> => strings.get(key),
-    set: async (key: string, value: string): Promise<string> => {
+    mGet: async (keys: string[]): Promise<(string | null)[]> =>
+      keys.map((key) => strings.get(key) ?? null),
+    // Like Devvit's client: 'OK' once written, '' when `nx` finds the key taken.
+    set: async (key: string, value: string, options?: { nx?: boolean }): Promise<string> => {
+      if (options?.nx && strings.has(key)) return ''
       strings.set(key, value)
       return 'OK'
     },
@@ -134,10 +140,8 @@ const createDevvitServerFake = () => {
 
   const cache = async <T>(closure: () => Promise<T>, _options: unknown): Promise<T> => closure()
 
-  // Nothing is set, so readers use their defaults. A test sets values with
-  // `vi.spyOn(devvitServerFake.module.settings, 'getAll')`.
   const settings = {
-    getAll: async (): Promise<Record<string, SettingValue>> => ({}),
+    getAll: async (): Promise<Record<string, SettingValue>> => Object.fromEntries(settingValues),
   }
 
   const reset = (): void => {
@@ -145,7 +149,13 @@ const createDevvitServerFake = () => {
     hashes.clear()
     sortedSets.clear()
     ttls.clear()
+    settingValues.clear()
     Object.assign(context, defaultContext())
+  }
+
+  // Sets installed settings the way Devvit returns them: a chosen select as a list of one.
+  const setSettings = (values: Readonly<Record<string, SettingValue>>): void => {
+    for (const [name, value] of Object.entries(values)) settingValues.set(name, value)
   }
 
   // Everything stored, in comparable form, so a test can prove a request changed nothing.
@@ -160,6 +170,7 @@ const createDevvitServerFake = () => {
   return {
     module: { cache, context, reddit, redis, settings },
     reset,
+    setSettings,
     snapshot,
     ttlOf: (key: string): number | undefined => ttls.get(key),
   }

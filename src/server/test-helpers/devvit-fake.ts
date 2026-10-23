@@ -65,6 +65,9 @@ const createRedisFake = () => {
 
   return {
     get: vi.fn((key: string) => Promise.resolve(redisStore.get(key) ?? null)),
+    mGet: vi.fn((keys: string[]) =>
+      Promise.resolve(keys.map((key) => redisStore.get(key) ?? null))
+    ),
     // Like Devvit's client: 'OK' once written, '' when `nx` finds the key taken.
     set: vi.fn((key: string, value: string, options?: SetOptions) => {
       if (options?.nx && redisStore.has(key)) return Promise.resolve('')
