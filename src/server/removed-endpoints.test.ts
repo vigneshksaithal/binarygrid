@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@devvit/web/server', async () =>
   (await import('./test-helpers/devvit-fake')).createDevvitServerFake()
@@ -30,7 +30,7 @@ const callServer = async (method: Method, path: string, body?: unknown): Promise
   return serverFetch(new Request(`http://localhost${path}`, { method, ...payload }))
 }
 
-// Deleted after a needed-by check (see the task 11 handoff).
+// Each was deleted after a needed-by check; the deleting commit's body records it.
 const REMOVED_PLATFORM_ENDPOINTS = [
   '/internal/menu/create-weekly-recap',
   '/internal/schedule/weekly-recap',
@@ -48,10 +48,6 @@ const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
 ]
 
 describe('removed endpoints', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
   it.each(REMOVED_PLATFORM_ENDPOINTS)('neither configures nor serves %s', async (endpoint) => {
     const response = await callServer('POST', endpoint)
 
