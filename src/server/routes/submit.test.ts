@@ -1,17 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@devvit/web/server', async () =>
-  (await import('../test-helpers/devvit-server-fake')).devvitServerFake.module
+const fake = await vi.hoisted(async () =>
+  (await import('../test-helpers/devvit-fake')).createDevvitServerFake()
 )
+vi.mock('@devvit/web/server', () => fake)
 
-import { reddit, redis } from '@devvit/web/server'
+import { redis } from '@devvit/web/server'
 import { getUTCWeekId } from '../../shared/growth'
 import { solvePuzzle } from '../../shared/solver'
 import { LOGIN_REQUIRED_CODE } from '../../shared/submit'
 import { generateDailyPuzzle } from '../core/generator'
 import { stampPost } from '../core/puzzle-number'
 import { SUBMIT_CLAIM_LEASE_MS } from '../lib/submit-attempts'
-import { devvitServerFake, FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-server-fake'
+import { FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-fake'
 import {
   hoursAfterPost,
   postIdOf,
@@ -96,14 +97,14 @@ const deferred = <T>() => {
 // Holds the first submit just after it claims its attempt, at the username lookup.
 // The pending response comes back wrapped, so awaiting this never waits for it.
 const holdFirstSubmitMidSave = async (lookup: Promise<{ username: string }>) => {
-  vi.spyOn(reddit, 'getCurrentUser').mockReturnValueOnce(lookup)
+  fake.reddit.getCurrentUser.mockReturnValueOnce(lookup)
   const first = submit(solveBody())
-  await vi.waitFor(() => expect(reddit.getCurrentUser).toHaveBeenCalled())
+  await vi.waitFor(() => expect(fake.reddit.getCurrentUser).toHaveBeenCalled())
   return { first }
 }
 
 beforeEach(async () => {
-  devvitServerFake.reset()
+  fake.reset()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(NOON)
   await storePostPuzzle()
@@ -111,23 +112,22 @@ beforeEach(async () => {
 
 afterEach(() => {
   vi.useRealTimers()
-  vi.restoreAllMocks()
 })
 
 describe('POST /api/submit idempotency', () => {
   it('answers a repeated attempt ID with the stored response and changes nothing', async () => {
     const first = await (await submit(solveBody())).json()
-    const before = devvitServerFake.snapshot()
+    const before = fake.snapshot()
 
     const repeat = await submit(solveBody({ solveTimeSeconds: 40 }))
 
     expect(repeat.status).toBe(200)
     expect(await repeat.json()).toEqual(first)
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
   })
 
   it('leaves one board entry, attempt, weekly entry and submit_success when a failed submit is retried', async () => {
-    vi.spyOn(redis, 'zScore').mockRejectedValueOnce(new Error('Redis unavailable'))
+    fake.redis.zScore.mockRejectedValueOnce(new Error('Redis unavailable'))
     const failed = await submit(solveBody())
     const retried = await submit(solveBody())
 
@@ -140,13 +140,14 @@ describe('POST /api/submit idempotency', () => {
   })
 
   it('keeps one of each when a save that failed after the board write is retried', async () => {
-    const zAdd = redis.zAdd
-    vi.spyOn(redis, 'zAdd').mockImplementation(async (key, ...members) => {
+    const zAdd = fake.redis.zAdd.getMockImplementation()
+    if (!zAdd) throw new Error('The fake has no zAdd')
+    fake.redis.zAdd.mockImplementation(async (key, ...members) => {
       if (key.startsWith('leaderboard:weekly:')) throw new Error('Redis unavailable')
       return zAdd(key, ...members)
     })
     const failed = await submit(solveBody())
-    vi.restoreAllMocks()
+    fake.redis.zAdd.mockImplementation(zAdd)
     const retried = await submit(solveBody())
 
     expect(failed.status).toBe(400)
@@ -160,11 +161,11 @@ describe('POST /api/submit idempotency', () => {
   it('answers a retry that arrives mid-save with 409, then with the saved response', async () => {
     const lookup = deferred<{ username: string }>()
     const { first } = await holdFirstSubmitMidSave(lookup.promise)
-    const before = devvitServerFake.snapshot()
+    const before = fake.snapshot()
 
     const midSave = await submit(solveBody())
     expect(midSave.status).toBe(409)
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
 
     lookup.resolve({ username: 'fake_solver' })
     const saved = await (await first).json()
@@ -195,7 +196,7 @@ describe('POST /api/submit idempotency', () => {
   it('keeps the attempt record for 48 hours', async () => {
     await submit(solveBody())
 
-    expect(devvitServerFake.ttlOf(`submit:attempt:${PUZZLE_ID}:${FAKE_USER_ID}`)).toBe(
+    expect(fake.ttlOf(`submit:attempt:${PUZZLE_ID}:${FAKE_USER_ID}`)).toBe(
       FORTY_EIGHT_HOURS_IN_SECONDS
     )
   })
@@ -209,13 +210,13 @@ describe('POST /api/submit idempotency', () => {
     ['a space', 'attempt 00001'],
     ['a number', 12_345_678],
   ])('rejects an attempt ID that is %s before storing anything', async (_label, attemptId) => {
-    const before = devvitServerFake.snapshot()
+    const before = fake.snapshot()
 
     const response = await submit(solveBody({ attemptId }))
 
     expect(response.status).toBe(400)
     expect(await response.json()).not.toHaveProperty('code')
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
   })
 })
 
@@ -230,7 +231,7 @@ describe('POST /api/submit with coins retired', () => {
   it('writes no coins board, coin ledger or weekly league entry', async () => {
     await submit(solveBody())
 
-    const stored = devvitServerFake.snapshot()
+    const stored = fake.snapshot()
     expect(stored).not.toContain('leaderboard:coins')
     expect(stored).not.toContain('economy:ledger:')
     expect(stored).not.toContain(':league-')
@@ -265,7 +266,7 @@ const calendar = (overrides: Partial<CalendarCounters> = {}): CalendarCounters =
 
 /** Solves the easy tier on a post, as a fresh attempt, and returns the response's streak. */
 const solveOn = async (postId: string): Promise<StreakResponse> => {
-  devvitServerFake.module.context.postId = postId
+  fake.context.postId = postId
   await storePostPuzzle(postId)
   const response = await submit(
     solveBody({ id: `${postId}:${TIER}`, attemptId: crypto.randomUUID() })
@@ -278,7 +279,7 @@ const readStreak = async (): Promise<StreakResponse> =>
   (await app.fetch(new Request('http://localhost/api/streak'))).json()
 
 const useRule = (streakRule: 'puzzle' | 'calendar') =>
-  devvitServerFake.setSettings({ streakRule: [streakRule] })
+  fake.setSettings({ streakRule: [streakRule] })
 
 describe('POST /api/submit streaks: both rules are kept up to date', () => {
   it.each(['puzzle', 'calendar'] as const)(
@@ -368,12 +369,12 @@ describe('POST /api/submit streaks: credit by puzzle', () => {
     await solveOn(postIdOf(127))
     expect(await readStreak()).toMatchObject({ currentStreak: 1 })
 
-    devvitServerFake.module.context.userId = 't2_late_solver'
+    fake.context.userId = 't2_late_solver'
     vi.setSystemTime(hoursAfterPost(127, 37))
     await solveOn(postIdOf(127))
     expect(await readStreak()).toMatchObject({ currentStreak: 0 })
 
-    devvitServerFake.setSettings({ streakWindowHours: 48 })
+    fake.setSettings({ streakWindowHours: 48 })
     expect(await readStreak()).toMatchObject({ currentStreak: 1 })
   })
 
@@ -385,7 +386,7 @@ describe('POST /api/submit streaks: credit by puzzle', () => {
     await solveOn(FAKE_POST_ID)
     expect(await readStreak()).toMatchObject({ currentStreak: 1 })
 
-    devvitServerFake.module.context.userId = 't2_late_solver'
+    fake.context.userId = 't2_late_solver'
     vi.setSystemTime(hoursAfterPost(127, 37))
     await solveOn(FAKE_POST_ID)
     expect(await readStreak()).toMatchObject({ currentStreak: 0 })
@@ -459,8 +460,9 @@ describe('POST /api/submit streaks: the puzzle rule never rejects a solve', () =
   it("answers with today's values when the puzzle streak fails", async () => {
     await postNumbers(127, 128)
     await saveCalendarStreak(FAKE_USER_ID, calendar())
-    const zAdd = redis.zAdd
-    vi.spyOn(redis, 'zAdd').mockImplementation(async (key, ...members) => {
+    const zAdd = fake.redis.zAdd.getMockImplementation()
+    if (!zAdd) throw new Error('The fake has no zAdd')
+    fake.redis.zAdd.mockImplementation(async (key, ...members) => {
       if (key === STREAK_LOG_KEY) throw new Error('Redis unavailable')
       return zAdd(key, ...members)
     })
@@ -475,9 +477,7 @@ describe('POST /api/submit streaks: the puzzle rule never rejects a solve', () =
   it("answers with today's values when settings can't be read, and still credits the solve", async () => {
     await postNumbers(127, 128)
     await saveCalendarStreak(FAKE_USER_ID, calendar({ freezes: 1 }))
-    vi.spyOn(devvitServerFake.module.settings, 'getAll').mockRejectedValueOnce(
-      new Error('Could not get installation settings')
-    )
+    fake.settings.getAll.mockRejectedValueOnce(new Error('Could not get installation settings'))
 
     expect(await solveOn(postIdOf(128))).not.toHaveProperty('rule')
     expect(await redis.zScore(STREAK_LOG_KEY, '128')).toBe(4 * 60 * 60)
@@ -490,13 +490,13 @@ describe('POST /api/submit streaks: the puzzle rule never rejects a solve', () =
 
 describe('POST /api/submit for logged-out players', () => {
   it('returns 401 with the login code and stores nothing', async () => {
-    devvitServerFake.module.context.userId = undefined
-    const before = devvitServerFake.snapshot()
+    fake.context.userId = undefined
+    const before = fake.snapshot()
 
     const response = await submit(solveBody())
 
     expect(response.status).toBe(401)
     expect(await response.json()).toMatchObject({ code: LOGIN_REQUIRED_CODE })
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
   })
 })

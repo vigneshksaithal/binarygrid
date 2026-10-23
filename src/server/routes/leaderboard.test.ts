@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@devvit/web/server', async () =>
-  (await import('../test-helpers/devvit-server-fake')).devvitServerFake.module
+const fake = await vi.hoisted(async () =>
+  (await import('../test-helpers/devvit-fake')).createDevvitServerFake()
 )
+vi.mock('@devvit/web/server', () => fake)
 
 import { redis } from '@devvit/web/server'
-import { devvitServerFake, FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-server-fake'
+import { FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-fake'
 import { hoursAfterPost, postNumbers, saveCalendarStreak } from '../test-helpers/numbered-posts'
 import app from './index'
 
@@ -47,9 +48,9 @@ const saveUserMeta = (userId: string) =>
 const addPuzzleStreaker = async (userId: string, streak: number, lastDate = '2026-10-21') => {
   await saveCalendarStreak(userId, { current: streak, longest: streak, lastDate, freezes: 0 })
   await saveUserMeta(userId)
-  devvitServerFake.module.context.userId = userId
+  fake.context.userId = userId
   await app.fetch(new Request('http://localhost/api/streak'))
-  devvitServerFake.module.context.userId = FAKE_USER_ID
+  fake.context.userId = FAKE_USER_ID
 }
 
 const addTierSolver = async (userId: string, timeSeconds: number) => {
@@ -85,7 +86,7 @@ const streaksOf = (body: StreakBoardBody) =>
   body.entries.map(({ userId, streak }) => ({ userId, streak }))
 
 beforeEach(async () => {
-  devvitServerFake.reset()
+  fake.reset()
   vi.useFakeTimers({ toFake: ['Date'] })
   // Thursday 2026-10-22 at 12:00 UTC: #127 (Wednesday) is still open, #128 posted at 08:00.
   vi.setSystemTime(hoursAfterPost(128, 4))
@@ -96,7 +97,6 @@ beforeEach(async () => {
 
 afterEach(() => {
   vi.useRealTimers()
-  vi.restoreAllMocks()
 })
 
 describe('titles on the tier board', () => {
@@ -132,7 +132,7 @@ describe('titles on the tier board', () => {
 
 describe('titles on the streak board', () => {
   it("shows each listed player's title, including the player's own entry, under the calendar rule", async () => {
-    devvitServerFake.setSettings({ streakRule: ['calendar'] })
+    fake.setSettings({ streakRule: ['calendar'] })
     await addStreaker(KING, 30)
     await addStreaker(COLLECTOR, 12)
     await addStreaker(NEWCOMER, 3)
@@ -175,8 +175,9 @@ describe('the streak board under the puzzle rule', () => {
 
   it('shows the stored board when the puzzle board fails', async () => {
     await addStreaker(KING, 30)
-    const zRange = redis.zRange
-    vi.spyOn(redis, 'zRange').mockImplementation(async (key, ...rest) => {
+    const zRange = fake.redis.zRange.getMockImplementation()
+    if (!zRange) throw new Error('The fake has no zRange')
+    fake.redis.zRange.mockImplementation(async (key, ...rest) => {
       if (key === 'leaderboard:streaks:puzzle') throw new Error('Redis unavailable')
       return zRange(key, ...rest)
     })
@@ -186,7 +187,7 @@ describe('the streak board under the puzzle rule', () => {
 
   it("reads the calendar board's stored streaks under the calendar rule, as today", async () => {
     await addPuzzleStreaker(NEWCOMER, 3)
-    devvitServerFake.setSettings({ streakRule: ['calendar'] })
+    fake.setSettings({ streakRule: ['calendar'] })
     await addStreaker(KING, 30)
     await addStreaker(COLLECTOR, 12)
 
@@ -202,11 +203,11 @@ describe('reading the boards', () => {
     await addTierSolver(KING, 80)
     await addStreaker(KING, 30)
     await addPuzzleStreaker(COLLECTOR, 12)
-    const before = devvitServerFake.snapshot()
+    const before = fake.snapshot()
 
     await getBoard(TIER_BOARD)
     await getBoard(STREAK_BOARD)
 
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
   })
 })

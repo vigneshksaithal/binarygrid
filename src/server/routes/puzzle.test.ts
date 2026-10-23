@@ -1,14 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@devvit/web/server', async () =>
-  (await import('../test-helpers/devvit-server-fake')).devvitServerFake.module
+const fake = await vi.hoisted(async () =>
+  (await import('../test-helpers/devvit-fake')).createDevvitServerFake()
 )
+vi.mock('@devvit/web/server', () => fake)
 
 import { redis } from '@devvit/web/server'
 import { solvePuzzle } from '../../shared/solver'
 import type { PuzzleWithGrid } from '../../shared/types/puzzle'
 import { generateDailyPuzzle } from '../core/generator'
-import { devvitServerFake, FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-server-fake'
+import { FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-fake'
 import app from './index'
 
 const DAY_ONE = new Date('2026-10-22T12:00:00Z')
@@ -30,8 +31,7 @@ const loadPuzzle = async (query = ''): Promise<PuzzleReply> =>
 const getPuzzle = async (query = `difficulty=${TIER}`): Promise<PuzzleWithGrid> =>
   (await loadPuzzle(`?${query}`)).puzzle
 
-const switchFirstScreen = (firstScreen: boolean) =>
-  vi.spyOn(devvitServerFake.module.settings, 'getAll').mockResolvedValue({ firstScreen })
+const switchFirstScreen = (firstScreen: boolean) => fake.setSettings({ firstScreen })
 
 const submitSolution = (puzzle: PuzzleWithGrid) =>
   app.fetch(
@@ -59,19 +59,18 @@ const asStoredHash = (puzzle: PuzzleWithGrid) => ({
 })
 
 beforeEach(() => {
-  devvitServerFake.reset()
+  fake.reset()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(DAY_ONE)
 })
 
 afterEach(() => {
   vi.useRealTimers()
-  vi.restoreAllMocks()
 })
 
 describe('GET /api/puzzle without a tier', () => {
   it('starts a logged-out player on Easy', async () => {
-    devvitServerFake.module.context.userId = undefined
+    fake.context.userId = undefined
 
     const { puzzle } = await loadPuzzle()
 
@@ -98,7 +97,7 @@ describe('GET /api/puzzle without a tier', () => {
     switchFirstScreen(false)
 
     const newPlayer = await loadPuzzle()
-    devvitServerFake.module.context.userId = undefined
+    fake.context.userId = undefined
     const loggedOut = await loadPuzzle()
 
     expect(newPlayer.puzzle.difficulty).toBe('medium')
@@ -106,9 +105,7 @@ describe('GET /api/puzzle without a tier', () => {
   })
 
   it('still loads, with the first screen on, when the settings read fails', async () => {
-    vi.spyOn(devvitServerFake.module.settings, 'getAll').mockRejectedValue(
-      new Error('Could not get installation settings')
-    )
+    fake.settings.getAll.mockRejectedValue(new Error('Could not get installation settings'))
 
     const response = await requestPuzzle()
     const { puzzle, firstScreen } = (await response.json()) as PuzzleReply
@@ -191,12 +188,12 @@ describe('GET /api/puzzle elsewhere', () => {
   })
 
   it('serves the date puzzle and stores nothing outside a post', async () => {
-    devvitServerFake.module.context.postId = undefined
-    const before = devvitServerFake.snapshot()
+    fake.context.postId = undefined
+    const before = fake.snapshot()
 
     const puzzle = await getPuzzle()
 
     expect(puzzle.id).toBe(`2026-10-22:${TIER}`)
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
   })
 })

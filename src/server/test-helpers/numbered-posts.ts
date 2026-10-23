@@ -4,8 +4,8 @@ import type { Difficulty } from '../../shared/types/puzzle'
 import { getOrCreateDateNumber, stampPost } from '../core/puzzle-number'
 import { getOrCreatePuzzleSet, type DatePuzzle } from '../core/puzzle-set'
 
-// Numbered daily posts for streak tests, stored through task 5's own modules so
-// they work with either Devvit fake. #N posts at 08:00 UTC on 2026-10-(N − 106):
+// Numbered daily posts for streak tests, stored through task 5's own modules the
+// way createPost stores them. #N posts at 08:00 UTC on 2026-10-(N − 106):
 // #126 is Tuesday 2026-10-20, #127 Wednesday 2026-10-21, #128 Thursday 2026-10-22.
 
 const HOUR_MS = 60 * 60 * 1000

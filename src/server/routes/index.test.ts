@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@devvit/web/server', async () =>
-  (await import('../test-helpers/devvit-server-fake')).devvitServerFake.module
+const fake = await vi.hoisted(async () =>
+  (await import('../test-helpers/devvit-fake')).createDevvitServerFake()
 )
+vi.mock('@devvit/web/server', () => fake)
 
 import { redis } from '@devvit/web/server'
-import { devvitServerFake, FAKE_USER_ID } from '../test-helpers/devvit-server-fake'
+import { FAKE_USER_ID } from '../test-helpers/devvit-fake'
 import app from './index'
 
 // Saved before coins were retired: enough to buy Binary King, and Grid Master owned.
@@ -20,7 +21,7 @@ const SAVED_ECONOMY = JSON.stringify({
 })
 
 beforeEach(async () => {
-  devvitServerFake.reset()
+  fake.reset()
   await redis.hSet(`user:${FAKE_USER_ID}:economy`, { economy: SAVED_ECONOMY })
   await redis.zAdd('leaderboard:coins', { member: FAKE_USER_ID, score: 1800 })
 })
@@ -33,7 +34,7 @@ describe('retired coin routes', () => {
     ['POST', '/api/shop/equip', { titleId: 'grid_master' }],
     ['GET', '/api/leaderboard/coins', undefined],
   ])('answer %s %s with 404 and change nothing', async (method, path, body) => {
-    const before = devvitServerFake.snapshot()
+    const before = fake.snapshot()
 
     const response = await app.fetch(
       new Request(`http://localhost${path}`, {
@@ -44,6 +45,6 @@ describe('retired coin routes', () => {
     )
 
     expect(response.status).toBe(404)
-    expect(devvitServerFake.snapshot()).toBe(before)
+    expect(fake.snapshot()).toBe(before)
   })
 })
