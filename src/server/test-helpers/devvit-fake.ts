@@ -3,16 +3,18 @@ import { vi } from 'vitest'
 // In-memory stand-in for `@devvit/web/server`, shared by server tests through
 // `vi.mock('@devvit/web/server', async () =>
 //   (await import('./test-helpers/devvit-fake')).createDevvitServerFake())`.
-// It implements only the Redis, Reddit and settings calls the server code uses.
+// It implements only the Redis, Reddit, scheduler and settings calls the server code uses.
 // A test that drives the fake directly can build it with
 // `const fake = await vi.hoisted(async () => (await import(...)).createDevvitServerFake())`
 // and mock with `() => fake`, which keeps its types without a cast.
 
 type ZMember = { member: string; score: number }
 type ZRangeOptions = { by?: 'rank' | 'score'; reverse?: boolean }
-type SetOptions = { nx?: boolean }
+// `expiration` is accepted but never enforced, like `expire`: a test deletes the key to expire it.
+type SetOptions = { nx?: boolean; expiration?: Date }
 type CustomPostOptions = { subredditName: string; title: string; entry?: string }
 type SettingValue = string | number | boolean | string[] | undefined
+type ScheduledJob = { name: string; runAt: Date; data?: unknown }
 
 const toAsyncIterator = <T>(items: readonly T[]): AsyncIterator<T> => {
   let index = 0
@@ -163,6 +165,12 @@ const createSettingsFake = () => ({
   getAll: vi.fn((): Promise<Record<string, SettingValue>> => Promise.resolve({})),
 })
 
+// One-off jobs are only recorded: a test reads `runJob.mock.calls` and delivers
+// a job by posting its name and data to the task's endpoint.
+const createSchedulerFake = () => ({
+  runJob: vi.fn((_job: ScheduledJob) => Promise.resolve('job_1')),
+})
+
 export const createDevvitServerFake = () => ({
   context: {
     postId: 't3_post_123',
@@ -172,6 +180,7 @@ export const createDevvitServerFake = () => ({
   cache: vi.fn((fn: () => Promise<unknown>) => fn()),
   redis: createRedisFake(),
   reddit: createRedditFake(),
+  scheduler: createSchedulerFake(),
   settings: createSettingsFake(),
   // The server entry hands these to `serve`; tests that import it mock `serve`.
   createServer: () => undefined,
