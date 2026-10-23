@@ -8,11 +8,12 @@
     "postinstall": "bun run build",
     "build": "vite build",
     "deploy": "bun run build && devvit upload",
+    "publish": "bun run deploy && devvit publish",
     "dev": "devvit playtest",
     "preview": "vite preview",
     "login": "devvit login",
     "check": "svelte-check --tsconfig ./src/client/tsconfig.json",
-    "launch": "bun run build && bun run deploy && devvit publish",
+    "launch": "bun run publish",
     "type-check": "node node_modules/@typescript/native/bin/tsc --build",
     "test": "vitest run",
     "local": "vite dev --port 7474"
