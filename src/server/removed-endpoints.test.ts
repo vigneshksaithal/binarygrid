@@ -35,6 +35,7 @@ const REMOVED_PLATFORM_ENDPOINTS = [
   '/internal/menu/create-weekly-recap',
   '/internal/schedule/weekly-recap',
   '/internal/schedule/refresh-preview',
+  '/internal/schedule/ensure-score-thread',
 ]
 
 const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
@@ -43,6 +44,7 @@ const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
   ['GET', '/api/admin/metrics/export', undefined],
   ['POST', '/api/viral/impression', { postId: 't3_post_123' }],
   ['POST', '/api/viral/funnel', { event: 'open' }],
+  ['POST', '/api/share-comment', { dayNumber: 42, solveTimeSeconds: 92, difficulty: 'medium' }],
 ]
 
 describe('removed endpoints', () => {

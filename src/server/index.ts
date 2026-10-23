@@ -1,10 +1,7 @@
 import { context, createServer, getServerPort } from '@devvit/web/server'
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import {
-  createPost,
-  ensureScoreThread
-} from './core/post'
+import { createPost } from './core/post'
 import routes from './routes/index'
 
 const app = new Hono()
@@ -43,24 +40,6 @@ app.post('/internal/menu/post-create', async (c) => {
         status: 'error',
         message: 'Failed to create post'
       },
-      HTTP_BAD_REQUEST
-    )
-  }
-})
-
-app.post('/internal/schedule/ensure-score-thread', async (c) => {
-  const { postId } = context
-  if (!postId) {
-    return c.json({ status: 'error', message: 'postId is required' }, HTTP_BAD_REQUEST)
-  }
-
-  try {
-    const commentId = await ensureScoreThread(postId)
-    return c.json({ status: 'ok', commentId })
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    return c.json(
-      { status: 'error', message: `Failed to ensure score thread: ${message}` },
       HTTP_BAD_REQUEST
     )
   }

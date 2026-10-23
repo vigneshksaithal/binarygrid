@@ -4,7 +4,6 @@ import { generatePuzzleForPost } from './generator'
 import { storePostPuzzle } from './post-puzzle'
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
-export const TARGET_CROSSPOST_SUBREDDIT = 'RedditGames'
 
 const ensurePostIdPrefix = (id: string): `t3_${string}` =>
   id.startsWith('t3_') ? (id as `t3_${string}`) : `t3_${id}`
@@ -95,18 +94,4 @@ export const crossPost = async (postId: string, subredditName: string) => {
   })
 
   return crosspostedPost
-}
-
-export const crosspostLatestPost = async (
-  postId: string,
-  targetSubreddit: string = TARGET_CROSSPOST_SUBREDDIT
-) => {
-  if (!postId) {
-    throw new Error('postId is required')
-  }
-  if (!targetSubreddit) {
-    throw new Error('targetSubreddit is required')
-  }
-
-  return await crossPost(postId, targetSubreddit)
 }

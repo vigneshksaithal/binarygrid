@@ -4,7 +4,7 @@
  * **Feature: shareable-results, Property 5: Share comment idempotency**
  * **Validates: Requirements 4.4**
  *
- * Tests that the share comment endpoint is idempotent - multiple calls
+ * Tests that sharing a score (`/api/share-score`) is idempotent - multiple calls
  * with the same user/puzzle combination result in at most one comment.
  */
 
@@ -64,15 +64,15 @@ const createValidGrid = (): Grid => [
 ]
 
 /**
- * Helper to make a share comment request.
+ * Helper to make a score share request.
  */
-const makeShareCommentRequest = async (body: {
+const makeShareScoreRequest = async (body: {
     solveTimeSeconds: number
     difficulty: Difficulty
     dayNumber: number
     grid: Grid
 }) => {
-    const request = new Request('http://localhost/api/share-comment', {
+    const request = new Request('http://localhost/api/share-score', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -134,7 +134,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
          * **Feature: shareable-results, Property 5: Share comment idempotency**
          * **Validates: Requirements 4.4**
          *
-         * For any user and puzzle combination, calling the share comment endpoint
+         * For any user and puzzle combination, calling the score share endpoint
          * multiple times SHALL result in at most one comment being posted.
          */
         await fc.assert(
@@ -153,7 +153,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                     // Make multiple identical requests
                     const responses: Response[] = []
                     for (let i = 0; i < callCount; i++) {
-                        const response = await makeShareCommentRequest(requestBody)
+                        const response = await makeShareScoreRequest(requestBody)
                         responses.push(response)
                     }
 
@@ -191,7 +191,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                 redisModule.__clearStore()
 
                 // First call
-                const firstResponse = await makeShareCommentRequest(requestBody)
+                const firstResponse = await makeShareScoreRequest(requestBody)
                 expect(firstResponse.status).toBe(200)
                 const firstJson = await firstResponse.json()
                 expect(firstJson.ok).toBe(true)
@@ -200,7 +200,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                 expect(reddit.submitComment).toHaveBeenCalledTimes(1)
 
                 // Second call
-                const secondResponse = await makeShareCommentRequest(requestBody)
+                const secondResponse = await makeShareScoreRequest(requestBody)
                 expect(secondResponse.status).toBe(200)
                 const secondJson = await secondResponse.json()
                 expect(secondJson.ok).toBe(true)
@@ -234,7 +234,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                 expect(redisModule.__store.size).toBe(0)
 
                 // First call
-                await makeShareCommentRequest(requestBody)
+                await makeShareScoreRequest(requestBody)
 
                 // After first call, Redis should have exactly one share tracking key
                 expect(redisModule.__store.size).toBe(1)
@@ -277,7 +277,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                         dayNumber,
                         grid,
                     }
-                    await makeShareCommentRequest(easyRequest)
+                    await makeShareScoreRequest(easyRequest)
 
                     // Share for medium difficulty (different puzzle)
                     const mediumRequest = {
@@ -286,7 +286,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                         dayNumber,
                         grid,
                     }
-                    await makeShareCommentRequest(mediumRequest)
+                    await makeShareScoreRequest(mediumRequest)
 
                     // Share for hard difficulty (different puzzle)
                     const hardRequest = {
@@ -295,7 +295,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                         dayNumber,
                         grid,
                     }
-                    await makeShareCommentRequest(hardRequest)
+                    await makeShareScoreRequest(hardRequest)
 
                     // Each difficulty should result in a separate comment
                     expect(reddit.submitComment).toHaveBeenCalledTimes(3)
@@ -332,7 +332,7 @@ describe('Property-Based Tests: Share comment idempotency', () => {
                     // Collect all responses
                     const jsonResponses: Array<{ ok: boolean }> = []
                     for (let i = 0; i < callCount; i++) {
-                        const response = await makeShareCommentRequest(requestBody)
+                        const response = await makeShareScoreRequest(requestBody)
                         const json = await response.json()
                         jsonResponses.push(json)
                     }

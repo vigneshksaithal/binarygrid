@@ -104,17 +104,4 @@ app.post('/api/share-score', async (c) => {
   return c.json(result, result.ok ? HTTP_OK : HTTP_BAD_REQUEST)
 })
 
-// No client caller; its idempotency tests guard shareScore. It never takes the
-// player's own words, so it always replies in the score thread.
-app.post('/api/share-comment', async (c) => {
-  const request = parseScoreShareRequest(await c.req.json().catch(() => null))
-  if (!request) {
-    return c.json(INVALID_PAYLOAD, HTTP_BAD_REQUEST)
-  }
-
-  const { customText: _ownWords, ...scoreOnly } = request
-  const result = await shareScore(scoreOnly)
-  return c.json(result, result.ok ? HTTP_OK : HTTP_BAD_REQUEST)
-})
-
 export default app
