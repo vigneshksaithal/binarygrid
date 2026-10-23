@@ -1,6 +1,8 @@
 import type { Difficulty } from '../../shared/types/puzzle'
 
 export const HTTP_BAD_REQUEST = 400
+export const HTTP_UNAUTHORIZED = 401
+export const HTTP_CONFLICT = 409
 export const HTTP_OK = 200
 export const DEFAULT_GRID_SIZE = 6
 export const DECIMAL_RADIX = 10
@@ -15,6 +17,8 @@ export type StoredLeaderboardMeta = {
   username: string
   avatarUrl: string | null
   attempts: number
+  /** The last attempt counted in `attempts`, so a retried save never counts it twice. */
+  attemptId?: string
 }
 
 export const isDifficultyValue = (value: string): value is Difficulty =>

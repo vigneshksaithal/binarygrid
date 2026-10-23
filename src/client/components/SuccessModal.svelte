@@ -31,6 +31,7 @@
 	} from "../stores/ui";
 	import Button from "./Button.svelte";
 	import Modal from "./Modal.svelte";
+	import SubmitStatus from "./SubmitStatus.svelte";
 
 	let isJoining = $state(false);
 	let dayNumber = $state<number | null>(null);
@@ -233,6 +234,8 @@
 				<div></div>
 			{/if}
 		</div>
+		<!-- Save status; the login line for logged-out solvers -->
+		<SubmitStatus />
 
 		<!-- Recognition -->
 		<div class="rounded-xl bg-zinc-800/70 border border-zinc-700 px-3 py-2 text-center">

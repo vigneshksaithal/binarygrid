@@ -1,7 +1,8 @@
 import { context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
+import { LOGIN_REQUIRED_CODE } from '../../shared/submit'
 import type { Grid } from '../../shared/types/puzzle'
-import { validateGrid } from '../../shared/validator'
+import { isValidAttemptId, validateGrid } from '../../shared/validator'
 import {
   calculateWeeklyLeaguePoints,
   getUTCWeekId,
@@ -20,6 +21,12 @@ import {
   updateEarnedStreakFreeze
 } from '../lib/growth'
 import {
+  claimSubmitAttempt,
+  releaseSubmitAttempt,
+  saveSubmitResponse,
+  type SubmitAttempt
+} from '../lib/submit-attempts'
+import {
   hasReferredOpenToday,
   trackReferredConversion
 } from '../lib/viral-analytics'
@@ -27,7 +34,9 @@ import {
   DECIMAL_RADIX,
   DEFAULT_DIFFICULTY,
   HTTP_BAD_REQUEST,
+  HTTP_CONFLICT,
   HTTP_OK,
+  HTTP_UNAUTHORIZED,
   isDifficultyValue,
   leaderboardKey,
   leaderboardMetaKey,
@@ -41,6 +50,7 @@ app.post('/api/submit', async (c) => {
   const body = await c.req
     .json<{
       id: string
+      attemptId?: unknown
       grid: Grid
       solveTimeSeconds: number
       hintsUsed?: number
@@ -52,6 +62,7 @@ app.post('/api/submit', async (c) => {
   if (
     !body ||
     typeof body.id !== 'string' ||
+    !isValidAttemptId(body.attemptId) ||
     !Array.isArray(body.grid) ||
     typeof body.solveTimeSeconds !== 'number'
   ) {
@@ -75,8 +86,11 @@ app.post('/api/submit', async (c) => {
     return c.json({ error: 'postId is required' }, HTTP_BAD_REQUEST)
   }
   if (!userId) {
-    return c.json({ error: 'login required' }, HTTP_BAD_REQUEST)
+    return c.json({ error: 'login required', code: LOGIN_REQUIRED_CODE }, HTTP_UNAUTHORIZED)
   }
+
+  const attempt: SubmitAttempt = { puzzleId: body.id, userId, attemptId: body.attemptId }
+  let claimedAttempt = false
 
   try {
     const puzzleIdParts = body.id.split(':')
@@ -109,6 +123,16 @@ app.post('/api/submit', async (c) => {
       return c.json({ ok: false, errors: result.errors }, HTTP_OK)
     }
 
+    // A retry of a recorded attempt gets its first response back and records nothing.
+    const claim = await claimSubmitAttempt(attempt)
+    if (claim.kind === 'stored') {
+      return c.json(claim.response)
+    }
+    if (claim.kind === 'in_progress') {
+      return c.json({ error: 'submission in progress' }, HTTP_CONFLICT)
+    }
+    claimedAttempt = true
+
     const key = `submission:${postId}:${body.id}`
     const exists = await redis.get(key)
     if (!exists) {
@@ -129,10 +153,12 @@ app.post('/api/submit', async (c) => {
     const existingScore = await redis.zScore(leaderboardSetKey, userId)
 
     const existingMetaRaw = await redis.hGet(leaderboardDetailsKey, userId)
-    const existingAttempts = existingMetaRaw
-      ? (JSON.parse(existingMetaRaw) as { attempts?: number }).attempts ?? 0
-      : 0
-    const newAttempts = existingAttempts + 1
+    const existingMeta: Partial<StoredLeaderboardMeta> = existingMetaRaw
+      ? JSON.parse(existingMetaRaw)
+      : {}
+    // A retry of a save that failed after this write must not count its attempt twice.
+    const isCountedAttempt = existingMeta.attemptId === attempt.attemptId
+    const newAttempts = (existingMeta.attempts ?? 0) + (isCountedAttempt ? 0 : 1)
 
     if (existingScore === undefined || solveTimeSeconds < existingScore) {
       await redis.zAdd(leaderboardSetKey, {
@@ -145,7 +171,8 @@ app.post('/api/submit', async (c) => {
       [userId]: JSON.stringify({
         username,
         avatarUrl: avatarUrl ?? null,
-        attempts: newAttempts
+        attempts: newAttempts,
+        attemptId: attempt.attemptId
       } satisfies StoredLeaderboardMeta)
     })
 
@@ -292,7 +319,7 @@ app.post('/api/submit', async (c) => {
 
     const playerContext = await getPlayerContext(userId, body.id, todayDate)
 
-    return c.json({
+    const response = {
       ok: true,
       rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
       totalEntries,
@@ -309,8 +336,14 @@ app.post('/api/submit', async (c) => {
         earnedFreeze: freezeUpdate.earnedFreeze,
         savedByFreeze: streakSaved
       }
-    })
+    }
+    await saveSubmitResponse(attempt, response)
+    return c.json(response)
   } catch (error) {
+    // Let a retry record the solve. If the release fails too, the claim's lease runs out.
+    if (claimedAttempt) {
+      await releaseSubmitAttempt(attempt).catch(() => {})
+    }
     const errorMessage =
       error instanceof Error ? error.message : 'Unknown error'
     return c.json(

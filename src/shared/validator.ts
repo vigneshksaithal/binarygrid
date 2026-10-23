@@ -329,3 +329,14 @@ export function validateGrid(
   }
   return result
 }
+
+// Room for a UUID or a timestamp-based fallback. Letters, digits and hyphens
+// only, so an attempt ID can never smuggle a key separator into Redis.
+const ATTEMPT_ID_PATTERN = /^[A-Za-z0-9-]{8,64}$/
+
+/**
+ * Returns true if the value is a well-formed submit attempt ID, the key a
+ * client reuses when it retries the same solve.
+ */
+export const isValidAttemptId = (value: unknown): value is string =>
+  typeof value === 'string' && ATTEMPT_ID_PATTERN.test(value)

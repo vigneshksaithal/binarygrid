@@ -19,6 +19,7 @@ import {
 import { resetHintCooldown, startCooldown } from './hint'
 import { fetchRank, resetRank, setRank } from './rank'
 import { updateStreakFromSubmit } from './streak'
+import { startAttempt, submitSolve, type SubmitResponse } from './submit'
 import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
 import { closeSuccessModal, openSuccessModal } from './ui'
 
@@ -110,7 +111,6 @@ export const game = writable<GameState>(initial)
 // --- module-level side-effect state ---
 
 let errorTimer: ReturnType<typeof setTimeout> | undefined
-let lastSubmittedPuzzleId: string | null = null
 
 const clearErrorTimer = () => {
   if (!errorTimer) return
@@ -166,6 +166,7 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   resetRank()
   resetCoinReward()
   resetGrowth()
+  startAttempt()
 
   // The tier is set now, so Retry after a failed load asks for the same one.
   game.update((s) => ({
@@ -215,7 +216,6 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   })
 
   resetTimer()
-  lastSubmittedPuzzleId = null
   trackGrowthEvent('puzzle_start')
 
   // Best-effort play count registration after 10 s of dwell time
@@ -361,56 +361,50 @@ export const useHint = (): boolean => {
   return true
 }
 
+// Fills the result screen from a saved solve: rank, streak, coins, label and progress.
+const showSubmitResult = (puzzleId: string) => async (data: SubmitResponse) => {
+  if (data.rank !== null && data.rank !== undefined && typeof data.totalEntries === 'number') {
+    setRank(data.rank, data.totalEntries)
+  } else {
+    await fetchRank(puzzleId)
+  }
+
+  if (data.streak) updateStreakFromSubmit(data.streak)
+  if (data.coinReward) setCoinReward(data.coinReward)
+  if (data.solveQuality) setSolveQuality(data.solveQuality)
+
+  if (data.dailyProgress) {
+    setDailyProgress(data.dailyProgress)
+  } else {
+    await loadDailyProgress()
+  }
+
+  if (data.playerContext) {
+    setPlayerContext(data.playerContext)
+  } else {
+    await loadPlayerContext(puzzleId)
+  }
+}
+
+// Saves a solved puzzle through the submit store, which shows the save status
+// and retries failures; repeat calls for the same puzzle load send nothing.
 export const autosubmitIfSolved = async () => {
   const snapshot = get(game)
 
   if (snapshot.status !== 'solved' || !snapshot.puzzleId) return
-  if (snapshot.puzzleId === lastSubmittedPuzzleId) return
 
   const timeSeconds = get(elapsedSeconds)
 
-  try {
-    const res = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        id: snapshot.puzzleId,
-        grid: snapshot.grid,
-        solveTimeSeconds: timeSeconds,
-        hintsUsed: snapshot.hintsUsed,
-        mistakeCount: snapshot.mistakeCount,
-        undoCount: snapshot.undoCount,
-        scoringVersion: SCORING_VERSION,
-      }),
-    })
-
-    if (!res.ok) return
-
-    lastSubmittedPuzzleId = snapshot.puzzleId
-    const data = await res.json()
-
-    if (data.rank !== null && data.rank !== undefined && typeof data.totalEntries === 'number') {
-      setRank(data.rank, data.totalEntries)
-    } else {
-      await fetchRank(snapshot.puzzleId)
-    }
-
-    if (data.streak) updateStreakFromSubmit(data.streak)
-    if (data.coinReward) setCoinReward(data.coinReward)
-    if (data.solveQuality) setSolveQuality(data.solveQuality)
-
-    if (data.dailyProgress) {
-      setDailyProgress(data.dailyProgress)
-    } else {
-      await loadDailyProgress()
-    }
-
-    if (data.playerContext) {
-      setPlayerContext(data.playerContext)
-    } else {
-      await loadPlayerContext(snapshot.puzzleId)
-    }
-  } catch {
-    // ignore network errors — autosubmit is best effort
-  }
+  await submitSolve(
+    {
+      id: snapshot.puzzleId,
+      grid: snapshot.grid,
+      solveTimeSeconds: timeSeconds,
+      hintsUsed: snapshot.hintsUsed,
+      mistakeCount: snapshot.mistakeCount,
+      undoCount: snapshot.undoCount,
+      scoringVersion: SCORING_VERSION,
+    },
+    showSubmitResult(snapshot.puzzleId)
+  )
 }
