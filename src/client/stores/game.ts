@@ -20,7 +20,7 @@ import { fetchRank, resetRank, setRank } from './rank'
 import { updateStreakFromSubmit } from './streak'
 import { startAttempt, submitSolve, type SubmitResponse } from './submit'
 import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
-import { closeSuccessModal, openSuccessModal } from './ui'
+import { closeSuccessModal, openSuccessModal, setShowFirstScreen } from './ui'
 
 type Status = 'idle' | 'loading' | 'in_progress' | 'solved' | 'invalid' | 'error'
 
@@ -111,6 +111,9 @@ export const game = writable<GameState>(initial)
 
 let errorTimer: ReturnType<typeof setTimeout> | undefined
 
+// The tier the last load asked for, so Retry asks the same; none lets the server pick.
+let requestedDifficulty: Difficulty | undefined
+
 const clearErrorTimer = () => {
   if (!errorTimer) return
   clearTimeout(errorTimer)
@@ -158,7 +161,12 @@ const startTimerOnFirstInput = (wasTracked: boolean) => {
 
 // --- public actions ---
 
-export const loadPuzzle = async (difficulty: Difficulty) => {
+/**
+ * Loads a tier's puzzle. With no tier, the server picks one for this player
+ * (Easy for new players while the first screen is on) and the reply names it.
+ */
+export const loadPuzzle = async (difficulty?: Difficulty) => {
+  requestedDifficulty = difficulty
   resetTimer()
   closeSuccessModal()
   resetHintCooldown()
@@ -166,19 +174,20 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   resetGrowth()
   startAttempt()
 
-  // The tier is set now, so Retry after a failed load asks for the same one.
+  // The menu shows the asked-for tier while it loads; a load that names none
+  // keeps showing the current tier until the server's pick arrives.
   game.update((s) => ({
     ...s,
-    difficulty,
+    difficulty: difficulty ?? s.difficulty,
     status: 'loading',
     errors: [],
     errorLocations: undefined,
     errorCells: new Set(),
   }))
 
-  const puzzle = await fetchPuzzle(difficulty)
+  const loaded = await fetchPuzzle(difficulty)
 
-  if (!puzzle) {
+  if (!loaded) {
     game.update((s) => ({
       ...s,
       status: 'error',
@@ -189,12 +198,14 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
     return
   }
 
+  const { puzzle } = loaded
+  setShowFirstScreen(loaded.firstScreen)
   const initialGrid = cloneGrid(puzzle.initial)
   const fixed = puzzle.fixed
 
   game.set({
     puzzleId: puzzle.id,
-    difficulty,
+    difficulty: puzzle.difficulty,
     grid: cloneGrid(initialGrid),
     initial: initialGrid,
     fixed,
@@ -217,8 +228,8 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
   trackGrowthEvent('puzzle_start')
 }
 
-/** Loads the tier that failed to load again, from the grid's Retry. */
-export const retryPuzzleLoad = () => loadPuzzle(get(game).difficulty)
+/** Asks again for what failed to load, from the grid's Retry: the same tier, or the server's pick. */
+export const retryPuzzleLoad = () => loadPuzzle(requestedDifficulty)
 
 export const cycleCell = (r: number, c: number) => {
   clearErrorTimer()

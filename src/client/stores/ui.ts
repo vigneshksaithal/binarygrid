@@ -15,6 +15,11 @@ export const showLeaderboardModal = writable(false)
 export const openLeaderboardModal = () => showLeaderboardModal.set(true)
 export const closeLeaderboardModal = () => showLeaderboardModal.set(false)
 
+// The subreddit's first-screen switch, as the last puzzle reply reported it.
+export const showFirstScreen = writable(true)
+
+export const setShowFirstScreen = (shown: boolean) => showFirstScreen.set(shown)
+
 export const hasJoinedSubreddit = writable(true)
 
 export const setHasJoinedSubreddit = (joined: boolean) =>

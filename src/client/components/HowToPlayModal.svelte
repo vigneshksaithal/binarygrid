@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SOLVE_QUALITY_DEFINITIONS } from '../../shared/growth'
 	import { closeHowTo, showHowToModal } from '../stores/ui'
+	import Glyph from './Glyph.svelte'
 	import Modal from './Modal.svelte'
 
 	const labelDefinitions = Object.values(SOLVE_QUALITY_DEFINITIONS)
@@ -13,28 +14,19 @@
 	describedby="how-to-modal-body"
 >
 	<h2 id="how-to-modal-title">How to Play</h2>
+	<!-- The same ○ and | as the cells, never digits -->
 	<div id="how-to-modal-body">
 		<ol>
 			<li>
-				Tap cells to cycle through: <span class="font-mono">0</span> →
-				<span class="font-mono">1</span> → empty
+				Tap a cell to change it: empty → <Glyph value={0} /> → <Glyph value={1} /> → empty.
 			</li>
+			<li>Fill every cell with a <Glyph value={0} /> or a <Glyph value={1} />.</li>
 			<li>
-				Fill the grid so that each cell contains either a <span
-					class="font-mono">0</span
-				>
-				or a <span class="font-mono">1</span>.
+				Every row and every column holds three <Glyph value={0} label="circles" /> and three
+				<Glyph value={1} label="lines" />.
 			</li>
-			<li>
-				No more than 2 <span class="font-mono">0</span>s or
-				<span class="font-mono">1</span>s may be next to each other, either
-				vertically or horizontally.
-			</li>
-			<li>
-				Each row and column must contain the same number of <span
-					class="font-mono">0</span
-				>s and <span class="font-mono">1</span>s.
-			</li>
+			<li>Never three of the same in a row, across or down.</li>
+			<li>Shaded cells are clues and can't be changed.</li>
 		</ol>
 	</div>
 	<h3>Solve labels</h3>

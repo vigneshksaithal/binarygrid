@@ -379,7 +379,8 @@ const isCount = (value: unknown): value is number =>
 const isPositiveCount = (value: unknown): value is number =>
   isCount(value) && value >= 1
 
-const isDifficulty = (value: unknown): value is Difficulty =>
+/** Returns true if the value names one of the three tiers. */
+export const isDifficulty = (value: unknown): value is Difficulty =>
   typeof value === 'string' && (DAILY_DIFFICULTIES as readonly string[]).includes(value)
 
 const isOwnWords = (value: unknown): value is string =>

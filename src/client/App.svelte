@@ -7,6 +7,7 @@
 	import "./app.css";
 	import Button from "./components/Button.svelte";
 	import Dropdown from "./components/Dropdown.svelte";
+	import FirstScreenFrame from "./components/FirstScreenFrame.svelte"
 	import Grid from "./components/Grid.svelte";
 	import HowToPlayModal from "./components/HowToPlayModal.svelte";
 	import LeaderboardModal from "./components/LeaderboardModal.svelte";
@@ -15,8 +16,9 @@
 	import { game, loadPuzzle, undo, useHint } from "./stores/game";
 	import { loadDailyProgress, trackGrowthEvent } from "./stores/growth";
 	import { canUseHint, cooldownProgress } from "./stores/hint";
+	import { loadPuzzleNumber } from "./stores/puzzle-number"
 	import { fetchStreak } from "./stores/streak";
-	import { openHowToModal, openLeaderboardModal } from "./stores/ui";
+	import { openHowToModal, openLeaderboardModal, showFirstScreen } from "./stores/ui"
 
 	const difficultyOptions = [
 		{ value: "easy", label: "Easy" },
@@ -34,8 +36,10 @@
 		}
 	};
 
-	// Load puzzle silently — timer starts on first cell interaction, not here
-	loadPuzzle($game.difficulty);
+	// Load puzzle silently — timer starts on first cell interaction, not here.
+	// No tier: the server picks one (Easy for new players while the first screen is on).
+	loadPuzzle()
+	loadPuzzleNumber()
 
 	// Fetch streak on mount
 	fetchStreak();
@@ -165,6 +169,9 @@
 				</div>
 			</div>
 		</div>
+		{#if $showFirstScreen}
+			<FirstScreenFrame />
+		{/if}
 		<Grid />
 	</div>
 </main>
