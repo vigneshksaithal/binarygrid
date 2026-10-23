@@ -91,6 +91,12 @@
           }
         ],
         "defaultValue": "morning"
+      },
+      "firstScreen": {
+        "type": "boolean",
+        "label": "Show the rules line and start new players on Easy",
+        "helpText": "Shows \"Binary Grid #N · r/{subreddit}\", one rules line and the ○/| legend above the grid, and opens Easy for logged-out players and players who have never solved. Off: the plain grid, on Medium for everyone. Change it only between daily puzzles.",
+        "defaultValue": true
       }
     }
   },

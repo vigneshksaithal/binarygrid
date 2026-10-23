@@ -1,13 +1,16 @@
 /**
  * In-memory stand-in for `@devvit/web/server` in route tests: strings,
  * hashes and sorted sets, TTLs recorded but never enforced, a logged-in
- * player on a post, and a pass-through cache. Load it with:
+ * player on a post, a pass-through cache and no subreddit settings set.
+ * Load it with:
  *
  *   vi.mock('@devvit/web/server', async () =>
  *     (await import('../test-helpers/devvit-server-fake')).devvitServerFake.module)
  */
 
 type SortedSetMember = { member: string; score: number }
+
+type SettingValue = string | number | boolean | string[] | undefined
 
 type FakeContext = {
   postId: string | undefined
@@ -131,6 +134,12 @@ const createDevvitServerFake = () => {
 
   const cache = async <T>(closure: () => Promise<T>, _options: unknown): Promise<T> => closure()
 
+  // Nothing is set, so readers use their defaults. A test sets values with
+  // `vi.spyOn(devvitServerFake.module.settings, 'getAll')`.
+  const settings = {
+    getAll: async (): Promise<Record<string, SettingValue>> => ({}),
+  }
+
   const reset = (): void => {
     strings.clear()
     hashes.clear()
@@ -149,7 +158,7 @@ const createDevvitServerFake = () => {
     })
 
   return {
-    module: { cache, context, reddit, redis },
+    module: { cache, context, reddit, redis, settings },
     reset,
     snapshot,
     ttlOf: (key: string): number | undefined => ttls.get(key),

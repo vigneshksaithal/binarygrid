@@ -12,10 +12,13 @@ export type DailyPostSlot = (typeof DAILY_POST_SLOTS)[number]
 export type AppSettings = {
   /** Which daily task posts the puzzle: morning (08:00 UTC) or evening (20:00 UTC). */
   dailyPostSlot: DailyPostSlot
+  /** The first screen: title, rules line and legend above the grid, and Easy for new players. */
+  firstScreen: boolean
 }
 
 export const DEFAULT_SETTINGS: Readonly<AppSettings> = {
   dailyPostSlot: 'morning',
+  firstScreen: true,
 }
 
 type SettingValue = string | number | boolean | string[] | undefined
@@ -31,8 +34,13 @@ const pickOption = <T extends string>(
   return options.find((option) => option === chosen) ?? fallback
 }
 
+// A switch arrives as a boolean, false included. Anything else falls back to the default.
+const pickSwitch = (value: SettingValue, fallback: boolean): boolean =>
+  typeof value === 'boolean' ? value : fallback
+
 export const parseSettings = (values: Readonly<Record<string, SettingValue>>): AppSettings => ({
   dailyPostSlot: pickOption(DAILY_POST_SLOTS, values.dailyPostSlot, DEFAULT_SETTINGS.dailyPostSlot),
+  firstScreen: pickSwitch(values.firstScreen, DEFAULT_SETTINGS.firstScreen),
 })
 
 /** Reads the installed settings. A failed read throws rather than guess a value. */

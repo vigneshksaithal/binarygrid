@@ -8,7 +8,7 @@ import { redis } from '@devvit/web/server'
 import { solvePuzzle } from '../../shared/solver'
 import type { PuzzleWithGrid } from '../../shared/types/puzzle'
 import { generateDailyPuzzle } from '../core/generator'
-import { devvitServerFake, FAKE_POST_ID } from '../test-helpers/devvit-server-fake'
+import { devvitServerFake, FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-server-fake'
 import app from './index'
 
 const DAY_ONE = new Date('2026-10-22T12:00:00Z')
@@ -16,11 +16,22 @@ const DAY_TWO = new Date('2026-10-23T12:00:00Z')
 const TIER = 'hard'
 const STORED_KEY = `post:${FAKE_POST_ID}:puzzle:${TIER}`
 const ATTEMPT_ID = '3d6f0a9c-8e21-4b57-b0c4-5f1e7a2d9c63'
+// Every saved solve stamps the player's streak date; a month-old one is still a returning player.
+const LAST_SOLVE_KEY = `user:${FAKE_USER_ID}:streak:lastDate`
+const LAST_SOLVE_DATE = '2026-09-22'
 
-const getPuzzle = async (query = `difficulty=${TIER}`): Promise<PuzzleWithGrid> => {
-  const response = await app.fetch(new Request(`http://localhost/api/puzzle?${query}`))
-  return ((await response.json()) as { puzzle: PuzzleWithGrid }).puzzle
-}
+type PuzzleReply = { puzzle: PuzzleWithGrid; firstScreen: boolean }
+
+const requestPuzzle = (query = '') => app.fetch(new Request(`http://localhost/api/puzzle${query}`))
+
+const loadPuzzle = async (query = ''): Promise<PuzzleReply> =>
+  (await (await requestPuzzle(query)).json()) as PuzzleReply
+
+const getPuzzle = async (query = `difficulty=${TIER}`): Promise<PuzzleWithGrid> =>
+  (await loadPuzzle(`?${query}`)).puzzle
+
+const switchFirstScreen = (firstScreen: boolean) =>
+  vi.spyOn(devvitServerFake.module.settings, 'getAll').mockResolvedValue({ firstScreen })
 
 const submitSolution = (puzzle: PuzzleWithGrid) =>
   app.fetch(
@@ -55,6 +66,87 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.restoreAllMocks()
+})
+
+describe('GET /api/puzzle without a tier', () => {
+  it('starts a logged-out player on Easy', async () => {
+    devvitServerFake.module.context.userId = undefined
+
+    const { puzzle } = await loadPuzzle()
+
+    expect(puzzle.difficulty).toBe('easy')
+    expect(puzzle.id).toBe(`${FAKE_POST_ID}:easy`)
+  })
+
+  it('starts a logged-in player who has never solved on Easy', async () => {
+    const { puzzle } = await loadPuzzle()
+
+    expect(puzzle.difficulty).toBe('easy')
+  })
+
+  it('starts a player who has solved before on Medium', async () => {
+    await redis.set(LAST_SOLVE_KEY, LAST_SOLVE_DATE)
+
+    const { puzzle } = await loadPuzzle()
+
+    expect(puzzle.difficulty).toBe('medium')
+    expect(puzzle.id).toBe(`${FAKE_POST_ID}:medium`)
+  })
+
+  it('starts everyone on Medium while the first screen is switched off', async () => {
+    switchFirstScreen(false)
+
+    const newPlayer = await loadPuzzle()
+    devvitServerFake.module.context.userId = undefined
+    const loggedOut = await loadPuzzle()
+
+    expect(newPlayer.puzzle.difficulty).toBe('medium')
+    expect(loggedOut.puzzle.difficulty).toBe('medium')
+  })
+
+  it('still loads, with the first screen on, when the settings read fails', async () => {
+    vi.spyOn(devvitServerFake.module.settings, 'getAll').mockRejectedValue(
+      new Error('Could not get installation settings')
+    )
+
+    const response = await requestPuzzle()
+    const { puzzle, firstScreen } = (await response.json()) as PuzzleReply
+
+    expect(response.status).toBe(200)
+    expect(puzzle.difficulty).toBe('easy')
+    expect(firstScreen).toBe(true)
+  })
+})
+
+describe('GET /api/puzzle with a tier', () => {
+  it('serves the requested tier to a player who has never solved', async () => {
+    const { puzzle } = await loadPuzzle(`?difficulty=${TIER}`)
+
+    expect(puzzle.difficulty).toBe(TIER)
+  })
+
+  it('serves the requested tier to a returning player', async () => {
+    await redis.set(LAST_SOLVE_KEY, LAST_SOLVE_DATE)
+
+    const { puzzle } = await loadPuzzle('?difficulty=easy')
+
+    expect(puzzle.difficulty).toBe('easy')
+  })
+})
+
+describe('GET /api/puzzle and the first-screen switch', () => {
+  it('says the first screen is on by default', async () => {
+    expect((await loadPuzzle()).firstScreen).toBe(true)
+    expect((await loadPuzzle(`?difficulty=${TIER}`)).firstScreen).toBe(true)
+  })
+
+  it('says when a moderator has switched it off', async () => {
+    switchFirstScreen(false)
+
+    expect((await loadPuzzle()).firstScreen).toBe(false)
+    expect((await loadPuzzle(`?difficulty=${TIER}`)).firstScreen).toBe(false)
+  })
 })
 
 describe('GET /api/puzzle on a post without stored puzzles', () => {

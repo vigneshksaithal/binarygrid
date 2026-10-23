@@ -14,16 +14,25 @@ beforeEach(() => {
 
 describe('parseSettings', () => {
   it('uses the defaults when nothing is set', () => {
-    expect(parseSettings({})).toEqual({ dailyPostSlot: 'morning' })
+    expect(parseSettings({})).toEqual({ dailyPostSlot: 'morning', firstScreen: true })
   })
 
   it('reads a chosen select option, which Devvit returns as a list', () => {
-    expect(parseSettings({ dailyPostSlot: ['evening'] })).toEqual({ dailyPostSlot: 'evening' })
-    expect(parseSettings({ dailyPostSlot: ['morning'] })).toEqual({ dailyPostSlot: 'morning' })
+    expect(parseSettings({ dailyPostSlot: ['evening'] })).toEqual({
+      ...DEFAULT_SETTINGS,
+      dailyPostSlot: 'evening',
+    })
+    expect(parseSettings({ dailyPostSlot: ['morning'] })).toEqual({
+      ...DEFAULT_SETTINGS,
+      dailyPostSlot: 'morning',
+    })
   })
 
   it('reads a plain string, the shape of a devvit.json default', () => {
-    expect(parseSettings({ dailyPostSlot: 'evening' })).toEqual({ dailyPostSlot: 'evening' })
+    expect(parseSettings({ dailyPostSlot: 'evening' })).toEqual({
+      ...DEFAULT_SETTINGS,
+      dailyPostSlot: 'evening',
+    })
   })
 
   it.each([
@@ -35,15 +44,28 @@ describe('parseSettings', () => {
   ])('falls back to the default for %s', (_case, value) => {
     expect(parseSettings({ dailyPostSlot: value })).toEqual(DEFAULT_SETTINGS)
   })
+
+  it('reads the first-screen switch in either position', () => {
+    expect(parseSettings({ firstScreen: false })).toEqual({ ...DEFAULT_SETTINGS, firstScreen: false })
+    expect(parseSettings({ firstScreen: true })).toEqual({ ...DEFAULT_SETTINGS, firstScreen: true })
+  })
+
+  it.each([
+    ['a string', 'false'],
+    ['a number', 0],
+    ['a list', ['false']],
+  ])('keeps the first screen on for %s', (_case, value) => {
+    expect(parseSettings({ firstScreen: value }).firstScreen).toBe(true)
+  })
 })
 
 describe('readSettings', () => {
   it('asks Devvit on every read, so a change applies without a deploy', async () => {
     fake.settings.getAll.mockResolvedValueOnce({})
-    fake.settings.getAll.mockResolvedValueOnce({ dailyPostSlot: ['evening'] })
+    fake.settings.getAll.mockResolvedValueOnce({ dailyPostSlot: ['evening'], firstScreen: false })
 
-    expect(await readSettings()).toEqual({ dailyPostSlot: 'morning' })
-    expect(await readSettings()).toEqual({ dailyPostSlot: 'evening' })
+    expect(await readSettings()).toEqual({ dailyPostSlot: 'morning', firstScreen: true })
+    expect(await readSettings()).toEqual({ dailyPostSlot: 'evening', firstScreen: false })
   })
 
   it('fails when the settings service fails, instead of guessing a value', async () => {
@@ -60,5 +82,12 @@ describe('devvit.json subreddit settings', () => {
     expect(setting.type).toBe('select')
     expect(setting.options.map((option) => option.value)).toEqual([...DAILY_POST_SLOTS])
     expect(setting.defaultValue).toBe(DEFAULT_SETTINGS.dailyPostSlot)
+  })
+
+  it("declares firstScreen as a switch with the reader's default", () => {
+    const setting = devvitConfig.settings.subreddit.firstScreen
+
+    expect(setting.type).toBe('boolean')
+    expect(setting.defaultValue).toBe(DEFAULT_SETTINGS.firstScreen)
   })
 })
