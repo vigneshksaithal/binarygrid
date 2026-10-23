@@ -19,11 +19,12 @@ export const PROGRESS_LINE_RESERVES: readonly string[] = [
 ]
 
 /**
- * Room for task 6's freeze message, from its spec's example with the longest
- * weekday. Task 6 fills the line; keep this at least as long as its longest message.
+ * The longest streak notes (shared/streak-copy.ts) up to a 999-day streak: two
+ * freezes, the most a player holds, over the longest weekdays, and the break copy.
  */
-export const FREEZE_MESSAGE_RESERVES: readonly string[] = [
-  '❄️ A freeze covered Wednesday. 365-day streak safe.',
+export const STREAK_NOTE_RESERVES: readonly string[] = [
+  '❄️ Freezes covered Wednesday and Thursday. 999-day streak safe.',
+  'Your 999-day run ended. Best 999 is kept.',
 ]
 
 export const formatFasterLine = (playerContext: PlayerContext | null): string | null => {
@@ -43,9 +44,13 @@ const freezesLeft = (freezes: number): string => {
   return ` · ${freezes} freeze${freezes === 1 ? '' : 's'}`
 }
 
-export const formatProgressLine = (dailyProgress: DailyProgress | null): string | null => {
+/** `freezes` is the balance the streak rule shows (`shownFreezes` in stores/streak.ts). */
+export const formatProgressLine = (
+  dailyProgress: DailyProgress | null,
+  freezes: number
+): string | null => {
   if (!dailyProgress) return null
-  const { trio, streak } = dailyProgress
+  const { trio } = dailyProgress
   const count = `${trio.completedCount}/${DAILY_DIFFICULTIES.length} difficulties today`
-  return `${count}${trioBadge(trio)}${freezesLeft(streak.freezes)}`
+  return `${count}${trioBadge(trio)}${freezesLeft(freezes)}`
 }

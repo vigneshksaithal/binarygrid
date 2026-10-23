@@ -6,18 +6,19 @@
 		SOLVE_QUALITY_LABELS,
 		type SolveQuality,
 	} from "../../shared/growth";
+	import { streakNote } from "../../shared/streak-copy"
 	import {
 		DEFINITION_RESERVES,
 		FASTER_LINE_RESERVES,
 		formatFasterLine,
 		formatProgressLine,
-		FREEZE_MESSAGE_RESERVES,
 		PROGRESS_LINE_RESERVES,
+		STREAK_NOTE_RESERVES,
 	} from "../services/result-lines"
 	import { growthStore } from "../stores/growth";
 	import { loadPuzzleNumber, puzzleNumber } from "../stores/puzzle-number"
 	import { rankStore } from "../stores/rank";
-	import { streakStore } from "../stores/streak";
+	import { shownFreezes, shownStreak, streakStore } from "../stores/streak";
 	import {
 		elapsedSeconds,
 		formatElapsedTime,
@@ -47,17 +48,22 @@
 			: "Solved",
 	);
 
+	// The streak rule setting picks these; the comment preview's streak follows.
+	const currentStreak = $derived(
+		shownStreak($streakStore.data, $growthStore.dailyProgress),
+	);
+	const freezes = $derived(
+		shownFreezes($streakStore.data, $growthStore.dailyProgress),
+	);
+
 	const definitionLine = $derived.by(() => {
 		const quality = $growthStore.solveQuality
 		return quality ? SOLVE_QUALITY_DEFINITIONS[quality] : null
 	})
 	const fasterLine = $derived(formatFasterLine($growthStore.playerContext))
-	const progressLine = $derived(formatProgressLine($growthStore.dailyProgress))
-
-	const currentStreak = $derived(
-		$growthStore.dailyProgress?.streak.currentStreak ??
-			$streakStore.data.currentStreak,
-	);
+	const progressLine = $derived(formatProgressLine($growthStore.dailyProgress, freezes))
+	// Best streak, break copy or the freeze message; the calendar rule shows none
+	const streakLine = $derived(streakNote($streakStore.data) || null)
 
 	const showConfetti = () => {
 		confetti({
@@ -138,11 +144,11 @@
 				text={progressLine}
 				reserves={reservesFor(PROGRESS_LINE_RESERVES)}
 			/>
-			<!-- Task 6's freeze message: it fills this line's text -->
+			<!-- Best streak, break copy or the freeze message -->
 			<ReservedText
 				class="text-xs text-zinc-400 mt-1 mb-0"
-				text={null}
-				reserves={reservesFor(FREEZE_MESSAGE_RESERVES)}
+				text={streakLine}
+				reserves={reservesFor(STREAK_NOTE_RESERVES)}
 			/>
 		</div>
 

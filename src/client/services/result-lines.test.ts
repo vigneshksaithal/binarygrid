@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { SOLVE_QUALITY_DEFINITIONS } from '../../shared/growth'
+import { formatBreakMessage, formatFreezeMessage } from '../../shared/streak-copy'
 import type { DailyProgress, PlayerContext } from '../stores/growth'
 import {
   DEFINITION_RESERVES,
@@ -7,12 +8,16 @@ import {
   formatFasterLine,
   formatProgressLine,
   PROGRESS_LINE_RESERVES,
+  STREAK_NOTE_RESERVES,
 } from './result-lines'
 
 const MAX_PERCENTILE = 100
 const LARGEST_COVERED_GAP_SECONDS = 9999
 const MAX_FREEZES = 2
 const TIER_COUNT = 3
+const LONGEST_COVERED_STREAK = 999
+// One date per weekday, Monday 2026-10-19 to Sunday 2026-10-25
+const WEEK_DATES = ['19', '20', '21', '22', '23', '24', '25'].map((day) => `2026-10-${day}`)
 
 const longest = (reserves: readonly string[]): number =>
   Math.max(...reserves.map((reserve) => reserve.length))
@@ -64,20 +69,25 @@ describe('formatFasterLine', () => {
 
 describe('formatProgressLine', () => {
   it("counts today's tiers", () => {
-    expect(formatProgressLine(dailyProgress(0, 'none', 0))).toBe('0/3 difficulties today')
+    expect(formatProgressLine(dailyProgress(0, 'none', 0), 0)).toBe('0/3 difficulties today')
   })
 
   it('adds the trio badge, Perfect Day first, and the freezes left', () => {
-    expect(formatProgressLine(dailyProgress(3, 'trio', 1))).toBe(
+    expect(formatProgressLine(dailyProgress(3, 'trio', 1), 1)).toBe(
       '3/3 difficulties today · Trio Complete · 1 freeze'
     )
-    expect(formatProgressLine(dailyProgress(3, 'perfect', 2))).toBe(
+    expect(formatProgressLine(dailyProgress(3, 'perfect', 2), 2)).toBe(
       '3/3 difficulties today · Perfect Day · 2 freezes'
     )
   })
 
+  it("counts the freezes it's given, not the calendar streak's", () => {
+    expect(formatProgressLine(dailyProgress(1, 'none', 0), 2)).toBe('1/3 difficulties today · 2 freezes')
+    expect(formatProgressLine(dailyProgress(1, 'none', 2), 0)).toBe('1/3 difficulties today')
+  })
+
   it("is empty until today's progress is known", () => {
-    expect(formatProgressLine(null)).toBeNull()
+    expect(formatProgressLine(null, 1)).toBeNull()
   })
 })
 
@@ -99,10 +109,27 @@ describe('the room each late line holds', () => {
     for (let count = 0; count <= TIER_COUNT; count += 1) {
       for (const badge of ['none', 'trio', 'perfect'] as const) {
         for (let freezes = 0; freezes <= MAX_FREEZES; freezes += 1) {
-          const line = formatProgressLine(dailyProgress(count, badge, freezes)) ?? ''
+          const line = formatProgressLine(dailyProgress(count, badge, freezes), freezes) ?? ''
           expect(line.length).toBeLessThanOrEqual(longest(PROGRESS_LINE_RESERVES))
         }
       }
+    }
+  })
+
+  it('covers the freeze message for any one or two weekdays, and the break copy', () => {
+    const notes = [formatBreakMessage(LONGEST_COVERED_STREAK, LONGEST_COVERED_STREAK)]
+    for (const [first, firstDate] of WEEK_DATES.entries()) {
+      notes.push(formatFreezeMessage([{ number: 1, date: firstDate }], LONGEST_COVERED_STREAK))
+      for (const secondDate of WEEK_DATES.slice(first + 1)) {
+        const covered = [
+          { number: 1, date: firstDate },
+          { number: 2, date: secondDate },
+        ]
+        notes.push(formatFreezeMessage(covered, LONGEST_COVERED_STREAK))
+      }
+    }
+    for (const note of notes) {
+      expect(note.length).toBeLessThanOrEqual(longest(STREAK_NOTE_RESERVES))
     }
   })
 })
