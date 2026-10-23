@@ -143,6 +143,10 @@ const createRedditFake = () => ({
   getSnoovatarUrl: vi.fn(() => Promise.resolve(null)),
   subscribeToCurrentSubreddit: vi.fn(() => Promise.resolve()),
   getNewPosts: vi.fn(() => fakeListing<unknown>([])),
+  // Nobody moderates the fake subreddit until a test lists moderators.
+  getModerators: vi.fn((_options: { subredditName: string; username?: string }) =>
+    fakeListing<unknown>([])
+  ),
 })
 
 export const createDevvitServerFake = () => ({

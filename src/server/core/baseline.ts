@@ -34,6 +34,7 @@ import {
 } from '../../shared/baseline'
 import { DAILY_DIFFICULTIES } from '../../shared/growth'
 import { SIZE } from '../../shared/rules'
+import { formatSlotShopReadout, slotWindowDates } from '../../shared/slot-shop-readout'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { ANALYTICS_TTL_SECONDS, GROWTH_EVENT_NAMES, type GrowthEventName } from '../lib/growth'
 import { leaderboardKey } from '../routes/utils'
@@ -405,4 +406,15 @@ export const readBaselineReadout = async (now: Date = new Date()): Promise<strin
     readRecords(dates, cohortMetricsKey),
   ])
   return formatBaselineReadout({ daily, cohorts })
+}
+
+// Slot medians cover the 8 weeks ending on the post cursor, the newest date the job has
+// recorded posts for (about a week behind its window); daily openers come from the
+// job's window. Each date is read once.
+export const readSlotShopReadout = async (now: Date = new Date()): Promise<string> => {
+  const postsThrough = (await redis.hGetAll(BASELINE_STATE_KEY))[POSTS_THROUGH_FIELD]
+  const slotDates = postsThrough === undefined ? [] : slotWindowDates(postsThrough)
+  const dates = [...new Set([...slotDates, ...baselineWindow(now).dates])]
+  const daily = await readRecords(dates, dailyMetricsKey)
+  return formatSlotShopReadout({ daily, postsThrough })
 }

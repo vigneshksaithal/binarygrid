@@ -77,7 +77,7 @@ const QUALITY_OK = 'ok'
 const LOOKBACK_INCOMPLETE = 'lookback_incomplete'
 const NO_EVENTS = 'no_events'
 // Keep in sync with the `baseline-nightly` cron in devvit.json.
-const NO_RECORDS_MESSAGE = 'No baseline records yet. The nightly job runs at 00:30 UTC.'
+export const NO_RECORDS_MESSAGE = 'No baseline records yet. The nightly job runs at 00:30 UTC.'
 // Report I4's data-quality check: unique app_open >= first_input >= submit_success.
 const FUNNEL_ORDER = [
   ['app_open', 'first_input'],
@@ -90,10 +90,10 @@ const DAILY_POST_TITLE = /^Binary Grid(?::| -) \d{4}-\d{2}-\d{2}(?: \((Morning|E
 const HOUR_FIELD = /^\d{2}$/
 const COUNT_VALUE = /^\d+$/
 
-const sum = (values: readonly number[]): number =>
+export const sum = (values: readonly number[]): number =>
   values.reduce((total, value) => total + value, 0)
 
-const roundToTenth = (value: number): number => Math.round(value * 10) / 10
+export const roundToTenth = (value: number): number => Math.round(value * 10) / 10
 
 const hasFields = (fields: Readonly<MetricFields>): boolean => Object.keys(fields).length > 0
 
@@ -403,7 +403,8 @@ export const buildPostSection = (posts: readonly PostSummary[]): MetricFields =>
 
 // ── Moderator readout ───────────────────────────────────────────────────────
 
-const newestFirst = (records: readonly DatedFields[]): DatedFields[] =>
+// Drops empty records (dates the job never wrote) and sorts the rest newest first.
+export const newestFirst = (records: readonly DatedFields[]): DatedFields[] =>
   records.filter((record) => hasFields(record.fields)).sort((a, b) => b.date.localeCompare(a.date))
 
 const describeWrs = (daily: readonly DatedFields[]): string => {

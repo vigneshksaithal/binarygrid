@@ -49,6 +49,13 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/baseline-readout"
+      },
+      {
+        "label": "Show Post Slot and Shop Numbers",
+        "description": "Median solvers per post by slot (8 weeks), daily shop and app openers",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/slot-shop-readout"
       }
     ]
   },

@@ -5,9 +5,14 @@ vi.mock('@devvit/web/server', async () =>
 )
 
 import { reddit, redis } from '@devvit/web/server'
-import { listDates } from '../../shared/baseline'
+import { buildPostSection, listDates, type PostSlot } from '../../shared/baseline'
 import { type createDevvitServerFake, fakeListing } from '../test-helpers/devvit-fake'
-import { readBaselineReadout, recordHourlySolve, runBaselineJob } from './baseline'
+import {
+  readBaselineReadout,
+  readSlotShopReadout,
+  recordHourlySolve,
+  runBaselineJob,
+} from './baseline'
 
 type Fake = ReturnType<typeof createDevvitServerFake>
 
@@ -414,6 +419,57 @@ describe('readBaselineReadout', () => {
 
   it('explains when the job has not written a record yet', async () => {
     expect(await readBaselineReadout(NOW)).toBe(
+      'No baseline records yet. The nightly job runs at 00:30 UTC.'
+    )
+  })
+})
+
+// Stores one recorded post per day from `dates`, as the nightly job's post section does.
+const recordDailyPosts = async (slot: PostSlot, dates: readonly string[], solvers: number) => {
+  for (const date of dates) {
+    const section = buildPostSection([
+      {
+        id: `t3_${slot}_${date}`,
+        slot,
+        hour: slot === 'Evening' ? 20 : 8,
+        tierSolvers: { easy: solvers, medium: 0, hard: 0 },
+        uniqueSolvers: solvers,
+        subFloor: 0,
+      },
+    ])
+    await redis.hSet(`metrics:daily:${date}`, section)
+  }
+}
+
+describe('readSlotShopReadout', () => {
+  it('reads slot medians and openers from the records the nightly job wrote, and writes nothing', async () => {
+    await runBaselineJob(NOW)
+    vi.clearAllMocks()
+
+    // The post cursor is 2026-10-14; its 8 weeks hold t3_m1 (Morning) and t3_e1 (Evening).
+    // App openers on the newest 30 recorded days (2026-09-22..2026-10-21): 24, so 0.8 a day.
+    expect(await readSlotShopReadout(NOW)).toBe(
+      'Median solvers/post to 2026-10-14: Morning too few posts (1), Evening too few posts (1) · Openers/day: shop 0, app 0.8 (30 days)'
+    )
+    expect(fakeRedis.hSet).not.toHaveBeenCalled()
+    expect(fakeRedis.expire).not.toHaveBeenCalled()
+  })
+
+  it('reads all 8 weeks that end on the post cursor, including days before the job window', async () => {
+    await redis.hSet('metrics:baseline:state', { posts_through: '2026-10-14' })
+    // 2026-08-20 to 08-23 come before the job's 59-day window (2026-08-24 onward).
+    await recordDailyPosts('Morning', listDates('2026-08-20', '2026-09-02'), 6)
+    await recordDailyPosts('Morning', ['2026-08-19'], 900)
+    await recordDailyPosts('Evening', listDates('2026-10-01', '2026-10-14'), 4)
+    await recordDailyPosts('Evening', ['2026-10-15'], 900)
+
+    expect(await readSlotShopReadout(NOW)).toBe(
+      'Median solvers/post to 2026-10-14: Morning 6 (14 posts), Evening 4 (14 posts) · Openers/day: no daily records yet'
+    )
+  })
+
+  it('explains when the job has not written a record yet', async () => {
+    expect(await readSlotShopReadout(NOW)).toBe(
       'No baseline records yet. The nightly job runs at 00:30 UTC.'
     )
   })
