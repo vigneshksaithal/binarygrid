@@ -34,8 +34,11 @@ const postJson = (path: string, body: unknown) =>
     })
   )
 
-const submit = (grid: Grid) =>
-  postJson('/api/submit', { id: 't3_post_123:medium', grid, solveTimeSeconds: 92 })
+const FIRST_ATTEMPT_ID = 'attempt-0001'
+const SECOND_ATTEMPT_ID = 'attempt-0002'
+
+const submit = (grid: Grid, attemptId = FIRST_ATTEMPT_ID) =>
+  postJson('/api/submit', { id: 't3_post_123:medium', attemptId, grid, solveTimeSeconds: 92 })
 
 beforeEach(async () => {
   vi.useFakeTimers({ now: new Date('2026-10-21T08:15:00.000Z'), toFake: ['Date'] })
@@ -57,9 +60,18 @@ describe('hourly solve counter on submit', () => {
     expect((await response.json()).ok).toBe(true)
     expect(fakeRedis.__hashStore.get(HOURLY_KEY)).toEqual({ '08': '1' })
 
-    await submit(VALID_GRID)
+    await submit(VALID_GRID, SECOND_ATTEMPT_ID)
 
     expect(fakeRedis.__hashStore.get(HOURLY_KEY)).toEqual({ '08': '2' })
+  })
+
+  it('does not move again when the same attempt is retried', async () => {
+    await submit(VALID_GRID)
+    const retried = await submit(VALID_GRID)
+
+    expect(retried.status).toBe(200)
+    expect((await retried.json()).ok).toBe(true)
+    expect(fakeRedis.__hashStore.get(HOURLY_KEY)).toEqual({ '08': '1' })
   })
 
   it('never moves on a rejected submit', async () => {
@@ -69,7 +81,7 @@ describe('hourly solve counter on submit', () => {
     const loggedOut = await submit(VALID_GRID)
 
     expect((await rejected.json()).ok).toBe(false)
-    expect(loggedOut.status).toBe(400)
+    expect(loggedOut.status).toBe(401)
     expect(fakeRedis.hIncrBy).not.toHaveBeenCalled()
     expect(fakeRedis.__hashStore.get(HOURLY_KEY)).toBeUndefined()
   })

@@ -78,6 +78,19 @@ const createRedisFake = () => {
       hashStore.set(key, { ...(hashStore.get(key) ?? {}), ...value })
       return Promise.resolve()
     }),
+    hSetNX: vi.fn((key: string, field: string, value: string) => {
+      const hash = hashStore.get(key) ?? {}
+      if (field in hash) return Promise.resolve(0)
+      hashStore.set(key, { ...hash, [field]: value })
+      return Promise.resolve(1)
+    }),
+    hDel: vi.fn((key: string, fields: string[]) => {
+      const hash = { ...(hashStore.get(key) ?? {}) }
+      const removed = fields.filter((field) => field in hash)
+      for (const field of removed) delete hash[field]
+      hashStore.set(key, hash)
+      return Promise.resolve(removed.length)
+    }),
     hGet: vi.fn((key: string, field: string) =>
       Promise.resolve(hashStore.get(key)?.[field] ?? null)
     ),
