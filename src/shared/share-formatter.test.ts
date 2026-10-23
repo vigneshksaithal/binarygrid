@@ -3,10 +3,18 @@ import * as fc from 'fast-check'
 import type { Difficulty, Grid } from './types/puzzle'
 import {
     formatGridAsText,
+    formatScoreShareText,
     formatShareText,
     formatTime,
+    getShareMode,
+    type ScoreShareRequest,
+    type ShareTemplateId,
     type ShareTextInput,
 } from './share-formatter'
+
+// Any install other than r/binarygrid: the footer must name the install's own subreddit
+const SUBREDDIT = 'logicpuzzles'
+const subredditArbitrary = fc.stringMatching(/^[A-Za-z0-9][A-Za-z0-9_]{2,20}$/)
 
 describe('formatTime', () => {
     it('formats 0 seconds as 00:00', () => {
@@ -94,12 +102,21 @@ describe('formatShareText', () => {
             dayNumber: 47,
             completionTime: 154,
             difficulty: 'medium',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
 
         expect(result.text).toContain('Binary Grid #47 🧩')
         expect(result.text).toContain('⏱️ 02:34 | 🎯 Medium')
-        expect(result.text).toContain('Play at r/binarygrid')
+        expect(result.text).toContain(`Play at r/${SUBREDDIT}`)
+    })
+
+    it('names the subreddit the game is installed in', () => {
+        const base = { grid: sampleGrid, dayNumber: 3, completionTime: 9, difficulty: 'easy' } as const
+
+        expect(formatShareText({ ...base, subredditName: 'binarygrid' }).text).toContain('Play at r/binarygrid')
+        expect(formatShareText({ ...base, subredditName: 'puzzles' }).text).toContain('Play at r/puzzles')
+        expect(formatShareText({ ...base, subredditName: 'puzzles' }).text).not.toContain('r/binarygrid')
     })
 
     it('includes grid text in output', () => {
@@ -108,6 +125,7 @@ describe('formatShareText', () => {
             dayNumber: 1,
             completionTime: 0,
             difficulty: 'easy',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
 
@@ -121,6 +139,7 @@ describe('formatShareText', () => {
             dayNumber: 1,
             completionTime: 60,
             difficulty: 'easy',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
 
@@ -133,6 +152,7 @@ describe('formatShareText', () => {
             dayNumber: 100,
             completionTime: 300,
             difficulty: 'hard',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
 
@@ -145,6 +165,7 @@ describe('formatShareText', () => {
             dayNumber: 1,
             completionTime: 0,
             difficulty: 'easy',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
 
@@ -157,6 +178,7 @@ describe('formatShareText', () => {
             dayNumber: 999,
             completionTime: 0,
             difficulty: 'easy',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
 
@@ -169,6 +191,7 @@ describe('formatShareText', () => {
             dayNumber: 47,
             completionTime: 154,
             difficulty: 'medium',
+            subredditName: SUBREDDIT,
         }
         const result = formatShareText(input)
         const lines = result.text.split('\n')
@@ -179,7 +202,7 @@ describe('formatShareText', () => {
         expect(lines[1]).toBe('⏱️ 02:34 | 🎯 Medium')
         expect(lines[2]).toBe('')
         expect(lines[9]).toBe('')
-        expect(lines[10]).toBe('Play at r/binarygrid')
+        expect(lines[10]).toBe(`Play at r/${SUBREDDIT}`)
     })
 })
 
@@ -333,6 +356,7 @@ describe('Property-Based Tests: Day number format validation', () => {
                     dayNumber,
                     completionTime: 0,
                     difficulty: 'easy',
+                    subredditName: SUBREDDIT,
                 }
                 const result = formatShareText(input)
                 const lines = result.text.split('\n')
@@ -360,6 +384,7 @@ describe('Property-Based Tests: Day number format validation', () => {
                     dayNumber,
                     completionTime: 0,
                     difficulty: 'easy',
+                    subredditName: SUBREDDIT,
                 }
                 const result = formatShareText(input)
 
@@ -384,6 +409,7 @@ describe('Property-Based Tests: Day number format validation', () => {
                     dayNumber,
                     completionTime: 0,
                     difficulty: 'easy',
+                    subredditName: SUBREDDIT,
                 }
                 const result = formatShareText(input)
                 const header = result.text.split('\n')[0]
@@ -546,6 +572,7 @@ describe('Property-Based Tests: Share text completeness', () => {
         dayNumber: dayNumberArbitrary,
         completionTime: completionTimeArbitrary,
         difficulty: difficultyArbitrary,
+        subredditName: subredditArbitrary,
     })
 
     it('Property 1: Share text contains all required sections - contains day number header', () => {
@@ -620,13 +647,13 @@ describe('Property-Based Tests: Share text completeness', () => {
          * **Validates: Requirements 1.1, 2.3**
          *
          * For any valid completed puzzle state, the formatted share text
-         * SHALL contain the play link "Play at r/binarygrid".
+         * SHALL contain the play link "Play at r/{subredditName}" for the install's subreddit.
          */
         fc.assert(
             fc.property(shareTextInputArbitrary, (input) => {
                 const result = formatShareText(input)
 
-                expect(result.text).toContain('Play at r/binarygrid')
+                expect(result.text).toContain(`Play at r/${input.subredditName}`)
             }),
             { numRuns: 100 }
         )
@@ -679,7 +706,7 @@ describe('Property-Based Tests: Share text completeness', () => {
                 expect(lines[9]).toBe('')
 
                 // Line 11: Footer
-                expect(lines[10]).toBe('Play at r/binarygrid')
+                expect(lines[10]).toBe(`Play at r/${input.subredditName}`)
             }),
             { numRuns: 100 }
         )
@@ -709,7 +736,7 @@ describe('Property-Based Tests: Share text completeness', () => {
                 const formattedTime = formatTime(input.completionTime)
                 const hasTimeLine = result.text.includes(`⏱️ ${formattedTime} | 🎯 ${difficultyLabels[input.difficulty]}`)
                 const hasGrid = result.text.includes(formatGridAsText(input.grid))
-                const hasPlayLink = result.text.includes('Play at r/binarygrid')
+                const hasPlayLink = result.text.includes(`Play at r/${input.subredditName}`)
 
                 expect(hasHeader).toBe(true)
                 expect(hasTimeLine).toBe(true)
@@ -718,5 +745,92 @@ describe('Property-Based Tests: Share text completeness', () => {
             }),
             { numRuns: 100 }
         )
+    })
+})
+
+describe('formatScoreShareText', () => {
+    const request: ScoreShareRequest = {
+        dayNumber: 128,
+        solveTimeSeconds: 134,
+        difficulty: 'medium',
+    }
+
+    it('writes one plain line with the puzzle number, time and difficulty', () => {
+        expect(formatScoreShareText(request)).toBe('Solved Binary Grid #128 in 02:14 | Medium')
+    })
+
+    it('adds the streak once it reaches two days', () => {
+        expect(formatScoreShareText({ ...request, streak: 1 })).toBe(
+            'Solved Binary Grid #128 in 02:14 | Medium'
+        )
+        expect(formatScoreShareText({ ...request, streak: 5 })).toBe(
+            'Solved Binary Grid #128 in 02:14 | Medium | 5-day streak'
+        )
+    })
+
+    it('folds a streak milestone into the same line', () => {
+        expect(formatScoreShareText({ ...request, streak: 30 })).toBe(
+            'Solved Binary Grid #128 in 02:14 | Medium | 30-day streak milestone'
+        )
+    })
+
+    it('adds the board rank when one is given', () => {
+        expect(formatScoreShareText({ ...request, streak: 5, rank: 3 })).toBe(
+            'Solved Binary Grid #128 in 02:14 | Medium | 5-day streak | rank #3'
+        )
+    })
+
+    it('puts the template line in its own paragraph', () => {
+        expect(formatScoreShareText({ ...request, streak: 5, templateId: 'beat_time' })).toBe(
+            'Solved Binary Grid #128 in 02:14 | Medium | 5-day streak\n\nBeat my time: 02:14.'
+        )
+    })
+
+    it("uses the player's own words instead of the template line", () => {
+        const text = formatScoreShareText({
+            ...request,
+            templateId: 'beat_time',
+            customText: '  Loved the corner trick.  ',
+        })
+
+        expect(text).toBe('Solved Binary Grid #128 in 02:14 | Medium\n\nLoved the corner trick.')
+    })
+
+    it('keeps the template line when the own words are blank', () => {
+        expect(formatScoreShareText({ ...request, templateId: 'beat_time', customText: '   ' })).toBe(
+            'Solved Binary Grid #128 in 02:14 | Medium\n\nBeat my time: 02:14.'
+        )
+    })
+
+    it('never spoils the grid or names a solve label', () => {
+        // Solve labels stay out of shared text until the Clean label can be earned (task 3)
+        const requestArbitrary = fc.record({
+            dayNumber: fc.integer({ min: 1, max: 999999 }),
+            solveTimeSeconds: fc.integer({ min: 0, max: 5999 }),
+            difficulty: fc.constantFrom<Difficulty>('easy', 'medium', 'hard'),
+            streak: fc.integer({ min: 0, max: 400 }),
+            templateId: fc.constantFrom<ShareTemplateId>('beat_time', 'pure_logic', 'streak_save'),
+        })
+
+        fc.assert(
+            fc.property(requestArbitrary, (generated) => {
+                const text = formatScoreShareText(generated)
+
+                expect(text).not.toMatch(/[⬜🟩⬛]/u)
+                expect(text).not.toMatch(/Clean|Sharp|Comeback|Assisted/)
+            }),
+            { numRuns: 100 }
+        )
+    })
+})
+
+describe('getShareMode', () => {
+    it("replies in the score thread without the player's own words", () => {
+        expect(getShareMode({})).toBe('scoreThread')
+        expect(getShareMode({ customText: '   ' })).toBe('scoreThread')
+    })
+
+    it('posts top-level when the player adds their own words', () => {
+        expect(getShareMode({ customText: 'Fun one' })).toBe('customTopLevel')
     })
 })

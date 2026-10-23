@@ -15,10 +15,17 @@ import type { Difficulty, Grid } from '../shared/types/puzzle'
 // Mock the @devvit/web/server module
 vi.mock('@devvit/web/server', () => {
     const redisStore = new Map<string, string>()
+    // Score shares reply under the post's stored score thread, so this post has one.
+    // It is answered here rather than stored so the share-key counts below stay exact.
+    const scoreThreadKey = 'post:test_post_123:scoreThreadCommentId'
 
     return {
         redis: {
-            get: vi.fn((key: string) => Promise.resolve(redisStore.get(key) ?? null)),
+            get: vi.fn((key: string) =>
+                Promise.resolve(
+                    key === scoreThreadKey ? 't1_score_thread' : (redisStore.get(key) ?? null)
+                )
+            ),
             set: vi.fn((key: string, value: string) => {
                 redisStore.set(key, value)
                 return Promise.resolve()

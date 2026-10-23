@@ -1,20 +1,19 @@
 /**
  * Share state management for Binary Grid puzzle results.
- * Handles clipboard copying and Reddit sharing functionality.
+ * Handles clipboard copying and the score comment on Reddit.
  */
 
-import { writable, get } from 'svelte/store'
+import { writable } from 'svelte/store'
+import {
+    formatShareText,
+    SHARE_LOGIN_REQUIRED_ERROR,
+    type ScoreShareRequest,
+    type ShareMode,
+    type ShareTemplateId,
+    type ShareTextInput,
+} from '../../shared/share-formatter'
+import type { Difficulty } from '../../shared/types/puzzle'
 import { copyToClipboard } from '../services/clipboard'
-import { formatShareText, type ShareTextInput } from '../../shared/share-formatter'
-import type { SolveQuality } from '../../shared/growth'
-import type { Grid } from '../../shared/types/puzzle'
-import { streakStore } from './streak'
-
-export const STREAK_MILESTONES = [7, 14, 30, 50, 100] as const
-export type StreakMilestone = typeof STREAK_MILESTONES[number]
-
-export const isStreakMilestone = (n: number): n is StreakMilestone =>
-  (STREAK_MILESTONES as readonly number[]).includes(n)
 
 /**
  * Share state interface for tracking copy and share operations.
@@ -28,31 +27,21 @@ export interface ShareState {
 }
 
 /**
- * Request payload for sharing results as a Reddit comment.
+ * What the result screen knows when the player opens the score preview.
  */
-export interface ShareCommentRequest {
-    solveTimeSeconds: number
-    difficulty: string
+export type ScoreShareDraft = {
     dayNumber: number
-    solveQuality?: SolveQuality | undefined
-    rank?: number | null | undefined
-    streak?: number
-    templateId?: string
+    solveTimeSeconds: number
+    difficulty: Difficulty
+    streak: number
+    customText: string
 }
 
-/**
- * Request payload for posting a replay to r/binarygrid.
- */
-export interface ReplayPostRequest {
-    grid: Grid
-    dayNumber: number
-    solveTimeSeconds: number
-    difficulty: string
-    solveQuality?: SolveQuality | undefined
-    rank?: number | null | undefined
-    streak?: number | undefined
-    fasterThanPercentile?: number | undefined
-}
+// Today's template line under a generic score
+const DEFAULT_SHARE_TEMPLATE: ShareTemplateId = 'beat_time'
+
+export const SHARE_FAILED_MESSAGE = "Couldn't post your comment."
+export const SHARE_LOGIN_MESSAGE = 'Log in to Reddit to comment your score.'
 
 const initialState: ShareState = {
     isCopying: false,
@@ -98,14 +87,47 @@ export const copyResults = async (input: ShareTextInput): Promise<boolean> => {
 }
 
 /**
- * Shares puzzle results as a Reddit comment.
- * Placeholder implementation - API call will be implemented in Task 8.
+ * Builds the request the preview shows and Post sends.
+ */
+export const buildScoreShareRequest = (draft: ScoreShareDraft): ScoreShareRequest => ({
+    ...draft,
+    templateId: DEFAULT_SHARE_TEMPLATE,
+})
+
+/**
+ * Tells the player where the comment goes and which account posts it.
+ */
+export const describeShareDestination = (mode: ShareMode, username: string | undefined): string => {
+    const account = username ? `as u/${username}` : 'from your account'
+    return mode === 'scoreThread'
+        ? `Reply in today's score thread ${account}`
+        : `Comment on this post ${account}`
+}
+
+const readShareError = async (res: Response): Promise<string> => {
+    const data: unknown = await res.json().catch(() => null)
+    const isLoginRequired =
+        typeof data === 'object' && data !== null && 'error' in data && data.error === SHARE_LOGIN_REQUIRED_ERROR
+    return isLoginRequired ? SHARE_LOGIN_MESSAGE : SHARE_FAILED_MESSAGE
+}
+
+const finishSharing = (shareError: string | null): void => {
+    shareState.update((s) => ({
+        ...s,
+        isSharing: false,
+        shareSuccess: shareError === null,
+        shareError,
+    }))
+}
+
+/**
+ * Posts the score comment the player previewed. The request goes out unchanged,
+ * so the server formats the same text the preview showed.
  *
- * @param request - Share comment request with solve time, difficulty, and day number
+ * @param request - The previewed score share
  * @returns Promise resolving to success status
  */
-export const shareToReddit = async (request: ShareCommentRequest): Promise<boolean> => {
-    // Set sharing state
+export const shareToReddit = async (request: ScoreShareRequest): Promise<boolean> => {
     shareState.update((s) => ({
         ...s,
         isSharing: true,
@@ -114,56 +136,16 @@ export const shareToReddit = async (request: ShareCommentRequest): Promise<boole
     }))
 
     try {
-        // Get current streak from store
-        const streakData = get(streakStore)
-        const streak = streakData.data.currentStreak
-
-        // Include streak in request if >= 2
-        const requestBody = {
-            ...request,
-            mode: 'scoreThread',
-            templateId: request.templateId ?? 'beat_time',
-            ...(streak >= 2 ? { streak } : {}),
-        }
-
         const res = await fetch('/api/share-score', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify(requestBody),
+            body: JSON.stringify(request),
         })
-
-        if (!res.ok) {
-            const data = await res.json().catch(() => ({}))
-            const errorMessage = data.error || `Failed to share: HTTP ${res.status}`
-            shareState.update((s) => ({
-                ...s,
-                isSharing: false,
-                shareSuccess: false,
-                shareError: errorMessage,
-            }))
-            return false
-        }
-
-        // Success
-        shareState.update((s) => ({
-            ...s,
-            isSharing: false,
-            shareSuccess: true,
-            shareError: null,
-        }))
-        return true
-    } catch (err) {
-        // Network or unexpected error
-        const errorMessage = err instanceof Error
-            ? err.message
-            : 'An unexpected error occurred while sharing'
-
-        shareState.update((s) => ({
-            ...s,
-            isSharing: false,
-            shareSuccess: false,
-            shareError: errorMessage,
-        }))
+        const shareError = res.ok ? null : await readShareError(res)
+        finishSharing(shareError)
+        return shareError === null
+    } catch {
+        finishSharing(SHARE_FAILED_MESSAGE)
         return false
     }
 }
@@ -199,54 +181,4 @@ export const resetShareState = () => {
  */
 export const resetAllShareState = () => {
     shareState.set(initialState)
-}
-
-/**
- * Posts the player's completed grid as a new replay post to r/binarygrid.
- * This fixes the closed-loop share problem — result appears in the subreddit feed.
- */
-export const postReplay = async (request: ReplayPostRequest): Promise<boolean> => {
-    shareState.update((s) => ({ ...s, isSharing: true, shareSuccess: null, shareError: null }))
-
-    try {
-        const res = await fetch('/api/post-replay', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({
-                ...request,
-                rank: request.rank ?? undefined,
-            }),
-        })
-
-        if (!res.ok) {
-            const data = await res.json().catch(() => ({}))
-            const errorMessage = (data as { error?: string }).error || `HTTP ${res.status}`
-            shareState.update((s) => ({ ...s, isSharing: false, shareSuccess: false, shareError: errorMessage }))
-            return false
-        }
-
-        shareState.update((s) => ({ ...s, isSharing: false, shareSuccess: true, shareError: null }))
-        return true
-    } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Unexpected error'
-        shareState.update((s) => ({ ...s, isSharing: false, shareSuccess: false, shareError: errorMessage }))
-        return false
-    }
-}
-
-/**
- * Posts an opt-in streak confession at milestone streaks (7, 14, 30, 50, 100).
- * Self-aware, Reddit-native copy — not marketing, just a human moment.
- */
-export const postStreakConfession = async (streak: number): Promise<boolean> => {
-    try {
-        const res = await fetch('/api/streak-confession', {
-            method: 'POST',
-            headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ streak }),
-        })
-        return res.ok
-    } catch {
-        return false
-    }
 }

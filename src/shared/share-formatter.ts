@@ -1,5 +1,4 @@
 import type { Difficulty, Grid } from './types/puzzle'
-import { SOLVE_QUALITY_LABELS, type SolveQuality } from './growth'
 import { formatTime as formatTimeString } from './utils/format'
 
 export interface ShareTextInput {
@@ -7,6 +6,7 @@ export interface ShareTextInput {
     dayNumber: number
     completionTime: number
     difficulty: Difficulty
+    subredditName: string
 }
 
 export interface ShareTextOutput {
@@ -42,12 +42,12 @@ export const formatGridAsText = (grid: Grid): string => {
 export const formatTime = formatTimeString
 
 export const formatShareText = (input: ShareTextInput): ShareTextOutput => {
-    const { grid, dayNumber, completionTime, difficulty } = input
+    const { grid, dayNumber, completionTime, difficulty, subredditName } = input
 
     const header = `Binary Grid #${dayNumber} 🧩`
     const timeLine = `⏱️ ${formatTime(completionTime)} | 🎯 ${DIFFICULTY_LABELS[difficulty]}`
     const gridText = formatGridAsText(grid)
-    const footer = 'Play at r/binarygrid'
+    const footer = `Play at r/${subredditName}`
 
     const text = [header, timeLine, '', gridText, '', footer].join('\n')
 
@@ -64,13 +64,6 @@ export interface SimpleShareInput {
     streak?: number | undefined
 }
 
-export interface ScoreShareInput extends SimpleShareInput {
-    solveQuality?: SolveQuality | undefined
-    rank?: number | undefined
-    templateId?: string | undefined
-    customText?: string | undefined
-}
-
 export const formatSimpleShareText = (input: SimpleShareInput): string => {
     const { dayNumber, completionTime, difficulty } = input
     let text = `Binary Grid #${dayNumber} 🧩 ⏱️ ${formatTime(completionTime)} | 🎯 ${DIFFICULTY_LABELS[difficulty]}`
@@ -82,151 +75,81 @@ export const formatSimpleShareText = (input: SimpleShareInput): string => {
     return text
 }
 
-const SHARE_TEMPLATES: Record<string, (time: string) => string> = {
+// ── Score comment ───────────────────────────────────────────────────────────
+
+/** Streak lengths the score comment calls out as milestones. */
+export const STREAK_MILESTONES = [7, 14, 30, 50, 100] as const
+
+const MIN_SHARED_STREAK = 2
+
+/** Longest "own words" a player can add to a score comment. */
+export const MAX_OWN_WORDS_LENGTH = 280
+
+/** Error the share route returns for a logged-out player. */
+export const SHARE_LOGIN_REQUIRED_ERROR = 'login required'
+
+export const SHARE_TEMPLATE_IDS = ['beat_time', 'pure_logic', 'streak_save'] as const
+
+export type ShareTemplateId = (typeof SHARE_TEMPLATE_IDS)[number]
+
+const SHARE_TEMPLATES: Record<ShareTemplateId, (time: string) => string> = {
     beat_time: (time) => `Beat my time: ${time}.`,
     pure_logic: () => 'No guesses. Pure logic.',
     streak_save: () => 'Saved my streak by one cell.',
 }
 
-export const formatScoreShareText = (input: ScoreShareInput): string => {
-    const time = formatTime(input.completionTime)
-    const parts = [
-        `Solved Binary Grid #${input.dayNumber} in ${time}`,
-        DIFFICULTY_LABELS[input.difficulty],
-    ]
+/** A generic score replies in the score thread; a comment with the player's own words goes top-level. */
+export type ShareMode = 'scoreThread' | 'customTopLevel'
 
-    if (input.solveQuality) {
-        parts.push(SOLVE_QUALITY_LABELS[input.solveQuality])
-    }
-    if (input.streak !== undefined && input.streak >= 2) {
-        parts.push(`${input.streak}-day streak`)
-    }
-    if (input.rank !== undefined && input.rank >= 1) {
-        parts.push(`rank #${input.rank}`)
-    }
-
-    const baseText = parts.join(' | ')
-    const templateText = input.templateId
-        ? SHARE_TEMPLATES[input.templateId]?.(time)
-        : undefined
-    const customText = input.customText?.trim()
-
-    return [baseText, customText || templateText].filter(Boolean).join('\n')
-}
-
-// ── Replay post (new post to r/binarygrid) ──────────────────────────────────
-
-export interface ReplayPostInput {
-    grid: Grid
+/** The score share the client previews and sends, and the server formats and posts. */
+export type ScoreShareRequest = {
     dayNumber: number
-    completionTime: number
+    solveTimeSeconds: number
     difficulty: Difficulty
-    solveQuality?: SolveQuality | undefined
-    streak?: number | undefined
-    rank?: number | undefined
-    fasterThanPercentile?: number | undefined
+    streak?: number
+    rank?: number
+    templateId?: ShareTemplateId
+    customText?: string
 }
 
-/**
- * Formats the full body text for a standalone replay post submitted to r/binarygrid.
- * This is the "fix" for the closed-loop share problem: instead of commenting on the
- * game post itself, this content becomes a new post so it reaches the subreddit feed.
- */
-export const formatReplayPostText = (input: ReplayPostInput): string => {
-    const time = formatTime(input.completionTime)
-    const diffLabel = DIFFICULTY_LABELS[input.difficulty]
-    const gridText = formatGridAsText(input.grid)
+export const isShareTemplateId = (value: unknown): value is ShareTemplateId =>
+    typeof value === 'string' && (SHARE_TEMPLATE_IDS as readonly string[]).includes(value)
 
-    const lines: string[] = [
-        `**Binary Grid #${input.dayNumber}** — ${diffLabel}`,
-        `⏱️ ${time}`,
+const isStreakMilestone = (streak: number): boolean =>
+    (STREAK_MILESTONES as readonly number[]).includes(streak)
+
+const formatStreak = (streak: number | undefined): string | undefined => {
+    if (streak === undefined || streak < MIN_SHARED_STREAK) return undefined
+    const milestone = isStreakMilestone(streak) ? ' milestone' : ''
+    return `${streak}-day streak${milestone}`
+}
+
+const formatRank = (rank: number | undefined): string | undefined =>
+    rank !== undefined && rank >= 1 ? `rank #${rank}` : undefined
+
+const formatScoreLine = (request: ScoreShareRequest, time: string): string =>
+    [
+        `Solved Binary Grid #${request.dayNumber} in ${time}`,
+        DIFFICULTY_LABELS[request.difficulty],
+        formatStreak(request.streak),
+        formatRank(request.rank),
     ]
-
-    if (input.solveQuality) {
-        lines.push(`✨ ${SOLVE_QUALITY_LABELS[input.solveQuality]}`)
-    }
-    if (input.fasterThanPercentile !== undefined && input.fasterThanPercentile > 0) {
-        lines.push(`⚡ Faster than ${input.fasterThanPercentile}% of players today`)
-    }
-    if (input.rank !== undefined && input.rank >= 1) {
-        lines.push(`🏆 Rank #${input.rank}`)
-    }
-    if (input.streak !== undefined && input.streak >= 2) {
-        lines.push(`🔥 ${input.streak}-day streak`)
-    }
-
-    lines.push('', gridText, '', '**Can you beat my time?** 👇')
-
-    return lines.join('\n')
-}
+        .filter(Boolean)
+        .join(' | ')
 
 /**
- * Formats the title for a standalone replay post.
+ * Formats a score comment: one plain line, then the player's own words or the
+ * template line. No grid, and no solve label until the Clean label can be earned (task 3).
+ * The client previews this text and the server posts it, so the two cannot drift.
  */
-export const formatReplayPostTitle = (input: Pick<ReplayPostInput, 'dayNumber' | 'completionTime' | 'difficulty'>): string => {
-    const time = formatTime(input.completionTime)
-    const diffLabel = DIFFICULTY_LABELS[input.difficulty]
-    return `Binary Grid #${input.dayNumber} — ${diffLabel} in ${time}`
+export const formatScoreShareText = (request: ScoreShareRequest): string => {
+    const time = formatTime(request.solveTimeSeconds)
+    const ownWords = request.customText?.trim()
+    const templateLine = request.templateId ? SHARE_TEMPLATES[request.templateId](time) : undefined
+
+    // A blank line makes Reddit show the second line as its own paragraph, as the preview does
+    return [formatScoreLine(request, time), ownWords || templateLine].filter(Boolean).join('\n\n')
 }
 
-// ── Streak Confession post ──────────────────────────────────────────────────
-
-export interface StreakConfessionInput {
-    streak: number
-    username: string
-}
-
-const STREAK_CONFESSION_COPY: Record<number, { body: string; emoji: string }> = {
-    7: {
-        emoji: '🔥',
-        body: "One week in. Started this to kill time. Still here.",
-    },
-    14: {
-        emoji: '🔥🔥',
-        body: "Two weeks. I've started optimising my morning routine around a binary puzzle. This is fine.",
-    },
-    30: {
-        emoji: '🔥🔥🔥',
-        body: "30 days. I don't know how I got here. I think I have a problem.",
-    },
-    50: {
-        emoji: '👑',
-        body: "50 days. My streak has outlasted multiple gym memberships.",
-    },
-    100: {
-        emoji: '💎',
-        body: "100 days. At this point the game is load-bearing in my daily routine.",
-    },
-}
-
-const DEFAULT_STREAK_COPY = (streak: number) => ({
-    emoji: '🔥',
-    body: `${streak} consecutive days of Binary Grid. I don't have an explanation.`,
-})
-
-/**
- * Returns the self-aware, Reddit-native body text for a streak confession post.
- * Deliberately self-deprecating — this is the Marcus Johnson school of Redditor psychology.
- */
-export const formatStreakConfessionText = (input: StreakConfessionInput): string => {
-    const copy = STREAK_CONFESSION_COPY[input.streak] ?? DEFAULT_STREAK_COPY(input.streak)
-
-    const lines = [
-        `${copy.emoji} Day ${input.streak} of Binary Grid`,
-        '',
-        copy.body,
-        '',
-        '---',
-        `*Playing at r/binarygrid — daily logic puzzle, free, no account required beyond Reddit*`,
-    ]
-
-    return lines.join('\n')
-}
-
-/**
- * Returns the title for a streak confession post.
- */
-export const formatStreakConfessionTitle = (streak: number): string => {
-    const copy = STREAK_CONFESSION_COPY[streak] ?? DEFAULT_STREAK_COPY(streak)
-    return `${copy.emoji} Day ${streak} of Binary Grid. I think I have a problem.`
-}
+export const getShareMode = (request: Pick<ScoreShareRequest, 'customText'>): ShareMode =>
+    request.customText?.trim() ? 'customTopLevel' : 'scoreThread'

@@ -8,6 +8,7 @@ import {
   hasTripleRun,
   isComplete,
   normalizeScoringVersion,
+  parseScoreShareRequest,
   validateGrid
 } from './validator'
 
@@ -222,5 +223,67 @@ describe('findErrorCells', () => {
 
   it('marks nothing on a grid that breaks no rule', () => {
     expect(findErrorCells(empty()).size).toBe(0)
+  })
+})
+
+describe('parseScoreShareRequest', () => {
+  const valid = { dayNumber: 128, solveTimeSeconds: 134, difficulty: 'medium' }
+
+  it('accepts a generic score', () => {
+    expect(parseScoreShareRequest(valid)).toEqual(valid)
+  })
+
+  it('keeps the streak, rank, template and own words', () => {
+    const full = { ...valid, streak: 5, rank: 2, templateId: 'beat_time', customText: 'Fun one' }
+
+    expect(parseScoreShareRequest(full)).toEqual(full)
+  })
+
+  it('drops fields the share text never uses', () => {
+    const parsed = parseScoreShareRequest({
+      ...valid,
+      mode: 'customTopLevel',
+      solveQuality: 'clean',
+      grid: [[0, 1]],
+    })
+
+    expect(parsed).not.toHaveProperty('mode')
+    expect(parsed).not.toHaveProperty('solveQuality')
+    expect(parsed).not.toHaveProperty('grid')
+  })
+
+  it.each([
+    ['a missing body', null],
+    ['a body that is not an object', 'score'],
+    ['a missing puzzle number', { ...valid, dayNumber: undefined }],
+    ['puzzle number zero', { ...valid, dayNumber: 0 }],
+    ['a fractional puzzle number', { ...valid, dayNumber: 1.5 }],
+    ['a negative time', { ...valid, solveTimeSeconds: -1 }],
+    ['a fractional time', { ...valid, solveTimeSeconds: 92.5 }],
+    ['a time sent as text', { ...valid, solveTimeSeconds: '92' }],
+    ['an unknown difficulty', { ...valid, difficulty: 'extreme' }],
+    ['a negative streak', { ...valid, streak: -1 }],
+    ['rank zero', { ...valid, rank: 0 }],
+    ['an unknown template', { ...valid, templateId: 'humble_brag' }],
+    ['own words that are not text', { ...valid, customText: 42 }],
+    ['own words over 280 characters', { ...valid, customText: 'a'.repeat(281) }],
+  ])('rejects %s', (_label, payload) => {
+    expect(parseScoreShareRequest(payload)).toBeNull()
+  })
+
+  it('accepts own words up to 280 characters', () => {
+    expect(parseScoreShareRequest({ ...valid, customText: 'a'.repeat(280) })).not.toBeNull()
+  })
+
+  it('reads back the same request after the client sends it as JSON', () => {
+    // The client previews the parsed request and posts it; the server must format the same request
+    const parsed = parseScoreShareRequest({
+      ...valid,
+      streak: 5,
+      templateId: 'beat_time',
+      customText: ' Fun one ',
+    })
+
+    expect(parseScoreShareRequest(JSON.parse(JSON.stringify(parsed)))).toEqual(parsed)
   })
 })

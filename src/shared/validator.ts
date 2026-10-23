@@ -1,11 +1,16 @@
-import { LEGACY_SCORING_VERSION, SCORING_VERSION } from './growth'
+import { DAILY_DIFFICULTIES, LEGACY_SCORING_VERSION, SCORING_VERSION } from './growth'
 import {
   EXACT_ONES_PER_LINE,
   EXACT_ZEROS_PER_LINE,
   MAX_CONSECUTIVE_RUN,
   SIZE
 } from './rules'
-import type { Cell, FixedCell, Grid, ValidationResult } from './types/puzzle'
+import {
+  isShareTemplateId,
+  MAX_OWN_WORDS_LENGTH,
+  type ScoreShareRequest
+} from './share-formatter'
+import type { Cell, Difficulty, FixedCell, Grid, ValidationResult } from './types/puzzle'
 
 const TRIPLE_RUN_LENGTH = 3
 
@@ -340,3 +345,50 @@ const ATTEMPT_ID_PATTERN = /^[A-Za-z0-9-]{8,64}$/
  */
 export const isValidAttemptId = (value: unknown): value is string =>
   typeof value === 'string' && ATTEMPT_ID_PATTERN.test(value)
+
+// ── Score share payload ─────────────────────────────────────────────────────
+
+const isCount = (value: unknown): value is number =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0
+
+const isPositiveCount = (value: unknown): value is number =>
+  isCount(value) && value >= 1
+
+const isDifficulty = (value: unknown): value is Difficulty =>
+  typeof value === 'string' && (DAILY_DIFFICULTIES as readonly string[]).includes(value)
+
+const isOwnWords = (value: unknown): value is string =>
+  typeof value === 'string' && value.length <= MAX_OWN_WORDS_LENGTH
+
+const isOptional = <T>(value: unknown, isValid: (candidate: unknown) => candidate is T): value is T | undefined =>
+  value === undefined || isValid(value)
+
+/**
+ * Validates a score share from the client. Keeps only the fields the share text
+ * uses, so the server formats exactly the request the player previewed.
+ * Over-long own words are rejected rather than cut, which would change the text.
+ */
+export const parseScoreShareRequest = (raw: unknown): ScoreShareRequest | null => {
+  if (!raw || typeof raw !== 'object') return null
+  const { dayNumber, solveTimeSeconds, difficulty, streak, rank, templateId, customText } =
+    raw as Record<string, unknown>
+
+  if (
+    !isPositiveCount(dayNumber) ||
+    !isCount(solveTimeSeconds) ||
+    !isDifficulty(difficulty) ||
+    !isOptional(streak, isCount) ||
+    !isOptional(rank, isPositiveCount) ||
+    !isOptional(templateId, isShareTemplateId) ||
+    !isOptional(customText, isOwnWords)
+  ) {
+    return null
+  }
+
+  const request: ScoreShareRequest = { dayNumber, solveTimeSeconds, difficulty }
+  if (streak !== undefined) request.streak = streak
+  if (rank !== undefined) request.rank = rank
+  if (templateId !== undefined) request.templateId = templateId
+  if (customText !== undefined) request.customText = customText
+  return request
+}

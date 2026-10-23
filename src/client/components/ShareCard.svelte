@@ -7,11 +7,13 @@
 		dayNumber,
 		completionTime,
 		difficulty,
+		subredditName,
 	}: {
 		grid: Grid
 		dayNumber: number
 		completionTime: number
 		difficulty: Difficulty
+		subredditName: string
 	} = $props()
 
 	/**
@@ -84,6 +86,6 @@
 
 	<!-- Footer with play link -->
 	<div class="text-center mt-4">
-		<p class="text-xs text-zinc-500 dark:text-zinc-400">Play at r/binarygrid</p>
+		<p class="text-xs text-zinc-500 dark:text-zinc-400">Play at r/{subredditName}</p>
 	</div>
 </div>
