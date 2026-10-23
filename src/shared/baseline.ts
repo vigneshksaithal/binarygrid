@@ -86,7 +86,10 @@ const FUNNEL_ORDER = [
 // Daily post titles across versions of src/server/core/post.ts:
 // "Binary Grid: 2026-10-21 (Morning)" since 2026-03-29, "Binary Grid: 2026-02-01"
 // for the single daily post before that, and "Binary Grid - 2025-10-20" earlier.
+// Later posts are titled "Binary Grid #128" and found by their stamp instead.
 const DAILY_POST_TITLE = /^Binary Grid(?::| -) \d{4}-\d{2}-\d{2}(?: \((Morning|Evening)\))?$/
+// The dated titles named the session from the UTC hour: Morning before 14:00.
+const EVENING_FROM_HOUR = 14
 const HOUR_FIELD = /^\d{2}$/
 const COUNT_VALUE = /^\d+$/
 
@@ -360,6 +363,10 @@ export const parsePostSlot = (title: string): PostSlot | null => {
   const suffix = match[1]
   return suffix === 'Morning' || suffix === 'Evening' ? suffix : 'single'
 }
+
+/** The slot of a numbered daily post, from its UTC creation hour, by the dated titles' rule. */
+export const slotOfHour = (hour: number): PostSlot =>
+  hour < EVENING_FROM_HOUR ? 'Morning' : 'Evening'
 
 export const subFloorSeconds = (emptyCells: number): number =>
   roundToTenth(emptyCells * SUB_FLOOR_SECONDS_PER_EMPTY_CELL)

@@ -22,6 +22,7 @@ import {
   type PostSlot,
   type PostSummary,
   RECORDED_AT_FIELD,
+  slotOfHour,
   solveHourField,
   subFloorSeconds,
   sumCohortWeek,
@@ -39,6 +40,7 @@ import type { Difficulty } from '../../shared/types/puzzle'
 import { ANALYTICS_TTL_SECONDS, GROWTH_EVENT_NAMES, type GrowthEventName } from '../lib/growth'
 import { leaderboardKey } from '../routes/utils'
 import { getClueTarget } from './generator'
+import { readPostStamp } from './puzzle-number'
 
 // Nightly analytics baseline (ENGAGEMENT_TASKS.md task 1). Reads the expiring
 // daily:{date}:unique:{event} hashes, the weekly boards and the per-post boards,
@@ -69,6 +71,8 @@ type BaselineRun = {
 }
 
 type PendingPost = { id: string; date: string; slot: PostSlot; hour: number }
+
+type ListedPost = { id: string; title: string; createdAt: Date }
 
 const SECONDS_PER_DAY = 86_400
 const DAYS_PER_WEEK = 7
@@ -293,6 +297,16 @@ const requireSubredditName = (): string => {
   return subredditName
 }
 
+// Dated titles name their slot. Numbered daily posts ("Binary Grid #128") carry
+// none, so createPost's stamp marks them and the creation hour gives the slot.
+// Recaps and other posts have neither, so they stay out.
+const dailySlotOf = async (post: ListedPost): Promise<PostSlot | null> => {
+  const titleSlot = parsePostSlot(post.title)
+  if (titleSlot !== null) return titleSlot
+  const stamp = await readPostStamp(post.id)
+  return stamp ? slotOfHour(post.createdAt.getUTCHours()) : null
+}
+
 // The new-posts listing is newest first, so the scan stops at the cursor date.
 const listSettlingPosts = async (
   after: string | undefined,
@@ -307,8 +321,9 @@ const listSettlingPosts = async (
   for await (const post of listing) {
     const date = toISODate(post.createdAt)
     if (after !== undefined && date <= after) break
-    const slot = parsePostSlot(post.title)
-    if (date > through || slot === null) continue
+    if (date > through) continue
+    const slot = await dailySlotOf(post)
+    if (slot === null) continue
     posts.push({ id: post.id, date, slot, hour: post.createdAt.getUTCHours() })
   }
   return posts

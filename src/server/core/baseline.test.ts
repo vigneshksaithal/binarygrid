@@ -13,6 +13,7 @@ import {
   recordHourlySolve,
   runBaselineJob,
 } from './baseline'
+import { stampPost } from './puzzle-number'
 
 type Fake = ReturnType<typeof createDevvitServerFake>
 
@@ -363,6 +364,49 @@ describe('runBaselineJob posts', () => {
     expect(old.recorded_at).toBeUndefined()
     expect(record('metrics:daily:2026-10-14').posts_recorded).toBe('0')
     expect(record('metrics:daily:2026-10-04').posts_recorded).toBe('0')
+  })
+
+  it('records stamped "Binary Grid #N" posts with the slot from their creation hour', async () => {
+    await stampPost('t3_n1', 1, new Date('2026-10-02T08:00:01.000Z'))
+    await stampPost('t3_n2', 2, new Date('2026-10-03T20:00:01.000Z'))
+    await addBoard('leaderboard:t3_n1:easy', [['t2_p6', 45]])
+    await addBoard('leaderboard:t3_n2:hard', [
+      ['t2_p6', 200],
+      ['t2_p7', 210],
+    ])
+    fakeReddit.getNewPosts.mockImplementation(() =>
+      fakeListing([
+        post('t3_fresh', 'Binary Grid: 2026-10-20 (Morning)', '2026-10-20T08:00:01.000Z'),
+        // Not stamped by createPost, so not a daily post despite the title.
+        post('t3_lookalike', 'Binary Grid #3', '2026-10-05T08:00:02.000Z'),
+        post('t3_recap', 'Binary Grid weekly recap: 2026-W40', '2026-10-04T18:00:00.000Z'),
+        post('t3_n2', 'Binary Grid #2', '2026-10-03T20:00:02.000Z'),
+        post('t3_n1', 'Binary Grid #1', '2026-10-02T08:00:02.000Z'),
+        post('t3_e1', 'Binary Grid: 2026-10-01 (Evening)', '2026-10-01T20:00:03.000Z'),
+        post('t3_m1', 'Binary Grid: 2026-10-01 (Morning)', '2026-10-01T08:00:04.000Z'),
+      ])
+    )
+
+    await runBaselineJob(NOW)
+
+    expect(JSON.parse(record('metrics:daily:2026-10-02')['post:t3_n1'] ?? '{}')).toEqual({
+      slot: 'Morning',
+      hour: 8,
+      solvers: 1,
+      easy: 1,
+      medium: 0,
+      hard: 0,
+      subfloor: 0,
+    })
+    expect(JSON.parse(record('metrics:daily:2026-10-03')['post:t3_n2'] ?? '{}')).toMatchObject({
+      slot: 'Evening',
+      hour: 20,
+      solvers: 2,
+      hard: 2,
+    })
+    expect(record('metrics:daily:2026-10-05').posts_recorded).toBe('0')
+    expect(record('metrics:daily:2026-10-04').posts_recorded).toBe('0')
+    expect(record('metrics:daily:2026-10-01').posts_recorded).toBe('2')
   })
 
   it('records a post on the first night after it turns a week old', async () => {

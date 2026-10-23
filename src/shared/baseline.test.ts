@@ -18,6 +18,7 @@ import {
   parseSolvesByHour,
   pendingCohortFields,
   pendingSolverWeekFields,
+  slotOfHour,
   solveHourField,
   subFloorSeconds,
   sumCohortWeek,
@@ -485,6 +486,19 @@ describe('post boards', () => {
   it('ignores posts that are not daily puzzles', () => {
     expect(parsePostSlot('Binary Grid weekly recap: 2026-W42')).toBeNull()
     expect(parsePostSlot('What is your best time?')).toBeNull()
+  })
+
+  it('leaves numbered titles to the stamp, since they carry no slot', () => {
+    expect(parsePostSlot('Binary Grid #128')).toBeNull()
+  })
+
+  it('reads the slot of a numbered post from its UTC hour, as the old titles did', () => {
+    expect(slotOfHour(0)).toBe('Morning')
+    expect(slotOfHour(8)).toBe('Morning')
+    expect(slotOfHour(13)).toBe('Morning')
+    expect(slotOfHour(14)).toBe('Evening')
+    expect(slotOfHour(20)).toBe('Evening')
+    expect(slotOfHour(23)).toBe('Evening')
   })
 
   it('sets the sub-floor time at 0.4 s per empty cell', () => {
