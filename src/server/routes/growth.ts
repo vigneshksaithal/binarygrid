@@ -6,7 +6,7 @@ import {
   isGrowthEventName,
   recordGrowthEvent,
 } from '../lib/growth'
-import { trackDau, trackFunnelEvent, trackRetentionOnOpen, trackShare } from '../lib/viral-analytics'
+import { trackFunnelEvent, trackShare } from '../lib/viral-analytics'
 import { HTTP_BAD_REQUEST, HTTP_OK, todayISO } from './utils'
 
 const app = new Hono()
@@ -37,9 +37,7 @@ app.post('/api/events', async (c) => {
     const date = todayISO()
 
     if (body.eventName === 'app_open' && userId) {
-      fireAndForget(trackRetentionOnOpen(userId))
       fireAndForget(trackFunnelEvent('open', date))
-      fireAndForget(trackDau(userId, date))
     }
 
     if (body.eventName === 'puzzle_start') {

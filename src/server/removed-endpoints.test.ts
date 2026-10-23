@@ -27,6 +27,8 @@ const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
   ['GET', '/api/user/is-moderator', undefined],
   ['GET', '/api/admin/metrics', undefined],
   ['GET', '/api/admin/metrics/export', undefined],
+  ['POST', '/api/viral/impression', { postId: 't3_post_123' }],
+  ['POST', '/api/viral/funnel', { event: 'open' }],
 ]
 
 describe('removed endpoints', () => {

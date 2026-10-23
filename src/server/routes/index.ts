@@ -8,7 +8,6 @@ import puzzleRoutes from './puzzle'
 import shareRoutes from './share'
 import submitRoutes from './submit'
 import userRoutes from './user'
-import viralAnalyticsRoutes from './viral-analytics'
 
 const app = new Hono()
 
@@ -22,7 +21,6 @@ app.route('/', leaderboardRoutes)
 app.route('/', submitRoutes)
 app.route('/', economyRoutes)
 app.route('/', growthRoutes)
-app.route('/', viralAnalyticsRoutes)
 app.route('/', baselineRoutes)
 
 export default app

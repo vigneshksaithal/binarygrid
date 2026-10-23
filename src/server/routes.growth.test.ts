@@ -47,6 +47,15 @@ describe('growth routes', () => {
     expect(redis.incrBy).toHaveBeenCalled()
   })
 
+  it('stores no user-ID index when a player opens the app', async () => {
+    await postJson('/api/events', { eventName: 'app_open' })
+    // The event route tracks in the background; let that work finish first
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    expect(await redis.hGet('viral:user-index', 't2_user_456')).toBeNull()
+    expect(await redis.get('viral:user-index:counter')).toBeNull()
+  })
+
   it('rejects unknown analytics events', async () => {
     const response = await requestJson('/api/events', {
       method: 'POST',
