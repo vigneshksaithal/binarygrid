@@ -97,6 +97,28 @@
         "label": "Show the rules line and start new players on Easy",
         "helpText": "Shows \"Binary Grid #N · r/{subreddit}\", one rules line and the ○/| legend above the grid, and opens Easy for logged-out players and players who have never solved. Off: the plain grid, on Medium for everyone. Change it only between daily puzzles.",
         "defaultValue": true
+      },
+      "streakRule": {
+        "type": "select",
+        "label": "Streak rule",
+        "helpText": "How streaks count. By puzzle: a solve counts for its #N within the streak window after it posts. By calendar day: the rule before puzzle streaks. Both are kept up to date, so switching applies on the next screen load and loses nothing.",
+        "options": [
+          {
+            "label": "By puzzle",
+            "value": "puzzle"
+          },
+          {
+            "label": "By calendar day",
+            "value": "calendar"
+          }
+        ],
+        "defaultValue": "puzzle"
+      },
+      "streakWindowHours": {
+        "type": "number",
+        "label": "Streak window (hours)",
+        "helpText": "How long after a puzzle posts a solve still counts for its streak, under the puzzle rule. 1 to 168; any other value uses 36. Changes apply to every streak on the next read.",
+        "defaultValue": 36
       }
     }
   },
