@@ -136,6 +136,40 @@ describe('daily post tasks', () => {
     expect(retried.body).toEqual({ status: 'posted', postId: 't3_post_1' })
   })
 
+  it('keeps the date for its post when storing the puzzles fails after posting', async () => {
+    fake.redis.hSet.mockRejectedValueOnce(new Error('Redis write failed'))
+
+    const failed = await runTask(MORNING_TASK, DAY_ONE_MORNING)
+    const repeat = await runTask(MORNING_TASK, DAY_ONE_MORNING)
+    useSlot('evening')
+    const evening = await runTask(EVENING_TASK, DAY_ONE_EVENING)
+
+    expect(failed).toEqual({
+      status: 500,
+      body: { status: 'error', message: 'Failed to create daily puzzle post: Redis write failed' },
+    })
+    expect(repeat.body).toEqual({ status: 'skipped', reason: 'already_posted' })
+    expect(evening.body).toEqual({ status: 'skipped', reason: 'already_posted' })
+    expect(fake.reddit.submitCustomPost).toHaveBeenCalledTimes(1)
+    // The date's record names the post, so a repair can find it.
+    expect(await fake.redis.get('puzzle:daily-post:2026-10-22')).toBe('t3_post_1')
+  })
+
+  it('keeps the date when the first write after posting fails', async () => {
+    fake.reddit.submitCustomPost.mockImplementationOnce(() => {
+      // Reddit has the post; the next Redis write fails.
+      fake.redis.set.mockRejectedValueOnce(new Error('Redis write failed'))
+      return Promise.resolve({ id: 't3_post_1' })
+    })
+
+    const failed = await runTask(MORNING_TASK, DAY_ONE_MORNING)
+    const repeat = await runTask(MORNING_TASK, DAY_ONE_MORNING)
+
+    expect(failed.status).toBe(500)
+    expect(repeat.body).toEqual({ status: 'skipped', reason: 'already_posted' })
+    expect(fake.reddit.submitCustomPost).toHaveBeenCalledTimes(1)
+  })
+
   it('posts nothing when the setting cannot be read', async () => {
     fake.settings.getAll.mockRejectedValueOnce(new Error('Could not get installation settings'))
 

@@ -38,12 +38,21 @@ export const ensureScoreThread = async (postId: string): Promise<string | null> 
 
 const dailyPostTitle = (number: number): string => `Binary Grid #${number}`
 
+/** Runs as soon as Reddit accepts a new post, before anything is stored for it. */
+type OnPostSubmitted = (postId: string) => Promise<void>
+
+const ignoreSubmittedPost: OnPostSubmitted = () => Promise.resolve()
+
 /**
  * Creates a puzzle post. Every post created on a UTC date, scheduled or from
  * the moderator menu, gets that date's #N and puzzle set; each serves the set
  * under its own post-scoped puzzle IDs, so boards stay per post.
+ * onSubmitted lets a caller record the post before a later step can fail.
  */
-export const createPost = async (now: Date = new Date()) => {
+export const createPost = async (
+  now: Date = new Date(),
+  onSubmitted: OnPostSubmitted = ignoreSubmittedPost
+) => {
   const { subredditName } = context
   if (!subredditName) {
     throw new Error('subredditName is required')
@@ -57,6 +66,7 @@ export const createPost = async (now: Date = new Date()) => {
     title: dailyPostTitle(number),
     entry: 'default'
   })
+  await onSubmitted(post.id)
   await stampPost(post.id, number, now)
 
   // The date's first post seeds the set from its own ID, as every post did before.

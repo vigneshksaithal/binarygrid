@@ -5,9 +5,10 @@ import { createPost } from './post'
 
 // Both daily tasks stay scheduled (devvit.json: 08:00 and 20:00 UTC), and the
 // dailyPostSlot setting picks the one that posts (ENGAGEMENT_TASKS.md task 5).
-// puzzle:daily-post:{date} holds each UTC date's scheduled post, first as a
-// claim and then as its post ID, so no date gets a second scheduled post, even
-// on the day a moderator switches the slot. Menu posts don't count here.
+// puzzle:daily-post:{date} holds each UTC date's scheduled post: a claim until
+// Reddit accepts the post, then its post ID. So a date never gets a second
+// scheduled post, even when a moderator switches the slot that day or a run
+// fails after posting. Menu posts don't count.
 
 export type ScheduledPostResult =
   | { status: 'posted'; postId: string }
@@ -34,14 +35,19 @@ export const createScheduledPost = async (
     return { status: 'skipped', reason: 'already_posted' }
   }
 
+  let submitted = false
   try {
-    const post = await createPost(now)
-    await redis.set(key, post.id)
+    const post = await createPost(now, async (postId) => {
+      submitted = true
+      await redis.set(key, postId)
+    })
     return { status: 'posted', postId: post.id }
   } catch (error) {
-    // Free the date so a later run can post. If the release fails, the claim
-    // stays and the date keeps at most one post.
-    await redis.del(key).catch(() => undefined)
+    // Free the date only when Reddit never got the post, so a later run can
+    // post. Once the post is up, the date keeps it even if storing its stamp
+    // or puzzles failed: another run would post a second #N. If the release
+    // fails, the claim stays and the date still keeps at most one post.
+    if (!submitted) await redis.del(key).catch(() => undefined)
     throw error
   }
 }
