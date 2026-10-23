@@ -2,7 +2,6 @@ import { context, reddit, redis } from '@devvit/web/server'
 import type { Difficulty } from '../../shared/types/puzzle'
 import { generatePuzzleForPost } from './generator'
 import { storePostPuzzle } from './post-puzzle'
-import { setActivePostAndRefreshPreview } from './preview'
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
 export const TARGET_CROSSPOST_SUBREDDIT = 'RedditGames'
@@ -65,9 +64,6 @@ export const createPost = async () => {
   } catch {
     await redis.set(`post:${post.id}:scoreThreadStickyStatus`, 'failed')
   }
-
-  // Register this as the active post and set its initial live preview
-  await setActivePostAndRefreshPreview(post.id)
 
   return post
 }

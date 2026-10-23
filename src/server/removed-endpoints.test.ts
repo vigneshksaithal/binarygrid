@@ -34,6 +34,7 @@ const callServer = async (method: Method, path: string, body?: unknown): Promise
 const REMOVED_PLATFORM_ENDPOINTS = [
   '/internal/menu/create-weekly-recap',
   '/internal/schedule/weekly-recap',
+  '/internal/schedule/refresh-preview',
 ]
 
 const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
