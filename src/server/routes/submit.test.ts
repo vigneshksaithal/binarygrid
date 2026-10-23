@@ -9,8 +9,17 @@ import { getUTCWeekId } from '../../shared/growth'
 import { solvePuzzle } from '../../shared/solver'
 import { LOGIN_REQUIRED_CODE } from '../../shared/submit'
 import { generateDailyPuzzle } from '../core/generator'
+import { stampPost } from '../core/puzzle-number'
 import { SUBMIT_CLAIM_LEASE_MS } from '../lib/submit-attempts'
 import { devvitServerFake, FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-server-fake'
+import {
+  hoursAfterPost,
+  postIdOf,
+  postNumbers,
+  readCalendarStreak,
+  saveCalendarStreak,
+  type CalendarCounters,
+} from '../test-helpers/numbered-posts'
 import app from './index'
 
 const NOON = new Date('2026-10-22T12:00:00Z')
@@ -24,9 +33,9 @@ const FORTY_EIGHT_HOURS_IN_SECONDS = 48 * 60 * 60
 const puzzle = generateDailyPuzzle(TODAY, TIER)
 const solution = solvePuzzle(puzzle.initial, puzzle.fixed)
 
-const storePostPuzzle = () =>
-  redis.hSet(`post:${FAKE_POST_ID}:puzzle:${TIER}`, {
-    id: PUZZLE_ID,
+const storePostPuzzle = (postId = FAKE_POST_ID) =>
+  redis.hSet(`post:${postId}:puzzle:${TIER}`, {
+    id: `${postId}:${TIER}`,
     size: '6',
     difficulty: TIER,
     fixed: JSON.stringify(puzzle.fixed),
@@ -239,6 +248,243 @@ describe('POST /api/submit with coins retired', () => {
     await submit(solveBody())
 
     expect(await redis.hGetAll(ECONOMY_KEY)).toEqual({})
+  })
+})
+
+type StreakResponse = Record<string, unknown>
+
+const STREAK_LOG_KEY = `user:${FAKE_USER_ID}:streak:log`
+
+const calendar = (overrides: Partial<CalendarCounters> = {}): CalendarCounters => ({
+  current: 4,
+  longest: 4,
+  lastDate: '2026-10-21',
+  freezes: 0,
+  ...overrides,
+})
+
+/** Solves the easy tier on a post, as a fresh attempt, and returns the response's streak. */
+const solveOn = async (postId: string): Promise<StreakResponse> => {
+  devvitServerFake.module.context.postId = postId
+  await storePostPuzzle(postId)
+  const response = await submit(
+    solveBody({ id: `${postId}:${TIER}`, attemptId: crypto.randomUUID() })
+  )
+  expect(response.status).toBe(200)
+  return ((await response.json()) as { streak: StreakResponse }).streak
+}
+
+const readStreak = async (): Promise<StreakResponse> =>
+  (await app.fetch(new Request('http://localhost/api/streak'))).json()
+
+const useRule = (streakRule: 'puzzle' | 'calendar') =>
+  devvitServerFake.setSettings({ streakRule: [streakRule] })
+
+describe('POST /api/submit streaks: both rules are kept up to date', () => {
+  it.each(['puzzle', 'calendar'] as const)(
+    'updates the calendar counters and board exactly as before under the %s rule',
+    async (rule) => {
+      useRule(rule)
+      await postNumbers(127, 128)
+      await saveCalendarStreak(FAKE_USER_ID, calendar())
+
+      await solveOn(postIdOf(128))
+
+      expect(await readCalendarStreak(FAKE_USER_ID)).toEqual({
+        current: '5',
+        longest: '5',
+        lastDate: '2026-10-22',
+        freezes: '1',
+        board: 5,
+      })
+    }
+  )
+
+  it("answers with today's calendar values under the calendar rule", async () => {
+    useRule('calendar')
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar())
+
+    expect(await solveOn(postIdOf(128))).toEqual({
+      currentStreak: 5,
+      longestStreak: 5,
+      todayCompleted: true,
+      freezes: 1,
+      earnedFreeze: true,
+      savedByFreeze: false,
+    })
+  })
+
+  it('answers with the puzzle streak, seeded from the counters before they changed', async () => {
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar())
+
+    expect(await solveOn(postIdOf(128))).toMatchObject({
+      currentStreak: 5,
+      longestStreak: 5,
+      todayCompleted: true,
+      rule: 'puzzle',
+      freezes: 1,
+      earnedFreeze: true,
+      covered: [],
+      endedRun: 0,
+    })
+  })
+
+  it("doesn't count today twice when the calendar rule already had today's solve", async () => {
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ current: 5, longest: 5, lastDate: '2026-10-22' }))
+
+    expect(await solveOn(postIdOf(128))).toMatchObject({ currentStreak: 5, rule: 'puzzle' })
+    expect((await readCalendarStreak(FAKE_USER_ID)).current).toBe('5')
+  })
+
+  it('keeps crediting under the calendar rule, so flipping to puzzle later shows the solve', async () => {
+    useRule('calendar')
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ lastDate: '2026-10-20', freezes: 1 }))
+    await solveOn(postIdOf(128))
+
+    // The calendar rule spent its freeze on Wednesday; #127 is still open, so the
+    // puzzle rule kept its own and earned one at 5.
+    useRule('puzzle')
+    expect(await readStreak()).toMatchObject({ currentStreak: 5, freezes: 2, rule: 'puzzle' })
+
+    useRule('calendar')
+    expect(await readStreak()).toEqual({
+      currentStreak: 5,
+      longestStreak: 5,
+      lastPlayedDate: '2026-10-22',
+      todayCompleted: true,
+    })
+  })
+})
+
+describe('POST /api/submit streaks: credit by puzzle', () => {
+  it('credits a solve 35 hours after #N posted but not 37 hours after, and a 48-hour window changes that', async () => {
+    await postNumbers(127, 128)
+
+    vi.setSystemTime(hoursAfterPost(127, 35))
+    await solveOn(postIdOf(127))
+    expect(await readStreak()).toMatchObject({ currentStreak: 1 })
+
+    devvitServerFake.module.context.userId = 't2_late_solver'
+    vi.setSystemTime(hoursAfterPost(127, 37))
+    await solveOn(postIdOf(127))
+    expect(await readStreak()).toMatchObject({ currentStreak: 0 })
+
+    devvitServerFake.setSettings({ streakWindowHours: 48 })
+    expect(await readStreak()).toMatchObject({ currentStreak: 1 })
+  })
+
+  it("credits any post stamped #N, timing the window from #N's indexed post", async () => {
+    await postNumbers(127, 128)
+    await stampPost(FAKE_POST_ID, 127, hoursAfterPost(127, 4))
+
+    vi.setSystemTime(hoursAfterPost(127, 35))
+    await solveOn(FAKE_POST_ID)
+    expect(await readStreak()).toMatchObject({ currentStreak: 1 })
+
+    devvitServerFake.module.context.userId = 't2_late_solver'
+    vi.setSystemTime(hoursAfterPost(127, 37))
+    await solveOn(FAKE_POST_ID)
+    expect(await readStreak()).toMatchObject({ currentStreak: 0 })
+  })
+
+  it('credits each number once, from the first solve, however many posts or replays follow', async () => {
+    await postNumbers(127, 128)
+    await stampPost(FAKE_POST_ID, 128, hoursAfterPost(128, 2))
+
+    await solveOn(postIdOf(128))
+    vi.setSystemTime(hoursAfterPost(128, 10))
+    await solveOn(FAKE_POST_ID)
+    await solveOn(postIdOf(128))
+
+    expect(await redis.zScore(STREAK_LOG_KEY, '128')).toBe(4 * 60 * 60)
+    expect(await readStreak()).toMatchObject({ currentStreak: 1 })
+  })
+
+  it("doesn't credit a post that was never numbered", async () => {
+    await postNumbers(127, 128)
+
+    expect(await solveOn(FAKE_POST_ID)).toMatchObject({ currentStreak: 0, rule: 'puzzle' })
+    expect(await redis.zCard(STREAK_LOG_KEY)).toBe(0)
+  })
+
+  it('keeps the streak and spends no freeze when #128 is solved before #127', async () => {
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ current: 6, longest: 6, lastDate: '2026-10-20', freezes: 1 }))
+
+    expect(await solveOn(postIdOf(128))).toMatchObject({ currentStreak: 7, freezes: 1, covered: [] })
+    vi.setSystemTime(hoursAfterPost(127, 29))
+    expect(await solveOn(postIdOf(127))).toMatchObject({ currentStreak: 8, freezes: 1, covered: [] })
+  })
+
+  it('skips a number whose date stored no puzzles instead of breaking the streak', async () => {
+    await postNumbers(127, 128, [127])
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ current: 6, longest: 6, lastDate: '2026-10-20' }))
+    vi.setSystemTime(hoursAfterPost(127, 37))
+
+    expect(await solveOn(postIdOf(128))).toMatchObject({ currentStreak: 7, covered: [] })
+  })
+})
+
+describe('POST /api/submit streaks: freezes', () => {
+  it('reports the number a freeze covered on the solve that spent it, and only then', async () => {
+    await postNumbers(126, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ current: 6, longest: 6, lastDate: '2026-10-19', freezes: 1 }))
+
+    expect(await solveOn(postIdOf(128))).toMatchObject({
+      currentStreak: 7,
+      freezes: 0,
+      covered: [{ number: 126, date: '2026-10-20' }],
+    })
+    vi.setSystemTime(hoursAfterPost(127, 29))
+    expect(await solveOn(postIdOf(127))).toMatchObject({ currentStreak: 8, covered: [] })
+    expect(await readStreak()).toMatchObject({ currentStreak: 8, covered: [] })
+  })
+
+  it.each([
+    [2, 7, [{ number: 125, date: '2026-10-19' }, { number: 126, date: '2026-10-20' }]],
+    [1, 1, []],
+  ])('with %i freezes, two missed numbers leave a streak of %i', async (freezes, currentStreak, covered) => {
+    await postNumbers(125, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ current: 6, longest: 6, lastDate: '2026-10-18', freezes }))
+
+    expect(await solveOn(postIdOf(128))).toMatchObject({ currentStreak, covered })
+  })
+})
+
+describe('POST /api/submit streaks: the puzzle rule never rejects a solve', () => {
+  it("answers with today's values when the puzzle streak fails", async () => {
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar())
+    const zAdd = redis.zAdd
+    vi.spyOn(redis, 'zAdd').mockImplementation(async (key, ...members) => {
+      if (key === STREAK_LOG_KEY) throw new Error('Redis unavailable')
+      return zAdd(key, ...members)
+    })
+
+    const streak = await solveOn(postIdOf(128))
+
+    expect(streak).toMatchObject({ currentStreak: 5, savedByFreeze: false })
+    expect(streak).not.toHaveProperty('rule')
+    expect((await readCalendarStreak(FAKE_USER_ID)).current).toBe('5')
+  })
+
+  it("answers with today's values when settings can't be read, and still credits the solve", async () => {
+    await postNumbers(127, 128)
+    await saveCalendarStreak(FAKE_USER_ID, calendar({ freezes: 1 }))
+    vi.spyOn(devvitServerFake.module.settings, 'getAll').mockRejectedValueOnce(
+      new Error('Could not get installation settings')
+    )
+
+    expect(await solveOn(postIdOf(128))).not.toHaveProperty('rule')
+    expect(await redis.zScore(STREAK_LOG_KEY, '128')).toBe(4 * 60 * 60)
+
+    // Seeding waits for a known window, so the next read seeds from the counters
+    // today's block just updated (5, with a freeze earned), and #128 counts once.
+    expect(await readStreak()).toMatchObject({ currentStreak: 5, freezes: 2, rule: 'puzzle' })
   })
 })
 

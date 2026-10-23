@@ -46,6 +46,16 @@ export const storeDatePuzzle = async (date: string, puzzle: DatePuzzle): Promise
   return stored
 }
 
+/** The dates, among those given, that stored a puzzle for at least one tier. */
+export const readDatesWithPuzzles = async (dates: readonly string[]): Promise<Set<string>> => {
+  const entries = dates.flatMap((date) =>
+    DAILY_DIFFICULTIES.map((difficulty) => ({ date, key: datePuzzleKey(date, difficulty) }))
+  )
+  if (entries.length === 0) return new Set()
+  const stored = await redis.mGet(entries.map(({ key }) => key))
+  return new Set(entries.filter((_, index) => stored[index]).map(({ date }) => date))
+}
+
 /**
  * The date's puzzle for every tier, easy to hard. Tiers the date lacks are
  * generated and stored, so this also prepares a future date's set.

@@ -1,4 +1,6 @@
 import { redis } from '@devvit/web/server'
+import { listDates } from '../../shared/baseline'
+import type { PostedNumber } from '../../shared/streak'
 import { DECIMAL_RADIX } from '../routes/utils'
 
 /**
@@ -123,4 +125,31 @@ export const readIndexedPost = async (number: number): Promise<IndexedPost | nul
     if (!postId) return null
     const createdAt = parseTime(await redis.get(postCreatedAtKey(postId)))
     return createdAt ? { postId, createdAt } : null
+}
+
+const readMany = async (keys: readonly string[]): Promise<(string | null)[]> =>
+    keys.length > 0 ? redis.mGet([...keys]) : []
+
+/**
+ * The numbers posted from `from` to `to` (UTC dates), newest first: each date's
+ * #N with its indexed post and creation time. Dates without one are left out.
+ * Three batched reads, whatever the range.
+ */
+export const readPostedNumbers = async (from: string, to: string): Promise<PostedNumber[]> => {
+    const dates = listDates(from, to).reverse()
+    const numbers = await readMany(dates.map(puzzleDateKey))
+    const minted = dates.flatMap((date, index) => {
+        const number = parseNumber(numbers[index])
+        return number > 0 ? [{ date, number }] : []
+    })
+    const postIds = await readMany(minted.map(({ number }) => indexedPostKey(number)))
+    const indexed = minted.flatMap((entry, index) => {
+        const postId = postIds[index]
+        return postId ? [{ ...entry, postId }] : []
+    })
+    const times = await readMany(indexed.map(({ postId }) => postCreatedAtKey(postId)))
+    return indexed.flatMap((entry, index) => {
+        const createdAt = parseTime(times[index])
+        return createdAt ? [{ ...entry, createdAtMs: createdAt.getTime() }] : []
+    })
 }

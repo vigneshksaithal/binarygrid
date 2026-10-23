@@ -5,6 +5,7 @@ import type { Grid } from '../../shared/types/puzzle'
 import { isValidAttemptId, validateGrid } from '../../shared/validator'
 import { getUTCWeekId } from '../../shared/growth'
 import { recordHourlySolve } from '../core/baseline'
+import { readStreakSettings, recordPuzzleSolve } from '../core/puzzle-streak'
 import {
   getPlayerContext,
   normalizeAndLabelSolve,
@@ -173,6 +174,18 @@ app.post('/api/submit', async (c) => {
       [userId]: JSON.stringify({ username, avatarUrl: avatarUrl ?? null })
     })
 
+    // The puzzle rule's streak, kept up to date under either rule (task 6). It runs
+    // before the calendar block below, so a first solve seeds from today's counters
+    // before they change. It never rejects a solve: on failure, the response shows
+    // the calendar values.
+    const streakSettings = await readStreakSettings()
+    const puzzleStreak = await recordPuzzleSolve({
+      userId,
+      postId,
+      now: new Date(),
+      windowHours: streakSettings?.streakWindowHours ?? null
+    }).catch(() => null)
+
     const todayDate = todayISO()
     const lastDate = await redis.get(`user:${userId}:streak:lastDate`)
 
@@ -271,6 +284,15 @@ app.post('/api/submit', async (c) => {
 
     const playerContext = await getPlayerContext(userId, body.id, todayDate)
 
+    const calendarStreak = {
+      currentStreak: currentStreak,
+      longestStreak: Math.max(currentStreak, longestStreak),
+      todayCompleted: lastDate === todayDate || streakUpdated,
+      freezes: freezeUpdate.freezes,
+      earnedFreeze: freezeUpdate.earnedFreeze,
+      savedByFreeze: streakSaved
+    }
+
     const response = {
       ok: true,
       rank: userRank !== undefined && userRank !== null ? userRank + 1 : null,
@@ -279,14 +301,8 @@ app.post('/api/submit', async (c) => {
       solveMetrics,
       dailyProgress,
       playerContext,
-      streak: {
-        currentStreak: currentStreak,
-        longestStreak: Math.max(currentStreak, longestStreak),
-        todayCompleted: lastDate === todayDate || streakUpdated,
-        freezes: freezeUpdate.freezes,
-        earnedFreeze: freezeUpdate.earnedFreeze,
-        savedByFreeze: streakSaved
-      }
+      streak:
+        streakSettings?.streakRule === 'puzzle' && puzzleStreak ? puzzleStreak : calendarStreak
     }
     await saveSubmitResponse(attempt, response)
     return c.json(response)

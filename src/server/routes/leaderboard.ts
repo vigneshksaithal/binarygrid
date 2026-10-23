@@ -1,7 +1,12 @@
 import { context, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
+import type { PlayerTitle } from '../../shared/types/economy'
 import type { LeaderboardEntry, LeaderboardResponse } from '../../shared/types/leaderboard'
-import type { StreakLeaderboardEntry } from '../../shared/types/streak'
+import type {
+  StreakLeaderboardEntry,
+  StreakLeaderboardResponse,
+} from '../../shared/types/streak'
+import { readPuzzleStreakBoard, readStreakSettings, type BoardStreak } from '../core/puzzle-streak'
 import { getShownTitle, getShownTitles } from '../lib/economy'
 import {
   clampPageSize,
@@ -129,6 +134,10 @@ app.get('/api/leaderboard', async (c) => {
 
 type UserMeta = { username: string; avatarUrl: string | null }
 
+const UNKNOWN_PLAYER: UserMeta = { username: 'Unknown player', avatarUrl: null }
+
+const STREAK_BOARD_SIZE = 10
+
 const getUserMeta = async (userId: string): Promise<UserMeta> => {
   const metaRaw = await redis.hGet('user:meta', userId)
   if (metaRaw) {
@@ -143,13 +152,67 @@ const getUserMeta = async (userId: string): Promise<UserMeta> => {
   if (legacyMeta?.username) {
     return { username: legacyMeta.username, avatarUrl: legacyMeta.avatarUrl ?? null }
   }
-  return { username: 'Unknown player', avatarUrl: null }
+  return UNKNOWN_PLAYER
+}
+
+const toStreakEntry = (
+  { userId, streak }: BoardStreak,
+  rank: number,
+  meta: UserMeta | undefined,
+  title: PlayerTitle | null | undefined
+): StreakLeaderboardEntry => ({
+  userId,
+  username: (meta ?? UNKNOWN_PLAYER).username,
+  avatarUrl: (meta ?? UNKNOWN_PLAYER).avatarUrl,
+  streak,
+  rank,
+  title: title ?? null,
+})
+
+// The puzzle rule's board: active streaks only, each computed when read.
+const puzzleStreakBoardResponse = async (
+  userId: string | undefined,
+  windowHours: number
+): Promise<StreakLeaderboardResponse> => {
+  const active = await readPuzzleStreakBoard(userId, new Date(), windowHours)
+  const listed = active.slice(0, STREAK_BOARD_SIZE)
+  const memberIds = listed.map((entry) => entry.userId)
+  const [metas, titles] = await Promise.all([
+    Promise.all(memberIds.map((memberId) => getUserMeta(memberId))),
+    getShownTitles(memberIds),
+  ])
+  const entries = listed.map((entry, index) =>
+    toStreakEntry(entry, index + 1, metas[index], titles[index])
+  )
+
+  const viewerIndex = active.findIndex((entry) => entry.userId === userId)
+  const viewer = active[viewerIndex]
+  if (!viewer) return { entries, totalEntries: active.length, playerEntry: null }
+  const [viewerMeta, viewerTitle] = await Promise.all([
+    getUserMeta(viewer.userId),
+    getShownTitle(viewer.userId),
+  ])
+  return {
+    entries,
+    totalEntries: active.length,
+    playerEntry: toStreakEntry(viewer, viewerIndex + 1, viewerMeta, viewerTitle),
+  }
 }
 
 app.get('/api/leaderboard/streaks', async (c) => {
   const { userId } = context
 
   try {
+    // As with /api/streak, a failed puzzle board falls back to the stored board.
+    const streakSettings = await readStreakSettings()
+    if (streakSettings?.streakRule === 'puzzle') {
+      const puzzleBoard = await puzzleStreakBoardResponse(
+        userId,
+        streakSettings.streakWindowHours
+      ).catch(() => null)
+      if (puzzleBoard) return c.json(puzzleBoard)
+    }
+
     const totalEntries = await redis.zCard('leaderboard:streaks')
 
     if (totalEntries === 0) {
