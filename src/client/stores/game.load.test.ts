@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createEmptyGrid } from '../../shared/utils/grid'
 import { PUZZLE_LOAD_TIMEOUT_MS } from '../services/puzzle-api'
 import { game, loadPuzzle, retryPuzzleLoad } from './game'
-import { showFirstScreen } from './ui'
 
 type FetchReply = { ok: boolean; status: number; json: () => Promise<unknown> }
 
@@ -136,29 +135,81 @@ describe('a load that names no tier', () => {
   })
 })
 
+// A fresh app open: new stores, so no puzzle reply has said anything yet.
+const openApp = async () => {
+  vi.resetModules()
+  const { game: freshGame, loadPuzzle: load, retryPuzzleLoad: retry } = await import('./game')
+  const { firstScreenSwitch } = await import('./ui')
+  return { game: freshGame, load, retry, firstScreenSwitch }
+}
+
 describe('the first-screen switch', () => {
+  it('is unknown while the first load runs, so no switched-off line can show', async () => {
+    stubPuzzleFetch(reply(HTTP_OK, { puzzle: EASY_PUZZLE, firstScreen: true }))
+    const app = await openApp()
+
+    const loading = app.load()
+    expect(get(app.game).status).toBe('loading')
+    expect(get(app.firstScreenSwitch)).toBe('unknown')
+    await loading
+
+    expect(get(app.firstScreenSwitch)).toBe('on')
+  })
+
+  it('stays unknown when the first load fails, until a reply says on or off', async () => {
+    stubPuzzleFetch(
+      reply(500, { error: 'Failed to fetch puzzle' }),
+      reply(HTTP_OK, { puzzle: EASY_PUZZLE, firstScreen: false })
+    )
+    const app = await openApp()
+
+    await app.load()
+    expect(get(app.firstScreenSwitch)).toBe('unknown')
+
+    await app.retry()
+    expect(get(app.firstScreenSwitch)).toBe('off')
+  })
+
   it('follows what each puzzle reply says', async () => {
     stubPuzzleFetch(
       reply(HTTP_OK, { puzzle: EASY_PUZZLE, firstScreen: false }),
       reply(HTTP_OK, { puzzle: HARD_PUZZLE, firstScreen: true })
     )
+    const app = await openApp()
 
-    await loadPuzzle()
-    expect(get(showFirstScreen)).toBe(false)
+    await app.load()
+    expect(get(app.firstScreenSwitch)).toBe('off')
 
-    await loadPuzzle('hard')
-    expect(get(showFirstScreen)).toBe(true)
+    await app.load('hard')
+    expect(get(app.firstScreenSwitch)).toBe('on')
   })
 
-  it('stays on when a reply leaves it out', async () => {
+  it('keeps the last answer while a later load runs and after it fails', async () => {
+    stubPuzzleFetch(
+      reply(HTTP_OK, { puzzle: EASY_PUZZLE, firstScreen: true }),
+      reply(500, { error: 'Failed to fetch puzzle' })
+    )
+    const app = await openApp()
+    await app.load()
+
+    const loading = app.load('hard')
+    expect(get(app.firstScreenSwitch)).toBe('on')
+    await loading
+
+    expect(get(app.game).status).toBe('error')
+    expect(get(app.firstScreenSwitch)).toBe('on')
+  })
+
+  it('counts a reply that leaves it out as on, the setting default', async () => {
     stubPuzzleFetch(
       reply(HTTP_OK, { puzzle: EASY_PUZZLE, firstScreen: false }),
       reply(HTTP_OK, { puzzle: HARD_PUZZLE })
     )
+    const app = await openApp()
 
-    await loadPuzzle()
-    await loadPuzzle('hard')
+    await app.load()
+    await app.load('hard')
 
-    expect(get(showFirstScreen)).toBe(true)
+    expect(get(app.firstScreenSwitch)).toBe('on')
   })
 })

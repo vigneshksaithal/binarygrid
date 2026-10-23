@@ -20,7 +20,7 @@ import { fetchRank, resetRank, setRank } from './rank'
 import { updateStreakFromSubmit } from './streak'
 import { startAttempt, submitSolve, type SubmitResponse } from './submit'
 import { elapsedSeconds, resetTimer, startTimer, stopTimer } from './timer'
-import { closeSuccessModal, openSuccessModal, setShowFirstScreen } from './ui'
+import { closeSuccessModal, openSuccessModal, setFirstScreenSwitch } from './ui'
 
 type Status = 'idle' | 'loading' | 'in_progress' | 'solved' | 'invalid' | 'error'
 
@@ -199,7 +199,8 @@ export const loadPuzzle = async (difficulty?: Difficulty) => {
   }
 
   const { puzzle } = loaded
-  setShowFirstScreen(loaded.firstScreen)
+  // Only a reply settles the switch: a failed load leaves it as it was
+  setFirstScreenSwitch(loaded.firstScreen)
   const initialGrid = cloneGrid(puzzle.initial)
   const fixed = puzzle.fixed
 

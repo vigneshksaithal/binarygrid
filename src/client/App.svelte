@@ -18,7 +18,7 @@
 	import { canUseHint, cooldownProgress } from "./stores/hint";
 	import { loadPuzzleNumber } from "./stores/puzzle-number"
 	import { fetchStreak } from "./stores/streak";
-	import { openHowToModal, openLeaderboardModal, showFirstScreen } from "./stores/ui"
+	import { firstScreenSwitch, openHowToModal, openLeaderboardModal } from "./stores/ui"
 
 	const difficultyOptions = [
 		{ value: "easy", label: "Easy" },
@@ -169,8 +169,10 @@
 				</div>
 			</div>
 		</div>
-		{#if $showFirstScreen}
-			<FirstScreenFrame />
+		<!-- Until a puzzle reply says on or off, the frame holds its room with its
+		     lines invisible: on shows them in place, off drops the block -->
+		{#if $firstScreenSwitch !== "off"}
+			<FirstScreenFrame placeholder={$firstScreenSwitch === "unknown"} />
 		{/if}
 		<Grid />
 	</div>

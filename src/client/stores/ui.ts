@@ -15,10 +15,16 @@ export const showLeaderboardModal = writable(false)
 export const openLeaderboardModal = () => showLeaderboardModal.set(true)
 export const closeLeaderboardModal = () => showLeaderboardModal.set(false)
 
-// The subreddit's first-screen switch, as the last puzzle reply reported it.
-export const showFirstScreen = writable(true)
+/**
+ * The subreddit's first-screen switch, as the last puzzle reply reported it.
+ * Unknown until a reply says, so a switched-off frame never shows its lines
+ * while the first load runs.
+ */
+export type FirstScreenSwitch = 'unknown' | 'on' | 'off'
 
-export const setShowFirstScreen = (shown: boolean) => showFirstScreen.set(shown)
+export const firstScreenSwitch = writable<FirstScreenSwitch>('unknown')
+
+export const setFirstScreenSwitch = (on: boolean) => firstScreenSwitch.set(on ? 'on' : 'off')
 
 export const hasJoinedSubreddit = writable(true)
 
