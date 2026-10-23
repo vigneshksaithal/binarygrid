@@ -61,11 +61,11 @@
 	tabindex="-1"
 	{@attach focusOnOpen}
 >
-	<p id="{uid}-destination" class="text-xs text-zinc-400 mb-0">{destination}</p>
+	<p id="{uid}-destination" class="text-xs text-zinc-600 dark:text-zinc-400 mb-0">{destination}</p>
 	<p
 		class="rounded-xl bg-zinc-800/70 border border-zinc-700 px-3 py-2 text-sm text-zinc-100 whitespace-pre-wrap wrap-break-word mb-0"
 	>{previewText}</p>
-	<label for="{uid}-own-words" class="block text-xs text-zinc-400">
+	<label for="{uid}-own-words" class="block text-xs text-zinc-600 dark:text-zinc-400">
 		Add your own words (optional)
 	</label>
 	<textarea
@@ -84,6 +84,6 @@
 		</Button>
 	</div>
 	{#if $shareState.shareError}
-		<p role="alert" class="text-xs text-red-400 text-center mb-0">{$shareState.shareError}</p>
+		<p role="alert" class="text-xs text-red-700 dark:text-red-400 text-center mb-0">{$shareState.shareError}</p>
 	{/if}
 </section>

@@ -134,7 +134,7 @@
 					{/if}
 				</Button>
 				{#if joinError}
-					<p role="alert" class="text-xs text-red-400 text-center mb-0">{joinError}</p>
+					<p role="alert" class="text-xs text-red-700 dark:text-red-400 text-center mb-0">{joinError}</p>
 				{/if}
 			{/if}
 		</div>
