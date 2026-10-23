@@ -45,6 +45,8 @@ const REMOVED_API_ROUTES: Array<[Method, string, unknown]> = [
   ['POST', '/api/viral/impression', { postId: 't3_post_123' }],
   ['POST', '/api/viral/funnel', { event: 'open' }],
   ['POST', '/api/share-comment', { dayNumber: 42, solveTimeSeconds: 92, difficulty: 'medium' }],
+  ['GET', '/api/play-count', undefined],
+  ['POST', '/api/play-count', undefined],
 ]
 
 describe('removed endpoints', () => {

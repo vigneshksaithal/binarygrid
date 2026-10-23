@@ -215,15 +215,6 @@ export const loadPuzzle = async (difficulty: Difficulty) => {
 
   resetTimer()
   trackGrowthEvent('puzzle_start')
-
-  // Best-effort play count registration after 10 s of dwell time
-  setTimeout(async () => {
-    try {
-      await fetch('/api/play-count', { method: 'POST' })
-    } catch {
-      // ignore — best effort only
-    }
-  }, 10000)
 }
 
 /** Loads the tier that failed to load again, from the grid's Retry. */
