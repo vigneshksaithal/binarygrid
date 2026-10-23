@@ -43,7 +43,7 @@ describe('getOrCreateDateNumber', () => {
   it('keeps the number another request stored first for the date', async () => {
     await fake.redis.set(`puzzle:number:date:${DAY}`, '7')
     // This request read the date key just before the other request wrote it.
-    fake.redis.get.mockResolvedValueOnce(null)
+    fake.redis.get.mockResolvedValueOnce(undefined)
 
     expect(await getOrCreateDateNumber(DAY)).toBe(7)
     expect(await fake.redis.get(`puzzle:number:date:${DAY}`)).toBe('7')
@@ -78,8 +78,8 @@ describe('getOrCreatePuzzleNumber, the fallback for posts created before stampin
     await stampPost('t3_daily', 5, MORNING)
 
     expect(await getOrCreatePuzzleNumber('t3_daily', '2026-10-23')).toBe(5)
-    expect(await fake.redis.get('puzzle:number:counter')).toBeNull()
-    expect(await fake.redis.get('puzzle:number:date:2026-10-23')).toBeNull()
+    expect(await fake.redis.get('puzzle:number:counter')).toBeUndefined()
+    expect(await fake.redis.get('puzzle:number:date:2026-10-23')).toBeUndefined()
   })
 
   it("gives an older post the date's number through the date key, unstamped", async () => {

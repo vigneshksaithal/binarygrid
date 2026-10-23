@@ -95,7 +95,7 @@ describe('createPost', () => {
 
     expect(await fetchPuzzleNumber('t3_daily')).toEqual({ dayNumber: 1 })
     expect(await fake.redis.get('puzzle:number:counter')).toBe('1')
-    expect(await fake.redis.get('puzzle:number:date:2026-10-23')).toBeNull()
+    expect(await fake.redis.get('puzzle:number:date:2026-10-23')).toBeUndefined()
   })
 
   it('gives a second post on the same UTC date the same number and puzzles, with its own boards', async () => {
@@ -199,7 +199,7 @@ describe('createPostForDate', () => {
 
     expect(postedTitles()).toEqual(['Binary Grid #1'])
     expect(await readPostStamp('t3_late')).toEqual({ number: 1, createdAt: LATE_RETRY_TIME })
-    expect(await fake.redis.get(`puzzle:number:date:${NEXT_DAY}`)).toBeNull()
+    expect(await fake.redis.get(`puzzle:number:date:${NEXT_DAY}`)).toBeUndefined()
     for (const difficulty of DAILY_DIFFICULTIES) {
       expect((await readPostPuzzle('t3_late', difficulty))?.initial).toEqual(
         (await readDatePuzzle(DAY, difficulty))?.initial

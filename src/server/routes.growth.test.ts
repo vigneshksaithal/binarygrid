@@ -52,8 +52,8 @@ describe('growth routes', () => {
     // The event route tracks in the background; let that work finish first
     await new Promise((resolve) => setTimeout(resolve, 0))
 
-    expect(await redis.hGet('viral:user-index', 't2_user_456')).toBeNull()
-    expect(await redis.get('viral:user-index:counter')).toBeNull()
+    expect(await redis.hGet('viral:user-index', 't2_user_456')).toBeUndefined()
+    expect(await redis.get('viral:user-index:counter')).toBeUndefined()
   })
 
   it('rejects unknown analytics events', async () => {
