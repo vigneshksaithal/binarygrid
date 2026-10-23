@@ -7,6 +7,9 @@ import {
   findViolations,
   hasTripleRun,
   isComplete,
+  isISODate,
+  isISOTime,
+  isPostId,
   normalizeScoringVersion,
   parseScoreShareRequest,
   validateGrid
@@ -285,5 +288,53 @@ describe('parseScoreShareRequest', () => {
     })
 
     expect(parseScoreShareRequest(JSON.parse(JSON.stringify(parsed)))).toEqual(parsed)
+  })
+})
+
+describe('isISODate', () => {
+  it.each(['2026-10-22', '2024-02-29'])('accepts the calendar date %s', (value) => {
+    expect(isISODate(value)).toBe(true)
+  })
+
+  it.each([
+    ['a day the month lacks', '2026-02-30'],
+    ['a month past December', '2026-13-01'],
+    ['a time', '2026-10-22T08:00:00.000Z'],
+    ['a date without dashes', '20261022'],
+    ['a number', 20261022],
+    ['nothing', undefined],
+  ])('rejects %s', (_label, value) => {
+    expect(isISODate(value)).toBe(false)
+  })
+})
+
+describe('isISOTime', () => {
+  it('accepts a time written by Date.toISOString', () => {
+    expect(isISOTime('2026-10-22T08:00:00.000Z')).toBe(true)
+  })
+
+  it.each([
+    ['a time without milliseconds', '2026-10-22T08:00:00Z'],
+    ['a date', '2026-10-22'],
+    ['text', 'yesterday'],
+    ['a timestamp', 1_792_656_000_000],
+  ])('rejects %s', (_label, value) => {
+    expect(isISOTime(value)).toBe(false)
+  })
+})
+
+describe('isPostId', () => {
+  it.each(['t3_1abc2d', 't3_post_1'])('accepts the post ID %s', (value) => {
+    expect(isPostId(value)).toBe(true)
+  })
+
+  it.each([
+    ['a comment ID', 't1_1abc2d'],
+    ['a bare prefix', 't3_'],
+    ['an ID with a key separator', 't3_abc:hard'],
+    ['an ID with a space', 't3_abc def'],
+    ['a number', 42],
+  ])('rejects %s', (_label, value) => {
+    expect(isPostId(value)).toBe(false)
   })
 })

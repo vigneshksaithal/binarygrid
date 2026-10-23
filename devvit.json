@@ -65,6 +65,9 @@
         "endpoint": "/internal/schedule/daily-evening",
         "cron": "0 20 * * *"
       },
+      "daily-post-retry": {
+        "endpoint": "/internal/schedule/daily-retry"
+      },
       "baseline-nightly": {
         "endpoint": "/internal/schedule/baseline",
         "cron": "30 0 * * *"

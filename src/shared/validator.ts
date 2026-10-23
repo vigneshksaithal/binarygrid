@@ -346,6 +346,31 @@ const ATTEMPT_ID_PATTERN = /^[A-Za-z0-9-]{8,64}$/
 export const isValidAttemptId = (value: unknown): value is string =>
   typeof value === 'string' && ATTEMPT_ID_PATTERN.test(value)
 
+// ── Scheduled job data ──────────────────────────────────────────────────────
+
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+// Letters, digits and underscores only, so a post ID can't carry a key separator into Redis.
+const POST_ID_PATTERN = /^t3_[A-Za-z0-9_]+$/
+
+/** Returns true for a real calendar date written YYYY-MM-DD, as UTC dates are keyed. */
+export const isISODate = (value: unknown): value is string => {
+  if (typeof value !== 'string' || !ISO_DATE_PATTERN.test(value)) return false
+  const time = Date.parse(`${value}T00:00:00.000Z`)
+  // Date.parse rolls a day the month lacks into the next month, so compare it back.
+  return !Number.isNaN(time) && new Date(time).toISOString().startsWith(value)
+}
+
+/** Returns true for a time written exactly as Date.toISOString writes it. */
+export const isISOTime = (value: unknown): value is string => {
+  if (typeof value !== 'string') return false
+  const time = Date.parse(value)
+  return !Number.isNaN(time) && new Date(time).toISOString() === value
+}
+
+/** Returns true for a Reddit post ID such as `t3_1abc2d`. */
+export const isPostId = (value: unknown): value is `t3_${string}` =>
+  typeof value === 'string' && POST_ID_PATTERN.test(value)
+
 // ── Score share payload ─────────────────────────────────────────────────────
 
 const isCount = (value: unknown): value is number =>
