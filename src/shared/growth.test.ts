@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   calculateFasterThanPercentile,
   deriveSolveQuality,
+  earnFreezeForRun,
   getDailyMissions,
   getDailyTrioSummary,
   SCORING_VERSION,
@@ -96,6 +97,40 @@ describe('updateStreakFreezeBalance', () => {
       earnedFreeze: true,
     })
     expect(updateStreakFreezeBalance({ currentStreak: 10, currentFreezes: 2 })).toEqual({
+      freezes: 2,
+      earnedFreeze: false,
+    })
+  })
+})
+
+describe('earnFreezeForRun', () => {
+  it.each([
+    [4, 5],
+    [9, 10],
+    [4, 6],
+    [3, 13],
+  ])('earns one freeze when a run grows from %i to %i, past a multiple of five', (previousRun, currentRun) => {
+    expect(earnFreezeForRun({ previousRun, currentRun, currentFreezes: 0 })).toEqual({
+      freezes: 1,
+      earnedFreeze: true,
+    })
+  })
+
+  it.each([
+    [5, 6],
+    [0, 4],
+    [5, 5],
+    [12, 1],
+    [0, 0],
+  ])('earns nothing when a run goes from %i to %i', (previousRun, currentRun) => {
+    expect(earnFreezeForRun({ previousRun, currentRun, currentFreezes: 1 })).toEqual({
+      freezes: 1,
+      earnedFreeze: false,
+    })
+  })
+
+  it('caps the balance at two freezes', () => {
+    expect(earnFreezeForRun({ previousRun: 9, currentRun: 10, currentFreezes: 2 })).toEqual({
       freezes: 2,
       earnedFreeze: false,
     })

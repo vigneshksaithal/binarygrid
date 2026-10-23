@@ -205,3 +205,27 @@ export const updateStreakFreezeBalance = ({
     earnedFreeze: canEarn,
   }
 }
+
+/**
+ * The puzzle rule's freeze earning: one freeze when a solve's run passes a
+ * multiple of five, capped at two. A run can grow by more than one when a solve
+ * joins two parts, so this checks for passing a multiple rather than landing on it.
+ */
+export const earnFreezeForRun = ({
+  previousRun,
+  currentRun,
+  currentFreezes,
+}: {
+  previousRun: number
+  currentRun: number
+  currentFreezes: number
+}): StreakFreezeUpdate => {
+  const passedMultiple =
+    Math.floor(currentRun / FREEZE_EARN_INTERVAL) > Math.floor(previousRun / FREEZE_EARN_INTERVAL)
+  const canEarn = currentRun > 0 && passedMultiple && currentFreezes < MAX_STREAK_FREEZES
+
+  return {
+    freezes: canEarn ? currentFreezes + 1 : currentFreezes,
+    earnedFreeze: canEarn,
+  }
+}
