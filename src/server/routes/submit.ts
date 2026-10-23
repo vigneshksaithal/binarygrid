@@ -7,6 +7,7 @@ import {
   getUTCWeekId,
   getWeeklyLeagueId
 } from '../../shared/growth'
+import { recordHourlySolve } from '../core/baseline'
 import { calculateCoinReward, getUserEconomy, saveUserEconomy } from '../lib/economy'
 import {
   economyLedgerKey,
@@ -279,6 +280,7 @@ app.post('/api/submit', async (c) => {
       })
     }
     await recordGrowthEvent('submit_success', userId, todayDate)
+    await recordHourlySolve()
 
     const [userRank, totalEntries] = await Promise.all([
       redis.zRank(leaderboardSetKey, userId),

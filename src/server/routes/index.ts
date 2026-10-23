@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
 import adminRoutes from './admin'
+import { baselineRoutes } from './baseline'
 import economyRoutes from './economy'
 import growthRoutes from './growth'
 import leaderboardRoutes from './leaderboard'
@@ -24,5 +25,6 @@ app.route('/', economyRoutes)
 app.route('/', growthRoutes)
 app.route('/', viralAnalyticsRoutes)
 app.route('/', adminRoutes)
+app.route('/', baselineRoutes)
 
 export default app

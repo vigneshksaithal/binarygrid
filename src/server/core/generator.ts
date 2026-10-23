@@ -22,7 +22,7 @@ const CLUE_COUNT_EASY = 17
 const CLUE_COUNT_MEDIUM = 13
 const CLUE_COUNT_HARD = 9
 
-const getClueTarget = (difficulty: Difficulty): number => {
+export const getClueTarget = (difficulty: Difficulty): number => {
   if (difficulty === 'easy') {
     return CLUE_COUNT_EASY
   }

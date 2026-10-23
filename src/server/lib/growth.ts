@@ -36,7 +36,7 @@ export const GROWTH_EVENT_NAMES = [
 
 export type GrowthEventName = (typeof GROWTH_EVENT_NAMES)[number]
 
-const ANALYTICS_TTL_SECONDS = 60 * 60 * 24 * 60
+export const ANALYTICS_TTL_SECONDS = 60 * 60 * 24 * 60
 const LEDGER_TTL_SECONDS = 60 * 60 * 24 * 180
 const MAX_STREAK_FREEZES = 2
 

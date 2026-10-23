@@ -42,6 +42,13 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/create-weekly-recap"
+      },
+      {
+        "label": "Show Baseline Metrics",
+        "description": "Latest WRS, new users and day-1 retention",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/baseline-readout"
       }
     ]
   },
@@ -65,6 +72,10 @@
       "refresh-preview": {
         "endpoint": "/internal/schedule/refresh-preview",
         "cron": "*/15 * * * *"
+      },
+      "baseline-nightly": {
+        "endpoint": "/internal/schedule/baseline",
+        "cron": "30 0 * * *"
       }
     }
   },
