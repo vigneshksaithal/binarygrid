@@ -3,6 +3,7 @@ import { canPlaceValue } from '../../shared/constraints'
 import type {
   Cell,
   Difficulty,
+  FixedCell,
   Grid,
   PuzzleWithGrid
 } from '../../shared/types/puzzle'
@@ -32,23 +33,11 @@ export const getClueTarget = (difficulty: Difficulty): number => {
   return CLUE_COUNT_HARD
 }
 
-/**
- * Stub generator for Phase 2: deterministic by date + difficulty, no clues yet.
- */
-export const generateDailyPuzzle = (
-  dateISO: string,
-  difficulty: Difficulty
-): PuzzleWithGrid => {
-  const id = `${dateISO}:${difficulty}`
-  const seed = `${dateISO}:${difficulty}`
-  const rng = makeSeededRng(seed)
+/** A generated puzzle before a post or date gives it an ID. */
+type GeneratedPuzzle = Omit<PuzzleWithGrid, 'id'>
 
-  const solution = generateFullSolution(rng)
-
-  const target = getClueTarget(difficulty)
-  const initial = carveToClueTarget(solution, target, rng)
-
-  const fixed = [] as { r: number; c: number; v: 0 | 1 }[]
+const fixedCellsOf = (initial: Grid): FixedCell[] => {
+  const fixed: FixedCell[] = []
   for (let r = 0; r < SIZE; r++) {
     const row = ensureRow(initial, r)
     for (let c = 0; c < SIZE; c++) {
@@ -58,9 +47,28 @@ export const generateDailyPuzzle = (
       }
     }
   }
-
-  return { id, size: 6, difficulty, fixed, initial }
+  return fixed
 }
+
+// Generation itself, apart from the ID each caller gives the puzzle.
+const generateFromSeed = (seed: string, difficulty: Difficulty): GeneratedPuzzle => {
+  const rng = makeSeededRng(seed)
+  const solution = generateFullSolution(rng)
+  const initial = carveToClueTarget(solution, getClueTarget(difficulty), rng)
+  return { size: 6, difficulty, fixed: fixedCellsOf(initial), initial }
+}
+
+/**
+ * Deterministic by date + difficulty, so anyone can compute it. Serves posts
+ * with no stored puzzle (routes/puzzle.ts).
+ */
+export const generateDailyPuzzle = (
+  dateISO: string,
+  difficulty: Difficulty
+): PuzzleWithGrid => ({
+  id: `${dateISO}:${difficulty}`,
+  ...generateFromSeed(`${dateISO}:${difficulty}`, difficulty)
+})
 
 /**
  * Generate a unique puzzle for a specific post using postId as seed.
@@ -69,29 +77,22 @@ export const generateDailyPuzzle = (
 export const generatePuzzleForPost = (
   postId: string,
   difficulty: Difficulty
-): PuzzleWithGrid => {
-  const id = `${postId}:${difficulty}`
-  const seed = `${postId}:${difficulty}:${Date.now()}`
-  const rng = makeSeededRng(seed)
+): PuzzleWithGrid => ({
+  id: `${postId}:${difficulty}`,
+  ...generateFromSeed(`${postId}:${difficulty}:${Date.now()}`, difficulty)
+})
 
-  const solution = generateFullSolution(rng)
-
-  const target = getClueTarget(difficulty)
-  const initial = carveToClueTarget(solution, target, rng)
-
-  const fixed = [] as { r: number; c: number; v: 0 | 1 }[]
-  for (let r = 0; r < SIZE; r++) {
-    const row = ensureRow(initial, r)
-    for (let c = 0; c < SIZE; c++) {
-      const v = row[c] as Cell
-      if (v === 0 || v === 1) {
-        fixed.push({ r, c, v })
-      }
-    }
-  }
-
-  return { id, size: 6, difficulty, fixed, initial }
-}
+/**
+ * A puzzle for a date's set, generated ahead of the date (ENGAGEMENT_TASKS.md
+ * task 7). It has no ID: each post that serves it adds its own. The seed holds
+ * the time, as post puzzles' seeds do, so the date alone doesn't give it away
+ * the way it gives away generateDailyPuzzle's.
+ */
+export const generatePuzzleForDate = (
+  dateISO: string,
+  difficulty: Difficulty
+): GeneratedPuzzle =>
+  generateFromSeed(`${dateISO}:${difficulty}:${Date.now()}`, difficulty)
 
 // ---------------- RNG ----------------
 
