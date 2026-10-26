@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-26
+
+### Refresh Devvit agent skills for 0.15.0
+
+- Updated the Redis skill to use current installation limits: 5 GB storage, 40,000 commands per second and a 5 MB Redis request, distinguishing these from Devvit Web's 4 MB endpoint payload limit.
+- Reworked inline layout guidance in the Svelte and engagement skills to preserve Reddit feed scrolling, avoid broad gesture interception, and use expanded mode for long or gesture-heavy views.
+- Corrected Journeys guidance: Journeys is generally available; push notifications remain experimental and require approval.
+- Updated Devvit config guidance to use `devvit.json`, remove the deprecated `inline` entrypoint field, use an entry path relative to `post.dir`, and consult the Trigger Event Catalog. Added duplicate-delivery and idempotency guidance.
+- Documented runtime-managed recurring cron jobs, which persist across deployments from Devvit 0.14.6, while retaining the requirement to declare each task endpoint in `devvit.json`.
+- Aligned TDD and skill checklists with this repo's Vitest setup and shared Devvit server fake, including the JavaScript-only Redis implementation in Devvit's `@devvit/test` harness.
+- Added Devvit 0.15 wiki signature guidance, removed `submitCustomPost()` splash/loading options, the `modReports` deprecation, and current-version documentation lookup advice to the Reddit API skill.
+
 ## 2026-10-23
 
 ### Add a Devvit publish command

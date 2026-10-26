@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Test-Driven Development workflow using Vitest + @devvit/test. Use when writing any new feature, fixing bugs, or refactoring existing code.
+description: Test-Driven Development workflow using Vitest and the project's shared Devvit server fake. Use when writing any new feature, fixing bugs, or refactoring existing code.
 ---
 
 # Test-Driven Development (TDD)
@@ -15,71 +15,62 @@ description: Test-Driven Development workflow using Vitest + @devvit/test. Use w
 
 Never write implementation code without a failing test first.
 
-## Test runner: Vitest + @devvit/test
+## Test runner: Vitest
 
 ```bash
 bun run test              # run all tests once
-bun run test:watch        # watch mode (dev only)
+bunx vitest --watch       # watch mode (not a package script)
 ```
 
-`@devvit/test` provides a miniature Devvit backend per test — in-memory Redis, Reddit API mocks, Scheduler, Realtime, and per-test isolation. No manual mock setup needed.
+For this repository, server tests mock `@devvit/web/server` with `src/server/test-helpers/devvit-fake.ts`. Extend that shared fake when a server test needs another Redis, Reddit, scheduler, or settings behavior; do not copy it or mix in a second fake. The fake models the Devvit 0.15 client behavior used by the app, and each test should reset it before use.
+
+Devvit's `@devvit/test` package remains available, but Devvit 0.14 replaced its native Redis test server with a JavaScript implementation. Treat it as an in-memory test harness, not as a native Redis integration server. Follow this repository's shared-fake convention for server tests.
 
 ## File placement
 
 ```
 src/
 ├── server/
-│   ├── __tests__/          # Server + Devvit integration tests
-│   │   ├── post.test.ts
-│   │   ├── index.test.ts
-│   │   └── redis-integration.test.ts
-│   ├── lib/
-│   │   └── __tests__/      # Helper/utility tests
-│   └── routes/
-│       └── __tests__/      # Route-specific tests
+│   ├── routes/
+│   │   ├── puzzle.ts
+│   │   └── puzzle.test.ts
+│   └── test-helpers/
+│       └── devvit-fake.ts
 └── shared/
-    └── __tests__/          # Pure function tests
+    ├── validator.ts
+    └── validator.test.ts
 ```
 
-Test files: `*.test.ts` — colocated in `__tests__/` directories next to the code they test.
+Test files: `*.test.ts` — colocated next to the module under test where practical, following the existing repository structure.
 
-## Imports
+## Server test setup
 
 ```typescript
-import { createDevvitTest } from '@devvit/test/server/vitest'
-import { redis, reddit, context } from '@devvit/web/server'
-import { expect, vi } from 'vitest'
+import { beforeEach, expect, it, vi } from 'vitest'
+import { context, reddit, redis } from '@devvit/web/server'
+
+const fake = await vi.hoisted(async () =>
+  (await import('../test-helpers/devvit-fake')).createDevvitServerFake()
+)
+
+vi.mock('@devvit/web/server', () => fake)
+
+beforeEach(() => fake.reset())
 ```
 
-## Test setup with @devvit/test
+The helper path above is for tests one directory below `src/server`; adjust the relative path when the test is elsewhere. Keep the same shared fake and its reset controls.
 
-Each test gets an isolated Devvit world — fresh Redis, fresh context, no state bleed:
+Server tests use the mocked module just like production code:
 
 ```typescript
-const test = createDevvitTest()
-
-test('stores and retrieves data', async () => {
+it('stores and retrieves data', async () => {
   await redis.set('key', 'value')
   const result = await redis.get('key')
   expect(result).toBe('value')
 })
-
-test('isolated — previous test state is gone', async () => {
-  const result = await redis.get('key')
-  expect(result).toBeUndefined()
-})
 ```
 
-## Configuration
-
-```typescript
-const test = createDevvitTest({
-  username: 'testuser',
-  userId: 't2_testuser',
-  subredditName: 'testsub',
-  settings: { 'my-setting': 'value' },
-})
-```
+Use `fake.setSettings(...)`, `fake.snapshot()`, and `fake.ttlOf(key)` for installed settings, write-safety assertions, and recorded TTLs. The fake does not advance time or enforce TTL expiry; delete keys directly when a test needs to model expiration.
 
 ## Testing Hono routes
 
@@ -88,9 +79,7 @@ Use `app.request()` — no server startup needed:
 ```typescript
 import { app } from '../index'
 
-const test = createDevvitTest()
-
-test('POST /api/my-route returns success', async () => {
+it('POST /api/my-route returns success', async () => {
   const res = await app.request('/api/my-route', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -102,10 +91,10 @@ test('POST /api/my-route returns success', async () => {
 
 ## Testing Redis patterns
 
-In-memory Redis supports strings, hashes, sorted sets, counters, and transactions:
+The shared fake supports the Redis operations currently used by this app, including strings, hashes, sorted sets, counters, and TTL recording:
 
 ```typescript
-test('leaderboard sorted set', async () => {
+it('leaderboard sorted set', async () => {
   await redis.zAdd('leaderboard', { member: 'alice', score: 100 })
   await redis.zAdd('leaderboard', { member: 'bob', score: 200 })
   const top = await redis.zRange('leaderboard', 0, 1, { by: 'rank', reverse: true })
@@ -118,32 +107,26 @@ test('leaderboard sorted set', async () => {
 Use `vi.spyOn` for Reddit API calls:
 
 ```typescript
-test('submits a post', async ({ subredditName }) => {
+it('submits a post', async () => {
   vi.spyOn(reddit, 'submitCustomPost').mockResolvedValue({ id: 't3_abc' } as never)
   const result = await myFunction()
   expect(reddit.submitCustomPost).toHaveBeenCalledWith({
-    subredditName, title: 'My Post', entry: 'default',
+    subredditName: context.subredditName, title: 'My Post', entry: 'default',
   })
 })
 ```
 
 ## Seeding test data
 
-```typescript
-test('fetches a user', async ({ mocks }) => {
-  mocks.reddit.users.addUser({ id: 't2_bob', name: 'bob' })
-  const user = await reddit.getUserByUsername('bob')
-  expect(user.id).toBe('t2_bob')
-})
-```
+Use `vi.spyOn` on the shared fake's Reddit methods for call assertions and resolved values. Use the fake's backing stores or controls when a test needs to seed supported data; extend the shared helper for reusable behavior.
 
 ## What to test
 
 | Layer | What to test | Mocking approach |
 |-------|-------------|-----------------|
 | `shared/` | Pure logic, validators, parsers | None needed |
-| `server/lib/` | Business logic, Redis patterns | In-memory Redis (automatic) |
-| `server/routes/` | HTTP status, response shape, errors | `app.request()` + `vi.spyOn` |
+| `server/lib/` | Business logic, Redis patterns | Shared Devvit fake |
+| `server/routes/` | HTTP status, response shape, errors | `app.request()` + shared fake |
 | `client/*.ts` | Extracted logic (not .svelte) | Standard Vitest mocks |
 
 ## TDD rules
@@ -152,7 +135,7 @@ test('fetches a user', async ({ mocks }) => {
 2. One assertion per behavior
 3. Descriptive test names — `'returns 400 when guess exceeds max length'`
 4. Test behavior, not internals
-5. Use @devvit/test isolation — no beforeEach cleanup needed
+5. Reset the shared fake before each server test; keep pure-function tests independent of Devvit mocks
 6. `bun run test` must pass before committing
 
 ## Checklist before finishing
@@ -160,4 +143,5 @@ test('fetches a user', async ({ mocks }) => {
 - [ ] All edge cases covered (undefined, empty, invalid input)
 - [ ] Error paths tested (throws, rejects, error responses)
 - [ ] Test names describe behavior, not implementation
+- [ ] Server tests use the shared fake; no duplicate Devvit mock implementations are added
 - [ ] `bun run test` passes with zero failures

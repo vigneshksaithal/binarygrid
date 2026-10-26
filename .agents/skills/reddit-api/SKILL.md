@@ -93,9 +93,14 @@ app.post('/internal/menu/create-game', async (c) => {
 - Reddit API calls are server-side only — never from client Svelte code
 - 30-second request timeout applies to all operations
 - Error handling follows the `api-route` skill pattern (try/catch, `instanceof Error`)
+- `submitCustomPost()` no longer accepts the old `splash` or `loading` options; use a dedicated HTML entrypoint when the post needs a splash view.
+- For wiki revisions on Devvit 0.15+, pass an options object to `reddit.getWikiPage(subredditName, pageName, options)`; the positional revision ID overload was removed. The two-argument call remains supported.
+- Wiki v2 is not enabled for every subreddit. Check `reddit.isWikiV2Enabled()` before making v2 wiki calls, and prefer `revisionAuthorId` / `authorId` over the deprecated author fields.
+- For moderation report details, use `modReports`; `modReportReasons` is deprecated.
+- For newer Reddit API capabilities not shown here, such as post search or community highlights, check the Devvit docs matching the project's pinned version before choosing a method or signature.
 
 ## Checklist before finishing
-- [ ] Tests written FIRST in `src/server/__tests__/` using `bun:test` and devvit-mocks
+- [ ] Tests written FIRST with Vitest beside the module under test; server tests mock `@devvit/web/server` with the shared fake in `src/server/test-helpers/devvit-fake.ts` (extend it instead of copying it)
 - [ ] All Reddit API calls are in server code (`src/server/`)
 - [ ] `context.userId` and `context.postId` guarded before use
 - [ ] Response uses standard shape from `api-route` skill

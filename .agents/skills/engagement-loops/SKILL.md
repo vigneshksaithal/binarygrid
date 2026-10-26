@@ -46,7 +46,7 @@ Every feature must complete at least one cycle of: **Trigger → Action → Vari
 | **Internal — Curiosity** | "Can I beat yesterday's score?" | Progression, personal bests |
 | **Internal — Boredom** | Quick, snackable game in feed | Idle moments, feed scrolling |
 
-**Implementation rule**: Every feature needs a clear return path. Feed posts and social sharing are broadly available. Push notifications and Journeys are experimental gated beta features; use only when approved and never build custom browser push/device-token systems.
+**Implementation rule**: Every feature needs a clear return path. Feed posts and social sharing are broadly available. Devvit Journeys is generally available for session telemetry. Push notifications remain experimental and require approval; use Devvit's notification APIs and never build custom browser push or device-token systems.
 
 ### 2. Action — What does the player do?
 
@@ -270,7 +270,7 @@ If any of these fail, they scroll past.
 
 The inline post preview is your storefront. It must sell the game without the player clicking anything.
 
-Inline mode should load quickly, respect post boundaries, and use only tap/click interactions. Put full-screen play, heavy gestures, longer load states, and dense controls in expanded mode.
+Inline mode should load quickly, respect post boundaries, and use bounded tap/click interactions. Keep Reddit's vertical feed scrolling available: don't capture wheel or touch-move gestures, call `preventDefault()` on feed gestures, or apply `touch-action: none` / `overscroll-behavior: none` to the inline root. Use expanded mode for vertical scrolling, full-surface gestures, longer flows, and dense controls. Verify feed scrolling on web, Android, and iOS.
 
 | ✅ Show in inline mode | ❌ Never show in inline mode |
 |---|---|
@@ -298,7 +298,7 @@ Inline mode should load quickly, respect post boundaries, and use only tap/click
 </script>
 
 {#if mode === 'inline'}
-  <div class="h-full w-full overflow-hidden flex flex-col items-center justify-center bg-gray-900">
+  <div class="h-full w-full overflow-hidden overscroll-auto touch-pan-y flex flex-col items-center justify-center bg-gray-900">
     <!-- Visual preview of the game -->
     <div class="mb-4"><!-- Game preview graphic --></div>
     <button onclick={handlePlay} class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl text-lg">

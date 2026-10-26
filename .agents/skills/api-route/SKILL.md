@@ -181,7 +181,7 @@ if (owner !== userId) {
 - No native Node modules (sharp, ffmpeg) — use external services
 
 ## Checklist before finishing
-- [ ] Tests written FIRST in `src/server/__tests__/` using `bun:test` and devvit-mocks
+- [ ] Tests written FIRST with Vitest beside the module under test; server tests mock `@devvit/web/server` with the shared fake in `src/server/test-helpers/devvit-fake.ts` (extend it instead of copying it)
 - [ ] Handler is an arrow function with explicit return type
 - [ ] try/catch with `instanceof Error` narrowing
 - [ ] HTTP status uses named constant, not magic number

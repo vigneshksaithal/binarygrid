@@ -72,6 +72,15 @@ Declare recurring or one-off tasks in `devvit.json`; each task maps to an intern
       "league-reset": {
         "endpoint": "/internal/cron/league-reset",
         "cron": "0 0 * * 1"
+      },
+      "game-timeout": {
+        "endpoint": "/internal/schedule/game-timeout"
+      },
+      "cleanup-batch": {
+        "endpoint": "/internal/cron/cleanup-batch"
+      },
+      "user-configured-reminder": {
+        "endpoint": "/internal/schedule/user-configured-reminder"
       }
     }
   }
@@ -79,7 +88,7 @@ Declare recurring or one-off tasks in `devvit.json`; each task maps to an intern
 ```
 
 - Tasks with `cron` run automatically on schedule.
-- Tasks without `cron` are one-off and are scheduled at runtime via `scheduler.runJob()`.
+- Every scheduled task, including one-off and runtime-managed recurring jobs, must be declared in `devvit.json` with an endpoint. A task without `cron` gets its schedule from `scheduler.runJob()`.
 - Keep handlers bounded. If work may exceed 30 seconds, process a small batch and schedule the next one-off job with a cursor.
 - Limits: 10 live recurring actions per installation, 60 `runJob()` calls/minute, 60 deliveries/minute.
 
@@ -98,6 +107,30 @@ await redis.set(`job:${context.postId}`, jobId)
 ```
 
 Cancel jobs by storing their job id in Redis and calling `scheduler.cancelJob(jobId)`.
+
+### Runtime-managed recurring jobs
+
+Since Devvit 0.14.6, recurring cron jobs created with `scheduler.runJob()` are preserved across deployments. Declare the task endpoint in `devvit.json` without a `cron` field, then provide the cron expression at runtime. Jobs configured with `cron` in `devvit.json` continue to be rescheduled from the manifest on install and upgrade.
+
+```json
+{
+  "scheduler": {
+    "tasks": {
+      "user-configured-reminder": {
+        "endpoint": "/internal/schedule/user-configured-reminder"
+      }
+    }
+  }
+}
+```
+
+```typescript
+await scheduler.runJob({
+  name: 'user-configured-reminder',
+  cron: '0 9 * * *',
+  data: { cadence: 'daily' },
+})
+```
 
 ### Bounded batch jobs
 
@@ -349,13 +382,13 @@ Plan content 2 weeks ahead. Store in Redis for dynamic access:
 
 ## Notifications and Journeys
 
-Push notifications and Devvit Journeys are gated beta features. Use them only when the app has approval:
+Devvit Journeys is generally available and provides session telemetry and event receipts. Push notifications remain experimental and require approval before use:
 
 - Notification opt-in state must come from Devvit notifications APIs, not Redis
 - Notification copy must be short, contextual, and approved
 - Use scheduler batches to page opted-in users; do not send a large campaign in one request
 - Include the canonical daily post/content link
-- Journeys events should track starts, completions, exits, session duration, and key friction points; handle receipts in tests/mocks
+- Journeys events should track starts, completions, exits, session duration, and key friction points; check event receipts when validating telemetry
 
 ## Checklist before finishing
 - [ ] Daily challenge post created automatically via scheduler
@@ -366,7 +399,7 @@ Push notifications and Devvit Journeys are gated beta features. Use them only wh
 - [ ] Difficulty varies across the week
 - [ ] Weekly recap post celebrates community stats
 - [ ] League reset runs weekly via scheduler
-- [ ] All scheduler tasks declared in devvit.json
+- [ ] Every scheduler task has an endpoint declaration in devvit.json; choose a manifest cron or runtime-managed schedule intentionally
 - [ ] One-off job IDs stored in Redis when cancellation is needed
 - [ ] Long scheduled work split into bounded batches with cursor/progress state
 - [ ] Content calendar stored in Redis for dynamic access

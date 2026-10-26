@@ -49,9 +49,10 @@ const [a, b] = await redis.mGet(['key1', 'key2'])
 ```
 
 ## Platform limits to design around
-- 500MB total storage per subreddit install
-- 1,000 commands/second max
-- 4MB max request payload
+- 5 GB total Redis storage per installation
+- 40,000 Redis commands/second per installation
+- 5 MB maximum Redis request size
+- Devvit Web endpoint payloads have a separate 4 MB limit
 - Prefer `hGetAll` over multiple `hGet` calls
 - Prefer `mGet` over multiple `get` calls
 
@@ -71,7 +72,7 @@ if (solved !== undefined) {
 ```
 
 ## Checklist before finishing
-- [ ] Tests written FIRST in `__tests__/` using `bun:test` and devvit-mocks for Redis operations
+- [ ] Tests written FIRST with Vitest beside the module under test; server tests use the shared `src/server/test-helpers/devvit-fake.ts` mock from `AGENTS.md`
 - [ ] Keys follow `{entity}:{id}:{field}` pattern
 - [ ] All Redis values are strings — parse numbers with `parseInt`/`parseFloat`
 - [ ] Null/undefined handled after every `get` / `hGet`

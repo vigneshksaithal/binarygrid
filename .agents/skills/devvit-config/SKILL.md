@@ -7,6 +7,8 @@ description: Modify devvit.json to add menu items, triggers, post entrypoints, o
 
 > All code must follow the **Coding Principles** in AGENTS.md (functional, minimal, readable, modular).
 
+Devvit 0.15 requires `devvit.json`; `devvit.yaml` is no longer supported. Post entrypoints are inline by default, so do not add the deprecated `inline` property.
+
 ## devvit.json structure
 
 ```jsonc
@@ -17,9 +19,8 @@ description: Modify devvit.json to add menu items, triggers, post entrypoints, o
     "dir": "dist/client",
     "entrypoints": {
       "default": {
-        "entry": "src/client/index.html",
-        "height": "tall",       // "short" | "regular" | "tall"
-        "inline": true          // renders inside post, not popup
+        "entry": "index.html", // relative to post.dir
+        "height": "tall"       // "short" | "regular" | "tall"
       }
     }
   },
@@ -59,6 +60,8 @@ Menu items appear in Reddit's "..." menu on posts or subreddits. Each maps to an
 | `forUserType` | `"moderator"`, `"member"` | Who can see it |
 | `endpoint` | `/internal/menu/{name}` | Must match a Hono route |
 
+The values shown here are an example, not the complete menu or trigger schema. Check the current Devvit configuration docs when adding fields or capabilities.
+
 After adding a menu item, create the matching Hono handler:
 
 ```typescript
@@ -91,6 +94,8 @@ Triggers fire on platform events. Each maps to an `/internal/*` endpoint.
 | `onPostDelete` | Post deleted |
 | `onCommentDelete` | Comment deleted |
 
+This table is only a short list of common events. Consult Devvit's Trigger Event Catalog for the current event list, each event's payload shape, optional fields, and delivery behavior. Triggers may be delivered asynchronously or more than once, so handlers must be idempotent and should avoid recursive actions. Check the payload to ensure the app did not cause the event. Some events, including app-mention triggers, have limited access.
+
 ## Post height options
 
 | Height | Pixels | Use case |
@@ -100,7 +105,7 @@ Triggers fire on platform events. Each maps to an `/internal/*` endpoint.
 | `"tall"` | ~512px | Full games, complex UI |
 
 ## Checklist before finishing
-- [ ] Tests written FIRST for corresponding server handlers in `src/server/__tests__/`
+- [ ] Tests written FIRST with Vitest beside the corresponding server module; server tests use the shared fake from `src/server/test-helpers/devvit-fake.ts`
 - [ ] Menu item `endpoint` matches a Hono route in `src/server/index.ts`
 - [ ] Trigger endpoint matches a Hono route
 - [ ] `location` and `forUserType` are appropriate for the action

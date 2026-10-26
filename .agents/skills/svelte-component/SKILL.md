@@ -34,11 +34,15 @@ description: Create a Svelte 5 component with optional data fetching. Use when a
 </script>
 ```
 
-## Layout rules (no scrolling — CRITICAL)
+## Layout and scrolling by view mode
+
+Inline views must fit their important content within the post viewport and let users scroll the Reddit feed vertically. Keep inline interactions bounded to taps or clicks; move long content, vertical scrolling, and richer gestures into expanded mode. Expanded views may scroll when needed.
+
+Do not intercept wheel or touch-move events across an inline view, call `preventDefault()` on feed gestures, or set `touch-action: none` / `overscroll-behavior: none` on the inline root. If gesture CSS is needed, preserve vertical feed scrolling with `touch-action: pan-y` and normal overscroll behavior. Test feed scrolling on web, Android, and iOS.
 
 ```svelte
-<!-- Root component layout — always use this structure -->
-<div class="h-full w-full overflow-hidden flex flex-col">
+<!-- A bounded inline layout; keep the feed's vertical gestures available. -->
+<div class="h-full w-full overflow-hidden overscroll-auto touch-pan-y flex flex-col">
   <header class="flex-none"><!-- fixed height header --></header>
   <main class="flex-1 min-h-0 flex flex-col items-center justify-center">
     <!-- content -->
@@ -47,9 +51,10 @@ description: Create a Svelte 5 component with optional data fetching. Use when a
 </div>
 ```
 
-| ❌ Never use | ✅ Use instead |
+| ❌ Avoid in inline mode | ✅ Use instead |
 |---|---|
-| `overflow-y-auto` | `overflow-hidden` |
+| Internal scrolling for long content | Move the longer view into expanded mode |
+| Broad wheel/touch interception | Bounded tap/click controls that preserve feed scrolling |
 | `min-h-screen` / `h-screen` | `h-full` |
 | `<style>` blocks | Tailwind classes only |
 | `localStorage` | `fetch('/api/...')` |
@@ -135,7 +140,8 @@ description: Create a Svelte 5 component with optional data fetching. Use when a
 - [ ] No `<style>` blocks — Tailwind only
 - [ ] No `localStorage` / `sessionStorage`
 - [ ] No direct external `fetch()` — all through `/api/*`
-- [ ] Root container uses `h-full w-full overflow-hidden flex flex-col`
+- [ ] Inline content fits without vertical scrolling inside the post and preserves Reddit feed gestures
+- [ ] Expanded layouts can scroll when their content needs more room
 - [ ] Loading, error, and success states all handled in UI
 - [ ] POST requests include `Content-Type: application/json` header
 - [ ] `finally` block resets loading/submitting state
