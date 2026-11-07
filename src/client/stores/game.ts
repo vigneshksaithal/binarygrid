@@ -110,6 +110,7 @@ export const game = writable<GameState>(initial)
 // --- module-level side-effect state ---
 
 let errorTimer: ReturnType<typeof setTimeout> | undefined
+let latestLoad = 0
 
 // The tier the last load asked for, so Retry asks the same; none lets the server pick.
 let requestedDifficulty: Difficulty | undefined
@@ -166,6 +167,8 @@ const startTimerOnFirstInput = (wasTracked: boolean) => {
  * (Easy for new players while the first screen is on) and the reply names it.
  */
 export const loadPuzzle = async (difficulty?: Difficulty) => {
+  const load = ++latestLoad
+  clearErrorTimer()
   requestedDifficulty = difficulty
   resetTimer()
   closeSuccessModal()
@@ -186,6 +189,7 @@ export const loadPuzzle = async (difficulty?: Difficulty) => {
   }))
 
   const loaded = await fetchPuzzle(difficulty)
+  if (load !== latestLoad) return
 
   if (!loaded) {
     game.update((s) => ({

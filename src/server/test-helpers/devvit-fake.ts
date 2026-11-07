@@ -185,6 +185,7 @@ const createRedisFake = () => {
 }
 
 const createRedditFake = () => ({
+  getPostById: vi.fn((_id: string) => Promise.resolve({ title: 'Legacy post' })),
   submitComment: vi.fn(() => Promise.resolve({ id: 't1_comment_123' })),
   submitCustomPost: vi.fn((_options: CustomPostOptions) => Promise.resolve({ id: 't3_recap_123' })),
   getCurrentUser: vi.fn(() => Promise.resolve({ username: 'testuser' })),

@@ -206,7 +206,7 @@ describe('daily post tasks', () => {
   })
 
   it('keeps the date for its post when storing the puzzles fails after posting', async () => {
-    fake.redis.hSet.mockRejectedValueOnce(new Error('Redis write failed'))
+    fake.redis.hSetNX.mockRejectedValueOnce(new Error('Redis write failed'))
 
     const failed = await runTask(MORNING_TASK, DAY_ONE_MORNING)
     const repeat = await runTask(MORNING_TASK, DAY_ONE_MORNING)
@@ -345,7 +345,7 @@ describe('daily post retry', () => {
   })
 
   it('stores the puzzles of a post left without them, with no second post', async () => {
-    fake.redis.hSet.mockRejectedValueOnce(new Error('Redis write failed'))
+    fake.redis.hSetNX.mockRejectedValueOnce(new Error('Redis write failed'))
     await runTask(MORNING_TASK, DAY_ONE_MORNING)
 
     const retried = await runLastScheduledRetry()

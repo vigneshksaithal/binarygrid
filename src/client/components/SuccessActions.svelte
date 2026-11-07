@@ -7,7 +7,7 @@
 	import { trackGrowthEvent } from '../stores/growth'
 	import { formatJoinLabel, JOIN_FAILED_MESSAGE, joinCurrentSubreddit } from '../stores/join'
 	import { resetAllShareState, resetShareState, shareState } from '../stores/share'
-	import { elapsedSeconds, startTimer } from '../stores/timer'
+	import { elapsedSeconds } from '../stores/timer'
 	import { closeSuccessModal, hasJoinedSubreddit, setHasJoinedSubreddit } from '../stores/ui'
 	import Button from './Button.svelte'
 	import ScoreCommentPreview from './ScoreCommentPreview.svelte'
@@ -36,7 +36,6 @@
 
 	const playAnotherDifficulty = async () => {
 		await loadPuzzle(getNextDifficulty($game.difficulty))
-		startTimer()
 	}
 
 	const fetchJoinedStatus = async () => {

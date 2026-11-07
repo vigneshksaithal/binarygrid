@@ -2,7 +2,8 @@ import { get } from 'svelte/store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createEmptyGrid } from '../../shared/utils/grid'
 import { PUZZLE_LOAD_TIMEOUT_MS } from '../services/puzzle-api'
-import { game, loadPuzzle, retryPuzzleLoad } from './game'
+import { cycleCell, game, loadPuzzle, retryPuzzleLoad } from './game'
+import { challengeSharing, firstScreenSwitch } from './ui'
 
 type FetchReply = { ok: boolean; status: number; json: () => Promise<unknown> }
 
@@ -50,6 +51,24 @@ const stubPuzzleFetch = (...puzzleReplies: Array<FetchReply | Error | typeof HAN
 
 const puzzleRequestsOf = (fetchMock: ReturnType<typeof stubPuzzleFetch>): string[] =>
   fetchMock.mock.calls.map(([url]) => url).filter(isPuzzleRequest)
+
+const deferredReply = () => {
+  let resolve!: (reply: FetchReply) => void
+  const promise = new Promise<FetchReply>((complete) => { resolve = complete })
+  return { promise, resolve }
+}
+
+const stubOverlappingLoads = () => {
+  const first = deferredReply()
+  const second = deferredReply()
+  const replies = [first.promise, second.promise]
+  const fetchMock = vi.fn(async (url: string, _init?: RequestInit) => {
+    if (!isPuzzleRequest(url)) return reply(HTTP_OK, { ok: true })
+    return replies.shift() ?? reply(HTTP_OK, { puzzle: HARD_PUZZLE })
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  return { first, second, fetchMock }
+}
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] })
@@ -103,6 +122,72 @@ describe('loadPuzzle failures', () => {
       difficulty: 'hard',
       puzzleId: 't3_post:hard',
     })
+  })
+})
+
+describe('overlapping puzzle loads', () => {
+  it('keeps the newest puzzle and the player’s moves when an older load succeeds late', async () => {
+    const { first, second } = stubOverlappingLoads()
+    const older = loadPuzzle('easy')
+    const newer = loadPuzzle('hard')
+    second.resolve(reply(HTTP_OK, { puzzle: HARD_PUZZLE, firstScreen: true, challengeSharing: true }))
+    await newer
+    cycleCell(0, 0)
+
+    first.resolve(reply(HTTP_OK, { puzzle: EASY_PUZZLE, firstScreen: false, challengeSharing: false }))
+    await older
+
+    expect(get(game)).toMatchObject({ status: 'in_progress', difficulty: 'hard', puzzleId: HARD_PUZZLE.id })
+    expect(get(game).grid[0]?.[0]).toBe(0)
+    expect(get(firstScreenSwitch)).toBe('on')
+    expect(get(challengeSharing)).toBe(true)
+  })
+
+  it('ignores an older failure after a newer puzzle loads', async () => {
+    const { first, second, fetchMock } = stubOverlappingLoads()
+    const older = loadPuzzle('easy')
+    const newer = loadPuzzle('hard')
+    second.resolve(reply(HTTP_OK, { puzzle: HARD_PUZZLE }))
+    await newer
+    first.resolve(reply(500, {}))
+    await older
+
+    expect(get(game)).toMatchObject({ status: 'in_progress', puzzleId: HARD_PUZZLE.id })
+    expect(fetchMock.mock.calls.some(([, init]) =>
+      typeof init?.body === 'string' && JSON.parse(init.body).eventName === 'puzzle_load_failed'
+    )).toBe(false)
+  })
+
+  it('keeps the newest failure when an older puzzle succeeds later', async () => {
+    const { first, second, fetchMock } = stubOverlappingLoads()
+    const older = loadPuzzle('easy')
+    const newer = loadPuzzle('hard')
+    second.resolve(reply(500, {}))
+    await newer
+    first.resolve(reply(HTTP_OK, { puzzle: EASY_PUZZLE }))
+    await older
+
+    expect(get(game)).toMatchObject({ status: 'error', difficulty: 'hard' })
+    await retryPuzzleLoad()
+    expect(fetchMock.mock.calls.filter(([url]) => isPuzzleRequest(url)).map(([url]) => url))
+      .toEqual(['/api/puzzle?difficulty=easy', '/api/puzzle?difficulty=hard', '/api/puzzle?difficulty=hard'])
+    expect(get(game)).toMatchObject({ status: 'in_progress', puzzleId: HARD_PUZZLE.id })
+  })
+
+  it('does not revive the previous board when its delayed error fires during a load', async () => {
+    stubPuzzleFetch(reply(HTTP_OK, { puzzle: EASY_PUZZLE }))
+    await loadPuzzle('easy')
+    cycleCell(0, 0)
+    cycleCell(0, 1)
+    cycleCell(0, 2)
+    stubPuzzleFetch(HANG)
+    const loading = loadPuzzle('hard')
+
+    vi.advanceTimersByTime(1000)
+    expect(get(game).status).toBe('loading')
+    await vi.advanceTimersByTimeAsync(PUZZLE_LOAD_TIMEOUT_MS)
+    await loading
+    expect(get(game).status).toBe('error')
   })
 })
 

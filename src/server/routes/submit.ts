@@ -5,6 +5,7 @@ import type { Grid } from '../../shared/types/puzzle'
 import { isValidAttemptId, validateGrid } from '../../shared/validator'
 import { getUTCWeekId } from '../../shared/growth'
 import { recordHourlySolve } from '../core/baseline'
+import { readPostPuzzle } from '../core/post-puzzle'
 import { readStreakSettings, recordPuzzleSolve } from '../core/puzzle-streak'
 import {
   getPlayerContext,
@@ -92,9 +93,10 @@ app.post('/api/submit', async (c) => {
     const difficulty =
       lastPart && isDifficultyValue(lastPart) ? (lastPart as typeof DEFAULT_DIFFICULTY) : DEFAULT_DIFFICULTY
 
-    let puzzleData = await redis.hGetAll(
-      `post:${postId}:puzzle:${difficulty}`
-    )
+    const puzzle = await readPostPuzzle(postId, difficulty)
+    let puzzleData: Record<string, string> | null = puzzle
+      ? { id: puzzle.id, fixed: JSON.stringify(puzzle.fixed) }
+      : null
 
     if (!puzzleData?.id || puzzleData.id !== body.id) {
       const oldPuzzleData = await redis.hGetAll(`post:${postId}:puzzle`)

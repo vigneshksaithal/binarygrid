@@ -43,6 +43,13 @@ type OnPostSubmitted = (postId: string) => Promise<void>
 
 const ignoreSubmittedPost: OnPostSubmitted = () => Promise.resolve()
 
+const preparePublishedDate = async (date: string, number: number): Promise<void> => {
+  await preparePuzzleSet(date)
+  const dateKey = `puzzle:number:published-date:${number}`
+  await redis.set(dateKey, date, { nx: true })
+  if (await redis.get(dateKey) !== date) throw new Error('Puzzle number date mismatch')
+}
+
 /**
  * Stores what a post serves once Reddit has it: its stamp, the date's puzzles
  * under post-scoped IDs, and the score thread. A tier that already serves a
@@ -90,6 +97,8 @@ export const createPostForDate = async (
 
   // Minted before posting, since the title carries it.
   const number = await getOrCreateDateNumber(date)
+  // Publish the date and complete puzzle set before the post is visible.
+  await preparePublishedDate(date, number)
   const post = await reddit.submitCustomPost({
     subredditName,
     title: dailyPostTitle(number),
@@ -121,6 +130,7 @@ export const completePost = async (
 ): Promise<void> => {
   const stamp = await readPostStamp(postId)
   const number = stamp?.number ?? (await getOrCreateDateNumber(date))
+  await preparePublishedDate(date, number)
   await setUpPost(postId, date, number, stamp?.createdAt ?? createdAt)
 }
 

@@ -1,9 +1,10 @@
-import { cache, context, redis } from '@devvit/web/server'
+import { cache, context, reddit, redis } from '@devvit/web/server'
 import { Hono } from 'hono'
 import type { Difficulty, PuzzleWithGrid } from '../../shared/types/puzzle'
 import { generateDailyPuzzle } from '../core/generator'
 import { readPostPuzzle, storePostPuzzle } from '../core/post-puzzle'
-import { getOrCreatePuzzleNumber } from '../core/puzzle-number'
+import { getOrCreatePuzzleNumber, getPuzzleNumber } from '../core/puzzle-number'
+import { readDatePuzzle } from '../core/puzzle-set'
 import { DEFAULT_SETTINGS, readSettings } from '../lib/settings'
 import {
   CACHE_TTL_ONE_DAY,
@@ -50,6 +51,21 @@ const getDailyPuzzle = (date: string, difficulty: Difficulty): Promise<PuzzleWit
     ttl: CACHE_TTL_ONE_DAY
   })
 
+const publishedDate = async (postId: string): Promise<string | null> => {
+  const post = await reddit.getPostById(postId as `t3_${string}`)
+  const number = /^Binary Grid #(\d+)(?: · Evening catch-up)?$/.exec(post.title)?.[1]
+  if (!number) return null
+  return await redis.get(`puzzle:number:published-date:${number}`) ?? null
+}
+
+const intendedPuzzle = async (postId: string, difficulty: Difficulty): Promise<PuzzleWithGrid | null> => {
+  const date = await publishedDate(postId)
+  if (!date) return null // Older posts did not record a published date.
+  const puzzle = await readDatePuzzle(date, difficulty)
+  if (!puzzle) throw new Error('Daily puzzle is not ready')
+  return { ...puzzle, id: `${postId}:${difficulty}` }
+}
+
 // A post without a stored puzzle (the weekly recap, or a post whose generation
 // failed) stores today's puzzle under its own ID before serving it, so solves
 // of it validate. Today's date, not a requested one, so no client picks it.
@@ -60,10 +76,9 @@ const getOrStorePostPuzzle = async (
   const stored = await readPostPuzzle(postId, difficulty)
   if (stored) return stored
 
-  const daily = await getDailyPuzzle(todayISO(), difficulty)
+  const daily = await intendedPuzzle(postId, difficulty) ?? await getDailyPuzzle(todayISO(), difficulty)
   const puzzle = { ...daily, id: `${postId}:${difficulty}` }
-  await storePostPuzzle(postId, puzzle)
-  return puzzle
+  return storePostPuzzle(postId, puzzle)
 }
 
 app.get('/api/puzzle-number', async (c) => {
@@ -73,8 +88,10 @@ app.get('/api/puzzle-number', async (c) => {
   }
 
   try {
-    const dateISO = todayISO()
-    const dayNumber = await getOrCreatePuzzleNumber(postId, dateISO)
+    const existingNumber = await getPuzzleNumber(postId)
+    const dayNumber = existingNumber || await getOrCreatePuzzleNumber(
+      postId, await publishedDate(postId) ?? todayISO()
+    )
     return c.json({ dayNumber })
   } catch (error) {
     const errorMessage =

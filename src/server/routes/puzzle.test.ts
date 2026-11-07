@@ -9,6 +9,7 @@ import { redis } from '@devvit/web/server'
 import { solvePuzzle } from '../../shared/solver'
 import type { PuzzleWithGrid } from '../../shared/types/puzzle'
 import { generateDailyPuzzle } from '../core/generator'
+import { readPostPuzzle } from '../core/post-puzzle'
 import { FAKE_POST_ID, FAKE_USER_ID } from '../test-helpers/devvit-fake'
 import app from './index'
 
@@ -147,11 +148,23 @@ describe('GET /api/puzzle and the first-screen switch', () => {
 })
 
 describe('GET /api/puzzle on a post without stored puzzles', () => {
+  it('does not guess a puzzle if the post identity cannot be read', async () => {
+    fake.reddit.getPostById.mockRejectedValueOnce(new Error('Reddit unavailable'))
+    expect((await requestPuzzle('?difficulty=easy')).status).toBe(400)
+    expect(await readPostPuzzle(FAKE_POST_ID, 'easy')).toBeNull()
+  })
+
+  it('does not substitute a fallback when a published date set is missing', async () => {
+    fake.reddit.getPostById.mockResolvedValueOnce({ title: 'Binary Grid #12' })
+    await redis.set('puzzle:number:published-date:12', '2026-10-22')
+    expect((await requestPuzzle('?difficulty=easy')).status).toBe(400)
+    expect(await readPostPuzzle(FAKE_POST_ID, 'easy')).toBeNull()
+  })
   it('stores the served puzzle under the post with a post-scoped ID', async () => {
     const puzzle = await getPuzzle()
 
     expect(puzzle.id).toBe(`${FAKE_POST_ID}:${TIER}`)
-    expect(await redis.hGetAll(STORED_KEY)).toEqual(asStoredHash(puzzle))
+    expect(await readPostPuzzle(FAKE_POST_ID, TIER)).toEqual(puzzle)
   })
 
   it('lets /api/submit accept a solve of the served puzzle', async () => {
@@ -174,7 +187,7 @@ describe('GET /api/puzzle on a post without stored puzzles', () => {
     const puzzle = await getPuzzle(`difficulty=${TIER}&date=2020-01-01`)
 
     expect(puzzle.fixed).toEqual(generateDailyPuzzle('2026-10-22', TIER).fixed)
-    expect(await redis.hGetAll(STORED_KEY)).toEqual(asStoredHash(puzzle))
+    expect(await readPostPuzzle(FAKE_POST_ID, TIER)).toEqual(puzzle)
   })
 })
 

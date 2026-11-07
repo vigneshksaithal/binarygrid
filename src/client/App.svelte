@@ -11,6 +11,7 @@
 	import Grid from "./components/Grid.svelte";
 	import HowToPlayModal from "./components/HowToPlayModal.svelte";
 	import LeaderboardModal from "./components/LeaderboardModal.svelte";
+	import PendingSolves from "./components/PendingSolves.svelte";
 	import StillCounts from "./components/StillCounts.svelte"
 	import SuccessModal from "./components/SuccessModal.svelte";
 	import Timer from "./components/Timer.svelte";
@@ -176,6 +177,7 @@
 			<FirstScreenFrame placeholder={$firstScreenSwitch === "unknown"} />
 		{/if}
 		<Grid />
+		<PendingSolves />
 		<!-- "#127 still counts", under the puzzle streak rule only -->
 		<StillCounts />
 	</div>

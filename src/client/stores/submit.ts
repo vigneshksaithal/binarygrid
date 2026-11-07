@@ -3,7 +3,7 @@ import type { SolveQuality } from '../../shared/growth'
 import { LOGIN_REQUIRED_CODE } from '../../shared/submit'
 import type { StreakData } from '../../shared/types/streak'
 import { timeoutSignal } from '../services/request-timeout'
-import type { DailyProgress, PlayerContext } from './growth'
+import { type DailyProgress, type PlayerContext, trackGrowthEvent } from './growth'
 
 /** What the result screen says about the current puzzle's solve. */
 export type SubmitStatus = 'idle' | 'saving' | 'saved' | 'failed' | 'login_required'
@@ -28,7 +28,10 @@ type HeldSolve = {
   attemptId: string
   payload: SolvePayload
   showResult: ShowSubmitResult
+  status: SubmitStatus
 }
+
+export type PendingSolve = { attemptId: string; puzzleId: string; status: SubmitStatus }
 
 type SendOutcome =
   | { kind: 'saved'; response: SubmitResponse }
@@ -43,6 +46,7 @@ const RETRY_DELAYS_MS = [1000, 3000, 9000] as const
 export const SUBMIT_TIMEOUT_MS = 15_000
 
 export const submitStatus = writable<SubmitStatus>('idle')
+export const pendingSolves = writable<PendingSolve[]>([])
 
 // Browsers without crypto.randomUUID get a timestamp and random suffix instead.
 const createAttemptId = (): string =>
@@ -52,12 +56,33 @@ const createAttemptId = (): string =>
 let currentAttemptId = createAttemptId()
 let heldSolve: HeldSolve | null = null
 let awaitingLogin = false
+const earlierSolves: HeldSolve[] = []
+
+const publishPendingSolves = (): void => {
+  pendingSolves.set(earlierSolves.map((solve) => ({
+    attemptId: solve.attemptId,
+    puzzleId: typeof solve.payload.id === 'string' ? solve.payload.id : '',
+    status: solve.status,
+  })))
+}
+
+const removeEarlierSolve = (solve: HeldSolve): void => {
+  const index = earlierSolves.indexOf(solve)
+  if (index !== -1) earlierSolves.splice(index, 1)
+  publishPendingSolves()
+}
 
 // A save of an earlier attempt finishes quietly, without touching the result screen.
 const isCurrent = (solve: HeldSolve): boolean => solve.attemptId === currentAttemptId
 
 const showStatus = (solve: HeldSolve, status: SubmitStatus): void => {
+  if (status === 'failed' && solve.status !== 'failed') {
+    void trackGrowthEvent('solve_save_failed')
+  }
+  solve.status = status
   if (isCurrent(solve)) submitStatus.set(status)
+  else if (status === 'saved') removeEarlierSolve(solve)
+  else publishPendingSolves()
 }
 
 const isObject = (value: unknown): value is Record<string, unknown> =>
@@ -74,7 +99,7 @@ const wait = (ms: number): Promise<void> =>
     setTimeout(resolve, ms)
   })
 
-const sendSolve = async ({ attemptId, payload }: HeldSolve): Promise<SendOutcome> => {
+const sendSolveRequest = async ({ attemptId, payload }: HeldSolve): Promise<SendOutcome> => {
   try {
     const res = await fetch('/api/submit', {
       method: 'POST',
@@ -89,6 +114,15 @@ const sendSolve = async ({ attemptId, payload }: HeldSolve): Promise<SendOutcome
   } catch {
     return { kind: 'failed' }
   }
+}
+
+// Serialize submissions within this webview so an older retry cannot race a
+// newer solve's server-side best-score and streak updates.
+let lastSend: Promise<void> = Promise.resolve()
+const sendSolve = (solve: HeldSolve): Promise<SendOutcome> => {
+  const result = lastSend.then(() => sendSolveRequest(solve))
+  lastSend = result.then(() => {}, () => {})
+  return result
 }
 
 const showSavedResult = async (solve: HeldSolve, response: SubmitResponse): Promise<void> => {
@@ -109,7 +143,6 @@ const saveOnce = async (solve: HeldSolve): Promise<boolean> => {
     showStatus(solve, 'login_required')
     return true
   }
-  if (isCurrent(solve)) awaitingLogin = false
   showStatus(solve, 'saved')
   await showSavedResult(solve, outcome.response)
   return true
@@ -130,9 +163,12 @@ const saveWithRetries = async (solve: HeldSolve): Promise<void> => {
 
 /** Starts the attempt for a freshly loaded puzzle, with a new attempt ID. */
 export const startAttempt = (): void => {
+  if (heldSolve && heldSolve.status !== 'saved') {
+    earlierSolves.push(heldSolve)
+    publishPendingSolves()
+  }
   currentAttemptId = createAttemptId()
   heldSolve = null
-  awaitingLogin = false
   submitStatus.set('idle')
 }
 
@@ -147,7 +183,7 @@ export const submitSolve = async (
   showResult: ShowSubmitResult
 ): Promise<void> => {
   if (heldSolve) return
-  heldSolve = { attemptId: currentAttemptId, payload, showResult }
+  heldSolve = { attemptId: currentAttemptId, payload, showResult, status: 'idle' }
   await saveWithRetries(heldSolve)
 }
 
@@ -155,6 +191,13 @@ export const submitSolve = async (
 export const retrySubmit = async (): Promise<void> => {
   if (!heldSolve || get(submitStatus) !== 'failed') return
   await saveOrShowFailure(heldSolve)
+}
+
+/** Retries an earlier solve without changing the current puzzle's result. */
+export const retryPendingSolve = async (attemptId: string): Promise<void> => {
+  const solve = earlierSolves.find((entry) => entry.attemptId === attemptId)
+  if (!solve || solve.status !== 'failed') return
+  await saveOrShowFailure(solve)
 }
 
 /** Holds a logged-out solve for resending when the player comes back from the login prompt. */
@@ -167,6 +210,9 @@ export const awaitLoginReturn = (): void => {
  * survived the login. Does nothing unless the player opened the prompt.
  */
 export const resubmitAfterLogin = async (): Promise<void> => {
-  if (!heldSolve || !awaitingLogin || get(submitStatus) !== 'login_required') return
-  await saveOrShowFailure(heldSolve)
+  if (!awaitingLogin) return
+  awaitingLogin = false
+  const solves = [...earlierSolves, ...(heldSolve ? [heldSolve] : [])]
+    .filter((solve) => solve.status === 'login_required')
+  for (const solve of solves) await saveOrShowFailure(solve)
 }

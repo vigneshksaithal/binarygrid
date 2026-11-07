@@ -1,5 +1,106 @@
 # Changelog
 
+## 2026-11-07
+
+### Submit reliability draft for Reddit review
+
+- At the owner's request, uploaded private 0.12.14, then uploaded the source
+  archive with explicit approval and submitted 0.12.15 for Reddit review. The
+  remote build and submission succeeded; approval has not been verified.
+- Do not install 0.12.15 in production: the storage transition and rollback are
+  not safe with old running versions. The production installation and its
+  catch-up trial settings were not changed by this submission.
+
+### Prepare puzzle and save reliability fixes (local only)
+
+- Ignore out-of-order puzzle responses and cancel delayed validation when a
+  new load begins, preserving the latest selected grid, settings and moves.
+- Keep earlier unsaved results available for retry or login while the current
+  game session remains open. Closing or reloading the webview can still lose
+  an unsaved result. Start the next puzzle timer on its first move.
+- Prepare new daily puzzle sets and their date identity before publishing;
+  use atomic per-tier snapshots for new writes and retain legacy hash reads.
+  Early loads and puzzle numbers resolve the intended date, including late
+  retries, and repair preserves previously served boards.
+- This server change is **not ready for production deployment or rollback**:
+  old running versions cannot read snapshot-only records and can race new
+  writers. The safety of a staged transition is unverified. A pre-upgrade
+  partially initialized post may already have served a different fallback
+  before its date is registered. Missing-tier legacy posts now require a
+  successful Reddit metadata lookup. Preserve the current trial settings.
+
+## 2026-10-28
+
+### Deploy approved recovery reporting v0.12.13
+
+- After the owner reported approval, confirmed the Developer Portal lists
+  **0.12.13** as **Unlisted / Approved**. Repeated the normal install command
+  successfully upgraded r/binarygrid from **0.12.11 to 0.12.13** at approximately
+  **11:23 UTC**, before the recovery trial starts.
+- Reloaded the production installation page and verified the new version and
+  upgrade history. Catch-up dates remain October 29–November 11, morning stays
+  at 08:00 UTC, sharing remains 0%, first screen stays on, and puzzle streaks
+  retain their 36-hour window.
+- Verified the actual production subreddit menu displays "Show Recovery
+  Metrics" and returns data: October 21–27, **1,195.9 logged-in solvers/day**, all
+  **7/7 dates** recorded, **-17.2%** versus the preceding week, **WRS 1,325**.
+  These server measures remain distinct from Reddit-qualified engagement and
+  are a pre-trial observation, not evidence of trial lift.
+- The current puzzle loaded on Reddit web. Native iOS/Android checks, future
+  catch-up delivery and recovery outcomes remain outstanding. No additional
+  experiment or distribution campaign was activated during deployment.
+
+### Submit recovery reporting v0.12.13 for Reddit review
+
+- Ran the owner-requested `bun run publish` from implementation commit
+  `9ff7e81`. The production build, app upload, source archive upload and remote
+  build succeeded. The script first created private 0.12.12, then submitted
+  **0.12.13** for publication review at approximately **11:20 UTC**.
+- Confirmed the Developer Portal lists 0.12.13 as **Private / In Review** and
+  0.12.11 as **Unlisted / Approved**. The source upload was approved for this
+  invocation only; no persistent consent setting was changed.
+- Attempted the explicitly authorized production upgrade with
+  `devvit install binarygrid binarygrid@0.12.13`. Reddit rejected it because
+  private versions may only be installed in communities below 200 subscribers.
+  This is a platform approval dependency, not a successful deployment.
+- Reloaded production settings afterward: version remains **0.12.11** and the
+  October 29–November 11 trial dates, morning slot, sharing 0%, first-screen
+  switch, puzzle streaks and 36-hour window remain intact. The new reporting
+  menu/API await approval and an explicit version upgrade.
+
+### Prepare a bounded evening recovery trial and comparable readouts
+
+- Added moderator-only `GET /api/recovery-metrics` and "Show Recovery Metrics".
+  They read existing settled daily/cohort/operational aggregates and recorded
+  primary/catch-up post IDs without writing state or exposing user IDs.
+- Added complete-week comparisons and a separate fixed trial comparison: each
+  observed treatment date is paired with the same weekday 14 days earlier.
+  The fixed baseline remains available during later D7 review, with a bounded
+  union of at most 56 dates. Missing/unsettled days, invalid counts, unavailable
+  failures and immature returns remain null; measured zeros remain zero.
+- Daily solver comparisons use existing per-day `submit_success` uniques across
+  all tiers and posts. The report never sums overlapping post boards, averages
+  daily conversion percentages, or labels activity cohorts as first-solve cohorts.
+- Prepared `RECOVERY_PLAN.md` with the October 29–November 11 UTC catch-up trial,
+  held gameplay/reward settings, automatic stop, review dates, metric definitions,
+  stop rules and separate player-feedback, community-pilot and featuring drafts.
+  Global defaults remain opted out; no new scheduler task or permission is added.
+- Verified the actual production installation history: 0.12.7 on October 22,
+  0.12.9 on October 24 and 0.12.11 on October 26. Updated the runbook, README and
+  agent guidance to distinguish this from the earlier submission-time record.
+- Added test-first checks for complete/partial comparisons, deduplication,
+  weighted first-move ratios, invalid/missing aggregates, fixed trial baselines,
+  privacy, read-only behavior and moderator authorization. All **709 tests in
+  53 files**, TypeScript, Svelte checks (zero errors/warnings), the production
+  build and Devvit configuration parsing passed.
+- Installed development **0.12.11.2** in r/cat543 and verified the recovery menu
+  and its actual seven-day comparison/WRS response on Reddit web. Production
+  remains 0.12.11; the new reporting surfaces are not yet deployed there.
+- Saved and reloaded production's October 29–November 11 catch-up dates on
+  October 28 at approximately 10:58 UTC. The other held settings were unchanged.
+  Future scheduler delivery, native-device checks and trial outcomes remain
+  unverified. Research, outreach and featuring submissions remain drafts.
+
 ## 2026-10-26
 
 ### Refresh Devvit agent skills for 0.15.0

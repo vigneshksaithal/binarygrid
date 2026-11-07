@@ -15,6 +15,7 @@ vi.mock('./generator', async (importOriginal) => {
 })
 
 import { DAILY_DIFFICULTIES } from '../../shared/growth'
+import { solvePuzzle } from '../../shared/solver'
 import app from '../routes/index'
 import { generatePuzzleForDate, generatePuzzleForPost } from './generator'
 import { completePost, createPost, createPostForDate, preparePuzzleSet } from './post'
@@ -178,17 +179,50 @@ describe('createPost', () => {
     }
   })
 
-  it('generates the puzzles from the post when its date has none stored, as before', async () => {
+  it('prepares the date puzzles before publishing the first post', async () => {
     await createPostAt(MORNING, 't3_daily')
 
-    expect(vi.mocked(generatePuzzleForPost).mock.calls).toEqual(
-      DAILY_DIFFICULTIES.map((difficulty) => ['t3_daily', difficulty])
+    expect(vi.mocked(generatePuzzleForDate).mock.calls).toEqual(
+      DAILY_DIFFICULTIES.map((difficulty) => [DAY, difficulty])
     )
-    expect(generatePuzzleForDate).not.toHaveBeenCalled()
+    expect(generatePuzzleForPost).not.toHaveBeenCalled()
   })
 })
 
 describe('createPostForDate', () => {
+  it('shows the intended number before stamping when a retry posts after midnight', async () => {
+    await getOrCreateDateNumber(DAY)
+    await getOrCreateDateNumber(NEXT_DAY)
+    vi.setSystemTime(LATE_RETRY_TIME)
+    nextPostId('t3_late')
+    fake.reddit.getPostById.mockResolvedValue({ title: 'Binary Grid #1' })
+    let number: unknown
+    await createPostForDate(DAY, LATE_RETRY_TIME, async () => {
+      number = await fetchPuzzleNumber('t3_late')
+    })
+    expect(number).toEqual({ dayNumber: 1 })
+    expect(await fetchPuzzleNumber('t3_late')).toEqual({ dayNumber: 1 })
+  })
+
+  it('serves the intended date set before setup finishes, even after midnight', async () => {
+    vi.setSystemTime(LATE_RETRY_TIME)
+    nextPostId('t3_late')
+    fake.reddit.getPostById.mockResolvedValue({ title: 'Binary Grid #1' })
+    fake.context.postId = 't3_late'
+    let opened: { puzzle: import('../../shared/types/puzzle').PuzzleWithGrid } | undefined
+    await createPostForDate(DAY, LATE_RETRY_TIME, async () => {
+      opened = await (await app.request('/api/puzzle?difficulty=easy')).json()
+    })
+    expect(opened?.puzzle.initial).toEqual((await readDatePuzzle(DAY, 'easy'))?.initial)
+    expect((await readPostPuzzle('t3_late', 'easy'))?.initial).toEqual(opened?.puzzle.initial)
+    if (!opened) throw new Error('Puzzle did not load')
+    const response = await app.request('/api/submit', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: opened.puzzle.id, attemptId: '3d6f0a9c-8e21-4b57-b0c4-5f1e7a2d9c63',
+        grid: solvePuzzle(opened.puzzle.initial, opened.puzzle.fixed), solveTimeSeconds: 120 }),
+    })
+    expect(await response.json()).toMatchObject({ ok: true })
+  })
   it("posts for the date it is given after midnight, with that date's number and puzzles", async () => {
     // The day's run minted #1 before Reddit turned its post down.
     await getOrCreateDateNumber(DAY)
@@ -217,6 +251,20 @@ describe('completePost', () => {
       createPostForDate(DAY, MORNING, () => Promise.reject(new Error('Redis write failed')))
     ).rejects.toThrow('Redis write failed')
   }
+
+  it('registers the intended date while preserving a pre-upgrade post’s served tier', async () => {
+    await postWithoutPuzzles('t3_daily')
+    await fake.redis.del('puzzle:number:published-date:1')
+    const served = { ...generatePuzzleForDate('2026-10-23', 'easy'), id: 't3_daily:easy' }
+    await fake.redis.hSet('post:t3_daily:puzzle:easy', {
+      id: served.id, difficulty: served.difficulty, size: String(served.size),
+      fixed: JSON.stringify(served.fixed), initial: JSON.stringify(served.initial),
+    })
+    await completePost('t3_daily', DAY, MORNING)
+    expect(await fake.redis.get('puzzle:number:published-date:1')).toBe(DAY)
+    expect((await readPostPuzzle('t3_daily', 'easy'))?.initial).toEqual(served.initial)
+    expect((await readPostPuzzle('t3_daily', 'hard'))?.initial).toEqual((await readDatePuzzle(DAY, 'hard'))?.initial)
+  })
 
   it('stamps and stores the date\'s puzzles for a post left without them, posting nothing', async () => {
     await postWithoutPuzzles('t3_daily')
@@ -252,7 +300,7 @@ describe('completePost', () => {
 
   it('keeps the stamp a post already has', async () => {
     // The stamp was stored, then storing the puzzles failed.
-    fake.redis.hSet.mockRejectedValueOnce(new Error('Redis write failed'))
+    fake.redis.hSetNX.mockRejectedValueOnce(new Error('Redis write failed'))
     await expect(createPostAt(MORNING, 't3_daily')).rejects.toThrow('Redis write failed')
 
     await completePost('t3_daily', DAY, RETRY_TIME)

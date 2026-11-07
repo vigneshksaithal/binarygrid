@@ -7,6 +7,8 @@ import { rankStore } from './rank'
 import {
   awaitLoginReturn,
   resubmitAfterLogin,
+  pendingSolves,
+  retryPendingSolve,
   retrySubmit,
   startAttempt,
   SUBMIT_TIMEOUT_MS,
@@ -112,7 +114,12 @@ beforeEach(() => {
   startAttempt()
 })
 
-afterEach(() => {
+afterEach(async () => {
+  startAttempt()
+  stubFetch()
+  awaitLoginReturn()
+  await resubmitAfterLogin()
+  for (const solve of get(pendingSolves)) await retryPendingSolve(solve.attemptId)
   vi.clearAllTimers()
   vi.useRealTimers()
   vi.unstubAllGlobals()
