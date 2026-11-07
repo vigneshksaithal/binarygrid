@@ -2,6 +2,19 @@
 
 ## 2026-11-07
 
+### Update dependencies
+
+- Updated direct dependencies and regenerated `bun.lock`, including the Devvit
+  packages from 0.15.0 to 0.15.2, Hono to 4.13.17, Svelte to 5.57.3, Vite to
+  8.3.6 and Vitest to 5.1.0, along with the other eligible direct dependencies.
+- Kept `@devvit/start`, `@devvit/test`, `@devvit/web` and `devvit` aligned at
+  0.15.2. Kept the standalone TypeScript package at 6.0.3 for Svelte tooling,
+  while retaining the TypeScript 7 compiler alias used by `type-check`.
+- Bun's install hook ran `vite build` successfully after the update. `bun
+  outdated` reports no available direct updates within the configured ranges;
+  TypeScript 7.0.2 remains newer but is intentionally excluded by the Svelte
+  tooling compatibility requirement.
+
 ### Submit reliability draft for Reddit review
 
 - At the owner's request, uploaded private 0.12.14, then uploaded the source

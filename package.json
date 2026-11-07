@@ -19,16 +19,16 @@
     "local": "vite dev --port 7474"
   },
   "dependencies": {
-    "@devvit/start": "0.15.0",
-    "@devvit/test": "0.15.0",
-    "@devvit/web": "0.15.0",
-    "@hono/node-server": "^2.1.5",
-    "@lucide/svelte": "^1.61.0",
-    "@tailwindcss/vite": "^4.3.3",
+    "@devvit/start": "0.15.2",
+    "@devvit/test": "0.15.2",
+    "@devvit/web": "0.15.2",
+    "@hono/node-server": "^2.1.6",
+    "@lucide/svelte": "^1.70.0",
+    "@tailwindcss/vite": "^4.3.5",
     "canvas-confetti": "^1.9.4",
-    "devvit": "0.15.0",
-    "hono": "^4.13.13",
-    "tailwindcss": "^4.3.3"
+    "devvit": "0.15.2",
+    "hono": "^4.13.17",
+    "tailwindcss": "^4.3.5"
   },
   "overrides": {
     "lodash": "4.18.1",
@@ -39,15 +39,15 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.3.1",
     "@types/canvas-confetti": "^1.9.0",
-    "@types/node": "^26.6.5",
+    "@types/node": "^26.6.6",
     "@typescript/native": "npm:typescript@^7.0.2",
     "concurrently": "^10.0.6",
-    "dotenv-cli": "^11.0.0",
+    "dotenv-cli": "^11.1.0",
     "fast-check": "^4.10.2",
-    "svelte": "^5.57.2",
-    "svelte-check": "^4.7.7",
+    "svelte": "^5.57.3",
+    "svelte-check": "^4.7.8",
     "typescript": "~6.0.3",
-    "vite": "8.3.5",
-    "vitest": "^5.0.5"
+    "vite": "8.3.6",
+    "vitest": "^5.1.0"
   }
 }
