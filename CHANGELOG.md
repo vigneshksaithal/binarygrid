@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-11-09
+
+### Update dependencies
+
+- Updated `concurrently` from 10.0.6 to 10.0.7 and regenerated `bun.lock`.
+- Kept the Devvit packages aligned at 0.15.2. Kept standalone TypeScript at
+  6.0.3 for Svelte tooling compatibility; the TypeScript 7 compiler alias
+  remains in use for `type-check`.
+- The package registry check found no other compatible direct updates. The
+  production build passed during installation; the full test run still has one
+  failing existing `game.load.test.ts` assertion because `challengeSharing` is
+  not defined in the current UI store.
+
 ## 2026-11-07
 
 ### Update dependencies
